@@ -1,130 +1,116 @@
 use crate::font::Font;
-use crate::widget::WidgetCommand;
-use crate::{BoxConstraints, UserEvent, Widget, WidgetEvent};
-use druid_shell::kurbo::Rect;
+
+use crate::widget::{WidgetCommand, WidgetId};
+use crate::{SizeConstraints, UserEvent, Widget, WidgetEvent};
+use druid_shell::kurbo::{Point, Rect, Size};
 use druid_shell::piet::{Piet, PietTextLayout, RenderContext, TextLayout};
 use druid_shell::Region;
-use std::any::Any;
-
-/// The commands a label can handle.
-pub enum LabelCommand {
-    SetFont(Font),
-    SetPostion((f64, f64)),
-    SetText(String),
-}
-
-/// The requests a label can answer.
-pub enum LabelRequest {
-    GetRectangle,
-    PreferredSize(BoxConstraints),
-}
 
 /// A label.
 pub struct Label {
     font: Font,
     is_hidden: bool,
-    position: (f64, f64),
-    rectangle: Rect,
+    origin: Point,
+    size: Size,
     text: String,
     text_layout: PietTextLayout,
+    widget_id: WidgetId,
 }
 
 impl Label {
-    pub fn new(text: impl Into<String>, commands: Vec<Box<dyn Any>>) -> Self {
+    ///
+    pub fn new(widget_id: WidgetId, text: impl Into<String>) -> Self {
         let font = Font::default();
         let text = text.into();
 
-        let mut label = Label {
-            font,
+        Label {
+            font: font.clone(),
             is_hidden: false,
-            position: (0.0, 0.0),
-            rectangle: Rect::default(),
+            origin: (0.0, 0.0).into(),
+            size: Size::default(),
             text: text.clone(),
-            text_layout: Font::default().text_layout(text),
-        };
-
-        // Handle the given commands.
-        label.handle_commands(commands);
-
-        label
-    }
-
-    /// Handles the given label command.
-    fn handle_label_command(&mut self, label_command: &LabelCommand) {
-        match label_command {
-            LabelCommand::SetFont(font) => {
-                self.font = font.clone();
-            }
-            LabelCommand::SetPostion(position) => {
-                self.position = position.clone();
-            }
-            LabelCommand::SetText(text) => {
-                self.text = text.clone();
-            }
+            text_layout: font.text_layout(text),
+            widget_id,
         }
     }
 
-    /// Handles the given widget command.
-    fn handle_widget_command(&mut self, widget_command: &WidgetCommand) {
-        match widget_command {
-            WidgetCommand::SetHasFocus(_) => {}
-            WidgetCommand::SetIsHidden(is_hidden) => self.is_hidden = is_hidden.clone(),
-            WidgetCommand::SetRectangle(rectangle) => self.rectangle = rectangle.clone(),
-        }
+    ///
+    pub fn set_text(&mut self, text: impl Into<String>) {
+        self.text = text.into();
+        self.text_layout = self.font.text_layout(self.text.clone());
     }
 }
 
 impl Widget for Label {
-    fn handle_commands(&mut self, commands: Vec<Box<dyn Any>>) {
-        // Iterate over the given commands.
-        for command in commands {
-            // The given command is a widget command.
-            if let Some(command) = command.downcast_ref::<WidgetCommand>() {
-                self.handle_widget_command(command);
-            }
-            // The given command is a label command.
-            else if let Some(command) = command.downcast_ref::<LabelCommand>() {
-                self.handle_label_command(command);
-            } else {
-                // TODO: Error handling
-            }
-        }
+    ///
+    fn apply_size_constraints(&mut self, size_constraints: SizeConstraints) -> Size {
+        // Adjust the text layout size to the given constraints.
+        self.size = self
+            .text_layout
+            .size()
+            .clamp(*size_constraints.minimum(), *size_constraints.maximum());
 
-        self.text_layout = self.font.text_layout(self.text.clone());
-        self.rectangle = Rect::from_origin_size(self.position, self.text_layout.size());
+        self.size
     }
 
-    fn handle_request(&mut self, _request: Box<dyn Any>) -> Option<Box<dyn Any>> {
-        // TODO
-        None
-    }
+    fn handle_user_event(&mut self, event: &UserEvent, widget_events: &mut Vec<WidgetEvent>) {
+        let rectangle = Rect::from_origin_size(self.origin, self.size);
 
-    fn handle_user_event(&mut self, event: &UserEvent) -> Option<WidgetEvent> {
         match event {
             UserEvent::MouseDown(mouse_event) => {
-                if !self.rectangle.contains(mouse_event.pos) {
-                    return None;
+                if !rectangle.contains(mouse_event.pos) {
+                    return;
                 }
 
-                return Some(WidgetEvent::Clicked);
+                widget_events.push(WidgetEvent::Clicked(self.widget_id));
             }
             UserEvent::MouseMove(mouse_event) => {
-                if self.rectangle.contains(mouse_event.pos) {
+                if rectangle.contains(mouse_event.pos) {
                     // TODO
                 } else {
                     // TODO
                 }
             }
             UserEvent::MouseUp(mouse_event) => {
-                if self.rectangle.contains(mouse_event.pos) {
+                if rectangle.contains(mouse_event.pos) {
                     // TODO
                 } else {
                     // TODO
                 }
             }
         }
+    }
 
-        None
+    fn handle_widget_command(&mut self, widget_command: &WidgetCommand) {
+        match widget_command {
+            WidgetCommand::Remove(_widget_id) => {
+                // A widget can not remove itself.
+            }
+            WidgetCommand::SetHasFocus(_widget_id, _has_focus) => {
+                // A label can not have focus.
+            }
+            WidgetCommand::SetIsDisabled(_, _) => {
+                // TODO
+                println!("`Label::handle_widget_command(SetIsDisabled)`: TODO");
+            }
+            WidgetCommand::SetIsHidden(widget_id, is_hidden) => {
+                if *widget_id == self.widget_id {
+                    self.set_is_hidden(*is_hidden);
+                }
+            }
+            WidgetCommand::SetValue(widget_id, value) => {
+                if *widget_id == self.widget_id {
+                    // The given value is a string.
+                    if let Some(string) = value.downcast_ref::<String>() {
+                        self.set_text(string);
+                    }
+                    // The given value is something else.
+                    else {
+                        self.set_text(format!("{:?}", value));
+                    }
+                }
+            }
+        }
     }
 
     fn paint(&self, piet: &mut Piet, _region: &Region) {
@@ -135,7 +121,25 @@ impl Widget for Label {
 
         // TODO: Check the region.
 
+        // TODO: clip to the size.
+
         // Draw the text.
-        piet.draw_text(&self.text_layout, self.position);
+        piet.draw_text(&self.text_layout, self.origin);
+    }
+
+    fn set_has_focus(&mut self, _has_focus: bool) {
+        // Nothing to do.
+    }
+
+    fn set_is_hidden(&mut self, is_hidden: bool) {
+        self.is_hidden = is_hidden;
+    }
+
+    fn set_origin(&mut self, origin: Point) {
+        self.origin = origin.into();
+    }
+
+    fn widget_id(&self) -> &WidgetId {
+        &self.widget_id
     }
 }

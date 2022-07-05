@@ -1,6 +1,6 @@
 /**
-This implements the "Flight Booker" task from [7GUIs](https://eugenkiss.github.io/7guis/tasks/).
- */
+This implements the "Cells" task from [7GUIs](https://eugenkiss.github.io/7guis/tasks/).
+*/
 use guiver::run;
 
 use druid_shell::piet::Piet;
@@ -29,7 +29,7 @@ impl Application for App {
         // TODO
     }
 
-    fn paint(&mut self, _piet: &mut Piet, _region: &Region) {}
+    fn paint(&mut self, _widget_manager: &WidgetManager, _piet: &mut Piet, _region: &Region) {}
 
     ///
     fn setup(&mut self, _widget_manager: &mut WidgetManager) {
@@ -40,7 +40,7 @@ impl Application for App {
 pub fn main() {
     run(
         Box::new(App::new()),
-        "guiver 7GUIs: Flight Booker",
+        "guiver 7GUIs: Cells",
         (800.0, 400.0).into(),
     );
 }
