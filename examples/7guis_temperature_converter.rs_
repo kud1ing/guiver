@@ -29,7 +29,7 @@ impl Application for App {
         // TODO
     }
 
-    fn paint(&mut self, _piet: &mut Piet, _region: &Region) {}
+    fn paint(&mut self, _widget_manager: &WidgetManager, _piet: &mut Piet, _region: &Region) {}
 
     ///
     fn setup(&mut self, _widget_manager: &mut WidgetManager) {

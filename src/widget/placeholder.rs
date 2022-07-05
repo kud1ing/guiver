@@ -1,83 +1,64 @@
-use crate::widget::WidgetCommand;
-use crate::{UserEvent, Widget, WidgetEvent};
-use druid_shell::kurbo::{Line, Rect};
+use crate::widget::{WidgetCommand, WidgetId};
+use crate::{SizeConstraints, UserEvent, Widget, WidgetEvent};
+use druid_shell::kurbo::{Line, Point, Rect, Size};
 use druid_shell::piet::{Color, Piet, RenderContext, StrokeStyle};
 use druid_shell::Region;
-use std::any::Any;
-
-/// The commands a placeholder can handle.
-pub enum PlaceholderCommand {
-    SetColor(Color),
-    SetStrokeStyle(StrokeStyle),
-}
 
 /// A placeholder widget.
 pub struct Placeholder {
     color: Color,
     is_hidden: bool,
-    rectangle: Rect,
+    origin: Point,
+    size: Size,
     stroke_style: StrokeStyle,
+    widget_id: WidgetId,
 }
 
 impl Placeholder {
-    pub fn new(commands: Vec<Box<dyn Any>>) -> Self {
-        let mut placeholder = Placeholder {
+    pub fn new(widget_id: WidgetId) -> Self {
+        Placeholder {
             color: Color::rgb8(255, 255, 255),
             is_hidden: false,
-            rectangle: Rect::default(),
+            origin: (0.0, 0.0).into(),
+            size: Size::default(),
             stroke_style: StrokeStyle::new(),
-        };
-
-        // Handle the given commands.
-        placeholder.handle_commands(commands);
-
-        placeholder
-    }
-
-    /// Handles the given placeholder command.
-    fn handle_placeholder_command(&mut self, placeholder_command: &PlaceholderCommand) {
-        match placeholder_command {
-            PlaceholderCommand::SetColor(color) => self.color = color.clone(),
-            PlaceholderCommand::SetStrokeStyle(stroke_style) => {
-                self.stroke_style = stroke_style.clone()
-            }
-        }
-    }
-
-    /// Handles the given widget command.
-    fn handle_widget_command(&mut self, widget_command: &WidgetCommand) {
-        match widget_command {
-            WidgetCommand::SetHasFocus(_) => {}
-            WidgetCommand::SetIsHidden(is_hidden) => self.is_hidden = is_hidden.clone(),
-            WidgetCommand::SetRectangle(rectangle) => self.rectangle = rectangle.clone(),
+            widget_id,
         }
     }
 }
 
 impl Widget for Placeholder {
-    fn handle_commands(&mut self, commands: Vec<Box<dyn Any>>) {
-        // Iterate over the given commands.
-        for command in commands {
-            // The given command is a widget command.
-            if let Some(command) = command.downcast_ref::<WidgetCommand>() {
-                self.handle_widget_command(command);
+    ///
+    fn apply_size_constraints(&mut self, size_constraints: SizeConstraints) -> Size {
+        self.size = *size_constraints.maximum();
+        self.size
+    }
+
+    fn handle_commands(&mut self, widget_command: &WidgetCommand) {
+        match widget_command {
+            WidgetCommand::Remove(_widget_id) => {
+                // A widget can not remove itself.
             }
-            // The given command is a placeholder command.
-            else if let Some(command) = command.downcast_ref::<PlaceholderCommand>() {
-                self.handle_placeholder_command(command);
-            } else {
-                // TODO: Error handling
+            WidgetCommand::SetHasFocus(_widget_id, _has_focus) => {
+                // Nothing to do.
+            }
+            WidgetCommand::SetIsDisabled(_, _) => {
+                // TODO
+                println!("`Placeholder::handle_widget_command(SetIsDisabled)`: TODO");
+            }
+            WidgetCommand::SetIsHidden(widget_id, is_hidden) => {
+                if *widget_id == self.widget_id {
+                    self.set_is_hidden(*is_hidden);
+                }
+            }
+            WidgetCommand::SetValue(_widget_id, _value) => {
+                // Nothing to do.
             }
         }
     }
 
-    fn handle_request(&mut self, _request: Box<dyn Any>) -> Option<Box<dyn Any>> {
-        // TODO
-        None
-    }
-
-    fn handle_user_event(&mut self, _event: &UserEvent) -> Option<WidgetEvent> {
-        None
+    fn handle_event(&mut self, _event: &UserEvent, _widget_events: &mut Vec<WidgetEvent>) {
+        // Nothing to do.
     }
 
     fn paint(&self, piet: &mut Piet, _region: &Region) {
@@ -88,25 +69,37 @@ impl Widget for Placeholder {
 
         // TODO: check the region
 
+        let rectangle = Rect::from_origin_size(self.origin, self.size);
+
         // Draw a cross.
         piet.stroke(
-            Line::new(
-                (self.rectangle.x0, self.rectangle.y0),
-                (self.rectangle.x1, self.rectangle.y1),
-            ),
+            Line::new((rectangle.x0, rectangle.y0), (rectangle.x1, rectangle.y1)),
             &self.color,
             1.0,
         );
         piet.stroke(
-            Line::new(
-                (self.rectangle.x0, self.rectangle.y1),
-                (self.rectangle.x1, self.rectangle.y0),
-            ),
+            Line::new((rectangle.x0, rectangle.y1), (rectangle.x1, rectangle.y0)),
             &self.color,
             1.0,
         );
 
         // Draw the rectangle.
-        piet.stroke(&self.rectangle, &self.color, 1.0);
+        piet.stroke(&rectangle, &self.color, 1.0);
+    }
+
+    fn set_has_focus(&mut self, _has_focus: bool) {
+        // Nothing to do.
+    }
+
+    fn set_is_hidden(&mut self, is_hidden: bool) {
+        self.is_hidden = is_hidden;
+    }
+
+    fn set_origin(&mut self, origin: Point) {
+        self.origin = origin;
+    }
+
+    fn widget_id(&self) -> &WidgetId {
+        &self.widget_id
     }
 }

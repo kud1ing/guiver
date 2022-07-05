@@ -1,14 +1,13 @@
 mod application;
-mod box_constraints;
 mod font;
 mod user_event;
 pub mod widget;
-mod widget_and_application_manager;
 mod widget_manager;
+mod window_event_handler;
 
 pub use application::{run, Application};
-pub use box_constraints::BoxConstraints;
 pub use font::Font;
 pub use user_event::UserEvent;
-pub use widget::{Widget, WidgetEvent};
-pub use widget_manager::{WidgetId, WidgetManager};
+pub use widget::size_constraints::SizeConstraints;
+pub use widget::{Widget, WidgetEvent, WidgetId};
+pub use widget_manager::WidgetManager;
