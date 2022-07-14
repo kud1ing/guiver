@@ -1,10 +1,14 @@
 # guiver
 
-An experiment in GUI programming with Rust:
-* [Piet](https://github.com/linebender/piet) is used for rendering and
-  [druid-shell](https://github.com/linebender/druid/tree/master/druid-shell) for event handling and window management
-* (multipass) immediate mode rendering is used, inspired by [egui](https://github.com/emilk/egui)
-* but also retained mode widgets with message passing are provided, inspired by [Tcl/Tk](https://en.wikipedia.org/wiki/Tk_(software))
+An experiment in GUI programming with Rust, where you pay only for what you use.
+
+You can use immediate mode rendering where events are coming from
+[druid-shell](https://github.com/linebender/druid/tree/master/druid-shell)l and rendering is handled by
+[Piet](https://github.com/linebender/piet).
+
+There is an optional widget manager, which handels retained mode widgets.
+There are no event handlers, widgets are decoupled from the model data with message passing, inspired by
+[Tcl/Tk](https://en.wikipedia.org/wiki/Tk_(software)).
 
 Run the examples with e.g. `cargo run --example 7guis_counter`
 
@@ -22,15 +26,20 @@ Run the examples with e.g. `cargo run --example 7guis_counter`
 
 ## Todo
 
+* [ ] add `Error`: `NoSuchWidget(WidgetId)`, `CommandNotHandled`
 * `WidgetManager`:
   * [ ] add `pub fn send_command_dictionary(&mut self, widget_command_dictionary: HashMap<WidgetId, WidgetCommand>)`
 * [ ] `Widget`: `handle_widget_command()` => `handle_command_dictionary()`
 * [ ] remove `WidgetId` from `WidgetCommand`
-* `Command`;
+* `Command`:
   * [ ] add `Append(WidgetId, WidgetId)`
+    * the widget manager must find the child widget
+      * first among the `added_widgets`
+    * the widget manager must find the parent widget
+      * first among the `added_widgets`
+    * the widget manager must then ask the parent widget to add the child widget
   * [ ] add `Clear(WidgetId)`
 * [ ] remove children from the Ctor of `Padding`, `Row`
-* [ ] add `Error`: `NoSuchWidget(WidgetId)`, `CommandNotHandled`
 * [ ] `paint()`: use save, restore
 * [ ] implement `Button`
 * [ ] `Label`: clip painting, for the case when the rectangle is too small

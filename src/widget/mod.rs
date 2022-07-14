@@ -2,7 +2,6 @@ mod button;
 mod label;
 pub mod layout;
 mod placeholder;
-pub mod size_constraints;
 
 use crate::{SizeConstraints, UserEvent};
 use druid_shell::kurbo::{Point, Size};
