@@ -76,8 +76,12 @@ impl WidgetManager {
     }
 
     ///
-    pub fn send_command_dictionary(&mut self, _widget_commands: HashMap<WidgetId, WidgetCommand>) {
-        // TODO
+    pub fn send_command_dictionary(
+        &mut self,
+        widget_commands: &HashMap<WidgetId, Vec<WidgetCommand>>,
+    ) {
+        // Let the main widget handle the given widget commands.
+        self.main_widget.handle_commands(widget_commands);
 
         // The widget command might have affected the layout.
         // Resize the main widget.
@@ -87,15 +91,17 @@ impl WidgetManager {
 
     ///
     pub fn send_commands(&mut self, widget_commands: Vec<(WidgetId, WidgetCommand)>) {
-        // TODO: call `send_command_dictionary()` instead
-        for (_widget_id, widget_command) in widget_commands {
-            self.main_widget.handle_commands(&widget_command);
+        let mut widget_command_dictionary = HashMap::new();
+
+        // Collect the widget commands in a dictionary.
+        for (widget_id, widget_command) in widget_commands {
+            widget_command_dictionary
+                .entry(widget_id)
+                .or_insert(vec![])
+                .push(widget_command);
         }
 
-        // The widget command might have affected the layout.
-        // Resize the main widget.
-        self.main_widget
-            .apply_size_constraints(self.size_constraints);
+        self.send_command_dictionary(&widget_command_dictionary);
     }
 
     ///

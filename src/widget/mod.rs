@@ -2,7 +2,6 @@ mod button;
 mod label;
 pub mod layout;
 mod placeholder;
-pub mod size_constraints;
 
 use crate::{SizeConstraints, UserEvent};
 use druid_shell::kurbo::{Point, Size};
@@ -11,6 +10,7 @@ use druid_shell::Region;
 pub use label::Label;
 pub use placeholder::Placeholder;
 use std::any::Any;
+use std::collections::HashMap;
 
 ///
 pub type WidgetId = usize;
@@ -18,11 +18,17 @@ pub type WidgetId = usize;
 ///
 #[derive(Debug)]
 pub enum WidgetCommand {
-    Remove(WidgetId),
-    SetHasFocus(WidgetId, bool),
-    SetIsDisabled(WidgetId, bool),
-    SetIsHidden(WidgetId, bool),
-    SetValue(WidgetId, Box<dyn Any>),
+    Remove,
+    SetHasFocus(bool),
+    SetIsDisabled(bool),
+    SetIsHidden(bool),
+    SetValue(Box<dyn Any>),
+}
+
+///
+pub enum WidgetError {
+    CommandNotHandled(WidgetId, WidgetCommand),
+    NoSuchWidget(WidgetId),
 }
 
 ///
@@ -38,7 +44,7 @@ pub trait Widget {
     fn apply_size_constraints(&mut self, size_constraints: SizeConstraints) -> Size;
 
     ///
-    fn handle_commands(&mut self, widget_command: &WidgetCommand);
+    fn handle_commands(&mut self, widget_commands: &HashMap<WidgetId, Vec<WidgetCommand>>);
 
     ///
     fn handle_event(&mut self, event: &UserEvent, widget_events: &mut Vec<WidgetEvent>);

@@ -3,6 +3,7 @@ use crate::{SizeConstraints, UserEvent, Widget, WidgetEvent};
 use druid_shell::kurbo::{Point, Size};
 use druid_shell::piet::Piet;
 use druid_shell::Region;
+use std::collections::HashMap;
 
 /// A padding layout widget.
 pub struct Padding {
@@ -85,60 +86,35 @@ impl Widget for Padding {
         self.size
     }
 
-    fn handle_commands(&mut self, widget_command: &WidgetCommand) {
-        match widget_command {
-            WidgetCommand::Remove(widget_id) => {
-                // A widget can not remove itself.
-                if *widget_id == self.widget_id {
-                    return;
-                }
-
-                // There is a child widget.
-                if let Some(child_widget) = &mut self.child_widget {
-                    // Let the child widget handle the widget command.
-                    child_widget.handle_commands(widget_command);
-                }
-            }
-            WidgetCommand::SetHasFocus(widget_id, _has_focus) => {
-                // A padding can not be focused.
-                if *widget_id == self.widget_id {
-                    return;
-                }
-
-                // There is a child widget.
-                if let Some(child_widget) = &mut self.child_widget {
-                    // Let the child widget handle the widget command.
-                    child_widget.handle_commands(widget_command);
-                }
-            }
-            WidgetCommand::SetIsDisabled(_, _) => {
-                // TODO
-                println!("`Padding::handle_widget_command(SetIsDisabled)`: TODO");
-            }
-            WidgetCommand::SetIsHidden(widget_id, is_hidden) => {
-                if *widget_id == self.widget_id {
-                    // Hide/show this widget.
-                    self.set_is_hidden(*is_hidden);
-                } else {
-                    // There is a child widget.
-                    if let Some(child_widget) = &mut self.child_widget {
-                        // Let the child widget handle the widget command.
-                        child_widget.handle_commands(widget_command);
+    fn handle_commands(
+        &mut self,
+        widget_command_dictionary: &HashMap<WidgetId, Vec<WidgetCommand>>,
+    ) {
+        // There are commands for this widget.
+        if let Some(widget_commands) = widget_command_dictionary.get(&self.widget_id) {
+            for widget_command in widget_commands {
+                match widget_command {
+                    WidgetCommand::Remove => {
+                        // A widget can not remove itself.
                     }
+                    WidgetCommand::SetHasFocus(_) => {}
+                    WidgetCommand::SetIsDisabled(_) => {
+                        // TODO
+                        println!("`Padding::handle_widget_command(SetIsDisabled)`: TODO");
+                    }
+                    WidgetCommand::SetIsHidden(is_hidden) => {
+                        // Hide/show this widget.
+                        self.set_is_hidden(*is_hidden);
+                    }
+                    WidgetCommand::SetValue(_value) => {}
                 }
             }
-            WidgetCommand::SetValue(widget_id, _value) => {
-                // A value can not be set to a padding.
-                if *widget_id == self.widget_id {
-                    return;
-                }
+        }
 
-                // There is a child widget.
-                if let Some(child_widget) = &mut self.child_widget {
-                    // Let the child widget handle the widget command.
-                    child_widget.handle_commands(widget_command);
-                }
-            }
+        // There is a child widget.
+        if let Some(child_widget) = &mut self.child_widget {
+            // Let the child widget handle the remaining commands.
+            child_widget.handle_commands(widget_command_dictionary);
         }
     }
 

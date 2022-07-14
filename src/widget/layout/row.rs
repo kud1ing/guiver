@@ -4,6 +4,7 @@ use druid_shell::kurbo::{Point, Size};
 use druid_shell::piet::Piet;
 use druid_shell::Region;
 use std::cmp::max;
+use std::collections::HashMap;
 
 ///
 pub struct Row {
@@ -79,56 +80,35 @@ impl Widget for Row {
         self.size
     }
 
-    fn handle_commands(&mut self, widget_command: &WidgetCommand) {
-        match widget_command {
-            WidgetCommand::Remove(widget_id) => {
-                // A widget can not remove itself.
-                if *widget_id == self.widget_id {
-                    return;
-                }
-
-                // Iterate over the child widgets.
-                for child_widget in &mut self.child_widgets {
-                    child_widget.handle_commands(widget_command);
-                }
-            }
-            WidgetCommand::SetHasFocus(widget_id, _has_focus) => {
-                // A row can not be focused.
-                if *widget_id == self.widget_id {
-                    return;
-                }
-
-                // Iterate over the child widgets.
-                for child_widget in &mut self.child_widgets {
-                    child_widget.handle_commands(widget_command);
-                }
-            }
-            WidgetCommand::SetIsDisabled(_, _) => {
-                // TODO
-                println!("`Row::handle_widget_command(SetIsDisabled)`: TODO");
-            }
-            WidgetCommand::SetIsHidden(widget_id, is_hidden) => {
-                if *widget_id == self.widget_id {
-                    // Hide/show this widget.
-                    self.set_is_hidden(*is_hidden);
-                } else {
-                    // Iterate over the child widgets.
-                    for child_widget in &mut self.child_widgets {
-                        child_widget.handle_commands(widget_command);
+    fn handle_commands(
+        &mut self,
+        widget_command_dictionary: &HashMap<WidgetId, Vec<WidgetCommand>>,
+    ) {
+        // There are commands for this widget.
+        if let Some(widget_commands) = widget_command_dictionary.get(&self.widget_id) {
+            for widget_command in widget_commands {
+                match widget_command {
+                    WidgetCommand::Remove => {
+                        // A widget can not remove itself.
                     }
+                    WidgetCommand::SetHasFocus(_) => {}
+                    WidgetCommand::SetIsDisabled(_) => {
+                        // TODO
+                        println!("`Row::handle_widget_command(SetIsDisabled)`: TODO");
+                    }
+                    WidgetCommand::SetIsHidden(is_hidden) => {
+                        // Hide/show this widget.
+                        self.set_is_hidden(*is_hidden);
+                    }
+                    WidgetCommand::SetValue(_) => {}
                 }
             }
-            WidgetCommand::SetValue(widget_id, _value) => {
-                // A value can not be set to a row.
-                if *widget_id == self.widget_id {
-                    return;
-                }
+        }
 
-                // Iterate over the child widgets.
-                for child_widget in &mut self.child_widgets {
-                    child_widget.handle_commands(widget_command);
-                }
-            }
+        // Iterate over the child widgets.
+        for child_widget in &mut self.child_widgets {
+            // Let the current child widget handle the remaining commands.
+            child_widget.handle_commands(widget_command_dictionary);
         }
     }
 

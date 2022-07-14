@@ -1,4 +1,5 @@
 use crate::font::Font;
+use std::collections::HashMap;
 
 use crate::widget::{WidgetCommand, WidgetId};
 use crate::{SizeConstraints, UserEvent, Widget, WidgetEvent};
@@ -53,32 +54,33 @@ impl Widget for Label {
         self.size
     }
 
-    fn handle_commands(&mut self, widget_command: &WidgetCommand) {
-        match widget_command {
-            WidgetCommand::Remove(_widget_id) => {
-                // A widget can not remove itself.
-            }
-            WidgetCommand::SetHasFocus(_widget_id, _has_focus) => {
-                // A label can not have focus.
-            }
-            WidgetCommand::SetIsDisabled(_, _) => {
-                // TODO
-                println!("`Label::handle_widget_command(SetIsDisabled)`: TODO");
-            }
-            WidgetCommand::SetIsHidden(widget_id, is_hidden) => {
-                if *widget_id == self.widget_id {
-                    self.set_is_hidden(*is_hidden);
-                }
-            }
-            WidgetCommand::SetValue(widget_id, value) => {
-                if *widget_id == self.widget_id {
-                    // The given value is a string.
-                    if let Some(string) = value.downcast_ref::<String>() {
-                        self.set_text(string);
+    fn handle_commands(&mut self, widget_commands: &HashMap<WidgetId, Vec<WidgetCommand>>) {
+        // There are commands for this widget.
+        if let Some(widget_commands) = widget_commands.get(&self.widget_id) {
+            for widget_command in widget_commands {
+                match widget_command {
+                    WidgetCommand::Remove => {
+                        // A widget can not remove itself.
                     }
-                    // The given value is something else.
-                    else {
-                        self.set_text(format!("{:?}", value));
+                    WidgetCommand::SetHasFocus(_) => {
+                        // A label can not have focus.
+                    }
+                    WidgetCommand::SetIsDisabled(_) => {
+                        // TODO
+                        println!("`Label::handle_widget_command(SetIsDisabled)`: TODO");
+                    }
+                    WidgetCommand::SetIsHidden(is_hidden) => {
+                        self.set_is_hidden(*is_hidden);
+                    }
+                    WidgetCommand::SetValue(value) => {
+                        // The given value is a string.
+                        if let Some(string) = value.downcast_ref::<String>() {
+                            self.set_text(string);
+                        }
+                        // The given value is something else.
+                        else {
+                            self.set_text(format!("{:?}", value));
+                        }
                     }
                 }
             }

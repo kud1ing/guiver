@@ -3,6 +3,7 @@ use crate::{SizeConstraints, UserEvent, Widget, WidgetEvent};
 use druid_shell::kurbo::{Line, Point, Rect, Size};
 use druid_shell::piet::{Color, Piet, RenderContext, StrokeStyle};
 use druid_shell::Region;
+use std::collections::HashMap;
 
 /// A placeholder widget.
 pub struct Placeholder {
@@ -34,25 +35,28 @@ impl Widget for Placeholder {
         self.size
     }
 
-    fn handle_commands(&mut self, widget_command: &WidgetCommand) {
-        match widget_command {
-            WidgetCommand::Remove(_widget_id) => {
-                // A widget can not remove itself.
-            }
-            WidgetCommand::SetHasFocus(_widget_id, _has_focus) => {
-                // Nothing to do.
-            }
-            WidgetCommand::SetIsDisabled(_, _) => {
-                // TODO
-                println!("`Placeholder::handle_widget_command(SetIsDisabled)`: TODO");
-            }
-            WidgetCommand::SetIsHidden(widget_id, is_hidden) => {
-                if *widget_id == self.widget_id {
-                    self.set_is_hidden(*is_hidden);
+    fn handle_commands(&mut self, widget_commands: &HashMap<WidgetId, Vec<WidgetCommand>>) {
+        // There are commands for this widget.
+        if let Some(widget_commands) = widget_commands.get(&self.widget_id) {
+            for widget_command in widget_commands {
+                match widget_command {
+                    WidgetCommand::Remove => {
+                        // A widget can not remove itself.
+                    }
+                    WidgetCommand::SetHasFocus(_has_focus) => {
+                        // Nothing to do.
+                    }
+                    WidgetCommand::SetIsDisabled(_) => {
+                        // TODO
+                        println!("`Placeholder::handle_widget_command(SetIsDisabled)`: TODO");
+                    }
+                    WidgetCommand::SetIsHidden(is_hidden) => {
+                        self.set_is_hidden(*is_hidden);
+                    }
+                    WidgetCommand::SetValue(_value) => {
+                        // Nothing to do.
+                    }
                 }
-            }
-            WidgetCommand::SetValue(_widget_id, _value) => {
-                // Nothing to do.
             }
         }
     }

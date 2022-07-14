@@ -68,10 +68,7 @@ impl Application for App {
                         // Update the counter label.
                         self.widget_manager.send_command(
                             self.id_counter_label,
-                            WidgetCommand::SetValue(
-                                self.id_counter_label,
-                                Box::new(format!("{}", self.counter)),
-                            ),
+                            WidgetCommand::SetValue(Box::new(format!("{}", self.counter))),
                         );
                     }
                 }
