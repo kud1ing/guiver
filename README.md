@@ -36,8 +36,8 @@ Run the examples with e.g. `cargo run --example 7guis_counter`
       * the widget manager must find the parent widget
         * first among the `added_widgets`
       * the widget manager must then ask the parent widget to add the child widget
-  * [ ] use `WidgetError` in `handle_commands()`
   * [ ] remove children from the Ctor of `Padding`, `Row`
+* [ ] use `WidgetError` in `handle_commands()`
 * [ ] `paint()`: use save, restore
 * [ ] implement `Button`
 * [ ] `Label`: clip painting, for the case when the rectangle is too small
