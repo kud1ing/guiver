@@ -1,14 +1,14 @@
 # guiver
 
-An experiment in GUI programming with Rust, where you pay only for what you use.
+An experiment in GUI programming with Rust.
 
-One can use it in immediate mode, where events from
+One can use guiver in immediate mode, where events from
 [druid-shell](https://github.com/linebender/druid/tree/master/druid-shell)
-can be handled in `Application::handle_user_event()` and rendering with [Piet](https://github.com/linebender/piet)
-can happen in `Application::paint()`.
+are handled in `Application::handle_user_event()` and rendering with [Piet](https://github.com/linebender/piet)
+happens in `Application::paint()`.
 
-There is an optional widget manager, which can handle retained mode widgets.
-There are no event handlers though. Widgets are decoupled from the application data with message passing, inspired by
+There is an optional widget manager, which can handle retained mode widgets, which are decoupled from the application
+data with message passing. This is inspired by
 [Tcl/Tk](https://en.wikipedia.org/wiki/Tk_(software)).
 
 Run the examples with e.g. `cargo run --example 7guis_counter`
