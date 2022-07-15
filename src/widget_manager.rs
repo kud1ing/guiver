@@ -5,11 +5,15 @@ use druid_shell::piet::Piet;
 use druid_shell::Region;
 use std::collections::HashMap;
 
-///(
+///
 pub struct WidgetManager {
+    /// Widgets that were added with `` but are not part of a parent widget yet.
     added_widgets: HashMap<WidgetId, Box<dyn Widget>>,
+    /// The main widget that fills the whole window.
     main_widget: Box<dyn Widget>,
+    /// The counter for the next widget ID.
     next_widget_id: WidgetId,
+    /// The size constraints sop that the main widget fill the whole window.
     size_constraints: SizeConstraints,
 }
 

@@ -29,6 +29,7 @@ Run the examples with e.g. `cargo run --example 7guis_counter`
 
 * `Command`:
   * [ ] add `Append(WidgetId)`
+    * the widget manager must first make sure that the parent widget exists
     * the widget manager must find the child widget
       * first among the `added_widgets`
     * the widget manager must find the parent widget
