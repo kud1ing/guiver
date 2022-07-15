@@ -94,6 +94,9 @@ impl Widget for Padding {
         if let Some(widget_commands) = widget_command_dictionary.get(&self.widget_id) {
             for widget_command in widget_commands {
                 match widget_command {
+                    WidgetCommand::Clear => {
+                        self.child_widget = None;
+                    }
                     WidgetCommand::Remove => {
                         // A widget can not remove itself.
                     }
@@ -104,7 +107,7 @@ impl Widget for Padding {
                     }
                     WidgetCommand::SetIsHidden(is_hidden) => {
                         // Hide/show this widget.
-                        self.set_is_hidden(*is_hidden);
+                        self.is_hidden = *is_hidden;
                     }
                     WidgetCommand::SetValue(_value) => {}
                 }
@@ -134,19 +137,6 @@ impl Widget for Padding {
         if let Some(child_widget_rc) = &self.child_widget {
             // Paint the child widget.
             child_widget_rc.paint(piet, region);
-        }
-    }
-
-    fn set_has_focus(&mut self, _has_focus: bool) {
-        // Nothing to do.
-    }
-
-    fn set_is_hidden(&mut self, is_hidden: bool) {
-        self.is_hidden = is_hidden;
-
-        // Hide/show the child widget.
-        if let Some(child_widget) = &mut self.child_widget {
-            child_widget.set_is_hidden(is_hidden);
         }
     }
 

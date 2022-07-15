@@ -25,9 +25,8 @@ Run the examples with e.g. `cargo run --example 7guis_counter`
   * automatic widget lifetime management
 
 
-## Todo
+## Backlog
 
-* [ ] use `WidgetError` in `handle_cpmmand*()`
 * `Command`:
   * [ ] add `Append(WidgetId)`
     * the widget manager must find the child widget
@@ -35,7 +34,7 @@ Run the examples with e.g. `cargo run --example 7guis_counter`
     * the widget manager must find the parent widget
       * first among the `added_widgets`
     * the widget manager must then ask the parent widget to add the child widget
-  * [ ] add `Clear`
+* [ ] use `WidgetError` in `handle_cpmmand*()`
 * [ ] remove children from the Ctor of `Padding`, `Row`
 * [ ] `paint()`: use save, restore
 * [ ] implement `Button`

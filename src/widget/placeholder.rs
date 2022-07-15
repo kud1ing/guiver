@@ -40,6 +40,9 @@ impl Widget for Placeholder {
         if let Some(widget_commands) = widget_commands.get(&self.widget_id) {
             for widget_command in widget_commands {
                 match widget_command {
+                    WidgetCommand::Clear => {
+                        // A placeholder has no children.
+                    }
                     WidgetCommand::Remove => {
                         // A widget can not remove itself.
                     }
@@ -51,7 +54,7 @@ impl Widget for Placeholder {
                         println!("`Placeholder::handle_widget_command(SetIsDisabled)`: TODO");
                     }
                     WidgetCommand::SetIsHidden(is_hidden) => {
-                        self.set_is_hidden(*is_hidden);
+                        self.is_hidden = *is_hidden;
                     }
                     WidgetCommand::SetValue(_value) => {
                         // Nothing to do.
@@ -89,14 +92,6 @@ impl Widget for Placeholder {
 
         // Draw the rectangle.
         piet.stroke(&rectangle, &self.color, 1.0);
-    }
-
-    fn set_has_focus(&mut self, _has_focus: bool) {
-        // Nothing to do.
-    }
-
-    fn set_is_hidden(&mut self, is_hidden: bool) {
-        self.is_hidden = is_hidden;
     }
 
     fn set_origin(&mut self, origin: Point) {

@@ -88,6 +88,9 @@ impl Widget for Row {
         if let Some(widget_commands) = widget_command_dictionary.get(&self.widget_id) {
             for widget_command in widget_commands {
                 match widget_command {
+                    WidgetCommand::Clear => {
+                        self.child_widgets.clear();
+                    }
                     WidgetCommand::Remove => {
                         // A widget can not remove itself.
                     }
@@ -98,7 +101,7 @@ impl Widget for Row {
                     }
                     WidgetCommand::SetIsHidden(is_hidden) => {
                         // Hide/show this widget.
-                        self.set_is_hidden(*is_hidden);
+                        self.is_hidden = *is_hidden;
                     }
                     WidgetCommand::SetValue(_) => {}
                 }
@@ -129,14 +132,6 @@ impl Widget for Row {
             // Paint the current child widget.
             current_child_widget.paint(piet, region);
         }
-    }
-
-    fn set_has_focus(&mut self, _has_focus: bool) {
-        // Nothing to do.
-    }
-
-    fn set_is_hidden(&mut self, is_hidden: bool) {
-        self.is_hidden = is_hidden;
     }
 
     fn set_origin(&mut self, origin: Point) {

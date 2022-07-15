@@ -18,6 +18,8 @@ pub type WidgetId = usize;
 /// A command to a widget.
 #[derive(Debug)]
 pub enum WidgetCommand {
+    /// Remove the widget's children.
+    Clear,
     /// Remove the widget.
     Remove,
     /// Gives/removes focus.
@@ -56,12 +58,6 @@ pub trait Widget {
 
     ///
     fn paint(&self, piet: &mut piet::Piet, region: &Region);
-
-    ///
-    fn set_has_focus(&mut self, has_focus: bool);
-
-    ///
-    fn set_is_hidden(&mut self, is_hidden: bool);
 
     ///
     fn set_origin(&mut self, origin: Point);

@@ -59,6 +59,9 @@ impl Widget for Label {
         if let Some(widget_commands) = widget_commands.get(&self.widget_id) {
             for widget_command in widget_commands {
                 match widget_command {
+                    WidgetCommand::Clear => {
+                        // A label has no children.
+                    }
                     WidgetCommand::Remove => {
                         // A widget can not remove itself.
                     }
@@ -70,7 +73,7 @@ impl Widget for Label {
                         println!("`Label::handle_widget_command(SetIsDisabled)`: TODO");
                     }
                     WidgetCommand::SetIsHidden(is_hidden) => {
-                        self.set_is_hidden(*is_hidden);
+                        self.is_hidden = *is_hidden;
                     }
                     WidgetCommand::SetValue(value) => {
                         // The given value is a string.
@@ -127,14 +130,6 @@ impl Widget for Label {
 
         // Draw the text.
         piet.draw_text(&self.text_layout, self.origin);
-    }
-
-    fn set_has_focus(&mut self, _has_focus: bool) {
-        // Nothing to do.
-    }
-
-    fn set_is_hidden(&mut self, is_hidden: bool) {
-        self.is_hidden = is_hidden;
     }
 
     fn set_origin(&mut self, origin: Point) {
