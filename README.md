@@ -2,12 +2,13 @@
 
 An experiment in GUI programming with Rust, where you pay only for what you use.
 
-You can use immediate mode rendering where events are coming from
-[druid-shell](https://github.com/linebender/druid/tree/master/druid-shell)l and rendering is handled by
-[Piet](https://github.com/linebender/piet).
+One can use it in immediate mode, where events from
+[druid-shell](https://github.com/linebender/druid/tree/master/druid-shell)
+can be handled in `Application::handle_user_event()` and rendering with [Piet](https://github.com/linebender/piet)
+can happen in `Application::paint()`.
 
-There is an optional widget manager, which handels retained mode widgets.
-There are no event handlers, widgets are decoupled from the model data with message passing, inspired by
+There is an optional widget manager, which can handle retained mode widgets.
+There are no event handlers though. Widgets are decoupled from the application data with message passing, inspired by
 [Tcl/Tk](https://en.wikipedia.org/wiki/Tk_(software)).
 
 Run the examples with e.g. `cargo run --example 7guis_counter`
@@ -28,13 +29,13 @@ Run the examples with e.g. `cargo run --example 7guis_counter`
 
 * [ ] use `WidgetError` in `handle_cpmmand*()`
 * `Command`:
-  * [ ] add `Append(WidgetId, WidgetId)`
+  * [ ] add `Append(WidgetId)`
     * the widget manager must find the child widget
       * first among the `added_widgets`
     * the widget manager must find the parent widget
       * first among the `added_widgets`
     * the widget manager must then ask the parent widget to add the child widget
-  * [ ] add `Clear(WidgetId)`
+  * [ ] add `Clear`
 * [ ] remove children from the Ctor of `Padding`, `Row`
 * [ ] `paint()`: use save, restore
 * [ ] implement `Button`
