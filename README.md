@@ -15,18 +15,12 @@ Run the examples with e.g. `cargo run --example 7guis_counter`
 
 <img width="707" alt="Bildschirmfoto 2022-07-05 um 13 04 14" src="https://user-images.githubusercontent.com/391975/177331930-3eca983d-7f1e-47e9-be97-54a786a3911b.png">
 
-## Notes
-
-* an application implements the `Application` trait
-  * it handles widget events in `Application::handle_widget_event()`
-* widgets implement the `Widget` trait
-* child widgets are owned by the parent widgets (via `Box<dyn Widget>`). This allows:
-  * efficient resize
-  * automatic widget lifetime management
-
 
 ## Backlog
 
+* [ ] distinguish between `WidgetComand` and `WidgetManagerCommand`?
+  * `WidgetComand` can contain child widgets, while `WidgetManagerCommand` must only contain widget IDs
+* [ ] Ownership with `Rc<Ref/Cell<...>>`?
 * Refactor so that `Box<dyn Widget>` do not appear in user code:
   * `Command`:
     * [ ] add `Append(WidgetId)`
