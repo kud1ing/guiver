@@ -2,7 +2,7 @@ use druid_shell::kurbo::Size;
 /**
 This implements the "Counter" task from [7GUIs](https://eugenkiss.github.io/7guis/tasks/).
 */
-use guiver::{run, Widget, WidgetEvent, WidgetId, WidgetManager};
+use guiver::{run, WidgetEvent, WidgetId, WidgetManager};
 
 use druid_shell::piet::Piet;
 use druid_shell::Region;
