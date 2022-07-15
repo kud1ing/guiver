@@ -12,8 +12,8 @@ pub struct WidgetManager {
     /// The main widget that fills the whole window.
     main_widget: Box<dyn Widget>,
     /// The counter for the next widget ID.
-    next_widget_id: WidgetId,
-    /// The size constraints sop that the main widget fill the whole window.
+    next_widget_id_counter: WidgetId,
+    /// The size constraints so that the main widget fills the whole window.
     size_constraints: SizeConstraints,
 }
 
@@ -26,7 +26,7 @@ impl WidgetManager {
         WidgetManager {
             added_widgets: HashMap::new(),
             main_widget,
-            next_widget_id: 0,
+            next_widget_id_counter: 0,
             size_constraints: SizeConstraints::default(),
         }
     }
@@ -57,8 +57,8 @@ impl WidgetManager {
 
     ///
     fn next_widget_id(&mut self) -> WidgetId {
-        self.next_widget_id += 1;
-        self.next_widget_id
+        self.next_widget_id_counter += 1;
+        self.next_widget_id_counter
     }
 
     ///
