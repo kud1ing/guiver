@@ -18,6 +18,8 @@ pub type WidgetId = usize;
 /// A command to a widget.
 #[derive(Debug)]
 pub enum WidgetCommand {
+    /// Remove the widget's children.
+    Clear,
     /// Remove the widget.
     Remove,
     /// Gives/removes focus.

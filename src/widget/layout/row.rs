@@ -88,6 +88,9 @@ impl Widget for Row {
         if let Some(widget_commands) = widget_command_dictionary.get(&self.widget_id) {
             for widget_command in widget_commands {
                 match widget_command {
+                    WidgetCommand::Clear => {
+                        self.child_widgets.clear();
+                    }
                     WidgetCommand::Remove => {
                         // A widget can not remove itself.
                     }

@@ -40,6 +40,9 @@ impl Widget for Placeholder {
         if let Some(widget_commands) = widget_commands.get(&self.widget_id) {
             for widget_command in widget_commands {
                 match widget_command {
+                    WidgetCommand::Clear => {
+                        // A placeholder has no children.
+                    }
                     WidgetCommand::Remove => {
                         // A widget can not remove itself.
                     }
