@@ -7,9 +7,9 @@ One can use guiver in immediate mode, where events from
 are handled in `Application::handle_user_event()` and rendering with [Piet](https://github.com/linebender/piet)
 happens in `Application::paint()`.
 
-There is an optional widget manager, which can handle retained mode widgets, which are decoupled from the application
-data with message passing. This is inspired by
-[Tcl/Tk](https://en.wikipedia.org/wiki/Tk_(software)).
+There is an optional widget manager, which can handle retained mode widgets. These widgets are decoupled from the
+application data with message passing, which is inspired by
+[Tk commands](https://en.wikipedia.org/wiki/Tk_(software)).
 
 Run the examples with e.g. `cargo run --example 7guis_counter`
 
