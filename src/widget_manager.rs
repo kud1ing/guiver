@@ -14,7 +14,7 @@ pub struct WidgetManager {
     /// The counter for the next widget ID.
     next_widget_id_counter: WidgetId,
     /// The size constraints so that the main widget fills the whole window. It is set by the
-    /// window event handler for each window resize.
+    /// window event handler for each window resize event.
     size_constraints: SizeConstraints,
 }
 
