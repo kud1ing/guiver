@@ -20,7 +20,7 @@ Run the examples with e.g. `cargo run --example 7guis_counter`
 
 * [ ] distinguish between `WidgetComand` and `WidgetManagerCommand`?
   * `WidgetComand` can contain child widgets, while `WidgetManagerCommand` must only contain widget IDs
-* [ ] Ownership with `Rc<Ref/Cell<...>>`?
+* [ ] Ownership with `Rc<RefCell<...>>`?
 * Refactor so that `Box<dyn Widget>` do not appear in user code:
   * `Command`:
     * [ ] add `Append(WidgetId)`
