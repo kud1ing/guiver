@@ -1,14 +1,13 @@
-use druid_shell::kurbo::Size;
 /**
 This implements the "Counter" task from [7GUIs](https://eugenkiss.github.io/7guis/tasks/).
 */
-use guiver::{run, WidgetEvent, WidgetId, WidgetManager};
-
+use druid_shell::kurbo::Size;
 use druid_shell::piet::Piet;
 use druid_shell::Region;
 use guiver::widget::layout::{Padding, Row};
-use guiver::widget::{Label, WidgetCommand};
-use guiver::{Application, UserEvent};
+use guiver::widget::Label;
+use guiver::{run, WidgetEvent, WidgetId, WidgetManager, WidgetManagerCommand};
+use guiver::{Application, SystemEvent};
 
 pub(crate) struct App {
     counter: u32,
@@ -52,7 +51,7 @@ impl App {
 }
 
 impl Application for App {
-    fn handle_user_event(&mut self, user_event: &UserEvent) {
+    fn handle_user_event(&mut self, user_event: &SystemEvent) {
         // Handle the user events.
         let widget_events = self.widget_manager.handle_event(user_event);
 
@@ -68,7 +67,7 @@ impl Application for App {
                         // Update the counter label.
                         self.widget_manager.send_command(
                             self.id_counter_label,
-                            WidgetCommand::SetValue(Box::new(format!("{}", self.counter))),
+                            WidgetManagerCommand::SetValue(Box::new(format!("{}", self.counter))),
                         );
                     }
                 }

@@ -2,42 +2,31 @@
 
 An experiment in GUI programming with Rust.
 
-One can use guiver in immediate mode, where events from
+guiver can be used in immediate mode, which is inspired by [egui](https://github.com/emilk/egui). Events from
 [druid-shell](https://github.com/linebender/druid/tree/master/druid-shell)
-are handled in `Application::handle_user_event()` and rendering with [Piet](https://github.com/linebender/piet)
-happens in `Application::paint()`.
+are handled in `Application::handle_user_event()`. Rendering via [Piet](https://github.com/linebender/piet)
+can be done in `Application::paint()`.
 
-There is an optional widget manager, which can handle retained mode widgets. These widgets are decoupled from the
-application data with message passing, which is inspired by
+There are widgets that can be used with an optional widget manager.
+The widgets are decoupled from the application data via message passing, which is inspired by
 [Tk commands](https://en.wikipedia.org/wiki/Tk_(software)).
 
-Run the examples with e.g. `cargo run --example 7guis_counter`
+The examples can be run with e.g. `cargo run --example 7guis_counter`
 
 <img width="707" alt="Bildschirmfoto 2022-07-05 um 13 04 14" src="https://user-images.githubusercontent.com/391975/177331930-3eca983d-7f1e-47e9-be97-54a786a3911b.png">
 
 
 ## Backlog
 
-* [ ] distinguish between `WidgetComand` and `WidgetManagerCommand`?
-  * `WidgetComand` can contain child widgets, while `WidgetManagerCommand` must only contain widget IDs
-* [ ] Ownership with `Rc<RefCell<...>>`?
-* Refactor so that `Box<dyn Widget>` do not appear in user code:
-  * `Command`:
-    * [ ] add `Append(WidgetId)`
-      * the widget manager must first make sure that the parent widget exists
-      * the widget manager must find the child widget
-        * first among the `added_widgets`
-      * the widget manager must find the parent widget
-        * first among the `added_widgets`
-      * the widget manager must then ask the parent widget to add the child widget
+* `WidgetManager`: use `Rc<RefCel<...>>`:
+  * [ ] handle `WidgetManagerCommand::SetMainWidget(...)`
+  * [ ] add `WidgetCommand::Append(Rc<RefCel<...>>)`
+  * [ ] add `WidgetManagerCommand::Append(...)`
   * [ ] remove children from the Ctor of `Padding`, `Row`
-* [ ] use `WidgetError` in `handle_commands()`
 * [ ] `paint()`: use save, restore
 * [ ] implement `Button`
 * [ ] `Label`: clip painting, for the case when the rectangle is too small
 * [ ] add `HorizontalAlignment`, `VerticalAlignment`
-* [ ] `Widget Manager`: add tab order
-* [ ] `WidgetManager`: hold (smart) pointers instead of widget IDs?
 * [ ] implement [7GUIs](https://eugenkiss.github.io/7guis/tasks)
   * [ ] "Counter": use `Button`
   * [ ] "Temperature Converter"
@@ -48,6 +37,8 @@ Run the examples with e.g. `cargo run --example 7guis_counter`
   * [ ] "CRUD"
   * [ ] "Circle Drawer"
   * [ ] "Cells"
+* [ ] `WidgetManager`: add tab order
+* [ ] `WidgetManager`: use focused widget
 * [ ] allow a "no loop" optimization for static applications that only render once
 * [ ] add Python bindings
 * [ ] provide native widgets? 

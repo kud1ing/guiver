@@ -1,7 +1,7 @@
 mod application;
 mod font;
 pub mod size_constraints;
-mod user_event;
+mod system_event;
 pub mod widget;
 mod widget_manager;
 mod window_event_handler;
@@ -9,6 +9,6 @@ mod window_event_handler;
 pub use application::{run, Application};
 pub use font::Font;
 pub use size_constraints::SizeConstraints;
-pub use user_event::UserEvent;
+pub use system_event::SystemEvent;
 pub use widget::{Widget, WidgetEvent, WidgetId};
-pub use widget_manager::WidgetManager;
+pub use widget_manager::{WidgetManager, WidgetManagerCommand};

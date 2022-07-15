@@ -1,8 +1,8 @@
 use crate::font::Font;
 use std::collections::HashMap;
 
-use crate::widget::{WidgetCommand, WidgetId};
-use crate::{SizeConstraints, UserEvent, Widget, WidgetEvent};
+use crate::widget::{WidgetCommand, WidgetError, WidgetId};
+use crate::{SizeConstraints, SystemEvent, Widget, WidgetEvent};
 use druid_shell::kurbo::{Point, Rect, Size};
 use druid_shell::piet::{Piet, PietTextLayout, RenderContext, TextLayout};
 use druid_shell::Region;
@@ -54,7 +54,10 @@ impl Widget for Label {
         self.size
     }
 
-    fn handle_commands(&mut self, widget_commands: &HashMap<WidgetId, Vec<WidgetCommand>>) {
+    fn handle_commands(
+        &mut self,
+        widget_commands: &HashMap<WidgetId, Vec<WidgetCommand>>,
+    ) -> Result<(), WidgetError> {
         // There are commands for this widget.
         if let Some(widget_commands) = widget_commands.get(&self.widget_id) {
             for widget_command in widget_commands {
@@ -88,27 +91,29 @@ impl Widget for Label {
                 }
             }
         }
+
+        Ok(())
     }
 
-    fn handle_event(&mut self, event: &UserEvent, widget_events: &mut Vec<WidgetEvent>) {
+    fn handle_event(&mut self, system_event: &SystemEvent, widget_events: &mut Vec<WidgetEvent>) {
         let rectangle = Rect::from_origin_size(self.origin, self.size);
 
-        match event {
-            UserEvent::MouseDown(mouse_event) => {
+        match system_event {
+            SystemEvent::MouseDown(mouse_event) => {
                 if !rectangle.contains(mouse_event.pos) {
                     return;
                 }
 
                 widget_events.push(WidgetEvent::Clicked(self.widget_id));
             }
-            UserEvent::MouseMove(mouse_event) => {
+            SystemEvent::MouseMove(mouse_event) => {
                 if rectangle.contains(mouse_event.pos) {
                     // TODO
                 } else {
                     // TODO
                 }
             }
-            UserEvent::MouseUp(mouse_event) => {
+            SystemEvent::MouseUp(mouse_event) => {
                 if rectangle.contains(mouse_event.pos) {
                     // TODO
                 } else {

@@ -1,48 +1,71 @@
-use crate::widget::{Label, WidgetCommand};
-use crate::{SizeConstraints, UserEvent, Widget, WidgetEvent, WidgetId};
+use crate::widget::{Label, WidgetCommand, WidgetError};
+use crate::{SizeConstraints, SystemEvent, Widget, WidgetEvent, WidgetId};
 use druid_shell::kurbo::Size;
 use druid_shell::piet::Piet;
 use druid_shell::Region;
+use std::any::Any;
+use std::cell::RefCell;
 use std::collections::HashMap;
+use std::rc::Rc;
+
+/// A command for the widget manager.
+#[derive(Debug)]
+pub enum WidgetManagerCommand {
+    /// Remove the widget's children.
+    Clear(WidgetId),
+    /// Remove the widget.
+    Remove(WidgetId),
+    /// Gives/removes focus to the widget.
+    SetHasFocus(WidgetId, bool),
+    /// Enables/disables the widget.
+    SetIsDisabled(WidgetId, bool),
+    /// Hides/shows the widget.
+    SetIsHidden(WidgetId, bool),
+    /// Makes the widget with the given ID the main widget.
+    SetMainWidget(WidgetId),
+    /// Sets the given value to the widget.
+    SetValue(WidgetId, Box<dyn Any>),
+}
 
 ///
 pub struct WidgetManager {
-    /// Widgets that were added with `add_widget()` but are not part of a parent widget yet.
-    added_widgets: HashMap<WidgetId, Box<dyn Widget>>,
     /// The main widget that fills the whole window.
-    main_widget: Box<dyn Widget>,
+    main_widget: Option<Box<dyn Widget>>,
     /// The counter for the next widget ID.
     next_widget_id_counter: WidgetId,
     /// The size constraints so that the main widget fills the whole window. It is set by the
     /// window event handler for each window resize event.
     size_constraints: SizeConstraints,
+    /// All widgets per widget ID. This is used:
+    /// * to pass messages to widgets
+    widgets: HashMap<WidgetId, Rc<RefCell<Box<dyn Widget>>>>,
 }
 
 impl WidgetManager {
     ///
-    pub fn new(mut main_widget: Box<dyn Widget>) -> Self {
-        // Set the main widget's origin.
-        main_widget.set_origin((0.0, 0.0).into());
-
+    pub fn new() -> Self {
         WidgetManager {
-            added_widgets: HashMap::new(),
-            main_widget,
+            main_widget: None,
             next_widget_id_counter: 0,
             size_constraints: SizeConstraints::default(),
+            widgets: HashMap::new(),
         }
     }
 
     ///
     pub fn add_widget(&mut self, widget_id: WidgetId, widget: Box<dyn Widget>) {
-        self.added_widgets.insert(widget_id, widget);
+        self.widgets
+            .insert(widget_id, Rc::new(RefCell::new(widget)));
     }
 
     ///
-    pub fn handle_event(&mut self, event: &UserEvent) -> Vec<WidgetEvent> {
+    pub fn handle_event(&mut self, system_event: &SystemEvent) -> Vec<WidgetEvent> {
         let mut widget_events = vec![];
 
-        // Let the main widget handle the given user event.
-        self.main_widget.handle_event(event, &mut widget_events);
+        if let Some(main_widget) = &mut self.main_widget {
+            // Let the main widget handle the given user event.
+            main_widget.handle_event(system_event, &mut widget_events);
+        }
 
         widget_events
     }
@@ -64,8 +87,10 @@ impl WidgetManager {
 
     ///
     pub fn paint(&self, piet: &mut Piet, region: &Region) {
-        // Paint the main widget.
-        self.main_widget.paint(piet, region)
+        if let Some(main_widget) = &self.main_widget {
+            // Paint the main widget.
+            main_widget.paint(piet, region)
+        }
     }
 
     ///
@@ -74,54 +99,89 @@ impl WidgetManager {
         let size_constraints = SizeConstraints::tight(size);
         self.size_constraints = size_constraints;
 
-        // Resize the main widget.
-        self.main_widget.apply_size_constraints(size_constraints);
+        if let Some(main_widget) = &mut self.main_widget {
+            // Resize the main widget.
+            main_widget.apply_size_constraints(size_constraints);
+        }
     }
 
     ///
-    pub fn send_command(&mut self, widget_id: WidgetId, widget_command: WidgetCommand) {
-        // TODO: call `send_command_dictionary()` instead
-        self.send_commands(vec![(widget_id, widget_command)]);
+    pub fn send_command(&mut self, command: WidgetManagerCommand) -> Result<(), WidgetError> {
+        self.send_commands(vec![command])
     }
 
     ///
-    pub fn send_command_dictionary(
+    pub fn send_commands(
         &mut self,
-        widget_commands: &HashMap<WidgetId, Vec<WidgetCommand>>,
-    ) {
-        // Let the main widget handle the given widget commands.
-        self.main_widget.handle_commands(widget_commands);
+        commands: Vec<WidgetManagerCommand>,
+    ) -> Result<(), WidgetError> {
+        let mut widget_command_dictionary: HashMap<WidgetId, Vec<WidgetCommand>> = HashMap::new();
 
-        // The widget command might have affected the layout.
-        // Resize the main widget.
-        self.main_widget
-            .apply_size_constraints(self.size_constraints);
-    }
+        // Collect the commands in a dictionary.
+        for command in commands {
+            match command {
+                WidgetManagerCommand::Clear(widget_id) => {
+                    widget_command_dictionary
+                        .entry(widget_id)
+                        .or_insert(vec![])
+                        .push(WidgetCommand::Clear);
+                }
+                WidgetManagerCommand::Remove(widget_id) => {
+                    widget_command_dictionary
+                        .entry(widget_id)
+                        .or_insert(vec![])
+                        .push(WidgetCommand::Remove);
+                }
+                WidgetManagerCommand::SetHasFocus(widget_id, has_focus) => {
+                    widget_command_dictionary
+                        .entry(widget_id)
+                        .or_insert(vec![])
+                        .push(WidgetCommand::SetHasFocus(has_focus));
+                }
+                WidgetManagerCommand::SetIsDisabled(widget_id, is_disabled) => {
+                    widget_command_dictionary
+                        .entry(widget_id)
+                        .or_insert(vec![])
+                        .push(WidgetCommand::SetIsDisabled(is_disabled));
+                }
+                WidgetManagerCommand::SetIsHidden(widget_id, is_hidden) => {
+                    widget_command_dictionary
+                        .entry(widget_id)
+                        .or_insert(vec![])
+                        .push(WidgetCommand::SetIsHidden(is_hidden));
+                }
+                WidgetManagerCommand::SetMainWidget(_maybe_widget_id) => {
+                    // TODO
+                    println!("`WidgetManager::send_commands(SetMainWidget)`: TODO");
 
-    ///
-    pub fn send_commands(&mut self, widget_commands: Vec<(WidgetId, WidgetCommand)>) {
-        let mut widget_command_dictionary = HashMap::new();
+                    /*
+                    // Set the main widget's origin.
+                    main_widget.set_origin((0.0, 0.0).into());
 
-        // Collect the widget commands in a dictionary.
-        for (widget_id, widget_command) in widget_commands {
-            widget_command_dictionary
-                .entry(widget_id)
-                .or_insert(vec![])
-                .push(widget_command);
+                    // Resize the main widget.
+                    main_widget.apply_size_constraints(self.size_constraints);
+
+                    self.main_widget = Some(main_widget);
+                    */
+                }
+                WidgetManagerCommand::SetValue(widget_id, value) => {
+                    widget_command_dictionary
+                        .entry(widget_id)
+                        .or_insert(vec![])
+                        .push(WidgetCommand::SetValue(value));
+                }
+            };
         }
 
-        self.send_command_dictionary(&widget_command_dictionary);
-    }
+        if let Some(main_widget) = &mut self.main_widget {
+            // Let the main widget handle the given widget commands.
+            main_widget.handle_commands(&widget_command_dictionary)?;
 
-    ///
-    pub fn set_main_widget(&mut self, mut main_widget: Box<dyn Widget>) {
-        // Set the main widget's origin.
-        main_widget.set_origin((0.0, 0.0).into());
+            // The widget command might have affected the layout.
+            // Resize the main widget.
+            main_widget.apply_size_constraints(self.size_constraints);
+        }
 
-        self.main_widget = main_widget;
-
-        // Resize the main widget.
-        self.main_widget
-            .apply_size_constraints(self.size_constraints);
+        Ok(())
     }
 }

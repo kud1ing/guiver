@@ -3,7 +3,7 @@ mod label;
 pub mod layout;
 mod placeholder;
 
-use crate::{SizeConstraints, UserEvent};
+use crate::{SizeConstraints, SystemEvent};
 use druid_shell::kurbo::{Point, Size};
 use druid_shell::piet;
 use druid_shell::Region;
@@ -22,13 +22,13 @@ pub enum WidgetCommand {
     Clear,
     /// Remove the widget.
     Remove,
-    /// Gives/removes focus.
+    /// Gives/removes focus to the widget.
     SetHasFocus(bool),
-    /// Enables/disables.
+    /// Enables/disables the widget.
     SetIsDisabled(bool),
-    /// Hides/shows.
+    /// Hides/shows the widget.
     SetIsHidden(bool),
-    /// Sets the given value.
+    /// Sets the given value to the widget.
     SetValue(Box<dyn Any>),
 }
 
@@ -51,10 +51,13 @@ pub trait Widget {
     fn apply_size_constraints(&mut self, size_constraints: SizeConstraints) -> Size;
 
     ///
-    fn handle_commands(&mut self, widget_commands: &HashMap<WidgetId, Vec<WidgetCommand>>);
+    fn handle_commands(
+        &mut self,
+        widget_commands: &HashMap<WidgetId, Vec<WidgetCommand>>,
+    ) -> Result<(), WidgetError>;
 
     ///
-    fn handle_event(&mut self, event: &UserEvent, widget_events: &mut Vec<WidgetEvent>);
+    fn handle_event(&mut self, system_event: &SystemEvent, widget_events: &mut Vec<WidgetEvent>);
 
     ///
     fn paint(&self, piet: &mut piet::Piet, region: &Region);

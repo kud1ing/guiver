@@ -1,4 +1,4 @@
-use crate::{Application, UserEvent};
+use crate::{Application, SystemEvent};
 use druid_shell::kurbo::Size;
 use druid_shell::piet::Piet;
 use druid_shell::{
@@ -12,9 +12,9 @@ pub struct WindowEventHandler {
     ///
     application: Box<dyn Application>,
     ///
-    handle: WindowHandle,
+    window_handle: WindowHandle,
     ///
-    size: Size,
+    window_size: Size,
 }
 
 impl WindowEventHandler {
@@ -22,26 +22,27 @@ impl WindowEventHandler {
     pub fn new(application: Box<dyn Application>) -> Self {
         WindowEventHandler {
             application,
-            handle: WindowHandle::default(),
-            size: Size::default(),
+            window_handle: WindowHandle::default(),
+            window_size: Size::default(),
         }
     }
 }
 
 impl WinHandler for WindowEventHandler {
     fn connect(&mut self, handle: &WindowHandle) {
-        self.handle = handle.clone();
+        self.window_handle = handle.clone();
     }
 
     fn size(&mut self, size: Size) {
-        self.size = size;
+        self.window_size = size;
         self.application.resize(size);
     }
 
     fn scale(&mut self, _scale: Scale) {
         // TODO: Handle the event.
 
-        self.handle.invalidate_rect(self.size.to_rect());
+        self.window_handle
+            .invalidate_rect(self.window_size.to_rect());
     }
 
     fn prepare_paint(&mut self) {}
@@ -62,56 +63,64 @@ impl WinHandler for WindowEventHandler {
     fn key_down(&mut self, _event: KeyEvent) -> bool {
         // TODO: Handle the event.
 
-        self.handle.invalidate_rect(self.size.to_rect());
+        self.window_handle
+            .invalidate_rect(self.window_size.to_rect());
         false
     }
 
     fn key_up(&mut self, _event: KeyEvent) {
         // TODO: Handle the event.
 
-        self.handle.invalidate_rect(self.size.to_rect());
+        self.window_handle
+            .invalidate_rect(self.window_size.to_rect());
     }
 
     fn wheel(&mut self, _event: &MouseEvent) {
         // TODO: Handle the event.
 
-        self.handle.invalidate_rect(self.size.to_rect());
+        self.window_handle
+            .invalidate_rect(self.window_size.to_rect());
     }
 
     fn zoom(&mut self, _delta: f64) {
         // TODO: Handle the event.
 
-        self.handle.invalidate_rect(self.size.to_rect());
+        self.window_handle
+            .invalidate_rect(self.window_size.to_rect());
     }
 
     fn mouse_move(&mut self, event: &MouseEvent) {
         // Handle the mouse move event.
         self.application
-            .handle_user_event(&UserEvent::MouseMove(event.clone()));
+            .handle_user_event(&SystemEvent::MouseMove(event.clone()));
 
-        self.handle.invalidate_rect(self.size.to_rect());
+        self.window_handle
+            .invalidate_rect(self.window_size.to_rect());
     }
 
     fn mouse_down(&mut self, event: &MouseEvent) {
         // Handle the mouse down event.
         self.application
-            .handle_user_event(&UserEvent::MouseDown(event.clone()));
+            .handle_user_event(&SystemEvent::MouseDown(event.clone()));
 
-        self.handle.invalidate_rect(self.size.to_rect());
+        self.window_handle
+            .invalidate_rect(self.window_size.to_rect());
     }
 
     fn mouse_up(&mut self, event: &MouseEvent) {
         // Handle the mouse up event.
         self.application
-            .handle_user_event(&UserEvent::MouseUp(event.clone()));
+            .handle_user_event(&SystemEvent::MouseUp(event.clone()));
 
-        self.handle.invalidate_rect(self.size.to_rect());
+        self.window_handle
+            .invalidate_rect(self.window_size.to_rect());
     }
 
     fn mouse_leave(&mut self) {
         // TODO: Handle the event.
 
-        self.handle.invalidate_rect(self.size.to_rect());
+        self.window_handle
+            .invalidate_rect(self.window_size.to_rect());
     }
 
     fn timer(&mut self, _token: TimerToken) {}
@@ -119,13 +128,15 @@ impl WinHandler for WindowEventHandler {
     fn got_focus(&mut self) {
         // TODO: Handle the event.
 
-        self.handle.invalidate_rect(self.size.to_rect());
+        self.window_handle
+            .invalidate_rect(self.window_size.to_rect());
     }
 
     fn lost_focus(&mut self) {
         // TODO: Handle the event.
 
-        self.handle.invalidate_rect(self.size.to_rect());
+        self.window_handle
+            .invalidate_rect(self.window_size.to_rect());
     }
 
     fn request_close(&mut self) {}

@@ -1,5 +1,5 @@
-use crate::widget::{WidgetCommand, WidgetId};
-use crate::{SizeConstraints, UserEvent, Widget, WidgetEvent};
+use crate::widget::{WidgetCommand, WidgetError, WidgetId};
+use crate::{SizeConstraints, SystemEvent, Widget, WidgetEvent};
 use druid_shell::kurbo::{Point, Size};
 use druid_shell::piet::Piet;
 use druid_shell::Region;
@@ -83,7 +83,7 @@ impl Widget for Row {
     fn handle_commands(
         &mut self,
         widget_command_dictionary: &HashMap<WidgetId, Vec<WidgetCommand>>,
-    ) {
+    ) -> Result<(), WidgetError> {
         // There are commands for this widget.
         if let Some(widget_commands) = widget_command_dictionary.get(&self.widget_id) {
             for widget_command in widget_commands {
@@ -111,14 +111,16 @@ impl Widget for Row {
         // Iterate over the child widgets.
         for child_widget in &mut self.child_widgets {
             // Let the current child widget handle the remaining commands.
-            child_widget.handle_commands(widget_command_dictionary);
+            child_widget.handle_commands(widget_command_dictionary)?;
         }
+
+        Ok(())
     }
 
-    fn handle_event(&mut self, event: &UserEvent, widget_events: &mut Vec<WidgetEvent>) {
+    fn handle_event(&mut self, system_event: &SystemEvent, widget_events: &mut Vec<WidgetEvent>) {
         // Iterate over the child widgets.
         for child_widget in &mut self.child_widgets {
-            child_widget.handle_event(event, widget_events);
+            child_widget.handle_event(system_event, widget_events);
         }
     }
 
