@@ -62,6 +62,7 @@ impl WidgetManager {
     pub fn handle_event(&mut self, system_event: &SystemEvent) -> Vec<WidgetEvent> {
         let mut widget_events = vec![];
 
+        // There is a main widget.
         if let Some(main_widget) = &mut self.main_widget {
             // Let the main widget handle the given user event.
             main_widget.handle_event(system_event, &mut widget_events);
@@ -87,6 +88,7 @@ impl WidgetManager {
 
     ///
     pub fn paint(&self, piet: &mut Piet, region: &Region) {
+        // There is a main widget.
         if let Some(main_widget) = &self.main_widget {
             // Paint the main widget.
             main_widget.paint(piet, region)
@@ -95,10 +97,13 @@ impl WidgetManager {
 
     ///
     pub fn resize(&mut self, size: Size) {
-        // Create and use a new size constraint.
+        // Create a new size constraint.
         let size_constraints = SizeConstraints::tight(size);
+
+        // Use the new size constraint.
         self.size_constraints = size_constraints;
 
+        // There is a main widget.
         if let Some(main_widget) = &mut self.main_widget {
             // Resize the main widget.
             main_widget.apply_size_constraints(size_constraints);
@@ -150,7 +155,7 @@ impl WidgetManager {
                         .or_insert(vec![])
                         .push(WidgetCommand::SetIsHidden(is_hidden));
                 }
-                WidgetManagerCommand::SetMainWidget(_maybe_widget_id) => {
+                WidgetManagerCommand::SetMainWidget(_widget_id) => {
                     // TODO
                     println!("`WidgetManager::send_commands(SetMainWidget)`: TODO");
 
@@ -173,6 +178,7 @@ impl WidgetManager {
             };
         }
 
+        // There is a main widget.
         if let Some(main_widget) = &mut self.main_widget {
             // Let the main widget handle the given widget commands.
             main_widget.handle_commands(&widget_command_dictionary)?;
