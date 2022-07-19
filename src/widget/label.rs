@@ -65,8 +65,8 @@ impl Widget for Label {
                     WidgetCommand::Clear => {
                         // A label has no children.
                     }
-                    WidgetCommand::Remove => {
-                        // A widget can not remove itself.
+                    WidgetCommand::RemoveChild(_) => {
+                        // A label has no children.
                     }
                     WidgetCommand::SetHasFocus(_) => {
                         // A label can not have focus.

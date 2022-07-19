@@ -19,10 +19,11 @@ The examples can be run with e.g. `cargo run --example 7guis_counter`
 ## Backlog
 
 * `WidgetManager`: use `Rc<RefCel<...>>`:
-  * [ ] handle `WidgetManagerCommand::SetMainWidget(...)`
-  * [ ] add `WidgetCommand::Append(Rc<RefCel<...>>)`
-  * [ ] add `WidgetManagerCommand::Append(...)`
+  * [ ] `send_commands()``: handle `WidgetManagerCommand::SetMainWidget(...)`
+  * [ ] add `WidgetCommand::AppendChild(Rc<RefCel<...>>)`
+  * [ ] add `WidgetManagerCommand::AppendChild(...)`
   * [ ] remove children from the Ctor of `Padding`, `Row`
+  * [ ] add a function to remove widgets without parents
 * [ ] `paint()`: use save, restore
 * [ ] implement `Button`
 * [ ] `Label`: clip painting, for the case when the rectangle is too small

@@ -21,7 +21,7 @@ pub enum WidgetCommand {
     /// Remove the widget's children.
     Clear,
     /// Remove the widget.
-    Remove,
+    RemoveChild(WidgetId),
     /// Gives/removes focus to the widget.
     SetHasFocus(bool),
     /// Enables/disables the widget.

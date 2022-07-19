@@ -97,8 +97,9 @@ impl Widget for Padding {
                     WidgetCommand::Clear => {
                         self.child_widget = None;
                     }
-                    WidgetCommand::Remove => {
-                        // A widget can not remove itself.
+                    WidgetCommand::RemoveChild(_) => {
+                        // TODO
+                        println!("`Padding::handle_widget_command(RemoveChild)`: TODO");
                     }
                     WidgetCommand::SetHasFocus(_) => {}
                     WidgetCommand::SetIsDisabled(_) => {

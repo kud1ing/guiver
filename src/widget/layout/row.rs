@@ -91,8 +91,9 @@ impl Widget for Row {
                     WidgetCommand::Clear => {
                         self.child_widgets.clear();
                     }
-                    WidgetCommand::Remove => {
-                        // A widget can not remove itself.
+                    WidgetCommand::RemoveChild(_) => {
+                        // TODO
+                        println!("`Row::handle_widget_command(RemoveChild)`: TODO");
                     }
                     WidgetCommand::SetHasFocus(_) => {}
                     WidgetCommand::SetIsDisabled(_) => {

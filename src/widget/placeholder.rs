@@ -46,8 +46,8 @@ impl Widget for Placeholder {
                     WidgetCommand::Clear => {
                         // A placeholder has no children.
                     }
-                    WidgetCommand::Remove => {
-                        // A widget can not remove itself.
+                    WidgetCommand::RemoveChild(_) => {
+                        // A placeholder has no children.
                     }
                     WidgetCommand::SetHasFocus(_has_focus) => {
                         // Nothing to do.

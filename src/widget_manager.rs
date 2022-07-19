@@ -14,7 +14,7 @@ pub enum WidgetManagerCommand {
     /// Remove the widget's children.
     Clear(WidgetId),
     /// Remove the widget.
-    Remove(WidgetId),
+    RemoveChild(WidgetId, WidgetId),
     /// Gives/removes focus to the widget.
     SetHasFocus(WidgetId, bool),
     /// Enables/disables the widget.
@@ -131,11 +131,11 @@ impl WidgetManager {
                         .or_insert(vec![])
                         .push(WidgetCommand::Clear);
                 }
-                WidgetManagerCommand::Remove(widget_id) => {
+                WidgetManagerCommand::RemoveChild(parent_id, child_id) => {
                     widget_command_dictionary
-                        .entry(widget_id)
+                        .entry(parent_id)
                         .or_insert(vec![])
-                        .push(WidgetCommand::Remove);
+                        .push(WidgetCommand::RemoveChild(child_id));
                 }
                 WidgetManagerCommand::SetHasFocus(widget_id, has_focus) => {
                     widget_command_dictionary
