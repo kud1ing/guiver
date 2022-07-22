@@ -8,6 +8,9 @@ use std::cell::RefCell;
 use std::collections::HashMap;
 use std::rc::Rc;
 
+///
+pub type WidgetBox = Rc<RefCell<Box<dyn Widget>>>;
+
 /// A command for the widget manager.
 #[derive(Debug)]
 pub enum WidgetManagerCommand {
@@ -33,12 +36,12 @@ pub struct WidgetManager {
     main_widget: Option<Box<dyn Widget>>,
     /// The counter for the next widget ID.
     next_widget_id_counter: WidgetId,
-    /// The size constraints so that the main widget fills the whole window. It is set in `resize()`
-    /// by the window event handler for every window resize event.
+    /// The size constraints. It is set in `resize()`, called by the window event handler for every
+    /// window resize event so that the main widget fills the whole window.
     size_constraints: SizeConstraints,
     /// All widgets per widget ID. This is used:
     /// * to pass commands to a widget
-    widgets: HashMap<WidgetId, Rc<RefCell<Box<dyn Widget>>>>,
+    widgets: HashMap<WidgetId, WidgetBox>,
 }
 
 impl WidgetManager {
