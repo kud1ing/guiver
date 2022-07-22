@@ -19,7 +19,7 @@ The examples can be run with e.g. `cargo run --example 7guis_counter`
 ## Backlog
 
 * `WidgetManager`: use `Rc<RefCel<...>>`:
-  * [ ] `send_commands()``: handle `WidgetManagerCommand::SetMainWidget(...)`
+  * [ ] `send_commands()`: handle `WidgetManagerCommand::SetMainWidget(...)`
   * [ ] add `WidgetCommand::AppendChild(Rc<RefCel<...>>)`
   * [ ] add `WidgetManagerCommand::AppendChild(...)`
   * [ ] remove children from the Ctor of `Padding`, `Row`

@@ -3,7 +3,6 @@ use crate::{SizeConstraints, SystemEvent, Widget, WidgetEvent};
 use druid_shell::kurbo::{Line, Point, Rect, Size};
 use druid_shell::piet::{Color, Piet, RenderContext, StrokeStyle};
 use druid_shell::Region;
-use std::collections::HashMap;
 
 /// A placeholder widget.
 pub struct Placeholder {
@@ -35,33 +34,27 @@ impl Widget for Placeholder {
         self.size
     }
 
-    fn handle_commands(
-        &mut self,
-        widget_commands: &HashMap<WidgetId, Vec<WidgetCommand>>,
-    ) -> Result<(), WidgetError> {
-        // There are commands for this widget.
-        if let Some(widget_commands) = widget_commands.get(&self.widget_id) {
-            for widget_command in widget_commands {
-                match widget_command {
-                    WidgetCommand::Clear => {
-                        // A placeholder has no children.
-                    }
-                    WidgetCommand::RemoveChild(_) => {
-                        // A placeholder has no children.
-                    }
-                    WidgetCommand::SetHasFocus(_has_focus) => {
-                        // Nothing to do.
-                    }
-                    WidgetCommand::SetIsDisabled(_) => {
-                        // TODO
-                        println!("`Placeholder::handle_widget_command(SetIsDisabled)`: TODO");
-                    }
-                    WidgetCommand::SetIsHidden(is_hidden) => {
-                        self.is_hidden = *is_hidden;
-                    }
-                    WidgetCommand::SetValue(_value) => {
-                        // Nothing to do.
-                    }
+    fn handle_commands(&mut self, widget_commands: &[WidgetCommand]) -> Result<(), WidgetError> {
+        for widget_command in widget_commands {
+            match widget_command {
+                WidgetCommand::Clear => {
+                    // A placeholder has no children.
+                }
+                WidgetCommand::RemoveChild(_) => {
+                    // A placeholder has no children.
+                }
+                WidgetCommand::SetHasFocus(_has_focus) => {
+                    // Nothing to do.
+                }
+                WidgetCommand::SetIsDisabled(_) => {
+                    // TODO
+                    println!("`Placeholder::handle_widget_command(SetIsDisabled)`: TODO");
+                }
+                WidgetCommand::SetIsHidden(is_hidden) => {
+                    self.is_hidden = *is_hidden;
+                }
+                WidgetCommand::SetValue(_value) => {
+                    // Nothing to do.
                 }
             }
         }

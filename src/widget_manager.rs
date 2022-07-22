@@ -1,4 +1,4 @@
-use crate::widget::{Label, WidgetCommand, WidgetError};
+use crate::widget::{Label, WidgetError};
 use crate::{SizeConstraints, SystemEvent, Widget, WidgetEvent, WidgetId};
 use druid_shell::kurbo::Size;
 use druid_shell::piet::Piet;
@@ -33,11 +33,11 @@ pub struct WidgetManager {
     main_widget: Option<Box<dyn Widget>>,
     /// The counter for the next widget ID.
     next_widget_id_counter: WidgetId,
-    /// The size constraints so that the main widget fills the whole window. It is set by the
-    /// window event handler for each window resize event.
+    /// The size constraints so that the main widget fills the whole window. It is set in `resize()`
+    /// by the window event handler for every window resize event.
     size_constraints: SizeConstraints,
     /// All widgets per widget ID. This is used:
-    /// * to pass messages to widgets
+    /// * to pass commands to a widget
     widgets: HashMap<WidgetId, Rc<RefCell<Box<dyn Widget>>>>,
 }
 
@@ -120,40 +120,63 @@ impl WidgetManager {
         &mut self,
         commands: Vec<WidgetManagerCommand>,
     ) -> Result<(), WidgetError> {
-        let mut widget_command_dictionary: HashMap<WidgetId, Vec<WidgetCommand>> = HashMap::new();
-
         // Collect the commands in a dictionary.
         for command in commands {
             match command {
-                WidgetManagerCommand::Clear(widget_id) => {
+                WidgetManagerCommand::Clear(_widget_id) => {
+                    // TODO
+                    println!("`send_commands()`: TODO");
+                    /*
                     widget_command_dictionary
                         .entry(widget_id)
                         .or_insert(vec![])
                         .push(WidgetCommand::Clear);
+
+                     */
                 }
-                WidgetManagerCommand::RemoveChild(parent_id, child_id) => {
+                WidgetManagerCommand::RemoveChild(_parent_id, _child_id) => {
+                    // TODO
+                    println!("`send_commands()`: TODO");
+                    /*
                     widget_command_dictionary
                         .entry(parent_id)
                         .or_insert(vec![])
                         .push(WidgetCommand::RemoveChild(child_id));
+
+                     */
                 }
-                WidgetManagerCommand::SetHasFocus(widget_id, has_focus) => {
+                WidgetManagerCommand::SetHasFocus(_widget_id, _has_focus) => {
+                    // TODO
+                    println!("`send_commands()`: TODO");
+                    /*
                     widget_command_dictionary
-                        .entry(widget_id)
-                        .or_insert(vec![])
-                        .push(WidgetCommand::SetHasFocus(has_focus));
+                    .entry(widget_id)
+                    .or_insert(vec![])
+                    .push(WidgetCommand::SetHasFocus(has_focus));
+
+                             */
                 }
-                WidgetManagerCommand::SetIsDisabled(widget_id, is_disabled) => {
+                WidgetManagerCommand::SetIsDisabled(_widget_id, _is_disabled) => {
+                    // TODO
+                    println!("`send_commands()`: TODO");
+                    /*
                     widget_command_dictionary
-                        .entry(widget_id)
-                        .or_insert(vec![])
-                        .push(WidgetCommand::SetIsDisabled(is_disabled));
+                    .entry(widget_id)
+                    .or_insert(vec![])
+                    .push(WidgetCommand::SetIsDisabled(is_disabled));
+
+                             */
                 }
-                WidgetManagerCommand::SetIsHidden(widget_id, is_hidden) => {
+                WidgetManagerCommand::SetIsHidden(_widget_id, _is_hidden) => {
+                    // TODO
+                    println!("`send_commands()`: TODO");
+                    /*
                     widget_command_dictionary
-                        .entry(widget_id)
-                        .or_insert(vec![])
-                        .push(WidgetCommand::SetIsHidden(is_hidden));
+                    .entry(widget_id)
+                    .or_insert(vec![])
+                    .push(WidgetCommand::SetIsHidden(is_hidden));
+
+                             */
                 }
                 WidgetManagerCommand::SetMainWidget(_widget_id) => {
                     // TODO
@@ -169,22 +192,24 @@ impl WidgetManager {
                     self.main_widget = Some(main_widget);
                     */
                 }
-                WidgetManagerCommand::SetValue(widget_id, value) => {
+                WidgetManagerCommand::SetValue(_widget_id, _value) => {
+                    // TODO
+                    println!("`send_commands()`: TODO");
+                    /*
                     widget_command_dictionary
                         .entry(widget_id)
                         .or_insert(vec![])
                         .push(WidgetCommand::SetValue(value));
+
+                     */
                 }
             };
         }
 
         // There is a main widget.
         if let Some(main_widget) = &mut self.main_widget {
-            // Let the main widget handle the given widget commands.
-            main_widget.handle_commands(&widget_command_dictionary)?;
-
-            // The widget command might have affected the layout.
-            // Resize the main widget.
+            // The widget commands might have affected the layout.
+            // Apply the size constraints again for re-layout.
             main_widget.apply_size_constraints(self.size_constraints);
         }
 

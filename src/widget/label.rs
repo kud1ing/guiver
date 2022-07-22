@@ -1,5 +1,4 @@
 use crate::font::Font;
-use std::collections::HashMap;
 
 use crate::widget::{WidgetCommand, WidgetError, WidgetId};
 use crate::{SizeConstraints, SystemEvent, Widget, WidgetEvent};
@@ -54,44 +53,37 @@ impl Widget for Label {
         self.size
     }
 
-    fn handle_commands(
-        &mut self,
-        widget_commands: &HashMap<WidgetId, Vec<WidgetCommand>>,
-    ) -> Result<(), WidgetError> {
-        // There are commands for this widget.
-        if let Some(widget_commands) = widget_commands.get(&self.widget_id) {
-            for widget_command in widget_commands {
-                match widget_command {
-                    WidgetCommand::Clear => {
-                        // A label has no children.
+    fn handle_commands(&mut self, widget_commands: &[WidgetCommand]) -> Result<(), WidgetError> {
+        for widget_command in widget_commands {
+            match widget_command {
+                WidgetCommand::Clear => {
+                    // A label has no children.
+                }
+                WidgetCommand::RemoveChild(_) => {
+                    // A label has no children.
+                }
+                WidgetCommand::SetHasFocus(_) => {
+                    // A label can not have focus.
+                }
+                WidgetCommand::SetIsDisabled(_) => {
+                    // TODO
+                    println!("`Label::handle_widget_command(SetIsDisabled)`: TODO");
+                }
+                WidgetCommand::SetIsHidden(is_hidden) => {
+                    self.is_hidden = *is_hidden;
+                }
+                WidgetCommand::SetValue(value) => {
+                    // The given value is a string.
+                    if let Some(string) = value.downcast_ref::<String>() {
+                        self.set_text(string);
                     }
-                    WidgetCommand::RemoveChild(_) => {
-                        // A label has no children.
-                    }
-                    WidgetCommand::SetHasFocus(_) => {
-                        // A label can not have focus.
-                    }
-                    WidgetCommand::SetIsDisabled(_) => {
-                        // TODO
-                        println!("`Label::handle_widget_command(SetIsDisabled)`: TODO");
-                    }
-                    WidgetCommand::SetIsHidden(is_hidden) => {
-                        self.is_hidden = *is_hidden;
-                    }
-                    WidgetCommand::SetValue(value) => {
-                        // The given value is a string.
-                        if let Some(string) = value.downcast_ref::<String>() {
-                            self.set_text(string);
-                        }
-                        // The given value is something else.
-                        else {
-                            self.set_text(format!("{:?}", value));
-                        }
+                    // The given value is something else.
+                    else {
+                        self.set_text(format!("{:?}", value));
                     }
                 }
             }
         }
-
         Ok(())
     }
 

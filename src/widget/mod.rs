@@ -10,7 +10,6 @@ use druid_shell::Region;
 pub use label::Label;
 pub use placeholder::Placeholder;
 use std::any::Any;
-use std::collections::HashMap;
 
 ///
 pub type WidgetId = usize;
@@ -51,10 +50,7 @@ pub trait Widget {
     fn apply_size_constraints(&mut self, size_constraints: SizeConstraints) -> Size;
 
     ///
-    fn handle_commands(
-        &mut self,
-        widget_commands: &HashMap<WidgetId, Vec<WidgetCommand>>,
-    ) -> Result<(), WidgetError>;
+    fn handle_commands(&mut self, widget_commands: &[WidgetCommand]) -> Result<(), WidgetError>;
 
     ///
     fn handle_event(&mut self, system_event: &SystemEvent, widget_events: &mut Vec<WidgetEvent>);
