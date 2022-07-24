@@ -1,0 +1,85 @@
+/**
+This implements the "Counter" task from [7GUIs](https://eugenkiss.github.io/7guis/tasks/).
+*/
+use druid_shell::kurbo::Size;
+use druid_shell::piet::Piet;
+use druid_shell::Region;
+use guiver::widget::layout::{Padding, Row};
+use guiver::widget::Label;
+use guiver::{run, WidgetEvent, WidgetId, WidgetManager, WidgetManagerCommand};
+use guiver::{Application, SystemEvent};
+
+pub(crate) struct App {
+    counter: u32,
+    counter_button: WidgetId,
+    counter_label: WidgetId,
+    widget_manager: WidgetManager,
+}
+
+impl App {
+    pub(crate) fn new() -> Self {
+        let mut widget_manager = WidgetManager::new();
+
+        let padding = widget_manager.new_padding(15.0, 15.0, 15.0, 15.0);
+        let row = widget_manager.new_row(10.0);
+        let counter_label = widget_manager.new_label("0");
+        let counter_button = widget_manager.new_label("Count");
+
+        let _ = widget_manager.send_commands(vec![
+            WidgetManagerCommand::SetMainWidget(padding),
+            WidgetManagerCommand::AppendChild(padding, row),
+            WidgetManagerCommand::AppendChild(row, counter_label),
+            WidgetManagerCommand::AppendChild(row, counter_button),
+        ]);
+
+        App {
+            counter: 0,
+            counter_button,
+            counter_label,
+            widget_manager,
+        }
+    }
+}
+
+impl Application for App {
+    fn handle_system_event(&mut self, system_event: &SystemEvent) {
+        // Handle the system event.
+        let widget_events = self.widget_manager.handle_event(system_event);
+
+        // Iterate over the widget events.
+        for widget_event in widget_events {
+            match widget_event {
+                WidgetEvent::Clicked(widget_id) => {
+                    // The counter button was clicked.
+                    if widget_id == self.counter_button {
+                        // Increase the counter.
+                        self.counter += 1;
+
+                        // Update the counter label.
+                        let _ = self
+                            .widget_manager
+                            .send_command(WidgetManagerCommand::SetValue(
+                                self.counter_label,
+                                Box::new(format!("{}", self.counter)),
+                            ));
+                    }
+                }
+                WidgetEvent::ValueChanged(_) => {}
+            }
+        }
+    }
+
+    fn paint(&mut self, piet: &mut Piet, region: &Region) {
+        // Paint the main widget.
+        self.widget_manager.paint(piet, region);
+    }
+
+    fn resize(&mut self, size: Size) {
+        // Resize the main widget.
+        self.widget_manager.resize(size);
+    }
+}
+
+pub fn main() {
+    run(Box::new(App::new()), "7GUIs: Counter", (400.0, 80.0).into());
+}

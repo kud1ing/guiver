@@ -1,0 +1,14 @@
+[package]
+name = "guiver"
+version = "0.0.1"
+authors = ["Lennart Kudling"]
+categories = ["gui"]
+description = "GUI programming with Piet"
+documentation = "https://docs.rs/guiver"
+edition = "2021"
+keywords = ["immediate", "widget"]
+license = "MIT/Apache-2.0"
+readme = "README.md"
+
+[dependencies]
+druid-shell = "^0"

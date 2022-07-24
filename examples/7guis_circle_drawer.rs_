@@ -1,0 +1,46 @@
+/**
+This implements the "Circle Drawer" task from [7GUIs](https://eugenkiss.github.io/7guis/tasks/).
+*/
+use guiver::run;
+
+use druid_shell::piet::Piet;
+use druid_shell::Region;
+use guiver::{Application, UserEvent, WidgetEvent, WidgetId, WidgetManager};
+
+pub(crate) struct App {
+    counter: u32,
+}
+
+impl App {
+    pub(crate) fn new() -> Self {
+        App { counter: 0 }
+    }
+}
+
+impl Application for App {
+    fn handle_user_event(&mut self, _user_event: &UserEvent) {}
+
+    fn handle_widget_event(
+        &mut self,
+        _widget_manager: &mut WidgetManager,
+        _widget_id: WidgetId,
+        _widget_event: &WidgetEvent,
+    ) {
+        // TODO
+    }
+
+    fn paint(&mut self, _widget_manager: &WidgetManager, _piet: &mut Piet, _region: &Region) {}
+
+    ///
+    fn setup(&mut self, _widget_manager: &mut WidgetManager) {
+        // TODO
+    }
+}
+
+pub fn main() {
+    run(
+        Box::new(App::new()),
+        "guiver 7GUIs: Circle Drawer",
+        (800.0, 400.0).into(),
+    );
+}
