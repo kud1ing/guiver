@@ -11,7 +11,7 @@ There are widgets that can be used with an optional widget manager.
 The widgets are decoupled from the application data via message passing, which is inspired by
 [Tk commands](https://en.wikipedia.org/wiki/Tk_(software)).
 
-The examples can be run with e.g. `cargo run --example 7guis_counter`
+The examples can be run with `cargo run --example EXAMPLE_NAME`
 
 <img width="222" alt="Bildschirmfoto 2022-07-24 um 11 59 16" src="https://user-images.githubusercontent.com/391975/180641967-f69c5227-bba7-453d-92ef-cd94552d3529.png">
 
@@ -19,11 +19,24 @@ The examples can be run with e.g. `cargo run --example 7guis_counter`
 
 <img width="314" alt="Bildschirmfoto 2022-07-24 um 11 58 56" src="https://user-images.githubusercontent.com/391975/180641976-111d6751-acc1-4910-9b01-2f421053a463.png">
 
+<img width="400" alt="Bildschirmfoto 2022-07-24 um 12 59 33" src="https://user-images.githubusercontent.com/391975/180644027-351f4490-4038-4629-9392-2cde4fa91c9c.png">
+
 ## Backlog
 
-* [ ] implement `Button`
+* [ ] implement `Button` widget
+  * [ ] `paint()`: use save, restore, clip painting
 * [ ] 7GUIs "Counter": use `Button`
-* [ ] `paint()`: use save, restore
+* [ ] implement a text input widget
+  * [ ] paste
+  * [ ] enter text
+  * [ ] cursor movement with arrow keys
+  * [ ] backspace deletes text
+  * [ ] select text
+  * [ ] Ctrl+X deletes text
+  * [ ] Ctrl-C
+* [ ] `WidgetManager`: track the focused widget
+  * [ ] unfocus any previously focused widget
+* [ ] `Label::paint()`: use save, restore, clip painting
 * [ ] implement [7GUIs](https://eugenkiss.github.io/7guis/tasks)
   * [ ] 7GUIs "Temperature Converter"
     * [ ] implement `TextEdit`
@@ -33,12 +46,10 @@ The examples can be run with e.g. `cargo run --example 7guis_counter`
   * [ ] 7GUIs "CRUD"
   * [ ] 7GUIs "Circle Drawer"
   * [ ] 7GUIs "Cells"
-* [ ] `Label`: clip painting, for the case when the rectangle is too small
-* [ ] add `HorizontalAlignment`, `VerticalAlignment`
 * [ ] `WidgetManager`: implement `collect_garbage()`
-  * remove widgets that have no parent
+  * remove all widgets that do not have the main widget as ancestor
 * [ ] `WidgetManager`: add tab order
-* [ ] `WidgetManager`: use focused widget
+* [ ] add `HorizontalAlignment`, `VerticalAlignment`
 * [ ] allow a "no loop" optimization for static applications that only render once
 * [ ] add Python bindings
 * [ ] provide native widgets? 

@@ -20,11 +20,13 @@ impl App {
     pub(crate) fn new() -> Self {
         let mut widget_manager = WidgetManager::new();
 
+        // Create the widgets.
         let padding = widget_manager.new_padding(15.0, 15.0, 15.0, 15.0);
         let row = widget_manager.new_row(10.0);
         let counter_label = widget_manager.new_label("0");
         let counter_button = widget_manager.new_label("Count");
 
+        // Compose the widgets.
         let _ = widget_manager.send_commands(vec![
             WidgetManagerCommand::SetMainWidget(padding),
             WidgetManagerCommand::AppendChild(padding, row),
@@ -43,10 +45,10 @@ impl App {
 
 impl Application for App {
     fn handle_system_event(&mut self, system_event: &SystemEvent) {
-        // Handle the system event.
+        // Handle the system event, possibly create widget events.
         let widget_events = self.widget_manager.handle_event(system_event);
 
-        // Iterate over the widget events.
+        // Iterate over the generated widget events.
         for widget_event in widget_events {
             match widget_event {
                 WidgetEvent::Clicked(widget_id) => {

@@ -1,4 +1,4 @@
-use crate::widget::layout::{Padding, Row};
+use crate::widget::layout::{Column, Padding, Row};
 use crate::widget::{Label, Placeholder, WidgetCommand, WidgetError};
 use crate::{SizeConstraints, SystemEvent, Widget, WidgetEvent, WidgetId};
 use druid_shell::kurbo::Size;
@@ -107,6 +107,21 @@ impl WidgetManager {
     fn next_widget_id(&mut self) -> WidgetId {
         self.next_widget_id_counter += 1;
         self.next_widget_id_counter
+    }
+
+    ///
+    pub fn new_column(&mut self, spacing: f64) -> WidgetId {
+        // Get a new widget ID.
+        let widget_id = self.next_widget_id();
+
+        // Add a new column widget.
+        self.widgets.insert(
+            widget_id,
+            Rc::new(RefCell::new(Box::new(Column::new(widget_id, spacing)))),
+        );
+
+        // Return the column's widget ID.
+        widget_id
     }
 
     ///

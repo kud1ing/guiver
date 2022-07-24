@@ -17,9 +17,11 @@ impl App {
     pub(crate) fn new() -> Self {
         let mut widget_manager = WidgetManager::new();
 
+        // Create the widgets.
         let padding = widget_manager.new_padding(15.0, 15.0, 15.0, 15.0);
         let placeholder = widget_manager.new_placeholder();
 
+        // Compose the widgets.
         let _ = widget_manager.send_commands(vec![
             WidgetManagerCommand::SetMainWidget(padding),
             WidgetManagerCommand::AppendChild(padding, placeholder),
@@ -46,5 +48,5 @@ impl Application for App {
 }
 
 pub fn main() {
-    run(Box::new(App::new()), "padding", (400.0, 300.0).into());
+    run(Box::new(App::new()), "padding", (400.0, 200.0).into());
 }

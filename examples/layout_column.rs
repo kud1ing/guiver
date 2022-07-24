@@ -20,17 +20,32 @@ impl App {
         // Create the widgets.
         let padding = widget_manager.new_padding(15.0, 15.0, 15.0, 15.0);
         let row = widget_manager.new_row(15.0);
+        let column1 = widget_manager.new_column(15.0);
+        let column2 = widget_manager.new_column(15.0);
+        let column3 = widget_manager.new_column(15.0);
         let placeholder1 = widget_manager.new_placeholder();
         let placeholder2 = widget_manager.new_placeholder();
         let placeholder3 = widget_manager.new_placeholder();
+        let placeholder4 = widget_manager.new_placeholder();
+        let placeholder5 = widget_manager.new_placeholder();
+        let placeholder6 = widget_manager.new_placeholder();
 
         // Compose the widgets.
         let _ = widget_manager.send_commands(vec![
             WidgetManagerCommand::SetMainWidget(padding),
             WidgetManagerCommand::AppendChild(padding, row),
-            WidgetManagerCommand::AppendChild(row, placeholder1),
-            WidgetManagerCommand::AppendChild(row, placeholder2),
-            WidgetManagerCommand::AppendChild(row, placeholder3),
+            WidgetManagerCommand::AppendChild(row, column1),
+
+            WidgetManagerCommand::AppendChild(column1, placeholder1),
+            WidgetManagerCommand::AppendChild(column1, placeholder2),
+            WidgetManagerCommand::AppendChild(column1, placeholder3),
+
+            WidgetManagerCommand::AppendChild(row, column2),
+            WidgetManagerCommand::AppendChild(column2, placeholder4),
+            WidgetManagerCommand::AppendChild(column2, placeholder5),
+
+            WidgetManagerCommand::AppendChild(row, column3),
+            WidgetManagerCommand::AppendChild(column3, placeholder6),
         ]);
 
         App { widget_manager }
@@ -54,5 +69,5 @@ impl Application for App {
 }
 
 pub fn main() {
-    run(Box::new(App::new()), "row", (400.0, 200.0).into());
+    run(Box::new(App::new()), "column", (400.0, 200.0).into());
 }
