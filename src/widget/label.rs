@@ -35,7 +35,7 @@ impl Label {
     }
 
     ///
-    pub fn set_text(&mut self, text: impl Into<String>) {
+    fn set_text(&mut self, text: impl Into<String>) {
         self.text = text.into();
         self.text_layout = self.font.text_layout(self.text.clone());
     }

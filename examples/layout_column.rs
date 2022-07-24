@@ -22,7 +22,6 @@ impl App {
         let row = widget_manager.new_row(15.0);
         let column1 = widget_manager.new_column(15.0);
         let column2 = widget_manager.new_column(15.0);
-        let column3 = widget_manager.new_column(15.0);
         let placeholder1 = widget_manager.new_placeholder();
         let placeholder2 = widget_manager.new_placeholder();
         let placeholder3 = widget_manager.new_placeholder();
@@ -35,17 +34,13 @@ impl App {
             WidgetManagerCommand::SetMainWidget(padding),
             WidgetManagerCommand::AppendChild(padding, row),
             WidgetManagerCommand::AppendChild(row, column1),
-
             WidgetManagerCommand::AppendChild(column1, placeholder1),
             WidgetManagerCommand::AppendChild(column1, placeholder2),
             WidgetManagerCommand::AppendChild(column1, placeholder3),
-
             WidgetManagerCommand::AppendChild(row, column2),
             WidgetManagerCommand::AppendChild(column2, placeholder4),
             WidgetManagerCommand::AppendChild(column2, placeholder5),
-
-            WidgetManagerCommand::AppendChild(row, column3),
-            WidgetManagerCommand::AppendChild(column3, placeholder6),
+            WidgetManagerCommand::AppendChild(row, placeholder6),
         ]);
 
         App { widget_manager }

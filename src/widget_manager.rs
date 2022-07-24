@@ -208,7 +208,7 @@ impl WidgetManager {
     ///
     pub fn resize(&mut self, size: Size) {
         // Create a new size constraint from the given window size.
-        let size_constraints = SizeConstraints::tight(size);
+        let size_constraints = SizeConstraints::tight(size - Size::new(2.0, 2.0));
 
         // Use the new size constraint.
         self.size_constraints = size_constraints;
@@ -288,6 +288,7 @@ impl WidgetManager {
                         .handle_command(WidgetCommand::SetIsHidden(is_hidden))?;
                 }
                 WidgetManagerCommand::SetMainWidget(_widget_id) => {
+                    widget_box.borrow_mut().set_origin((1.0, 1.0).into());
                     self.main_widget = Some(widget_box.clone());
                 }
                 WidgetManagerCommand::SetValue(_widget_id, value) => {
