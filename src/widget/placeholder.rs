@@ -8,8 +8,7 @@ use druid_shell::Region;
 pub struct Placeholder {
     color: Color,
     is_hidden: bool,
-    origin: Point,
-    size: Size,
+    rectangle: Rect,
     stroke_style: StrokeStyle,
     widget_id: WidgetId,
 }
@@ -19,8 +18,7 @@ impl Placeholder {
         Placeholder {
             color: Color::rgb8(255, 255, 255),
             is_hidden: false,
-            origin: (0.0, 0.0).into(),
-            size: Size::default(),
+            rectangle: Rect::default(),
             stroke_style: StrokeStyle::new(),
             widget_id,
         }
@@ -30,8 +28,8 @@ impl Placeholder {
 impl Widget for Placeholder {
     ///
     fn apply_size_constraints(&mut self, size_constraints: SizeConstraints) -> Size {
-        self.size = *size_constraints.maximum();
-        self.size
+        self.rectangle = self.rectangle.with_size(*size_constraints.maximum());
+        self.rectangle.size()
     }
 
     fn handle_command(&mut self, widget_command: WidgetCommand) -> Result<(), WidgetError> {
@@ -90,26 +88,30 @@ impl Widget for Placeholder {
 
         // TODO: check the region
 
-        let rectangle = Rect::from_origin_size(self.origin, self.size);
-
         // Draw a cross.
         piet.stroke(
-            Line::new((rectangle.x0, rectangle.y0), (rectangle.x1, rectangle.y1)),
+            Line::new(
+                (self.rectangle.x0, self.rectangle.y0),
+                (self.rectangle.x1, self.rectangle.y1),
+            ),
             &self.color,
             1.0,
         );
         piet.stroke(
-            Line::new((rectangle.x0, rectangle.y1), (rectangle.x1, rectangle.y0)),
+            Line::new(
+                (self.rectangle.x0, self.rectangle.y1),
+                (self.rectangle.x1, self.rectangle.y0),
+            ),
             &self.color,
             1.0,
         );
 
         // Draw the rectangle.
-        piet.stroke(&rectangle, &self.color, 1.0);
+        piet.stroke(&self.rectangle, &self.color, 1.0);
     }
 
     fn set_origin(&mut self, origin: Point) {
-        self.origin = origin;
+        self.rectangle = self.rectangle.with_origin(origin)
     }
 
     fn widget_id(&self) -> &WidgetId {

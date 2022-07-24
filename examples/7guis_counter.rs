@@ -4,9 +4,7 @@ This implements the "Counter" task from [7GUIs](https://eugenkiss.github.io/7gui
 use druid_shell::kurbo::Size;
 use druid_shell::piet::Piet;
 use druid_shell::Region;
-use guiver::widget::layout::{Padding, Row};
-use guiver::widget::Label;
-use guiver::{run, WidgetEvent, WidgetId, WidgetManager, WidgetManagerCommand};
+use guiver::{run, Command, WidgetEvent, WidgetId, WidgetManager};
 use guiver::{Application, SystemEvent};
 
 pub(crate) struct App {
@@ -23,15 +21,15 @@ impl App {
         // Create the widgets.
         let padding = widget_manager.new_padding(15.0, 15.0, 15.0, 15.0);
         let row = widget_manager.new_row(10.0);
-        let counter_label = widget_manager.new_label("0");
-        let counter_button = widget_manager.new_label("Count");
+        let counter_label = widget_manager.new_text("0");
+        let counter_button = widget_manager.new_text("Count");
 
         // Compose the widgets.
         let _ = widget_manager.send_commands(vec![
-            WidgetManagerCommand::SetMainWidget(padding),
-            WidgetManagerCommand::AppendChild(padding, row),
-            WidgetManagerCommand::AppendChild(row, counter_label),
-            WidgetManagerCommand::AppendChild(row, counter_button),
+            Command::SetMainWidget(padding),
+            Command::AppendChild(padding, row),
+            Command::AppendChild(row, counter_label),
+            Command::AppendChild(row, counter_button),
         ]);
 
         App {
@@ -57,13 +55,11 @@ impl Application for App {
                         // Increase the counter.
                         self.counter += 1;
 
-                        // Update the counter label.
-                        let _ = self
-                            .widget_manager
-                            .send_command(WidgetManagerCommand::SetValue(
-                                self.counter_label,
-                                Box::new(format!("{}", self.counter)),
-                            ));
+                        // Update the counter text.
+                        let _ = self.widget_manager.send_command(Command::SetValue(
+                            self.counter_label,
+                            Box::new(format!("{}", self.counter)),
+                        ));
                     }
                 }
                 WidgetEvent::ValueChanged(_) => {}

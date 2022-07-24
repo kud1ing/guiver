@@ -1,7 +1,7 @@
 use crate::widget::{WidgetCommand, WidgetError, WidgetId};
 use crate::widget_manager::WidgetBox;
 use crate::{SizeConstraints, SystemEvent, Widget, WidgetEvent};
-use druid_shell::kurbo::{Point, Size};
+use druid_shell::kurbo::{Point, Rect, Size};
 use druid_shell::piet::Piet;
 use druid_shell::Region;
 use std::borrow::BorrowMut;
@@ -12,8 +12,7 @@ use std::cmp::max;
 pub struct Column {
     child_widgets: Vec<WidgetBox>,
     is_hidden: bool,
-    origin: Point,
-    size: Size,
+    rectangle: Rect,
     size_constraints: SizeConstraints,
     spacing: f64,
     widget_id: WidgetId,
@@ -25,8 +24,7 @@ impl Column {
         Column {
             child_widgets: vec![],
             is_hidden: false,
-            origin: (0.0, 0.0).into(),
-            size: Size::default(),
+            rectangle: Rect::default(),
             size_constraints: SizeConstraints::unbounded(),
             spacing,
             widget_id,
@@ -47,15 +45,15 @@ impl Column {
         // TODO: improve the layout algorithm used here.
 
         let child_size_constraints = SizeConstraints::new(
-            Size::new(self.size.width, 0.0),
+            Size::new(self.rectangle.size().width, 0.0),
             Size::new(
-                self.size.width,
-                (self.size.height - number_of_spacers as f64 * self.spacing)
+                self.rectangle.size().width,
+                (self.rectangle.size().height - number_of_spacers as f64 * self.spacing)
                     / (number_of_child_widgets as f64),
             ),
         );
 
-        let mut child_y = self.origin.y;
+        let mut child_y = self.rectangle.origin().y;
 
         for child_widget in &mut self.child_widgets {
             let child_size = RefCell::borrow_mut(&child_widget)
@@ -65,7 +63,7 @@ impl Column {
             // Set the children's origins.
             RefCell::borrow_mut(&child_widget)
                 .borrow_mut()
-                .set_origin((self.origin.x, child_y).into());
+                .set_origin((self.rectangle.origin().x, child_y).into());
 
             child_y += child_size.height + self.spacing;
         }
@@ -76,12 +74,12 @@ impl Widget for Column {
     ///
     fn apply_size_constraints(&mut self, size_constraints: SizeConstraints) -> Size {
         self.size_constraints = size_constraints;
-        self.size = *size_constraints.maximum();
+        self.rectangle = self.rectangle.with_size(*size_constraints.maximum());
 
         // Layout the children.
         self.layout_children();
 
-        self.size
+        self.rectangle.size()
     }
 
     fn handle_command(&mut self, widget_command: WidgetCommand) -> Result<(), WidgetError> {
@@ -130,7 +128,7 @@ impl Widget for Column {
     }
 
     fn set_origin(&mut self, origin: Point) {
-        self.origin = origin;
+        self.rectangle = self.rectangle.with_origin(origin);
 
         // Layout the children.
         self.layout_children();

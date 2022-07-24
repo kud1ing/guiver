@@ -1,16 +1,17 @@
 mod button;
-mod label;
 pub mod layout;
 mod placeholder;
+mod text;
 
 use crate::widget_manager::WidgetBox;
 use crate::{SizeConstraints, SystemEvent};
+pub use button::Button;
 use druid_shell::kurbo::{Point, Size};
 use druid_shell::piet;
 use druid_shell::Region;
-pub use label::Label;
 pub use placeholder::Placeholder;
 use std::any::Any;
+pub use text::Text;
 
 ///
 pub type WidgetId = usize;

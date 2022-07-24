@@ -11,4 +11,4 @@ pub use font::Font;
 pub use size_constraints::SizeConstraints;
 pub use system_event::SystemEvent;
 pub use widget::{Widget, WidgetEvent, WidgetId};
-pub use widget_manager::{WidgetManager, WidgetManagerCommand};
+pub use widget_manager::{Command, WidgetManager};

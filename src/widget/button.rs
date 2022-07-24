@@ -1,85 +1,72 @@
-/*
-use crate::Widget;
-use druid_shell::kurbo::{Rect, RoundedRect};
-use druid_shell::piet::{
-    Color, FontFamily, PaintBrush, Piet, RenderContext, Text, TextLayout, TextLayoutBuilder,
-};
+use crate::widget::{WidgetCommand, WidgetError};
+use crate::widget_manager::WidgetBox;
+use crate::{SizeConstraints, SystemEvent, Widget, WidgetEvent, WidgetId};
+use druid_shell::kurbo::{Point, Rect, Size};
+use druid_shell::piet::{Color, LinearGradient, PaintBrush, Piet, UnitPoint};
 use druid_shell::Region;
 
 ///
-#[derive(Clone, Debug)]
 pub struct Button {
-    button_fill_brush: Option<PaintBrush>,
-    button_stroke_brush: Option<PaintBrush>,
-    button_stroke_width: f64,
+    child_widget: WidgetBox,
     corner_radius: f64,
-    font_size: f64,
-    horizontal_padding: f64,
-    minimum_width: f64,
-    text: String,
-    vertical_padding: f64,
-    x: f64,
-    y: f64,
+    fill_brush: Option<PaintBrush>,
+    is_hidden: bool,
+    padding_horizontal: f64,
+    padding_vertical: f64,
+    rectangle: Rect,
+    stroke_brush: Option<PaintBrush>,
+    stroke_width: f64,
+    widget_id: WidgetId,
 }
 
 impl Button {
-    pub fn new(text: impl ToString) -> Self {
+    ///
+    pub fn new(widget_id: WidgetId, child_widget: WidgetBox) -> Self {
         Button {
-            button_fill_brush: Some(PaintBrush::Linear(druid::LinearGradient::new(
-                druid::UnitPoint::TOP,
-                druid::UnitPoint::BOTTOM,
+            child_widget,
+            corner_radius: 4.0,
+            fill_brush: Some(PaintBrush::Linear(LinearGradient::new(
+                UnitPoint::TOP,
+                UnitPoint::BOTTOM,
                 (Color::rgb8(100, 100, 100), Color::rgb8(80, 80, 80)),
             ))),
-            button_stroke_brush: Some(PaintBrush::Color(Color::rgb8(200, 200, 200))),
-            button_stroke_width: 1.0,
-            corner_radius: 4.0,
-            font_size: 14.0,
-            horizontal_padding: 4.0,
-            minimum_width: 0.0,
-            text: text.to_string(),
-            vertical_padding: 4.0,
-            x: 0.0,
-            y: 0.0,
+            is_hidden: false,
+            padding_horizontal: 4.0,
+            padding_vertical: 4.0,
+            rectangle: Rect::default(),
+            stroke_brush: Some(PaintBrush::Color(Color::rgb8(200, 200, 200))),
+            stroke_width: 1.0,
+            widget_id,
         }
-    }
-
-    ///
-    pub fn button_fill_brush(mut self, button_fill_brush: Option<PaintBrush>) -> Self {
-        self.button_fill_brush = button_fill_brush;
-        self
-    }
-
-    ///
-    pub fn font_size(mut self, font_size: f64) -> Self {
-        self.font_size = font_size;
-        self
-    }
-
-    ///
-    pub fn minimum_width(mut self, minimum_width: f64) -> Self {
-        self.minimum_width = minimum_width;
-        self
-    }
-
-    ///
-    pub fn x(mut self, x: f64) -> Self {
-        self.x = x;
-        self
-    }
-
-    ///
-    pub fn y(mut self, y: f64) -> Self {
-        self.y = y;
-        self
     }
 }
 
 impl Widget for Button {
-    fn box_constraints(&self) -> BoxConstraints {
-        todo!()
+    fn apply_size_constraints(&mut self, _size_constraints: SizeConstraints) -> Size {
+        // TODO
+        println!("`Button::apply_size_constraints()`: TODO");
+
+        self.rectangle.size()
     }
 
-    fn draw(&mut self, piet: &mut Piet, _region: &Region) {
+    fn handle_command(&mut self, _widget_command: WidgetCommand) -> Result<(), WidgetError> {
+        // TODO
+        println!("`Button::handle_command()`: TODO");
+
+        Ok(())
+    }
+
+    fn handle_event(&mut self, _system_event: &SystemEvent, _widget_events: &mut Vec<WidgetEvent>) {
+        // TODO
+        println!("`Button::handle_event()`: TODO");
+    }
+
+    fn paint(&self, _piet: &mut Piet, _region: &Region) {
+        // TODO
+        println!("`Button::paint()`: TODO");
+
+        /*
+
         let piet_text = piet.text();
         let layout = piet_text
             .new_text_layout(self.text.to_string())
@@ -133,16 +120,14 @@ impl Widget for Button {
             &layout,
             button_rectangle.center() - (text_size.width * 0.5, text_size.height * 0.5),
         );
+         */
     }
 
-    fn handle_event(&mut self, _event: &Event, _region_to_redraw: &mut Region) {}
-
-    fn rectangle(&mut self) -> &Rect {
-        todo!()
+    fn set_origin(&mut self, origin: Point) {
+        self.rectangle = self.rectangle.with_origin(origin);
     }
 
-    fn set_rectangle(&mut self, _rectangle: Rect) {
-        todo!()
+    fn widget_id(&self) -> &WidgetId {
+        &self.widget_id
     }
 }
-*/

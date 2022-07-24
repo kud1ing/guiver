@@ -1,7 +1,7 @@
 use crate::widget::{WidgetCommand, WidgetError, WidgetId};
 use crate::widget_manager::WidgetBox;
 use crate::{SizeConstraints, SystemEvent, Widget, WidgetEvent};
-use druid_shell::kurbo::{Point, Size};
+use druid_shell::kurbo::{Point, Rect, Size};
 use druid_shell::piet::Piet;
 use druid_shell::Region;
 
@@ -9,12 +9,11 @@ use druid_shell::Region;
 pub struct Padding {
     child_widget: Option<WidgetBox>,
     is_hidden: bool,
-    origin: Point,
     padding_bottom: f64,
     padding_left: f64,
     padding_right: f64,
     padding_top: f64,
-    size: Size,
+    rectangle: Rect,
     size_constraints: SizeConstraints,
     widget_id: WidgetId,
 }
@@ -31,12 +30,11 @@ impl Padding {
         Padding {
             child_widget: None,
             is_hidden: false,
-            origin: (0.0, 0.0).into(),
             padding_bottom,
             padding_left,
             padding_right,
             padding_top,
-            size: Size::default(),
+            rectangle: Rect::default(),
             size_constraints: SizeConstraints::unbounded(),
             widget_id,
         }
@@ -57,10 +55,10 @@ impl Padding {
 
             // Set the children's origins
             child_widget.borrow_mut().set_origin(
-                self.origin
+                self.rectangle.origin()
                     + (
-                        0.5 * (self.size.width - child_size.width).max(0.0),
-                        0.5 * (self.size.height - child_size.height).max(0.0),
+                        0.5 * (self.rectangle.size().width - child_size.width).max(0.0),
+                        0.5 * (self.rectangle.size().height - child_size.height).max(0.0),
                     ),
             );
         }
@@ -71,12 +69,12 @@ impl Widget for Padding {
     ///
     fn apply_size_constraints(&mut self, size_constraints: SizeConstraints) -> Size {
         self.size_constraints = size_constraints;
-        self.size = *size_constraints.maximum();
+        self.rectangle = self.rectangle.with_size(*size_constraints.maximum());
 
         // Layout the child.
         self.layout_child();
 
-        self.size
+        self.rectangle.size()
     }
 
     fn handle_command(&mut self, widget_command: WidgetCommand) -> Result<(), WidgetError> {
@@ -131,7 +129,7 @@ impl Widget for Padding {
     }
 
     fn set_origin(&mut self, origin: Point) {
-        self.origin = origin;
+        self.rectangle = self.rectangle.with_origin(origin);
 
         // Layout the child.
         self.layout_child();

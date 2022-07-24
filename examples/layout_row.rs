@@ -4,9 +4,7 @@ This implements the "Counter" task from [7GUIs](https://eugenkiss.github.io/7gui
 use druid_shell::kurbo::Size;
 use druid_shell::piet::Piet;
 use druid_shell::Region;
-use guiver::widget::layout::{Padding, Row};
-use guiver::widget::Label;
-use guiver::{run, WidgetEvent, WidgetId, WidgetManager, WidgetManagerCommand};
+use guiver::{run, Command, WidgetManager};
 use guiver::{Application, SystemEvent};
 
 pub(crate) struct App {
@@ -26,11 +24,11 @@ impl App {
 
         // Compose the widgets.
         let _ = widget_manager.send_commands(vec![
-            WidgetManagerCommand::SetMainWidget(padding),
-            WidgetManagerCommand::AppendChild(padding, row),
-            WidgetManagerCommand::AppendChild(row, placeholder1),
-            WidgetManagerCommand::AppendChild(row, placeholder2),
-            WidgetManagerCommand::AppendChild(row, placeholder3),
+            Command::SetMainWidget(padding),
+            Command::AppendChild(padding, row),
+            Command::AppendChild(row, placeholder1),
+            Command::AppendChild(row, placeholder2),
+            Command::AppendChild(row, placeholder3),
         ]);
 
         App { widget_manager }
@@ -38,7 +36,7 @@ impl App {
 }
 
 impl Application for App {
-    fn handle_system_event(&mut self, system_event: &SystemEvent) {
+    fn handle_system_event(&mut self, _system_event: &SystemEvent) {
         // Do nothing.
     }
 

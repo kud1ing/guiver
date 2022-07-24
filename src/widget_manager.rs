@@ -1,5 +1,5 @@
 use crate::widget::layout::{Column, Padding, Row};
-use crate::widget::{Label, Placeholder, WidgetCommand, WidgetError};
+use crate::widget::{Button, Placeholder, Text, WidgetCommand, WidgetError};
 use crate::{SizeConstraints, SystemEvent, Widget, WidgetEvent, WidgetId};
 use druid_shell::kurbo::Size;
 use druid_shell::piet::Piet;
@@ -12,9 +12,9 @@ use std::rc::Rc;
 ///
 pub type WidgetBox = Rc<RefCell<Box<dyn Widget>>>;
 
-/// A command for the widget manager.
+/// A command to the widget manager or widgets.
 #[derive(Debug)]
-pub enum WidgetManagerCommand {
+pub enum Command {
     /// Append the child widget.
     AppendChild(WidgetId, WidgetId),
     /// Remove the widget's children.
@@ -33,18 +33,18 @@ pub enum WidgetManagerCommand {
     SetValue(WidgetId, Box<dyn Any>),
 }
 
-impl WidgetManagerCommand {
+impl Command {
     /// Returns the ID of the receiver widget.
     pub fn widget_id(&self) -> &WidgetId {
         return match self {
-            WidgetManagerCommand::AppendChild(widget_id, _) => &widget_id,
-            WidgetManagerCommand::Clear(widget_id) => &widget_id,
-            WidgetManagerCommand::RemoveChild(widget_id, _) => &widget_id,
-            WidgetManagerCommand::SetHasFocus(widget_id, _) => &widget_id,
-            WidgetManagerCommand::SetIsDisabled(widget_id, _) => &widget_id,
-            WidgetManagerCommand::SetIsHidden(widget_id, _) => &widget_id,
-            WidgetManagerCommand::SetMainWidget(widget_id) => &widget_id,
-            WidgetManagerCommand::SetValue(widget_id, _) => &widget_id,
+            Command::AppendChild(widget_id, _) => &widget_id,
+            Command::Clear(widget_id) => &widget_id,
+            Command::RemoveChild(widget_id, _) => &widget_id,
+            Command::SetHasFocus(widget_id, _) => &widget_id,
+            Command::SetIsDisabled(widget_id, _) => &widget_id,
+            Command::SetIsHidden(widget_id, _) => &widget_id,
+            Command::SetMainWidget(widget_id) => &widget_id,
+            Command::SetValue(widget_id, _) => &widget_id,
         };
     }
 }
@@ -125,21 +125,6 @@ impl WidgetManager {
     }
 
     ///
-    pub fn new_label(&mut self, text: impl Into<String>) -> WidgetId {
-        // Get a new widget ID.
-        let widget_id = self.next_widget_id();
-
-        // Add a new label widget.
-        self.widgets.insert(
-            widget_id,
-            Rc::new(RefCell::new(Box::new(Label::new(widget_id, text)))),
-        );
-
-        // Return the label's widget ID.
-        widget_id
-    }
-
-    ///
     pub fn new_padding(
         &mut self,
         padding_left: f64,
@@ -197,6 +182,40 @@ impl WidgetManager {
     }
 
     ///
+    pub fn new_text(&mut self, text: impl Into<String>) -> WidgetId {
+        // Get a new widget ID.
+        let widget_id = self.next_widget_id();
+
+        // Add a new text widget.
+        self.widgets.insert(
+            widget_id,
+            Rc::new(RefCell::new(Box::new(Text::new(widget_id, text)))),
+        );
+
+        // Return the text's widget ID.
+        widget_id
+    }
+
+    ///
+    pub fn new_text_button(&mut self, text: impl Into<String>) -> WidgetId {
+        // Get a new widget ID.
+        let widget_id = self.next_widget_id();
+        let child_widget_id = self.next_widget_id();
+
+        // Add a new button with a text as inner child.
+        self.widgets.insert(
+            widget_id,
+            Rc::new(RefCell::new(Box::new(Button::new(
+                widget_id,
+                Rc::new(RefCell::new(Box::new(Text::new(child_widget_id, text)))),
+            )))),
+        );
+
+        // Return the button's widget ID.
+        widget_id
+    }
+
+    ///
     pub fn paint(&self, piet: &mut Piet, region: &Region) {
         // There is a main widget.
         if let Some(main_widget) = &self.main_widget {
@@ -223,15 +242,12 @@ impl WidgetManager {
     }
 
     ///
-    pub fn send_command(&mut self, command: WidgetManagerCommand) -> Result<(), WidgetError> {
+    pub fn send_command(&mut self, command: Command) -> Result<(), WidgetError> {
         self.send_commands(vec![command])
     }
 
     ///
-    pub fn send_commands(
-        &mut self,
-        commands: Vec<WidgetManagerCommand>,
-    ) -> Result<(), WidgetError> {
+    pub fn send_commands(&mut self, commands: Vec<Command>) -> Result<(), WidgetError> {
         // Iterate over the given commands.
         for command in commands {
             // Get the ID of the widget from the command.
@@ -247,7 +263,7 @@ impl WidgetManager {
             };
 
             match command {
-                WidgetManagerCommand::AppendChild(_widget_id, child_id) => {
+                Command::AppendChild(_widget_id, child_id) => {
                     // There is a widget with the child ID from the command.
                     let child_widget_box =
                         if let Some(child_widget_box) = self.widgets.get(&child_id) {
@@ -262,36 +278,36 @@ impl WidgetManager {
                         .borrow_mut()
                         .handle_command(WidgetCommand::AppendChild(child_widget_box.clone()))?;
                 }
-                WidgetManagerCommand::Clear(_widget_id) => {
+                Command::Clear(_widget_id) => {
                     widget_box
                         .borrow_mut()
                         .handle_command(WidgetCommand::Clear)?;
                 }
-                WidgetManagerCommand::RemoveChild(_widget_id, child_id) => {
+                Command::RemoveChild(_widget_id, child_id) => {
                     widget_box
                         .borrow_mut()
                         .handle_command(WidgetCommand::RemoveChild(child_id))?;
                 }
-                WidgetManagerCommand::SetHasFocus(_widget_id, has_focus) => {
+                Command::SetHasFocus(_widget_id, has_focus) => {
                     widget_box
                         .borrow_mut()
                         .handle_command(WidgetCommand::SetHasFocus(has_focus))?;
                 }
-                WidgetManagerCommand::SetIsDisabled(_widget_id, is_disabled) => {
+                Command::SetIsDisabled(_widget_id, is_disabled) => {
                     widget_box
                         .borrow_mut()
                         .handle_command(WidgetCommand::SetIsDisabled(is_disabled))?;
                 }
-                WidgetManagerCommand::SetIsHidden(_widget_id, is_hidden) => {
+                Command::SetIsHidden(_widget_id, is_hidden) => {
                     widget_box
                         .borrow_mut()
                         .handle_command(WidgetCommand::SetIsHidden(is_hidden))?;
                 }
-                WidgetManagerCommand::SetMainWidget(_widget_id) => {
+                Command::SetMainWidget(_widget_id) => {
                     widget_box.borrow_mut().set_origin((1.0, 1.0).into());
                     self.main_widget = Some(widget_box.clone());
                 }
-                WidgetManagerCommand::SetValue(_widget_id, value) => {
+                Command::SetValue(_widget_id, value) => {
                     widget_box
                         .borrow_mut()
                         .handle_command(WidgetCommand::SetValue(value))?;
