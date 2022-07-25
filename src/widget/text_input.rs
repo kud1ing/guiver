@@ -505,7 +505,7 @@ impl Widget for TextInput {
     }
 
     fn paint(&self, piet: &mut Piet, region: &Region) -> Result<(), Error> {
-        // Paint the input field itself.
+        // Paint the input field frame.
         {
             let shape = RoundedRect::from_rect(self.rectangle, self.corner_radius);
 
@@ -522,8 +522,16 @@ impl Widget for TextInput {
             }
         }
 
-        // Paint the text.
-        self.text_widget.paint(piet, region)?;
+        // Paint the inner content.
+        {
+            piet.save()?;
+            piet.clip(&self.rectangle);
+
+            // Paint the text.
+            self.text_widget.paint(piet, region)?;
+
+            piet.restore()?;
+        }
 
         // Render debug hints.
         if self.debug_rendering {
