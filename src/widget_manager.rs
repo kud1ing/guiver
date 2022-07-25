@@ -1,9 +1,10 @@
+use crate::style::Style;
 use crate::widget::layout::{Column, Padding, Row};
-use crate::widget::{Button, Placeholder, Text, WidgetCommand, WidgetError};
+use crate::widget::{Button, Placeholder, Text, TextInput, WidgetCommand, WidgetError};
 use crate::{SizeConstraints, SystemEvent, Widget, WidgetEvent, WidgetId};
 use druid_shell::kurbo::Size;
 use druid_shell::piet::Piet;
-use druid_shell::Region;
+use druid_shell::{piet, Region};
 use std::any::Any;
 use std::cell::RefCell;
 use std::collections::HashMap;
@@ -18,9 +19,11 @@ pub enum Command {
     /// Append the child widget.
     AppendChild(WidgetId, WidgetId),
     /// Remove the widget's children.
-    Clear(WidgetId),
+    RemoveAllChildren(WidgetId),
     /// Remove the child widget.
     RemoveChild(WidgetId, WidgetId),
+    /// Enables/disables debug rendering mode for the widget.
+    SetDebugRendering(WidgetId, bool),
     /// Gives/removes focus to the widget.
     SetHasFocus(WidgetId, bool),
     /// Enables/disables the widget.
@@ -38,8 +41,9 @@ impl Command {
     pub fn widget_id(&self) -> &WidgetId {
         return match self {
             Command::AppendChild(widget_id, _) => &widget_id,
-            Command::Clear(widget_id) => &widget_id,
+            Command::RemoveAllChildren(widget_id) => &widget_id,
             Command::RemoveChild(widget_id, _) => &widget_id,
+            Command::SetDebugRendering(widget_id, _) => &widget_id,
             Command::SetHasFocus(widget_id, _) => &widget_id,
             Command::SetIsDisabled(widget_id, _) => &widget_id,
             Command::SetIsHidden(widget_id, _) => &widget_id,
@@ -53,6 +57,8 @@ impl Command {
 
 ///
 pub struct WidgetManager {
+    /// The widget that has the focus.
+    focused_widget: Option<WidgetBox>,
     /// The main widget that fills the whole window.
     main_widget: Option<WidgetBox>,
     /// The counter for the next widget ID.
@@ -60,6 +66,8 @@ pub struct WidgetManager {
     /// The size constraints. It is set in `resize()`, called by the window event handler for every
     /// window resize event so that the main widget fills the whole window.
     size_constraints: SizeConstraints,
+    ///
+    style: Style,
     /// All widgets per widget ID. This is used:
     /// * to pass commands to a widget
     widgets: HashMap<WidgetId, WidgetBox>,
@@ -69,9 +77,11 @@ impl WidgetManager {
     ///
     pub fn new() -> Self {
         WidgetManager {
+            focused_widget: None,
             main_widget: None,
             next_widget_id_counter: 0,
             size_constraints: SizeConstraints::default(),
+            style: Style::default(),
             widgets: HashMap::new(),
         }
     }
@@ -89,8 +99,34 @@ impl WidgetManager {
     }
 
     ///
-    pub fn handle_event(&mut self, system_event: &SystemEvent) -> Vec<WidgetEvent> {
+    pub fn handle_event(
+        &mut self,
+        system_event: &SystemEvent,
+    ) -> Result<Vec<WidgetEvent>, WidgetError> {
         let mut widget_events = vec![];
+
+        // A widget has focus.
+        if let Some(focused_widget) = &mut self.focused_widget {
+            match system_event {
+                SystemEvent::KeyDown(_) => {
+                    // Let only the focused widget handle the key event.
+                    focused_widget
+                        .borrow_mut()
+                        .handle_event(system_event, &mut widget_events);
+                    return Ok(widget_events);
+                }
+                SystemEvent::KeyUp(_) => {
+                    // Let only the focused widget handle the key event.
+                    focused_widget
+                        .borrow_mut()
+                        .handle_event(system_event, &mut widget_events);
+                    return Ok(widget_events);
+                }
+                SystemEvent::MouseDown(_) => {}
+                SystemEvent::MouseMove(_) => {}
+                SystemEvent::MouseUp(_) => {}
+            }
+        }
 
         // There is a main widget.
         if let Some(main_widget) = &mut self.main_widget {
@@ -100,7 +136,56 @@ impl WidgetManager {
                 .handle_event(system_event, &mut widget_events);
         }
 
-        widget_events
+        let mut id_of_the_last_widget_that_gained_focus = None;
+
+        // Iterate over the widget event.
+        for widget_event in &widget_events {
+            match widget_event {
+                WidgetEvent::Clicked(_) => {}
+                WidgetEvent::GotFocus(widget_id) => {
+                    // A widget gained focus.
+                    id_of_the_last_widget_that_gained_focus = Some(widget_id);
+                }
+                WidgetEvent::LostFocus(widget_id) => {
+                    // A widget had focus.
+                    if let Some(focused_widget) = &mut self.focused_widget {
+                        // The widgets was indeed focues.
+                        if focused_widget.borrow().widget_id() != widget_id {
+                            self.focused_widget = None;
+                        }
+                    }
+                }
+                WidgetEvent::ValueChanged(_, _) => {}
+            }
+        }
+
+        // A widget gained focus.
+        if let Some(id_of_the_widget_that_gained_focus) = id_of_the_last_widget_that_gained_focus {
+            // There is a widget with the given ID.
+            if let Some(widget_box) = self.widgets.get(id_of_the_widget_that_gained_focus) {
+                // A widget had focus.
+                if let Some(focused_widget) = &mut self.focused_widget {
+                    // The widgets are different.
+                    if focused_widget.borrow().widget_id() != id_of_the_widget_that_gained_focus {
+                        // Unfocus that previously focused widget.
+                        focused_widget
+                            .borrow_mut()
+                            .handle_command(WidgetCommand::SetHasFocus(false))?;
+                    }
+                }
+
+                // Remember the current widget as focused.
+                self.focused_widget = Some(widget_box.clone());
+            }
+            // There is no widget with the given ID.
+            else {
+                return Err(WidgetError::NoSuchWidget(
+                    *id_of_the_widget_that_gained_focus,
+                ));
+            };
+        }
+
+        Ok(widget_events)
     }
 
     ///
@@ -110,14 +195,17 @@ impl WidgetManager {
     }
 
     ///
-    pub fn new_column(&mut self, spacing: f64) -> WidgetId {
+    pub fn new_column(&mut self) -> WidgetId {
         // Get a new widget ID.
         let widget_id = self.next_widget_id();
 
         // Add a new column widget.
         self.widgets.insert(
             widget_id,
-            Rc::new(RefCell::new(Box::new(Column::new(widget_id, spacing)))),
+            Rc::new(RefCell::new(Box::new(Column::new(
+                widget_id,
+                self.style.padding,
+            )))),
         );
 
         // Return the column's widget ID.
@@ -125,13 +213,7 @@ impl WidgetManager {
     }
 
     ///
-    pub fn new_padding(
-        &mut self,
-        padding_left: f64,
-        padding_top: f64,
-        padding_right: f64,
-        padding_bottom: f64,
-    ) -> WidgetId {
+    pub fn new_padding(&mut self) -> WidgetId {
         // Get a new widget ID.
         let widget_id = self.next_widget_id();
 
@@ -140,10 +222,12 @@ impl WidgetManager {
             widget_id,
             Rc::new(RefCell::new(Box::new(Padding::new(
                 widget_id,
-                padding_left,
-                padding_top,
-                padding_right,
-                padding_bottom,
+                self.style.debug_rendering_stroke_brush.clone(),
+                self.style.debug_rendering_stroke_width,
+                self.style.padding,
+                self.style.padding,
+                self.style.padding,
+                self.style.padding,
             )))),
         );
 
@@ -167,14 +251,20 @@ impl WidgetManager {
     }
 
     ///
-    pub fn new_row(&mut self, spacing: f64) -> WidgetId {
+    pub fn new_row(&mut self) -> WidgetId {
         // Get a new widget ID.
         let widget_id = self.next_widget_id();
 
         // Add a new row widget.
         self.widgets.insert(
             widget_id,
-            Rc::new(RefCell::new(Box::new(Row::new(widget_id, spacing)))),
+            Rc::new(RefCell::new(Box::new(Row::new(
+                widget_id,
+                self.style.debug_rendering_stroke_brush.clone(),
+                self.style.debug_rendering_stroke_width,
+                self.style.vertical_alignment,
+                self.style.spacing,
+            )))),
         );
 
         // Return the row's widget ID.
@@ -189,7 +279,12 @@ impl WidgetManager {
         // Add a new text widget.
         self.widgets.insert(
             widget_id,
-            Rc::new(RefCell::new(Box::new(Text::new(widget_id, text)))),
+            Rc::new(RefCell::new(Box::new(Text::new(
+                widget_id,
+                self.style.debug_rendering_stroke_brush.clone(),
+                self.style.debug_rendering_stroke_width,
+                text,
+            )))),
         );
 
         // Return the text's widget ID.
@@ -207,7 +302,14 @@ impl WidgetManager {
             widget_id,
             Rc::new(RefCell::new(Box::new(Button::new(
                 widget_id,
-                Rc::new(RefCell::new(Box::new(Text::new(child_widget_id, text)))),
+                Rc::new(RefCell::new(Box::new(Text::new(
+                    child_widget_id,
+                    self.style.debug_rendering_stroke_brush.clone(),
+                    self.style.debug_rendering_stroke_width,
+                    text,
+                )))),
+                Some(self.style.frame_color.clone()),
+                Some(self.style.accent_color.clone()),
             )))),
         );
 
@@ -216,12 +318,36 @@ impl WidgetManager {
     }
 
     ///
-    pub fn paint(&self, piet: &mut Piet, region: &Region) {
+    pub fn new_text_input(&mut self, text: impl Into<String>) -> WidgetId {
+        // Get a new widget ID.
+        let widget_id = self.next_widget_id();
+
+        // Add a new text input widget.
+        self.widgets.insert(
+            widget_id,
+            Rc::new(RefCell::new(Box::new(TextInput::new(
+                widget_id,
+                self.style.debug_rendering_stroke_brush.clone(),
+                self.style.debug_rendering_stroke_width,
+                text,
+                self.style.frame_color.clone(),
+                self.style.accent_color.clone(),
+            )))),
+        );
+
+        // Return the text input's widget ID.
+        widget_id
+    }
+
+    ///
+    pub fn paint(&self, piet: &mut Piet, region: &Region) -> Result<(), piet::Error> {
         // There is a main widget.
         if let Some(main_widget) = &self.main_widget {
             // Paint the main widget.
-            main_widget.borrow().paint(piet, region)
+            main_widget.borrow().paint(piet, region)?;
         }
+
+        Ok(())
     }
 
     ///
@@ -278,17 +404,35 @@ impl WidgetManager {
                         .borrow_mut()
                         .handle_command(WidgetCommand::AppendChild(child_widget_box.clone()))?;
                 }
-                Command::Clear(_widget_id) => {
+                Command::RemoveAllChildren(_widget_id) => {
                     widget_box
                         .borrow_mut()
-                        .handle_command(WidgetCommand::Clear)?;
+                        .handle_command(WidgetCommand::RemoveAllChildren)?;
                 }
                 Command::RemoveChild(_widget_id, child_id) => {
                     widget_box
                         .borrow_mut()
                         .handle_command(WidgetCommand::RemoveChild(child_id))?;
                 }
+                Command::SetDebugRendering(_widget_id, debug_rendering) => {
+                    widget_box
+                        .borrow_mut()
+                        .handle_command(WidgetCommand::SetDebugRendering(debug_rendering))?;
+                }
                 Command::SetHasFocus(_widget_id, has_focus) => {
+                    // A widget had focus.
+                    if let Some(focused_widget) = &mut self.focused_widget {
+                        // TODO: only unfocus if the affected widgets are different.
+                        // Unfocus that widget.
+                        focused_widget
+                            .borrow_mut()
+                            .handle_command(WidgetCommand::SetHasFocus(false))?;
+                    }
+
+                    // Remember the current widget as focused.
+                    self.focused_widget = Some(widget_box.clone());
+
+                    // Tell the widget it has focus now.
                     widget_box
                         .borrow_mut()
                         .handle_command(WidgetCommand::SetHasFocus(has_focus))?;

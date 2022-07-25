@@ -3,11 +3,14 @@ use crate::font::Font;
 use crate::widget::{WidgetCommand, WidgetError, WidgetId};
 use crate::{SizeConstraints, SystemEvent, Widget, WidgetEvent};
 use druid_shell::kurbo::{Point, Rect, Size};
-use druid_shell::piet::{Piet, PietTextLayout, RenderContext, TextLayout};
-use druid_shell::Region;
+use druid_shell::piet::{PaintBrush, Piet, PietTextLayout, RenderContext, TextLayout};
+use druid_shell::{piet, Region};
 
-/// A text.
+/// A text widget.
 pub struct Text {
+    debug_rendering: bool,
+    debug_rendering_stroke_brush: PaintBrush,
+    debug_rendering_stroke_width: f64,
     font: Font,
     is_hidden: bool,
     rectangle: Rect,
@@ -18,11 +21,19 @@ pub struct Text {
 
 impl Text {
     ///
-    pub fn new(widget_id: WidgetId, text: impl Into<String>) -> Self {
+    pub fn new(
+        widget_id: WidgetId,
+        debug_rendering_stroke_brush: PaintBrush,
+        debug_rendering_stroke_width: f64,
+        text: impl Into<String>,
+    ) -> Self {
         let font = Font::default();
         let text = text.into();
 
         Text {
+            debug_rendering: false,
+            debug_rendering_stroke_brush,
+            debug_rendering_stroke_width,
             font: font.clone(),
             is_hidden: false,
             rectangle: Rect::default(),
@@ -46,7 +57,7 @@ impl Widget for Text {
         self.rectangle = self.rectangle.with_size(
             self.text_layout
                 .size()
-                .clamp(*size_constraints.minimum(), *size_constraints.maximum()),
+                .clamp(self.text_layout.size(), *size_constraints.maximum()),
         );
 
         self.rectangle.size()
@@ -60,7 +71,7 @@ impl Widget for Text {
                     widget_command,
                 ));
             }
-            WidgetCommand::Clear => {
+            WidgetCommand::RemoveAllChildren => {
                 return Err(WidgetError::CommandNotHandled(
                     self.widget_id,
                     widget_command,
@@ -77,6 +88,9 @@ impl Widget for Text {
                     self.widget_id,
                     widget_command,
                 ));
+            }
+            WidgetCommand::SetDebugRendering(debug_rendering) => {
+                self.debug_rendering = debug_rendering;
             }
             WidgetCommand::SetIsDisabled(_) => {
                 // TODO
@@ -102,6 +116,8 @@ impl Widget for Text {
 
     fn handle_event(&mut self, system_event: &SystemEvent, widget_events: &mut Vec<WidgetEvent>) {
         match system_event {
+            SystemEvent::KeyDown(_) => {}
+            SystemEvent::KeyUp(_) => {}
             SystemEvent::MouseDown(mouse_event) => {
                 if !self.rectangle.contains(mouse_event.pos) {
                     return;
@@ -126,18 +142,30 @@ impl Widget for Text {
         }
     }
 
-    fn paint(&self, piet: &mut Piet, _region: &Region) {
+    fn paint(&self, piet: &mut Piet, _region: &Region) -> Result<(), piet::Error> {
         // The text is hidden.
         if self.is_hidden {
-            return;
+            return Ok(());
         }
 
         // TODO: Check the region.
 
-        // TODO: clip to the size.
-
-        // Draw the text.
+        // Draw the text clipped.
+        piet.save()?;
+        piet.clip(&self.rectangle);
         piet.draw_text(&self.text_layout, self.rectangle.origin());
+        piet.restore()?;
+
+        // Render debug hints.
+        if self.debug_rendering {
+            piet.stroke(
+                self.rectangle,
+                &self.debug_rendering_stroke_brush,
+                self.debug_rendering_stroke_width,
+            );
+        }
+
+        Ok(())
     }
 
     fn set_origin(&mut self, origin: Point) {

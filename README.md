@@ -12,7 +12,9 @@ The widgets are decoupled from the application data via message passing, which i
 
 The examples can be run with `cargo run --example EXAMPLE_NAME`
 
-<img width="222" alt="Bildschirmfoto 2022-07-24 um 11 59 16" src="https://user-images.githubusercontent.com/391975/180641967-f69c5227-bba7-453d-92ef-cd94552d3529.png">
+<img width="189" alt="Bildschirmfoto 2022-07-25 um 11 01 22" src="https://user-images.githubusercontent.com/391975/180739652-d1726213-d35f-4248-85ce-2745010ac96d.png">
+
+<img width="354" alt="Bildschirmfoto 2022-07-25 um 14 49 25" src="https://user-images.githubusercontent.com/391975/180781637-953f2c58-7497-472b-9f7a-532d6538122d.png">
 
 <img width="300" alt="Bildschirmfoto 2022-07-24 um 13 41 24" src="https://user-images.githubusercontent.com/391975/180645285-1a287970-d6f1-4b83-986f-c9188a06b9b6.png">
 
@@ -22,32 +24,26 @@ The examples can be run with `cargo run --example EXAMPLE_NAME`
 
 <img width="400" alt="Bildschirmfoto 2022-07-24 um 12 59 33" src="https://user-images.githubusercontent.com/391975/180644027-351f4490-4038-4629-9392-2cde4fa91c9c.png">
 
+
 ## Backlog
 
-* [ ] implement `Button` widget
-  * [ ] `paint()`: use save, restore, clip painting
-* [ ] 7GUIs "Counter": use `Button`
-* [ ] add `Style:
-  * `accent_color`
-  * `font`
-  * `spacing`
-  * [ ] implement Default()
-  * [ ] add it to `WidgetManager`
 * [ ] implement a text input widget
-  * [ ] paste
   * [ ] enter text
+  * [ ] paste
   * [ ] cursor movement with arrow keys
   * [ ] backspace deletes text
   * [ ] select text
   * [ ] Ctrl+X deletes text
   * [ ] Ctrl-C
-* [ ] `WidgetManager`: track the focused widget
-  * [ ] unfocus any previously focused widget
-  * [ ] use `Style::accent_color`
-* [ ] `Label::paint()`: use save, restore, clip painting
+* [ ] implement 7GUIs "Temperature Converter" with the text input widget
+* [ ] consider sharing guiver
+* [ ] add to `Style:
+  * `accent_color`
+  * `font`
+  * `spacing`
+    * [ ] use it in `Row` CTOR?
+    * [ ] use it in `Padding` CTOR?
 * [ ] implement [7GUIs](https://eugenkiss.github.io/7guis/tasks)
-  * [ ] 7GUIs "Temperature Converter"
-    * [ ] implement `TextEdit`
   * [ ] 7GUIs "Flight Booker"
     * [ ] implement `DropdownBox`
   * [ ] 7GUIs "Timer"

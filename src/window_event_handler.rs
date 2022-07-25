@@ -60,16 +60,20 @@ impl WinHandler for WindowEventHandler {
 
     fn open_file(&mut self, _token: FileDialogToken, _file: Option<FileInfo>) {}
 
-    fn key_down(&mut self, _event: KeyEvent) -> bool {
-        // TODO: Handle the event.
+    fn key_down(&mut self, event: KeyEvent) -> bool {
+        // Handle the key down event.
+        self.application
+            .handle_system_event(&SystemEvent::KeyDown(event.clone()));
 
         self.window_handle
             .invalidate_rect(self.window_size.to_rect());
         false
     }
 
-    fn key_up(&mut self, _event: KeyEvent) {
-        // TODO: Handle the event.
+    fn key_up(&mut self, event: KeyEvent) {
+        // Handle the key up event.
+        self.application
+            .handle_system_event(&SystemEvent::KeyUp(event.clone()));
 
         self.window_handle
             .invalidate_rect(self.window_size.to_rect());

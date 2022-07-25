@@ -1,11 +1,14 @@
+mod alignment;
 mod application;
 mod font;
 pub mod size_constraints;
+mod style;
 mod system_event;
 pub mod widget;
 mod widget_manager;
 mod window_event_handler;
 
+pub use alignment::{HorizontalAlignment, VerticalAlignment};
 pub use application::{run, Application};
 pub use font::Font;
 pub use size_constraints::SizeConstraints;

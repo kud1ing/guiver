@@ -3,7 +3,7 @@ use crate::widget_manager::WidgetBox;
 use crate::{SizeConstraints, SystemEvent, Widget, WidgetEvent};
 use druid_shell::kurbo::{Point, Rect, Size};
 use druid_shell::piet::Piet;
-use druid_shell::Region;
+use druid_shell::{piet, Region};
 use std::borrow::BorrowMut;
 use std::cell::RefCell;
 use std::cmp::max;
@@ -11,6 +11,7 @@ use std::cmp::max;
 ///
 pub struct Column {
     child_widgets: Vec<WidgetBox>,
+    debug_rendering: bool,
     is_hidden: bool,
     rectangle: Rect,
     size_constraints: SizeConstraints,
@@ -23,6 +24,7 @@ impl Column {
     pub fn new(widget_id: WidgetId, spacing: f64) -> Self {
         Column {
             child_widgets: vec![],
+            debug_rendering: false,
             is_hidden: false,
             rectangle: Rect::default(),
             size_constraints: SizeConstraints::unbounded(),
@@ -87,12 +89,15 @@ impl Widget for Column {
             WidgetCommand::AppendChild(child_widget) => {
                 self.child_widgets.push(child_widget);
             }
-            WidgetCommand::Clear => {
+            WidgetCommand::RemoveAllChildren => {
                 self.child_widgets.clear();
             }
             WidgetCommand::RemoveChild(_) => {
                 // TODO
                 println!("`Column::handle_widget_command(RemoveChild)`: TODO");
+            }
+            WidgetCommand::SetDebugRendering(debug_rendering) => {
+                self.debug_rendering = debug_rendering;
             }
             WidgetCommand::SetHasFocus(_) => {}
             WidgetCommand::SetIsDisabled(_) => {
@@ -116,15 +121,19 @@ impl Widget for Column {
         }
     }
 
-    fn paint(&self, piet: &mut Piet, region: &Region) {
+    fn paint(&self, piet: &mut Piet, region: &Region) -> Result<(), piet::Error> {
         if self.is_hidden {
-            return;
+            return Ok(());
         }
 
         // Iterate over the child widgets.
         for child_widget in &self.child_widgets {
-            RefCell::borrow(&child_widget).paint(piet, region);
+            RefCell::borrow(&child_widget).paint(piet, region)?;
         }
+
+        // TODO: use `self.debug_rendering`
+
+        Ok(())
     }
 
     fn set_origin(&mut self, origin: Point) {

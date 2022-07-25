@@ -1,6 +1,6 @@
 /**
 This implements the "Counter" task from [7GUIs](https://eugenkiss.github.io/7guis/tasks/).
-*/
+ */
 use druid_shell::kurbo::Size;
 use druid_shell::piet::Piet;
 use druid_shell::Region;
@@ -8,9 +8,10 @@ use guiver::{run, Command, WidgetEvent, WidgetId, WidgetManager};
 use guiver::{Application, SystemEvent};
 
 pub(crate) struct App {
-    counter: u32,
-    counter_button: WidgetId,
-    counter_label: WidgetId,
+    temperature_celsius: f32,
+    temperature_fahrenheit: f32,
+    text_input_celsius: WidgetId,
+    text_input_fahrenheit: WidgetId,
     widget_manager: WidgetManager,
 }
 
@@ -21,23 +22,28 @@ impl App {
         // Create the widgets.
         let padding = widget_manager.new_padding();
         let row = widget_manager.new_row();
-        let counter_label = widget_manager.new_text("0");
-        let counter_button = widget_manager.new_text_button("Count");
+        let text_input_celsius = widget_manager.new_text_input("C");
+        let text1 = widget_manager.new_text("Celsius =");
+        let text_input_fahrenheit = widget_manager.new_text_input("F");
+        let text2 = widget_manager.new_text("Fahrenheit");
 
         // Compose the widgets.
         widget_manager
             .send_commands(vec![
                 Command::SetMainWidget(padding),
                 Command::AppendChild(padding, row),
-                Command::AppendChild(row, counter_label),
-                Command::AppendChild(row, counter_button),
+                Command::AppendChild(row, text_input_celsius),
+                Command::AppendChild(row, text1),
+                Command::AppendChild(row, text_input_fahrenheit),
+                Command::AppendChild(row, text2),
             ])
             .unwrap();
 
         App {
-            counter: 0,
-            counter_button,
-            counter_label,
+            temperature_celsius: 0.0,
+            temperature_fahrenheit: 0.0,
+            text_input_celsius,
+            text_input_fahrenheit,
             widget_manager,
         }
     }
@@ -51,24 +57,12 @@ impl Application for App {
         // Iterate over the generated widget events.
         for widget_event in widget_events {
             match widget_event {
-                WidgetEvent::Clicked(widget_id) => {
-                    // The counter button was clicked.
-                    if widget_id == self.counter_button {
-                        // Increase the counter.
-                        self.counter += 1;
-
-                        // Update the counter text.
-                        self.widget_manager
-                            .send_command(Command::SetValue(
-                                self.counter_label,
-                                Box::new(format!("{}", self.counter)),
-                            ))
-                            .unwrap();
-                    }
-                }
+                WidgetEvent::Clicked(_) => {}
                 WidgetEvent::GotFocus(_) => {}
                 WidgetEvent::LostFocus(_) => {}
-                WidgetEvent::ValueChanged(_, _) => {}
+                WidgetEvent::ValueChanged(_, _) => {
+                    // TODO
+                }
             }
         }
     }
@@ -85,5 +79,9 @@ impl Application for App {
 }
 
 pub fn main() {
-    run(Box::new(App::new()), "7GUIs: Counter", (400.0, 80.0).into());
+    run(
+        Box::new(App::new()),
+        "7GUIs: Temperature Converter",
+        (400.0, 80.0).into(),
+    );
 }

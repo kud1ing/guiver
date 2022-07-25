@@ -2,12 +2,15 @@ use crate::widget::{WidgetCommand, WidgetError, WidgetId};
 use crate::widget_manager::WidgetBox;
 use crate::{SizeConstraints, SystemEvent, Widget, WidgetEvent};
 use druid_shell::kurbo::{Point, Rect, Size};
-use druid_shell::piet::Piet;
-use druid_shell::Region;
+use druid_shell::piet::{PaintBrush, Piet, RenderContext};
+use druid_shell::{piet, Region};
 
 /// A padding layout widget.
 pub struct Padding {
     child_widget: Option<WidgetBox>,
+    debug_rendering: bool,
+    debug_rendering_stroke_brush: PaintBrush,
+    debug_rendering_stroke_width: f64,
     is_hidden: bool,
     padding_bottom: f64,
     padding_left: f64,
@@ -22,6 +25,8 @@ impl Padding {
     ///
     pub fn new(
         widget_id: WidgetId,
+        debug_rendering_stroke_brush: PaintBrush,
+        debug_rendering_stroke_width: f64,
         padding_left: f64,
         padding_top: f64,
         padding_right: f64,
@@ -29,6 +34,9 @@ impl Padding {
     ) -> Self {
         Padding {
             child_widget: None,
+            debug_rendering: false,
+            debug_rendering_stroke_brush,
+            debug_rendering_stroke_width,
             is_hidden: false,
             padding_bottom,
             padding_left,
@@ -44,16 +52,19 @@ impl Padding {
     fn layout_child(&mut self) {
         // There is a child widget.
         if let Some(child_widget) = &mut self.child_widget {
-            // Apply the child widget's size constraints.
-            let child_size =
-                child_widget
-                    .borrow_mut()
-                    .apply_size_constraints(self.size_constraints.shrink(Size::new(
-                        self.padding_left + self.padding_right,
-                        self.padding_top + self.padding_bottom,
-                    )));
+            let padding_size = Size::new(
+                self.padding_left + self.padding_right,
+                self.padding_top + self.padding_bottom,
+            );
 
-            // Set the children's origins
+            // Apply the child widget's size constraints.
+            let child_size = child_widget
+                .borrow_mut()
+                .apply_size_constraints(self.size_constraints.shrink(padding_size));
+
+            self.rectangle = self.rectangle.with_size(child_size + padding_size);
+
+            // Set the child's origin.
             child_widget.borrow_mut().set_origin(
                 self.rectangle.origin()
                     + (
@@ -62,6 +73,10 @@ impl Padding {
                     ),
             );
         }
+        // There is no child widget.
+        else {
+            self.rectangle = self.rectangle.with_size(*self.size_constraints.maximum());
+        }
     }
 }
 
@@ -69,7 +84,6 @@ impl Widget for Padding {
     ///
     fn apply_size_constraints(&mut self, size_constraints: SizeConstraints) -> Size {
         self.size_constraints = size_constraints;
-        self.rectangle = self.rectangle.with_size(*size_constraints.maximum());
 
         // Layout the child.
         self.layout_child();
@@ -85,12 +99,15 @@ impl Widget for Padding {
                 // Layout the child.
                 self.layout_child();
             }
-            WidgetCommand::Clear => {
+            WidgetCommand::RemoveAllChildren => {
                 self.child_widget = None;
             }
             WidgetCommand::RemoveChild(_) => {
                 // TODO
                 println!("`Padding::handle_widget_command(RemoveChild)`: TODO");
+            }
+            WidgetCommand::SetDebugRendering(debug_rendering) => {
+                self.debug_rendering = debug_rendering;
             }
             WidgetCommand::SetHasFocus(_) => {}
             WidgetCommand::SetIsDisabled(_) => {
@@ -98,7 +115,6 @@ impl Widget for Padding {
                 println!("`Padding::handle_widget_command(SetIsDisabled)`: TODO");
             }
             WidgetCommand::SetIsHidden(is_hidden) => {
-                // Hide/show this widget.
                 self.is_hidden = is_hidden;
             }
             WidgetCommand::SetValue(_value) => {}
@@ -116,16 +132,27 @@ impl Widget for Padding {
         }
     }
 
-    fn paint(&self, piet: &mut Piet, region: &Region) {
+    fn paint(&self, piet: &mut Piet, region: &Region) -> Result<(), piet::Error> {
         if self.is_hidden {
-            return;
+            return Ok(());
         }
 
         // There is a child widget.
         if let Some(child_widget_rc) = &self.child_widget {
             // Paint the child widget.
-            child_widget_rc.borrow().paint(piet, region);
+            child_widget_rc.borrow().paint(piet, region)?;
         }
+
+        // Render debug hints.
+        if self.debug_rendering {
+            piet.stroke(
+                self.rectangle,
+                &self.debug_rendering_stroke_brush,
+                self.debug_rendering_stroke_width,
+            );
+        }
+
+        Ok(())
     }
 
     fn set_origin(&mut self, origin: Point) {

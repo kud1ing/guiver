@@ -1,15 +1,14 @@
 use crate::widget::{WidgetCommand, WidgetError, WidgetId};
 use crate::{SizeConstraints, SystemEvent, Widget, WidgetEvent};
 use druid_shell::kurbo::{Line, Point, Rect, Size};
-use druid_shell::piet::{Color, Piet, RenderContext, StrokeStyle};
-use druid_shell::Region;
+use druid_shell::piet::{Color, Piet, RenderContext};
+use druid_shell::{piet, Region};
 
 /// A placeholder widget.
 pub struct Placeholder {
     color: Color,
     is_hidden: bool,
     rectangle: Rect,
-    stroke_style: StrokeStyle,
     widget_id: WidgetId,
 }
 
@@ -19,7 +18,6 @@ impl Placeholder {
             color: Color::rgb8(255, 255, 255),
             is_hidden: false,
             rectangle: Rect::default(),
-            stroke_style: StrokeStyle::new(),
             widget_id,
         }
     }
@@ -40,7 +38,7 @@ impl Widget for Placeholder {
                     widget_command,
                 ));
             }
-            WidgetCommand::Clear => {
+            WidgetCommand::RemoveAllChildren => {
                 return Err(WidgetError::CommandNotHandled(
                     self.widget_id,
                     widget_command,
@@ -51,6 +49,9 @@ impl Widget for Placeholder {
                     self.widget_id,
                     widget_command,
                 ));
+            }
+            WidgetCommand::SetDebugRendering(_debug_rendering) => {
+                // Debug rendering is unnecessary for placeholder widgets.
             }
             WidgetCommand::SetHasFocus(_has_focus) => {
                 return Err(WidgetError::CommandNotHandled(
@@ -80,10 +81,10 @@ impl Widget for Placeholder {
         // Nothing to do.
     }
 
-    fn paint(&self, piet: &mut Piet, _region: &Region) {
+    fn paint(&self, piet: &mut Piet, _region: &Region) -> Result<(), piet::Error> {
         // The placeholder is hidden.
         if self.is_hidden {
-            return;
+            return Ok(());
         }
 
         // TODO: check the region
@@ -108,6 +109,8 @@ impl Widget for Placeholder {
 
         // Draw the rectangle.
         piet.stroke(&self.rectangle, &self.color, 1.0);
+
+        Ok(())
     }
 
     fn set_origin(&mut self, origin: Point) {
