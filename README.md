@@ -10,7 +10,7 @@ There are retained mode widgets that can be used with an optional widget manager
 The widgets are decoupled from the application data via message passing, which is inspired by
 [Tk commands](https://en.wikipedia.org/wiki/Tk_(software)).
 
-<img width="194" alt="Bildschirmfoto 2022-07-25 um 19 16 26" src="https://user-images.githubusercontent.com/391975/180836451-5b9d3542-9ca8-43be-b4ec-ed096090cb5f.png">
+<img width="179" alt="Bildschirmfoto 2022-07-25 um 19 35 35" src="https://user-images.githubusercontent.com/391975/180839538-64f2a0a7-6dd8-4e1f-bdd7-ddeac2e98ed7.png">
 
 <img width="400" alt="Bildschirmfoto 2022-07-25 um 19 29 47" src="https://user-images.githubusercontent.com/391975/180838610-5ffbec48-7fa1-4ff3-b323-bb54f067febc.png">
 
@@ -21,6 +21,7 @@ The widgets are decoupled from the application data via message passing, which i
 <img width="314" alt="Bildschirmfoto 2022-07-24 um 11 58 56" src="https://user-images.githubusercontent.com/391975/180641976-111d6751-acc1-4910-9b01-2f421053a463.png">
 
 <img width="400" alt="Bildschirmfoto 2022-07-24 um 12 59 33" src="https://user-images.githubusercontent.com/391975/180644027-351f4490-4038-4629-9392-2cde4fa91c9c.png">
+
 
 ## Backlog
 
