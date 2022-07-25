@@ -1,11 +1,7 @@
 /**
 This implements the "Counter" task from [7GUIs](https://eugenkiss.github.io/7guis/tasks/).
 */
-use druid_shell::kurbo::Size;
-use druid_shell::piet::Piet;
-use druid_shell::Region;
-use guiver::{run, Command, WidgetManager};
-use guiver::{Application, SystemEvent};
+use guiver::{run, Application, Command, Piet, Region, Size, SystemEvent, WidgetManager};
 
 pub(crate) struct App {
     widget_manager: WidgetManager,
