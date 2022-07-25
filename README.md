@@ -10,11 +10,9 @@ There are retained mode widgets that can be used with an optional widget manager
 The widgets are decoupled from the application data via message passing, which is inspired by
 [Tk commands](https://en.wikipedia.org/wiki/Tk_(software)).
 
-The examples can be run with `cargo run --example EXAMPLE_NAME`
+<img width="194" alt="Bildschirmfoto 2022-07-25 um 19 16 26" src="https://user-images.githubusercontent.com/391975/180836451-5b9d3542-9ca8-43be-b4ec-ed096090cb5f.png">
 
-<img width="189" alt="Bildschirmfoto 2022-07-25 um 11 01 22" src="https://user-images.githubusercontent.com/391975/180739652-d1726213-d35f-4248-85ce-2745010ac96d.png">
-
-<img width="400" alt="Bildschirmfoto 2022-07-25 um 18 59 01" src="https://user-images.githubusercontent.com/391975/180833687-34f8385a-e5ae-4442-b445-945be9c831a9.png">
+<img width="400" alt="Bildschirmfoto 2022-07-25 um 19 14 21" src="https://user-images.githubusercontent.com/391975/180836291-ae116d30-fde3-4489-9d8e-1051888cd5f1.png">
 
 <img width="300" alt="Bildschirmfoto 2022-07-24 um 13 41 24" src="https://user-images.githubusercontent.com/391975/180645285-1a287970-d6f1-4b83-986f-c9188a06b9b6.png">
 
@@ -28,13 +26,12 @@ The examples can be run with `cargo run --example EXAMPLE_NAME`
 ## Backlog
 
 * [ ] implement a text input widget
+  * [ ] backspace deletes text
   * [ ] paste
   * [ ] cursor movement with arrow keys
-  * [ ] backspace deletes text
   * [ ] select text
-  * [ ] Ctrl+X deletes text
-  * [ ] Ctrl-C
-* [ ] implement 7GUIs "Temperature Converter" with the text input widget
+  * [ ] Ctrl+X cuts text
+  * [ ] Ctrl-C copies text
 * [ ] consider sharing guiver
 * [ ] add to `Style:
   * `accent_color`

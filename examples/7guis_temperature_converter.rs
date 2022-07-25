@@ -49,6 +49,14 @@ impl App {
     }
 }
 
+fn celsius_from_fahrenheit(fahrenheit: f32) -> f32 {
+    (fahrenheit - 32.0) * (5.0 / 9.0)
+}
+
+fn fahrenheit_from_celsius(celsius: f32) -> f32 {
+    celsius * (9.0 / 5.0) + 32.0
+}
+
 impl Application for App {
     fn handle_system_event(&mut self, system_event: &SystemEvent) {
         // Handle the system event, possibly create widget events.
@@ -62,11 +70,37 @@ impl Application for App {
                 WidgetEvent::LostFocus(_) => {}
                 WidgetEvent::ValueChanged(widget_id, value) => {
                     if widget_id == self.text_input_celsius {
-                        // TODO
-                        println!("Celsius: {:?}", &value);
+                        // The given value is a string.
+                        if let Some(string) = value.downcast_ref::<String>() {
+                            // The string could be parsed as a float
+                            if let Ok(celsius) = string.parse::<f32>() {
+                                self.widget_manager
+                                    .send_command(Command::SetValue(
+                                        self.text_input_fahrenheit,
+                                        Box::new(format!(
+                                            "{:.2}",
+                                            fahrenheit_from_celsius(celsius)
+                                        )),
+                                    ))
+                                    .unwrap();
+                            }
+                        }
                     } else if widget_id == self.text_input_fahrenheit {
-                        // TODO
-                        println!("Fahrenheit: {:?}", &value);
+                        // The given value is a string.
+                        if let Some(string) = value.downcast_ref::<String>() {
+                            // The string could be parsed as a float
+                            if let Ok(fahrenheit) = string.parse::<f32>() {
+                                self.widget_manager
+                                    .send_command(Command::SetValue(
+                                        self.text_input_celsius,
+                                        Box::new(format!(
+                                            "{:.2}",
+                                            celsius_from_fahrenheit(fahrenheit)
+                                        )),
+                                    ))
+                                    .unwrap();
+                            }
+                        }
                     }
                 }
             }
