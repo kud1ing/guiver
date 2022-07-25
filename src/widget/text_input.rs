@@ -190,9 +190,7 @@ impl Widget for TextInput {
                 }
                 _ => {}
             },
-            SystemEvent::KeyUp(_key_event) => {
-                // TODO
-            }
+            SystemEvent::KeyUp(_key_event) => {}
             SystemEvent::MouseDown(mouse_event) => {
                 // The mouse is down within this text input.
                 if self.rectangle.contains(mouse_event.pos) {
