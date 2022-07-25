@@ -10,7 +10,7 @@ use guiver::{Application, SystemEvent};
 pub(crate) struct App {
     counter: u32,
     counter_button: WidgetId,
-    counter_label: WidgetId,
+    counter_text: WidgetId,
     widget_manager: WidgetManager,
 }
 
@@ -37,7 +37,7 @@ impl App {
         App {
             counter: 0,
             counter_button,
-            counter_label,
+            counter_text: counter_label,
             widget_manager,
         }
     }
@@ -60,7 +60,7 @@ impl Application for App {
                         // Update the counter text.
                         self.widget_manager
                             .send_command(Command::SetValue(
-                                self.counter_label,
+                                self.counter_text,
                                 Box::new(format!("{}", self.counter)),
                             ))
                             .unwrap();
