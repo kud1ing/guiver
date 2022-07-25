@@ -1,4 +1,4 @@
-# guiver
+# guiver 0.1.0
 
 guiver is an approach to making GUI programming with Rust simple, with the downside of not perfect efficiency.
 
