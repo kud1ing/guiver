@@ -1,6 +1,6 @@
 # guiver
 
-GUI programming with Rust.
+guiver is an approach to making GUI programming with Rust simple, with the downside of not perfect efficiency.
 
 guiver can be used in immediate mode, which is inspired by [egui](https://github.com/emilk/egui). In this case it is
 just a thin wrapper around [druid-shell](https://github.com/linebender/druid/tree/master/druid-shell) for event
