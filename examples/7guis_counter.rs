@@ -21,7 +21,7 @@ impl App {
         // Create the widgets.
         let padding = widget_manager.new_padding();
         let row = widget_manager.new_row();
-        let counter_label = widget_manager.new_text("0");
+        let counter_text = widget_manager.new_text("0");
         let counter_button = widget_manager.new_text_button("Count");
 
         // Compose the widgets.
@@ -29,7 +29,7 @@ impl App {
             .send_commands(vec![
                 Command::SetMainWidget(padding),
                 Command::AppendChild(padding, row),
-                Command::AppendChild(row, counter_label),
+                Command::AppendChild(row, counter_text),
                 Command::AppendChild(row, counter_button),
             ])
             .unwrap();
@@ -37,7 +37,7 @@ impl App {
         App {
             counter: 0,
             counter_button,
-            counter_text: counter_label,
+            counter_text,
             widget_manager,
         }
     }
