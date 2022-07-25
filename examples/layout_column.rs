@@ -1,8 +1,4 @@
-use druid_shell::Region;
-/**
-This implements the "Counter" task from [7GUIs](https://eugenkiss.github.io/7guis/tasks/).
-*/
-use guiver::{run, Application, Command, Piet, Size, SystemEvent, WidgetManager};
+use guiver::{run, Application,Region, Command, Piet, Size, SystemEvent, WidgetManager};
 
 pub(crate) struct App {
     widget_manager: WidgetManager,

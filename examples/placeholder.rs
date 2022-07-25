@@ -1,6 +1,3 @@
-/**
-This implements the "Counter" task from [7GUIs](https://eugenkiss.github.io/7guis/tasks/).
-*/
 use guiver::{run, Application, Command, Piet, Region, Size, SystemEvent, WidgetManager};
 
 pub(crate) struct App {
