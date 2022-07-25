@@ -34,12 +34,6 @@ The widgets are decoupled from the application data via message passing, which i
     * [ ] Ctrl + A
   * [ ] Ctrl+X should cut the text
   * [ ] Ctrl-C should copy the text
-* [ ] add to `Style:
-  * `accent_color`
-  * `font`
-  * `spacing`
-    * [ ] use it in `Row` CTOR?
-    * [ ] use it in `Padding` CTOR?
 * [ ] implement [7GUIs](https://eugenkiss.github.io/7guis/tasks)
   * [ ] 7GUIs "Flight Booker"
     * [ ] implement `DropdownBox`
@@ -47,11 +41,12 @@ The widgets are decoupled from the application data via message passing, which i
   * [ ] 7GUIs "CRUD"
   * [ ] 7GUIs "Circle Drawer"
   * [ ] 7GUIs "Cells"
+* [ ] `WidgetManager`: add tab order
 * [ ] add Redmond 31 widgets
+* add to `Style`:
+  * [ ] `font`
 * [ ] `WidgetManager`: implement `collect_garbage()`
   * remove all widgets that do not have the main widget as ancestor
-* [ ] `WidgetManager`: add tab order
-* [ ] allow a "no loop" optimization for static applications that only render once
 * [ ] add Python bindings
 * [ ] provide native widgets? 
 * [ ] provide a WebAssembly demo
