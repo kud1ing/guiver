@@ -194,9 +194,9 @@ impl Widget for TextInput {
             SystemEvent::MouseDown(mouse_event) => {
                 // The mouse is down within this text input.
                 if self.rectangle.contains(mouse_event.pos) {
-                    // This widget was not focused.
+                    // This widget has no focus.
                     if !self.has_focus {
-                        // Give it focus.
+                        // Accept focus.
                         self.has_focus = true;
 
                         // Tell the widget manager about the change of focus.
@@ -205,13 +205,14 @@ impl Widget for TextInput {
                 }
                 // The mouse is down outside of this text input.
                 else {
-                    // This widget was focused.
+                    // This widget has focus.
                     if self.has_focus {
-                        // Tell the widget manager about the change of focus.
-                        widget_events.push(WidgetEvent::LostFocus(self.widget_id))
-                    }
+                        // Give up focus.
+                        self.has_focus = false;
 
-                    self.has_focus = false;
+                        // Tell the widget manager about the change of focus.
+                        widget_events.push(WidgetEvent::LostFocus(self.widget_id));
+                    }
                 }
             }
             SystemEvent::MouseMove(_) => {}
