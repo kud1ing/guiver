@@ -12,7 +12,6 @@ use druid_shell::piet;
 use druid_shell::Region;
 pub use placeholder::Placeholder;
 use std::any::Any;
-use std::borrow::Borrow;
 use std::cell::RefCell;
 use std::fmt::{Debug, Formatter};
 pub use text::Text;

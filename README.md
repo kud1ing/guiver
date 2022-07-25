@@ -25,15 +25,15 @@ The widgets are decoupled from the application data via message passing, which i
 
 ## Backlog
 
-* [ ] implement a text input widget
-  * [ ] backspace deletes text
-  * [ ] add a caret
-  * [ ] paste
-  * [ ] cursor movement with arrow keys
-  * [ ] select text
-  * [ ] Ctrl+X cuts text
-  * [ ] Ctrl-C copies text
-* [ ] consider sharing guiver
+* `TextInput`:
+  * [ ] accept paste
+  * [ ] display a caret
+  * [ ] arrow keys should move the caret
+  * support text selection:
+    * [ ] Shift + cursor movement
+    * [ ] Ctrl + A
+  * [ ] Ctrl+X should cut the text
+  * [ ] Ctrl-C should copy the text
 * [ ] add to `Style:
   * `accent_color`
   * `font`
