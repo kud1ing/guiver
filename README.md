@@ -31,7 +31,6 @@ On the upside you get simple setup and simple control flow.
 
 ## Backlog
 
-* [ ] `Center` layout widget
 * `TextInput`:
   * [ ] accept paste
   * [ ] display a caret
