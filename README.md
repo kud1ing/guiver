@@ -10,6 +10,9 @@ There are retained mode widgets that can be used with the help of an optional wi
 The widgets are decoupled from the application data via message passing, which is inspired by
 [Tk commands](https://en.wikipedia.org/wiki/Tk_(software)) and egui.
 
+If you look at the example code, it appears a bit verbose.
+On the upside you get easy setup and easy to understand control flow.
+
 <img width="179" alt="Bildschirmfoto 2022-07-25 um 19 35 35" src="https://user-images.githubusercontent.com/391975/180839538-64f2a0a7-6dd8-4e1f-bdd7-ddeac2e98ed7.png">
 
 <img width="325" alt="Bildschirmfoto 2022-07-25 um 19 59 34" src="https://user-images.githubusercontent.com/391975/180843587-fbaa38fb-92dc-4201-98cd-db387aa122b7.png">
