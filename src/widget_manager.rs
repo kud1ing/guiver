@@ -105,27 +105,33 @@ impl WidgetManager {
     ) -> Result<Vec<WidgetEvent>, WidgetError> {
         let mut widget_events = vec![];
 
-        // A widget has focus.
-        if let Some(focused_widget) = &mut self.focused_widget {
-            match system_event {
-                SystemEvent::KeyDown(_) => {
-                    // Let only the focused widget handle the key event.
+        match system_event {
+            SystemEvent::KeyDown(_) => {
+                // A widget has focus.
+                if let Some(focused_widget) = &mut self.focused_widget {
+                    // Let the focused widget handle the key event.
                     focused_widget
                         .borrow_mut()
                         .handle_event(system_event, &mut widget_events);
-                    return Ok(widget_events);
                 }
-                SystemEvent::KeyUp(_) => {
-                    // Let only the focused widget handle the key event.
-                    focused_widget
-                        .borrow_mut()
-                        .handle_event(system_event, &mut widget_events);
-                    return Ok(widget_events);
-                }
-                SystemEvent::MouseDown(_) => {}
-                SystemEvent::MouseMove(_) => {}
-                SystemEvent::MouseUp(_) => {}
+
+                return Ok(widget_events);
             }
+            SystemEvent::KeyUp(_) => {
+                // A widget has focus.
+                if let Some(focused_widget) = &mut self.focused_widget {
+                    // Let the focused widget handle the key event.
+                    focused_widget
+                        .borrow_mut()
+                        .handle_event(system_event, &mut widget_events);
+                }
+
+                return Ok(widget_events);
+            }
+
+            SystemEvent::MouseDown(_) => {}
+            SystemEvent::MouseMove(_) => {}
+            SystemEvent::MouseUp(_) => {}
         }
 
         // There is a main widget.
@@ -147,10 +153,10 @@ impl WidgetManager {
                     id_of_the_last_widget_that_gained_focus = Some(widget_id);
                 }
                 WidgetEvent::LostFocus(widget_id) => {
-                    // A widget had focus.
+                    // A widget has focus.
                     if let Some(focused_widget) = &mut self.focused_widget {
-                        // The widgets was indeed focues.
-                        if focused_widget.borrow().widget_id() != widget_id {
+                        // The widget that lost focuse had focus.
+                        if focused_widget.borrow().widget_id() == widget_id {
                             self.focused_widget = None;
                         }
                     }
