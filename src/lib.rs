@@ -10,8 +10,8 @@ mod window_event_handler;
 
 pub use alignment::{HorizontalAlignment, VerticalAlignment};
 pub use application::{run, Application};
-pub use druid_shell::kurbo::Size;
-pub use druid_shell::piet::Piet;
+pub use druid_shell::kurbo::{Size, Rect};
+pub use druid_shell::piet::{Color, Piet, RenderContext};
 pub use druid_shell::Region;
 pub use font::Font;
 pub use size_constraints::SizeConstraints;
