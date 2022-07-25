@@ -66,9 +66,7 @@ impl Application for App {
                             .unwrap();
                     }
                 }
-                WidgetEvent::GotFocus(_) => {}
-                WidgetEvent::LostFocus(_) => {}
-                WidgetEvent::ValueChanged(_, _) => {}
+                _ => {}
             }
         }
     }

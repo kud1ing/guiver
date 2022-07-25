@@ -61,9 +61,6 @@ impl Application for App {
         // Iterate over the generated widget events.
         for widget_event in widget_events {
             match widget_event {
-                WidgetEvent::Clicked(_) => {}
-                WidgetEvent::GotFocus(_) => {}
-                WidgetEvent::LostFocus(_) => {}
                 WidgetEvent::ValueChanged(widget_id, value) => {
                     if widget_id == self.text_input_celsius {
                         // The given value is a string.
@@ -117,6 +114,7 @@ impl Application for App {
                         }
                     }
                 }
+                _ => {}
             }
         }
     }
