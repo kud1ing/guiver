@@ -1,14 +1,14 @@
 # guiver
 
-An experiment in GUI programming with Rust.
+GUI programming with Rust.
 
 guiver can be used in immediate mode, which is inspired by [egui](https://github.com/emilk/egui). In this case it is
 just a thin wrapper around [druid-shell](https://github.com/linebender/druid/tree/master/druid-shell) for event
 handling/windowing and [Piet](https://github.com/linebender/piet) for rendering.
 
-There are retained mode widgets that can be used with an optional widget manager.
+There are retained mode widgets that can be used with the help of an optional widget manager.
 The widgets are decoupled from the application data via message passing, which is inspired by
-[Tk commands](https://en.wikipedia.org/wiki/Tk_(software)).
+[Tk commands](https://en.wikipedia.org/wiki/Tk_(software)) and egui.
 
 <img width="179" alt="Bildschirmfoto 2022-07-25 um 19 35 35" src="https://user-images.githubusercontent.com/391975/180839538-64f2a0a7-6dd8-4e1f-bdd7-ddeac2e98ed7.png">
 
@@ -27,6 +27,7 @@ The widgets are decoupled from the application data via message passing, which i
 
 * [ ] implement a text input widget
   * [ ] backspace deletes text
+  * [ ] add a caret
   * [ ] paste
   * [ ] cursor movement with arrow keys
   * [ ] select text
