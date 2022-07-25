@@ -14,7 +14,7 @@ The examples can be run with `cargo run --example EXAMPLE_NAME`
 
 <img width="189" alt="Bildschirmfoto 2022-07-25 um 11 01 22" src="https://user-images.githubusercontent.com/391975/180739652-d1726213-d35f-4248-85ce-2745010ac96d.png">
 
-<img width="354" alt="Bildschirmfoto 2022-07-25 um 14 49 25" src="https://user-images.githubusercontent.com/391975/180781637-953f2c58-7497-472b-9f7a-532d6538122d.png">
+<img width="400" alt="Bildschirmfoto 2022-07-25 um 18 59 01" src="https://user-images.githubusercontent.com/391975/180833687-34f8385a-e5ae-4442-b445-945be9c831a9.png">
 
 <img width="300" alt="Bildschirmfoto 2022-07-24 um 13 41 24" src="https://user-images.githubusercontent.com/391975/180645285-1a287970-d6f1-4b83-986f-c9188a06b9b6.png">
 
@@ -28,7 +28,6 @@ The examples can be run with `cargo run --example EXAMPLE_NAME`
 ## Backlog
 
 * [ ] implement a text input widget
-  * [ ] enter text
   * [ ] paste
   * [ ] cursor movement with arrow keys
   * [ ] backspace deletes text

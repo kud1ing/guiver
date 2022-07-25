@@ -22,9 +22,9 @@ impl App {
         // Create the widgets.
         let padding = widget_manager.new_padding();
         let row = widget_manager.new_row();
-        let text_input_celsius = widget_manager.new_text_input("C");
+        let text_input_celsius = widget_manager.new_text_input("", 100.0);
         let text1 = widget_manager.new_text("Celsius =");
-        let text_input_fahrenheit = widget_manager.new_text_input("F");
+        let text_input_fahrenheit = widget_manager.new_text_input("", 100.0);
         let text2 = widget_manager.new_text("Fahrenheit");
 
         // Compose the widgets.
@@ -60,8 +60,14 @@ impl Application for App {
                 WidgetEvent::Clicked(_) => {}
                 WidgetEvent::GotFocus(_) => {}
                 WidgetEvent::LostFocus(_) => {}
-                WidgetEvent::ValueChanged(_, _) => {
-                    // TODO
+                WidgetEvent::ValueChanged(widget_id, value) => {
+                    if widget_id == self.text_input_celsius {
+                        // TODO
+                        println!("Celsius: {:?}", &value);
+                    } else if widget_id == self.text_input_fahrenheit {
+                        // TODO
+                        println!("Fahrenheit: {:?}", &value);
+                    }
                 }
             }
         }

@@ -318,7 +318,7 @@ impl WidgetManager {
     }
 
     ///
-    pub fn new_text_input(&mut self, text: impl Into<String>) -> WidgetId {
+    pub fn new_text_input(&mut self, text: impl Into<String>, width: f64) -> WidgetId {
         // Get a new widget ID.
         let widget_id = self.next_widget_id();
 
@@ -330,6 +330,7 @@ impl WidgetManager {
                 self.style.debug_rendering_stroke_brush.clone(),
                 self.style.debug_rendering_stroke_width,
                 text,
+                width,
                 self.style.frame_color.clone(),
                 self.style.accent_color.clone(),
             )))),

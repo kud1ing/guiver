@@ -4,6 +4,7 @@ use druid_shell::kurbo::{Point, Rect, RoundedRect, Size};
 use druid_shell::piet::{Color, Error, PaintBrush, Piet, RenderContext};
 use druid_shell::{KbKey, Region};
 use std::borrow::BorrowMut;
+use std::cmp::min;
 
 /// A text input widget.
 pub struct TextInput {
@@ -24,6 +25,7 @@ pub struct TextInput {
     text: String,
     text_widget: Text,
     widget_id: WidgetId,
+    width: f64,
 }
 
 impl TextInput {
@@ -33,6 +35,7 @@ impl TextInput {
         debug_rendering_stroke_brush: PaintBrush,
         debug_rendering_stroke_width: f64,
         text: impl Into<String>,
+        width: f64,
         frame_color: Color,
         frame_color_focused: Color,
     ) -> Self {
@@ -62,6 +65,7 @@ impl TextInput {
                 text,
             ),
             widget_id,
+            width,
         }
     }
 
@@ -75,6 +79,12 @@ impl TextInput {
             .borrow_mut()
             .apply_size_constraints(self.size_constraints.shrink(padding_size));
 
+        // Make the text input at least as wide as its width.
+        self.rectangle = self.rectangle.with_size(Size::new(
+            self.width.max(child_size.width + padding_size.width),
+            child_size.height + padding_size.height,
+        ));
+
         // Set the child's origin.
         self.text_widget.borrow_mut().set_origin(
             self.rectangle.origin()
@@ -83,8 +93,6 @@ impl TextInput {
                     0.5 * (self.rectangle.size().height - child_size.height).max(0.0),
                 ),
         );
-
-        self.rectangle = self.rectangle.with_size(child_size + padding_size);
     }
 }
 
@@ -139,12 +147,18 @@ impl Widget for TextInput {
         match system_event {
             SystemEvent::KeyDown(key_event) => match &key_event.key {
                 KbKey::Character(string) => {
+                    // Modify the text.
                     self.text.push_str(&string);
+
+                    // Tell the text widget about the new text.
                     self.text_widget
                         .borrow_mut()
                         .handle_command(WidgetCommand::SetValue(Box::new(self.text.clone())))
                         .unwrap();
 
+                    self.layout_child();
+
+                    // Inform the world that out text has changed.
                     widget_events.push(WidgetEvent::ValueChanged(
                         self.widget_id,
                         Box::new(self.text.clone()),
