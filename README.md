@@ -12,7 +12,7 @@ The widgets are decoupled from the application data via message passing, which i
 
 <img width="179" alt="Bildschirmfoto 2022-07-25 um 19 35 35" src="https://user-images.githubusercontent.com/391975/180839538-64f2a0a7-6dd8-4e1f-bdd7-ddeac2e98ed7.png">
 
-<img width="400" alt="Bildschirmfoto 2022-07-25 um 19 29 47" src="https://user-images.githubusercontent.com/391975/180838610-5ffbec48-7fa1-4ff3-b323-bb54f067febc.png">
+<img width="325" alt="Bildschirmfoto 2022-07-25 um 19 59 34" src="https://user-images.githubusercontent.com/391975/180843587-fbaa38fb-92dc-4201-98cd-db387aa122b7.png">
 
 <img width="300" alt="Bildschirmfoto 2022-07-24 um 13 41 24" src="https://user-images.githubusercontent.com/391975/180645285-1a287970-d6f1-4b83-986f-c9188a06b9b6.png">
 
