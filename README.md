@@ -11,7 +11,7 @@ The widgets are decoupled from the application data via message passing, which i
 [Tk commands](https://en.wikipedia.org/wiki/Tk_(software)) and egui.
 
 If you look at the example code, it appears a bit verbose.
-On the upside you get easy setup and easy to understand control flow.
+On the upside you get simple setup and simple control flow.
 
 <img width="179" alt="Bildschirmfoto 2022-07-25 um 19 35 35" src="https://user-images.githubusercontent.com/391975/180839538-64f2a0a7-6dd8-4e1f-bdd7-ddeac2e98ed7.png">
 
