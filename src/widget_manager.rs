@@ -1,5 +1,5 @@
 use crate::style::Style;
-use crate::widget::layout::{Column, Padding, Row};
+use crate::widget::layout::{Center, Column, Padding, Row};
 use crate::widget::{Button, Placeholder, Text, TextInput, WidgetCommand, WidgetError};
 use crate::{SizeConstraints, SystemEvent, Widget, WidgetEvent, WidgetId};
 use druid_shell::kurbo::Size;
@@ -195,11 +195,30 @@ impl WidgetManager {
     }
 
     ///
+    pub fn new_center(&mut self) -> WidgetId {
+        // Get a new widget ID.
+        let widget_id = self.next_widget_id();
+
+        // Add a new center layout widget.
+        self.widgets.insert(
+            widget_id,
+            Rc::new(RefCell::new(Box::new(Center::new(
+                widget_id,
+                self.style.debug_rendering_stroke_brush.clone(),
+                self.style.debug_rendering_stroke_width,
+            )))),
+        );
+
+        // Return the center layout's widget ID.
+        widget_id
+    }
+
+    ///
     pub fn new_column(&mut self) -> WidgetId {
         // Get a new widget ID.
         let widget_id = self.next_widget_id();
 
-        // Add a new column widget.
+        // Add a new column layout widget.
         self.widgets.insert(
             widget_id,
             Rc::new(RefCell::new(Box::new(Column::new(
@@ -208,7 +227,7 @@ impl WidgetManager {
             )))),
         );
 
-        // Return the column's widget ID.
+        // Return the column's layout widget ID.
         widget_id
     }
 

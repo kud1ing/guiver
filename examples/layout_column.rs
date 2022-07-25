@@ -48,12 +48,10 @@ impl Application for App {
     fn handle_system_event(&mut self, _system_event: &SystemEvent) {}
 
     fn paint(&mut self, piet: &mut Piet, region: &Region) {
-        // Paint the main widget.
         self.widget_manager.paint(piet, region).unwrap();
     }
 
     fn resize(&mut self, size: Size) {
-        // Resize the main widget.
         self.widget_manager.resize(size);
     }
 }

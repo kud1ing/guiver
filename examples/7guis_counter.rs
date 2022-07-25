@@ -72,12 +72,10 @@ impl Application for App {
     }
 
     fn paint(&mut self, piet: &mut Piet, region: &Region) {
-        // Paint the main widget.
         self.widget_manager.paint(piet, region).unwrap();
     }
 
     fn resize(&mut self, size: Size) {
-        // Resize the main widget.
         self.widget_manager.resize(size);
     }
 }

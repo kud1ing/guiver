@@ -9,14 +9,14 @@ impl App {
         let mut widget_manager = WidgetManager::new();
 
         // Create the widgets.
-        let padding = widget_manager.new_padding();
-        let placeholder = widget_manager.new_placeholder();
+        let center = widget_manager.new_center();
+        let text = widget_manager.new_text("This is a text at the center");
 
         // Compose the widgets.
         widget_manager
             .send_commands(vec![
-                Command::SetMainWidget(padding),
-                Command::AppendChild(padding, placeholder),
+                Command::SetMainWidget(center),
+                Command::AppendChild(center, text),
             ])
             .unwrap();
 
@@ -37,5 +37,5 @@ impl Application for App {
 }
 
 pub fn main() {
-    run(Box::new(App::new()), "padding", (400.0, 200.0).into());
+    run(Box::new(App::new()), "center", (400.0, 200.0).into());
 }

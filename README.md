@@ -26,9 +26,12 @@ On the upside you get simple setup and simple control flow.
 
 <img width="400" alt="Bildschirmfoto 2022-07-24 um 12 59 33" src="https://user-images.githubusercontent.com/391975/180644027-351f4490-4038-4629-9392-2cde4fa91c9c.png">
 
+<img width="315" alt="Bildschirmfoto 2022-07-25 um 21 57 15" src="https://user-images.githubusercontent.com/391975/180863911-98ca0572-d700-426a-be9b-3f96c708f478.png">
+
 
 ## Backlog
 
+* [ ] `Center` layout widget
 * `TextInput`:
   * [ ] accept paste
   * [ ] display a caret
