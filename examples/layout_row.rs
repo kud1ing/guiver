@@ -38,9 +38,7 @@ impl App {
 }
 
 impl Application for App {
-    fn handle_system_event(&mut self, _system_event: &SystemEvent) {
-        // Do nothing.
-    }
+    fn handle_system_event(&mut self, _system_event: &SystemEvent) {}
 
     fn paint(&mut self, piet: &mut Piet, region: &Region) {
         // Paint the main widget.
