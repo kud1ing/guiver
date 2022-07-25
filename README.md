@@ -51,7 +51,6 @@ The widgets are decoupled from the application data via message passing, which i
 * [ ] `WidgetManager`: implement `collect_garbage()`
   * remove all widgets that do not have the main widget as ancestor
 * [ ] `WidgetManager`: add tab order
-* [ ] add `HorizontalAlignment`, `VerticalAlignment`
 * [ ] allow a "no loop" optimization for static applications that only render once
 * [ ] add Python bindings
 * [ ] provide native widgets? 
