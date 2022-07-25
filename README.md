@@ -9,6 +9,7 @@ handling/windowing and [Piet](https://github.com/linebender/piet) for rendering.
 There are retained mode widgets that can be used with the help of an optional widget manager.
 The widgets are decoupled from the application data via message passing, which is inspired by
 [Tk commands](https://en.wikipedia.org/wiki/Tk_(software)) and egui.
+In a way the widget manager acts like a garbage collecting subsystem.
 
 If you look at the example code, it appears a bit verbose.
 On the upside you get simple setup and simple control flow.
