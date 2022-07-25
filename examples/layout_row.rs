@@ -23,13 +23,15 @@ impl App {
         let placeholder3 = widget_manager.new_placeholder();
 
         // Compose the widgets.
-        let _ = widget_manager.send_commands(vec![
-            Command::SetMainWidget(padding),
-            Command::AppendChild(padding, row),
-            Command::AppendChild(row, placeholder1),
-            Command::AppendChild(row, placeholder2),
-            Command::AppendChild(row, placeholder3),
-        ]);
+        widget_manager
+            .send_commands(vec![
+                Command::SetMainWidget(padding),
+                Command::AppendChild(padding, row),
+                Command::AppendChild(row, placeholder1),
+                Command::AppendChild(row, placeholder2),
+                Command::AppendChild(row, placeholder3),
+            ])
+            .unwrap();
 
         App { widget_manager }
     }
