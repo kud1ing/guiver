@@ -105,6 +105,7 @@ impl WidgetManager {
     ) -> Result<Vec<WidgetEvent>, WidgetError> {
         let mut widget_events = vec![];
 
+        // Handle key events.
         match system_event {
             SystemEvent::KeyDown(_) => {
                 // A widget has focus.
@@ -128,10 +129,7 @@ impl WidgetManager {
 
                 return Ok(widget_events);
             }
-
-            SystemEvent::MouseDown(_) => {}
-            SystemEvent::MouseMove(_) => {}
-            SystemEvent::MouseUp(_) => {}
+            _ => {}
         }
 
         // There is a main widget.
@@ -142,53 +140,58 @@ impl WidgetManager {
                 .handle_event(system_event, &mut widget_events);
         }
 
-        let mut id_of_the_last_widget_that_gained_focus = None;
+        // Focus handling.
+        {
+            let mut id_of_the_last_widget_that_gained_focus = None;
 
-        // Iterate over the widget event.
-        for widget_event in &widget_events {
-            match widget_event {
-                WidgetEvent::Clicked(_) => {}
-                WidgetEvent::GotFocus(widget_id) => {
-                    // A widget gained focus.
-                    id_of_the_last_widget_that_gained_focus = Some(widget_id);
-                }
-                WidgetEvent::LostFocus(widget_id) => {
-                    // A widget has focus.
-                    if let Some(focused_widget) = &mut self.focused_widget {
-                        // The widget that lost focuse had focus.
-                        if focused_widget.borrow().widget_id() == widget_id {
-                            self.focused_widget = None;
+            // Iterate over the widget events in search of focus events.
+            for widget_event in &widget_events {
+                match widget_event {
+                    WidgetEvent::GotFocus(widget_id) => {
+                        // A widget gained focus.
+                        id_of_the_last_widget_that_gained_focus = Some(widget_id);
+                    }
+                    WidgetEvent::LostFocus(widget_id) => {
+                        // A widget has focus.
+                        if let Some(focused_widget) = &mut self.focused_widget {
+                            // The widget that lost focus had focus before.
+                            if focused_widget.borrow().widget_id() == widget_id {
+                                self.focused_widget = None;
+                            }
                         }
                     }
+                    _ => {}
                 }
-                WidgetEvent::ValueChanged(_, _) => {}
             }
-        }
 
-        // A widget gained focus.
-        if let Some(id_of_the_widget_that_gained_focus) = id_of_the_last_widget_that_gained_focus {
-            // There is a widget with the given ID.
-            if let Some(widget_box) = self.widgets.get(id_of_the_widget_that_gained_focus) {
-                // A widget had focus.
-                if let Some(focused_widget) = &mut self.focused_widget {
-                    // The widgets are different.
-                    if focused_widget.borrow().widget_id() != id_of_the_widget_that_gained_focus {
-                        // Unfocus that previously focused widget.
-                        focused_widget
-                            .borrow_mut()
-                            .handle_command(WidgetCommand::SetHasFocus(false))?;
+            // A widget gained focus.
+            if let Some(id_of_the_widget_that_gained_focus) =
+                id_of_the_last_widget_that_gained_focus
+            {
+                // There is a widget with the given ID.
+                if let Some(widget_box) = self.widgets.get(id_of_the_widget_that_gained_focus) {
+                    // A widget had focus.
+                    if let Some(focused_widget) = &mut self.focused_widget {
+                        // The widgets are different.
+                        if focused_widget.borrow().widget_id() != id_of_the_widget_that_gained_focus
+                        {
+                            // Unfocus that previously focused widget.
+                            focused_widget
+                                .borrow_mut()
+                                .handle_command(WidgetCommand::SetHasFocus(false))?;
+                        }
                     }
-                }
 
-                // Remember the current widget as focused.
-                self.focused_widget = Some(widget_box.clone());
+                    // Remember the current widget as focused.
+                    self.focused_widget = Some(widget_box.clone());
+                }
+                // There is no widget with the given ID.
+                else {
+                    return Err(WidgetError::NoSuchWidget(
+                        *id_of_the_widget_that_gained_focus,
+                    ));
+                };
             }
-            // There is no widget with the given ID.
-            else {
-                return Err(WidgetError::NoSuchWidget(
-                    *id_of_the_widget_that_gained_focus,
-                ));
-            };
         }
 
         Ok(widget_events)
