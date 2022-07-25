@@ -22,6 +22,8 @@ impl App {
         let padding = widget_manager.new_padding(15.0, 15.0, 15.0, 15.0);
         let row = widget_manager.new_row(10.0);
         let counter_label = widget_manager.new_text("0");
+        // TODO
+        // let counter_button = widget_manager.new_text_button("Count");
         let counter_button = widget_manager.new_text("Count");
 
         // Compose the widgets.

@@ -35,7 +35,7 @@ impl Padding {
             padding_right,
             padding_top,
             rectangle: Rect::default(),
-            size_constraints: SizeConstraints::unbounded(),
+            size_constraints: SizeConstraints::default(),
             widget_id,
         }
     }

@@ -10,10 +10,13 @@ pub struct Button {
     child_widget: WidgetBox,
     corner_radius: f64,
     fill_brush: Option<PaintBrush>,
+    has_focus: bool,
+    is_disabled: bool,
     is_hidden: bool,
     padding_horizontal: f64,
     padding_vertical: f64,
     rectangle: Rect,
+    size_constraints: SizeConstraints,
     stroke_brush: Option<PaintBrush>,
     stroke_width: f64,
     widget_id: WidgetId,
@@ -30,28 +33,65 @@ impl Button {
                 UnitPoint::BOTTOM,
                 (Color::rgb8(100, 100, 100), Color::rgb8(80, 80, 80)),
             ))),
+            has_focus: false,
+            is_disabled: false,
             is_hidden: false,
             padding_horizontal: 4.0,
             padding_vertical: 4.0,
             rectangle: Rect::default(),
+            size_constraints: SizeConstraints::default(),
             stroke_brush: Some(PaintBrush::Color(Color::rgb8(200, 200, 200))),
             stroke_width: 1.0,
             widget_id,
         }
     }
+
+    ///
+    fn layout_child(&mut self) {
+        // TODO
+        println!("`Button::layout_child()`: TODO");
+    }
 }
 
 impl Widget for Button {
-    fn apply_size_constraints(&mut self, _size_constraints: SizeConstraints) -> Size {
-        // TODO
-        println!("`Button::apply_size_constraints()`: TODO");
+    fn apply_size_constraints(&mut self, size_constraints: SizeConstraints) -> Size {
+        self.size_constraints = size_constraints;
+        self.rectangle = self.rectangle.with_size(*size_constraints.maximum());
+
+        // Layout the child.
+        self.layout_child();
 
         self.rectangle.size()
     }
 
-    fn handle_command(&mut self, _widget_command: WidgetCommand) -> Result<(), WidgetError> {
-        // TODO
-        println!("`Button::handle_command()`: TODO");
+    fn handle_command(&mut self, widget_command: WidgetCommand) -> Result<(), WidgetError> {
+        match widget_command {
+            WidgetCommand::AppendChild(_) => {
+                // TODO
+                println!("`Button::handle_command()`: TODO");
+            }
+            WidgetCommand::Clear => {
+                // TODO
+                println!("`Button::handle_command()`: TODO");
+            }
+            WidgetCommand::RemoveChild(_) => {
+                // TODO
+                println!("`Button::handle_command()`: TODO");
+            }
+            WidgetCommand::SetHasFocus(has_focus) => {
+                self.has_focus = has_focus;
+            }
+            WidgetCommand::SetIsDisabled(is_disabled) => {
+                self.is_disabled = is_disabled;
+            }
+            WidgetCommand::SetIsHidden(is_hidden) => {
+                self.is_hidden = is_hidden;
+            }
+            WidgetCommand::SetValue(_) => {
+                // TODO
+                println!("`Button::handle_command()`: TODO");
+            }
+        }
 
         Ok(())
     }
@@ -59,11 +99,17 @@ impl Widget for Button {
     fn handle_event(&mut self, _system_event: &SystemEvent, _widget_events: &mut Vec<WidgetEvent>) {
         // TODO
         println!("`Button::handle_event()`: TODO");
+        /*
+        self.child_widget
+            .borrow_mut()
+            .handle_event(system_event, widget_events);
+         */
     }
 
-    fn paint(&self, _piet: &mut Piet, _region: &Region) {
+    fn paint(&self, piet: &mut Piet, region: &Region) {
         // TODO
         println!("`Button::paint()`: TODO");
+        self.child_widget.borrow().paint(piet, region);
 
         /*
 
@@ -125,6 +171,9 @@ impl Widget for Button {
 
     fn set_origin(&mut self, origin: Point) {
         self.rectangle = self.rectangle.with_origin(origin);
+
+        // Layout the child.
+        self.layout_child();
     }
 
     fn widget_id(&self) -> &WidgetId {

@@ -2,12 +2,11 @@
 
 An experiment in GUI programming with Rust.
 
-guiver can be used in immediate mode, which is inspired by [egui](https://github.com/emilk/egui). Events from
-[druid-shell](https://github.com/linebender/druid/tree/master/druid-shell)
-are handled in `Application::handle_system_event()`. Rendering via [Piet](https://github.com/linebender/piet)
-can be done in `Application::paint()`.
+guiver can be used in immediate mode, which is inspired by [egui](https://github.com/emilk/egui). In this case it is
+just a thin wrapper around [druid-shell](https://github.com/linebender/druid/tree/master/druid-shell) for event
+handling/windowing and [Piet](https://github.com/linebender/piet) for rendering.
 
-There are widgets that can be used with an optional widget manager.
+There are retained mode widgets that can be used with an optional widget manager.
 The widgets are decoupled from the application data via message passing, which is inspired by
 [Tk commands](https://en.wikipedia.org/wiki/Tk_(software)).
 
@@ -28,6 +27,12 @@ The examples can be run with `cargo run --example EXAMPLE_NAME`
 * [ ] implement `Button` widget
   * [ ] `paint()`: use save, restore, clip painting
 * [ ] 7GUIs "Counter": use `Button`
+* [ ] add `Style:
+  * `accent_color`
+  * `font`
+  * `spacing`
+  * [ ] implement Default()
+  * [ ] add it to `WidgetManager`
 * [ ] implement a text input widget
   * [ ] paste
   * [ ] enter text
@@ -38,6 +43,7 @@ The examples can be run with `cargo run --example EXAMPLE_NAME`
   * [ ] Ctrl-C
 * [ ] `WidgetManager`: track the focused widget
   * [ ] unfocus any previously focused widget
+  * [ ] use `Style::accent_color`
 * [ ] `Label::paint()`: use save, restore, clip painting
 * [ ] implement [7GUIs](https://eugenkiss.github.io/7guis/tasks)
   * [ ] 7GUIs "Temperature Converter"
@@ -48,6 +54,7 @@ The examples can be run with `cargo run --example EXAMPLE_NAME`
   * [ ] 7GUIs "CRUD"
   * [ ] 7GUIs "Circle Drawer"
   * [ ] 7GUIs "Cells"
+* [ ] add Redmond 31 widgets
 * [ ] `WidgetManager`: implement `collect_garbage()`
   * remove all widgets that do not have the main widget as ancestor
 * [ ] `WidgetManager`: add tab order
