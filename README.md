@@ -34,6 +34,7 @@ The widgets are decoupled from the application data via message passing, which i
     * [ ] Ctrl + A
   * [ ] Ctrl+X should cut the text
   * [ ] Ctrl-C should copy the text
+* [ ] support a concept of layers/z-order for dropdown boxes, tooltips etc.
 * [ ] implement [7GUIs](https://eugenkiss.github.io/7guis/tasks)
   * [ ] 7GUIs "Flight Booker"
     * [ ] implement `DropdownBox`
