@@ -12,7 +12,7 @@ The widgets are decoupled from the application data via message passing, which i
 
 <img width="194" alt="Bildschirmfoto 2022-07-25 um 19 16 26" src="https://user-images.githubusercontent.com/391975/180836451-5b9d3542-9ca8-43be-b4ec-ed096090cb5f.png">
 
-<img width="400" alt="Bildschirmfoto 2022-07-25 um 19 14 21" src="https://user-images.githubusercontent.com/391975/180836291-ae116d30-fde3-4489-9d8e-1051888cd5f1.png">
+<img width="400" alt="Bildschirmfoto 2022-07-25 um 19 29 47" src="https://user-images.githubusercontent.com/391975/180838610-5ffbec48-7fa1-4ff3-b323-bb54f067febc.png">
 
 <img width="300" alt="Bildschirmfoto 2022-07-24 um 13 41 24" src="https://user-images.githubusercontent.com/391975/180645285-1a287970-d6f1-4b83-986f-c9188a06b9b6.png">
 
@@ -21,7 +21,6 @@ The widgets are decoupled from the application data via message passing, which i
 <img width="314" alt="Bildschirmfoto 2022-07-24 um 11 58 56" src="https://user-images.githubusercontent.com/391975/180641976-111d6751-acc1-4910-9b01-2f421053a463.png">
 
 <img width="400" alt="Bildschirmfoto 2022-07-24 um 12 59 33" src="https://user-images.githubusercontent.com/391975/180644027-351f4490-4038-4629-9392-2cde4fa91c9c.png">
-
 
 ## Backlog
 

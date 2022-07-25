@@ -12,7 +12,7 @@ pub struct TextInput {
     debug_rendering: bool,
     debug_rendering_stroke_brush: PaintBrush,
     debug_rendering_stroke_width: f64,
-    fill_brush: PaintBrush,
+    fill_brush: Option<PaintBrush>,
     has_focus: bool,
     is_disabled: bool,
     is_hidden: bool,
@@ -47,7 +47,7 @@ impl TextInput {
             debug_rendering: false,
             debug_rendering_stroke_brush: debug_rendering_stroke_brush.clone(),
             debug_rendering_stroke_width: debug_rendering_stroke_width.clone(),
-            fill_brush: PaintBrush::Color(Color::rgb8(100, 100, 100)),
+            fill_brush: None,
             has_focus: false,
             is_disabled: true,
             is_hidden: false,
@@ -487,7 +487,9 @@ impl Widget for TextInput {
             let shape = RoundedRect::from_rect(self.rectangle, self.corner_radius);
 
             // Fill.
-            piet.fill(shape, &self.fill_brush);
+            if let Some(fill_brush) = &self.fill_brush {
+                piet.fill(shape, fill_brush);
+            }
 
             // Stroke.
             if self.has_focus {
