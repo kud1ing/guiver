@@ -78,7 +78,7 @@ impl Application for App {
                                     .send_command(Command::SetValue(
                                         self.text_input_fahrenheit,
                                         Box::new(format!(
-                                            "{:.2}",
+                                            "{:.0}",
                                             fahrenheit_from_celsius(celsius)
                                         )),
                                     ))
@@ -94,7 +94,7 @@ impl Application for App {
                                     .send_command(Command::SetValue(
                                         self.text_input_celsius,
                                         Box::new(format!(
-                                            "{:.2}",
+                                            "{:.0}",
                                             celsius_from_fahrenheit(fahrenheit)
                                         )),
                                     ))

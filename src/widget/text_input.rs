@@ -70,6 +70,21 @@ impl TextInput {
     }
 
     ///
+    fn apply_modified_text(&mut self, widget_events: &mut Vec<WidgetEvent>) {
+        // Pass the updated text to the child text widget.
+        self.text_widget
+            .borrow_mut()
+            .handle_command(WidgetCommand::SetValue(Box::new(self.text.clone())))
+            .unwrap();
+
+        // Inform the world that the text has changed.
+        widget_events.push(WidgetEvent::ValueChanged(
+            self.widget_id,
+            Box::new(self.text.clone()),
+        ));
+    }
+
+    ///
     fn layout_child(&mut self) {
         let padding_size = Size::new(2.0 * self.padding, 2.0 * self.padding);
 
@@ -147,22 +162,11 @@ impl Widget for TextInput {
         match system_event {
             SystemEvent::KeyDown(key_event) => match &key_event.key {
                 KbKey::Character(string) => {
-                    // Modify the text.
+                    // Append the character to the text.
                     self.text.push_str(&string);
 
-                    // Tell the text widget about the new text.
-                    self.text_widget
-                        .borrow_mut()
-                        .handle_command(WidgetCommand::SetValue(Box::new(self.text.clone())))
-                        .unwrap();
-
-                    self.layout_child();
-
-                    // Inform the world that out text has changed.
-                    widget_events.push(WidgetEvent::ValueChanged(
-                        self.widget_id,
-                        Box::new(self.text.clone()),
-                    ));
+                    // Apply the text changes.
+                    self.apply_modified_text(widget_events);
                 }
                 KbKey::Unidentified => {}
                 KbKey::Alt => {}
@@ -189,7 +193,15 @@ impl Widget for TextInput {
                 KbKey::Home => {}
                 KbKey::PageDown => {}
                 KbKey::PageUp => {}
-                KbKey::Backspace => {}
+                KbKey::Backspace => {
+                    if self.text.len() > 0 {
+                        // Drop the last character from the text.
+                        self.text.remove(self.text.len() - 1);
+                    }
+
+                    // Apply the text changes.
+                    self.apply_modified_text(widget_events);
+                }
                 KbKey::Clear => {}
                 KbKey::Copy => {}
                 KbKey::CrSel => {}

@@ -39,7 +39,7 @@ impl Button {
             child_widget: Some(child_widget),
             corner_radius: 4.0,
             debug_rendering: false,
-            fill_brush_down: Some(PaintBrush::Color(Color::rgb8(0,0,0))),
+            fill_brush_down: Some(PaintBrush::Color(Color::rgb8(0, 0, 0))),
             fill_brush_up: Some(PaintBrush::Linear(LinearGradient::new(
                 UnitPoint::TOP,
                 UnitPoint::BOTTOM,
