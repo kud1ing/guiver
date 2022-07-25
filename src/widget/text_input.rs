@@ -4,7 +4,6 @@ use druid_shell::kurbo::{Point, Rect, RoundedRect, Size};
 use druid_shell::piet::{Color, Error, PaintBrush, Piet, RenderContext};
 use druid_shell::{KbKey, Region};
 use std::borrow::BorrowMut;
-use std::cmp::min;
 
 /// A text input widget.
 pub struct TextInput {
@@ -70,12 +69,9 @@ impl TextInput {
     }
 
     ///
-    fn apply_modified_text(&mut self, widget_events: &mut Vec<WidgetEvent>) {
+    fn broadcast_modified_text(&mut self, widget_events: &mut Vec<WidgetEvent>) {
         // Pass the updated text to the child text widget.
-        self.text_widget
-            .borrow_mut()
-            .handle_command(WidgetCommand::SetValue(Box::new(self.text.clone())))
-            .unwrap();
+        self.update_text_widget();
 
         // Inform the world that the text has changed.
         widget_events.push(WidgetEvent::ValueChanged(
@@ -108,6 +104,15 @@ impl TextInput {
                     0.5 * (self.rectangle.size().height - child_size.height).max(0.0),
                 ),
         );
+    }
+
+    ///
+    fn update_text_widget(&mut self) {
+        // Pass the updated text to the child text widget.
+        self.text_widget
+            .borrow_mut()
+            .handle_command(WidgetCommand::SetValue(Box::new(self.text.clone())))
+            .unwrap();
     }
 }
 
@@ -150,8 +155,14 @@ impl Widget for TextInput {
             WidgetCommand::SetIsHidden(is_hidden) => {
                 self.is_hidden = is_hidden;
             }
-            WidgetCommand::SetValue(_) => {
-                return self.text_widget.handle_command(widget_command);
+            WidgetCommand::SetValue(value) => {
+                // The given value is a string.
+                if let Some(string) = value.downcast_ref::<String>() {
+                    self.text = string.clone();
+
+                    // Apply the text changes.
+                    self.update_text_widget();
+                }
             }
         }
 
@@ -166,7 +177,7 @@ impl Widget for TextInput {
                     self.text.push_str(&string);
 
                     // Apply the text changes.
-                    self.apply_modified_text(widget_events);
+                    self.broadcast_modified_text(widget_events);
                 }
                 KbKey::Unidentified => {}
                 KbKey::Alt => {}
@@ -200,7 +211,7 @@ impl Widget for TextInput {
                     }
 
                     // Apply the text changes.
-                    self.apply_modified_text(widget_events);
+                    self.broadcast_modified_text(widget_events);
                 }
                 KbKey::Clear => {}
                 KbKey::Copy => {}

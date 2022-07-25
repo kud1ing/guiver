@@ -8,8 +8,6 @@ use guiver::{run, Command, WidgetEvent, WidgetId, WidgetManager};
 use guiver::{Application, SystemEvent};
 
 pub(crate) struct App {
-    temperature_celsius: f32,
-    temperature_fahrenheit: f32,
     text_input_celsius: WidgetId,
     text_input_fahrenheit: WidgetId,
     widget_manager: WidgetManager,
@@ -40,8 +38,6 @@ impl App {
             .unwrap();
 
         App {
-            temperature_celsius: 0.0,
-            temperature_fahrenheit: 0.0,
             text_input_celsius,
             text_input_fahrenheit,
             widget_manager,
@@ -72,8 +68,17 @@ impl Application for App {
                     if widget_id == self.text_input_celsius {
                         // The given value is a string.
                         if let Some(string) = value.downcast_ref::<String>() {
+                            // The string is empty.
+                            if string.trim().is_empty() {
+                                self.widget_manager
+                                    .send_command(Command::SetValue(
+                                        self.text_input_fahrenheit,
+                                        Box::new("".to_string()),
+                                    ))
+                                    .unwrap();
+                            }
                             // The string could be parsed as a float
-                            if let Ok(celsius) = string.parse::<f32>() {
+                            else if let Ok(celsius) = string.parse::<f32>() {
                                 self.widget_manager
                                     .send_command(Command::SetValue(
                                         self.text_input_fahrenheit,
@@ -88,8 +93,17 @@ impl Application for App {
                     } else if widget_id == self.text_input_fahrenheit {
                         // The given value is a string.
                         if let Some(string) = value.downcast_ref::<String>() {
+                            // The string is empty.
+                            if string.trim().is_empty() {
+                                self.widget_manager
+                                    .send_command(Command::SetValue(
+                                        self.text_input_celsius,
+                                        Box::new("".to_string()),
+                                    ))
+                                    .unwrap();
+                            }
                             // The string could be parsed as a float
-                            if let Ok(fahrenheit) = string.parse::<f32>() {
+                            else if let Ok(fahrenheit) = string.parse::<f32>() {
                                 self.widget_manager
                                     .send_command(Command::SetValue(
                                         self.text_input_celsius,
