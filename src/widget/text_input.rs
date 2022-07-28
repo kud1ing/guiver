@@ -1,5 +1,6 @@
+use crate::stroke::Stroke;
 use crate::widget::{Text, WidgetCommand, WidgetError};
-use crate::{SizeConstraints, SystemEvent, Widget, WidgetEvent, WidgetId};
+use crate::{Font, SizeConstraints, SystemEvent, Widget, WidgetEvent, WidgetId};
 use druid_shell::kurbo::{Point, Rect, RoundedRect, Size};
 use druid_shell::piet::{Color, Error, PaintBrush, Piet, RenderContext};
 use druid_shell::{KbKey, Region};
@@ -9,8 +10,7 @@ use std::borrow::BorrowMut;
 pub struct TextInput {
     corner_radius: f64,
     debug_rendering: bool,
-    debug_rendering_stroke_brush: PaintBrush,
-    debug_rendering_stroke_width: f64,
+    debug_rendering_stroke: Stroke,
     fill_brush: Option<PaintBrush>,
     has_focus: bool,
     is_disabled: bool,
@@ -31,8 +31,8 @@ impl TextInput {
     ///
     pub fn new(
         widget_id: WidgetId,
-        debug_rendering_stroke_brush: PaintBrush,
-        debug_rendering_stroke_width: f64,
+        debug_rendering_stroke: Stroke,
+        font: Font,
         text: impl Into<String>,
         width: f64,
         frame_color: Color,
@@ -44,8 +44,7 @@ impl TextInput {
         TextInput {
             corner_radius: 2.0,
             debug_rendering: false,
-            debug_rendering_stroke_brush: debug_rendering_stroke_brush.clone(),
-            debug_rendering_stroke_width: debug_rendering_stroke_width.clone(),
+            debug_rendering_stroke: debug_rendering_stroke.clone(),
             fill_brush: None,
             has_focus: false,
             is_disabled: true,
@@ -57,12 +56,7 @@ impl TextInput {
             stroke_brush_focused: PaintBrush::Color(frame_color_focused),
             stroke_width: 1.0,
             text: text.clone(),
-            text_widget: Text::new(
-                child_widget_id,
-                debug_rendering_stroke_brush,
-                debug_rendering_stroke_width,
-                text,
-            ),
+            text_widget: Text::new(child_widget_id, debug_rendering_stroke, font, text),
             widget_id,
             width,
         }
@@ -253,8 +247,8 @@ impl Widget for TextInput {
         if self.debug_rendering {
             piet.stroke(
                 self.rectangle,
-                &self.debug_rendering_stroke_brush,
-                self.debug_rendering_stroke_width,
+                &self.debug_rendering_stroke.brush,
+                self.debug_rendering_stroke.width,
             );
         }
 

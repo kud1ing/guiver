@@ -1,8 +1,9 @@
+use crate::stroke::Stroke;
 use crate::widget::{WidgetCommand, WidgetError, WidgetId};
 use crate::widget_manager::WidgetBox;
 use crate::{SizeConstraints, SystemEvent, VerticalAlignment, Widget, WidgetEvent};
 use druid_shell::kurbo::{Point, Rect, Size};
-use druid_shell::piet::{PaintBrush, Piet, RenderContext};
+use druid_shell::piet::{Piet, RenderContext};
 use druid_shell::{piet, Region};
 use std::borrow::BorrowMut;
 use std::cell::RefCell;
@@ -12,8 +13,7 @@ use std::cmp::max;
 pub struct Row {
     child_widgets: Vec<WidgetBox>,
     debug_rendering: bool,
-    debug_rendering_stroke_brush: PaintBrush,
-    debug_rendering_stroke_width: f64,
+    debug_rendering_stroke: Stroke,
     is_hidden: bool,
     rectangle: Rect,
     size_constraints: SizeConstraints,
@@ -26,16 +26,14 @@ impl Row {
     ///
     pub fn new(
         widget_id: WidgetId,
-        debug_rendering_stroke_brush: PaintBrush,
-        debug_rendering_stroke_width: f64,
+        debug_rendering_stroke: Stroke,
         vertical_alignment: VerticalAlignment,
         spacing: f64,
     ) -> Self {
         Row {
             child_widgets: vec![],
             debug_rendering: false,
-            debug_rendering_stroke_brush,
-            debug_rendering_stroke_width,
+            debug_rendering_stroke,
             is_hidden: false,
             rectangle: Rect::default(),
             size_constraints: SizeConstraints::unbounded(),
@@ -161,8 +159,8 @@ impl Widget for Row {
         if self.debug_rendering {
             piet.stroke(
                 self.rectangle,
-                &self.debug_rendering_stroke_brush,
-                self.debug_rendering_stroke_width,
+                &self.debug_rendering_stroke.brush,
+                self.debug_rendering_stroke.width,
             );
         }
 

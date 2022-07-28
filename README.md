@@ -30,17 +30,8 @@ On the upside you get simple setup and simple control flow.
 
 ## Backlog
 
-* [ ] create `Stroke` with `PaintBrush` and width
-* use `Stroke` for debug rendering:
-  * [ ] `Button`
-  * [ ] `Text`
-  * [ ] `TextInput`
-  * [ ] `Center`
-  * [ ] `Column`
-  * [ ] `Padding`
-  * [ ] `Row`
 * `TextInput`:
-  * [ ] uses `HorizontalAlignment`
+  * [ ] use `HorizontalAlignment`
   * [ ] handle a command to set the `HorizontalAlignment`
   * [ ] accept paste
   * [ ] display a caret
@@ -50,6 +41,7 @@ On the upside you get simple setup and simple control flow.
     * [ ] Ctrl + A
   * [ ] Ctrl+X should cut the text
   * [ ] Ctrl-C should copy the text
+* [ ] `Row`: use `VerticalAlignment`
 * [ ] support a concept of layers/z-order for dropdown boxes, tooltips etc.
 * [ ] implement [7GUIs](https://eugenkiss.github.io/7guis/tasks)
   * [ ] 7GUIs "Flight Booker"
@@ -58,12 +50,11 @@ On the upside you get simple setup and simple control flow.
   * [ ] 7GUIs "CRUD"
   * [ ] 7GUIs "Circle Drawer"
   * [ ] 7GUIs "Cells"
-* `WidgetManager`: tab order
-  * [ ] define tab order (explicitly or implicitly?)
-  * [ ] use tab order when tab is pressed
-* [ ] add Redmond 31 widgets
-* add to `Style`:
-  * [ ] `font`
+* `WidgetManager`: add tab order
+  * [ ] define tab order
+    * how? explicitly or implicitly?
+  * [ ] use tab order when tab key is pressed
+* [ ] add Redmond 31 widgets?
 * [ ] `WidgetManager`: implement `collect_garbage()`
   * remove all widgets that do not have the main widget as ancestor
 * [ ] add Python bindings

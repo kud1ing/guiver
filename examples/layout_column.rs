@@ -1,4 +1,4 @@
-use guiver::{run, Application,Region, Command, Piet, Size, SystemEvent, WidgetManager};
+use guiver::{run, Application, Command, Piet, Region, Size, SystemEvent, WidgetManager};
 
 pub(crate) struct App {
     widget_manager: WidgetManager,

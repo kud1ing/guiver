@@ -213,8 +213,7 @@ impl WidgetManager {
             widget_id,
             Rc::new(RefCell::new(Box::new(Center::new(
                 widget_id,
-                self.style.debug_rendering_stroke_brush.clone(),
-                self.style.debug_rendering_stroke_width,
+                self.style.debug_rendering_stroke.clone(),
             )))),
         );
 
@@ -250,8 +249,7 @@ impl WidgetManager {
             widget_id,
             Rc::new(RefCell::new(Box::new(Padding::new(
                 widget_id,
-                self.style.debug_rendering_stroke_brush.clone(),
-                self.style.debug_rendering_stroke_width,
+                self.style.debug_rendering_stroke.clone(),
                 self.style.padding,
                 self.style.padding,
                 self.style.padding,
@@ -288,8 +286,7 @@ impl WidgetManager {
             widget_id,
             Rc::new(RefCell::new(Box::new(Row::new(
                 widget_id,
-                self.style.debug_rendering_stroke_brush.clone(),
-                self.style.debug_rendering_stroke_width,
+                self.style.debug_rendering_stroke.clone(),
                 self.style.vertical_alignment,
                 self.style.spacing,
             )))),
@@ -309,8 +306,8 @@ impl WidgetManager {
             widget_id,
             Rc::new(RefCell::new(Box::new(Text::new(
                 widget_id,
-                self.style.debug_rendering_stroke_brush.clone(),
-                self.style.debug_rendering_stroke_width,
+                self.style.debug_rendering_stroke.clone(),
+                self.style.font.clone(),
                 text,
             )))),
         );
@@ -332,8 +329,8 @@ impl WidgetManager {
                 widget_id,
                 Rc::new(RefCell::new(Box::new(Text::new(
                     child_widget_id,
-                    self.style.debug_rendering_stroke_brush.clone(),
-                    self.style.debug_rendering_stroke_width,
+                    self.style.debug_rendering_stroke.clone(),
+                    self.style.font.clone(),
                     text,
                 )))),
                 Some(self.style.frame_color.clone()),
@@ -355,8 +352,8 @@ impl WidgetManager {
             widget_id,
             Rc::new(RefCell::new(Box::new(TextInput::new(
                 widget_id,
-                self.style.debug_rendering_stroke_brush.clone(),
-                self.style.debug_rendering_stroke_width,
+                self.style.debug_rendering_stroke.clone(),
+                self.style.font.clone(),
                 text,
                 width,
                 self.style.frame_color.clone(),

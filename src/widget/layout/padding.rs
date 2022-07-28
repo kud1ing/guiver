@@ -1,16 +1,16 @@
+use crate::stroke::Stroke;
 use crate::widget::{WidgetCommand, WidgetError, WidgetId};
 use crate::widget_manager::WidgetBox;
 use crate::{SizeConstraints, SystemEvent, Widget, WidgetEvent};
 use druid_shell::kurbo::{Point, Rect, Size};
-use druid_shell::piet::{PaintBrush, Piet, RenderContext};
+use druid_shell::piet::{Piet, RenderContext};
 use druid_shell::{piet, Region};
 
 /// A padding layout widget.
 pub struct Padding {
     child_widget: Option<WidgetBox>,
     debug_rendering: bool,
-    debug_rendering_stroke_brush: PaintBrush,
-    debug_rendering_stroke_width: f64,
+    debug_rendering_stroke: Stroke,
     is_hidden: bool,
     padding_bottom: f64,
     padding_left: f64,
@@ -25,8 +25,7 @@ impl Padding {
     ///
     pub fn new(
         widget_id: WidgetId,
-        debug_rendering_stroke_brush: PaintBrush,
-        debug_rendering_stroke_width: f64,
+        debug_rendering_stroke: Stroke,
         padding_left: f64,
         padding_top: f64,
         padding_right: f64,
@@ -35,8 +34,7 @@ impl Padding {
         Padding {
             child_widget: None,
             debug_rendering: false,
-            debug_rendering_stroke_brush,
-            debug_rendering_stroke_width,
+            debug_rendering_stroke,
             is_hidden: false,
             padding_bottom,
             padding_left,
@@ -147,8 +145,8 @@ impl Widget for Padding {
         if self.debug_rendering {
             piet.stroke(
                 self.rectangle,
-                &self.debug_rendering_stroke_brush,
-                self.debug_rendering_stroke_width,
+                &self.debug_rendering_stroke.brush,
+                self.debug_rendering_stroke.width,
             );
         }
 

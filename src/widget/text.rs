@@ -1,16 +1,16 @@
 use crate::font::Font;
 
+use crate::stroke::Stroke;
 use crate::widget::{WidgetCommand, WidgetError, WidgetId};
 use crate::{SizeConstraints, SystemEvent, Widget, WidgetEvent};
 use druid_shell::kurbo::{Point, Rect, Size};
-use druid_shell::piet::{PaintBrush, Piet, PietTextLayout, RenderContext, TextLayout};
+use druid_shell::piet::{Piet, PietTextLayout, RenderContext, TextLayout};
 use druid_shell::{piet, Region};
 
 /// A text widget.
 pub struct Text {
     debug_rendering: bool,
-    debug_rendering_stroke_brush: PaintBrush,
-    debug_rendering_stroke_width: f64,
+    debug_rendering_stroke: Stroke,
     font: Font,
     is_hidden: bool,
     rectangle: Rect,
@@ -23,17 +23,15 @@ impl Text {
     ///
     pub fn new(
         widget_id: WidgetId,
-        debug_rendering_stroke_brush: PaintBrush,
-        debug_rendering_stroke_width: f64,
+        debug_rendering_stroke: Stroke,
+        font: Font,
         text: impl Into<String>,
     ) -> Self {
-        let font = Font::default();
         let text = text.into();
 
         Text {
             debug_rendering: false,
-            debug_rendering_stroke_brush,
-            debug_rendering_stroke_width,
+            debug_rendering_stroke,
             font: font.clone(),
             is_hidden: false,
             rectangle: Rect::default(),
@@ -160,8 +158,8 @@ impl Widget for Text {
         if self.debug_rendering {
             piet.stroke(
                 self.rectangle,
-                &self.debug_rendering_stroke_brush,
-                self.debug_rendering_stroke_width,
+                &self.debug_rendering_stroke.brush,
+                self.debug_rendering_stroke.width,
             );
         }
 
