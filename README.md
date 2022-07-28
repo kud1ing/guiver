@@ -30,7 +30,18 @@ On the upside you get simple setup and simple control flow.
 
 ## Backlog
 
+* [ ] create `Stroke` with `PaintBrush` and width
+* use `Stroke` for debug rendering:
+  * [ ] `Button`
+  * [ ] `Text`
+  * [ ] `TextInput`
+  * [ ] `Center`
+  * [ ] `Column`
+  * [ ] `Padding`
+  * [ ] `Row`
 * `TextInput`:
+  * [ ] uses `HorizontalAlignment`
+  * [ ] handle a command to set the `HorizontalAlignment`
   * [ ] accept paste
   * [ ] display a caret
   * [ ] arrow keys should move the caret
@@ -47,7 +58,9 @@ On the upside you get simple setup and simple control flow.
   * [ ] 7GUIs "CRUD"
   * [ ] 7GUIs "Circle Drawer"
   * [ ] 7GUIs "Cells"
-* [ ] `WidgetManager`: add tab order
+* `WidgetManager`: tab order
+  * [ ] define tab order (explicitly or implicitly?)
+  * [ ] use tab order when tab is pressed
 * [ ] add Redmond 31 widgets
 * add to `Style`:
   * [ ] `font`
