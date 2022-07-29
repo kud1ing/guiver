@@ -43,6 +43,7 @@ On the upside you get simple setup and simple control flow.
 * [ ] `TextInput`: if a text is too large to fit in, the size of the text input should not increase but truncate 
 * `TextInput`:
   * [ ] accept paste
+    * https://github.com/linebender/druid/blob/master/druid-shell/src/clipboard.rs
   * [ ] display a caret
   * [ ] arrow keys should move the caret
   * support text selection:
