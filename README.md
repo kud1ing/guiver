@@ -1,6 +1,6 @@
 # guiver 0.1
 
-guiver is an attempt to make GUI programming with Rust simple, with the downside of not perfect efficiency.
+guiver is an attempt to make GUI programming with Rust simple, at the cost of maybe not perfect efficiency.
 
 guiver can be used in immediate mode, which is inspired by [egui](https://github.com/emilk/egui). In this case it is
 just a thin wrapper around [druid-shell](https://github.com/linebender/druid/tree/master/druid-shell) for event
@@ -12,7 +12,7 @@ The widgets are decoupled from the application data via message passing, which i
 [Tk commands](https://en.wikipedia.org/wiki/Tk_(software)) and egui.
 In a way the widget manager acts like a garbage collecting subsystem.
 
-If you look at the example code, it appears a bit verbose.
+If you look at the [example code](examples/), it appears a bit verbose.
 On the upside you get simple setup and simple control flow.
 
 <img width="788" alt="Bildschirmfoto 2022-07-29 um 21 09 50" src="https://user-images.githubusercontent.com/391975/181828289-797d1d0c-449e-4e38-9d3b-af0a3d4ef335.png">
