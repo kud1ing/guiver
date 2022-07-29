@@ -50,9 +50,9 @@ On the upside you get simple setup and simple control flow.
     * [ ] Ctrl + A
   * [ ] Ctrl+X should cut the text
   * [ ] Ctrl-C should copy the text
-* `WidgetManager`: add tab order
-  * [ ] define tab order
-    * how? explicitly or implicitly?
+* `WidgetManager`: tab order:
+  * [ ] explicitly define a tab order
+    * [ ] how?
   * [ ] use tab order when tab key is pressed
 * [ ] support a concept of layers/z-order for dropdown boxes, tooltips etc.
 * [ ] implement [7GUIs](https://eugenkiss.github.io/7guis/tasks)
