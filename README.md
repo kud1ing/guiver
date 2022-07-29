@@ -36,25 +36,24 @@ On the upside you get simple setup and simple control flow.
 
 ## Backlog
 
-* [ ] resize of `7guis_temperature_converter` is slow. correlated to `TextInput`?
-* [ ] add layout widget `Stacked` + `Positioned`
-* [ ] add layout widget `Expanded`
-  * [ ] rethink layouting in `Row`, `Column`
-* [ ] `TextInput`: if a text is too large to fit in, the size of the text input should not increase but truncate 
-* `TextInput`:
-  * [ ] accept paste
-    * https://github.com/linebender/druid/blob/master/druid-shell/src/clipboard.rs
-  * [ ] display a caret
-  * [ ] arrow keys should move the caret
-  * support text selection:
-    * [ ] Shift + cursor movement
-    * [ ] Ctrl + A
-  * [ ] Ctrl+X should cut the text
-  * [ ] Ctrl-C should copy the text
+* [ ] `TextInput`: display a caret
+* [ ] `TextInput`: accept paste
+  * https://github.com/linebender/druid/blob/master/druid-shell/src/clipboard.rs
 * `WidgetManager`: tab order:
   * [ ] explicitly define a tab order
     * [ ] how?
   * [ ] use tab order when tab key is pressed
+* [ ] resize of `7guis_temperature_converter` is slow. correlated to `TextInput`?
+* [ ] add layout widget `Stacked` + `Positioned`
+* [ ] add layout widget `Expanded`
+  * [ ] rethink layouting in `Row`, `Column`
+* [ ] `TextInput`: if a text is too large to fit in, the size of the text input should not increase but truncate
+* [ ] `TextInput`: arrow keys should move the caret
+* support text selection:
+  * [ ] Shift + cursor movement
+  * [ ] Ctrl + A
+* [ ] `TextInput`: Ctrl+X should cut the text
+* [ ] `TextInput`: Ctrl-C should copy the text
 * [ ] support a concept of layers/z-order for dropdown boxes, tooltips etc.
 * [ ] implement [7GUIs](https://eugenkiss.github.io/7guis/tasks)
   * [ ] 7GUIs "Flight Booker"
