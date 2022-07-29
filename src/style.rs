@@ -1,6 +1,6 @@
 use crate::stroke::Stroke;
+use crate::{Color, PaintBrush, StrokeStyle};
 use crate::{Font, VerticalAlignment};
-use druid_shell::piet::{Color, PaintBrush, StrokeStyle};
 
 ///
 #[derive(Clone)]

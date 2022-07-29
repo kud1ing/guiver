@@ -15,5 +15,4 @@ readme = "README.md"
 # Druid 0.7.0 depends on the old Piet 0.3.2
 druid-shell = { git = "https://github.com/linebender/druid.git" }
 # druid-shell = "^0"
-
-piet = "^0"
+#piet = "^0"

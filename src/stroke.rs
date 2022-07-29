@@ -1,4 +1,4 @@
-use piet::{PaintBrush, StrokeDash, StrokeStyle};
+use crate::{PaintBrush, StrokeDash, StrokeStyle};
 
 ///
 #[derive(Clone)]
