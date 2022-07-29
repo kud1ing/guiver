@@ -1,10 +1,15 @@
+use crate::stroke::Stroke;
 use crate::style::Style;
 use crate::widget::layout::{Center, Column, Padding, Row};
 use crate::widget::{Button, Placeholder, Text, TextInput, WidgetCommand, WidgetError};
-use crate::{SizeConstraints, SystemEvent, Widget, WidgetEvent, WidgetId};
+use crate::{
+    Event, Font, HorizontalAlignment, SizeConstraints, VerticalAlignment, Widget, WidgetEvent,
+    WidgetId,
+};
 use druid_shell::kurbo::Size;
 use druid_shell::piet::Piet;
 use druid_shell::{piet, Region};
+use piet::PaintBrush;
 use std::any::Any;
 use std::cell::RefCell;
 use std::collections::HashMap;
@@ -24,16 +29,26 @@ pub enum Command {
     RemoveChild(WidgetId, WidgetId),
     /// Enables/disables debug rendering mode for the widget.
     SetDebugRendering(WidgetId, bool),
+    /// Sets/unsets the widget's fill.
+    SetFill(WidgetId, Option<PaintBrush>),
+    /// Sets the widget's font.
+    SetFont(WidgetId, Font),
     /// Gives/removes focus to the widget.
     SetHasFocus(WidgetId, bool),
+    /// Sets the widget's horizontal alignment.
+    SetHorizontalAlignment(WidgetId, HorizontalAlignment),
     /// Enables/disables the widget.
     SetIsDisabled(WidgetId, bool),
     /// Hides/shows the widget.
     SetIsHidden(WidgetId, bool),
     /// Makes the widget with the given ID the main widget.
     SetMainWidget(WidgetId),
+    /// Sets/unsets the widget's stroke.
+    SetStroke(WidgetId, Option<Stroke>),
     /// Sets the given value to the widget.
     SetValue(WidgetId, Box<dyn Any>),
+    /// Sets the widget's vertical alignment.
+    SetVerticalAlignment(WidgetId, VerticalAlignment),
 }
 
 impl Command {
@@ -44,11 +59,16 @@ impl Command {
             Command::RemoveAllChildren(widget_id) => &widget_id,
             Command::RemoveChild(widget_id, _) => &widget_id,
             Command::SetDebugRendering(widget_id, _) => &widget_id,
+            Command::SetFill(widget_id, _) => &widget_id,
+            Command::SetFont(widget_id, _) => &widget_id,
             Command::SetHasFocus(widget_id, _) => &widget_id,
+            Command::SetHorizontalAlignment(widget_id, _) => &widget_id,
             Command::SetIsDisabled(widget_id, _) => &widget_id,
             Command::SetIsHidden(widget_id, _) => &widget_id,
             Command::SetMainWidget(widget_id) => &widget_id,
+            Command::SetStroke(widget_id, _) => &widget_id,
             Command::SetValue(widget_id, _) => &widget_id,
+            Command::SetVerticalAlignment(widget_id, _) => &widget_id,
         };
     }
 }
@@ -99,32 +119,29 @@ impl WidgetManager {
     }
 
     ///
-    pub fn handle_event(
-        &mut self,
-        system_event: &SystemEvent,
-    ) -> Result<Vec<WidgetEvent>, WidgetError> {
+    pub fn handle_event(&mut self, event: &Event) -> Result<Vec<WidgetEvent>, WidgetError> {
         let mut widget_events = vec![];
 
         // Handle key events.
-        match system_event {
-            SystemEvent::KeyDown(_) => {
+        match event {
+            Event::KeyDown(_) => {
                 // A widget has focus.
                 if let Some(focused_widget) = &mut self.focused_widget {
                     // Let the focused widget handle the key event.
                     focused_widget
                         .borrow_mut()
-                        .handle_event(system_event, &mut widget_events);
+                        .handle_event(event, &mut widget_events);
                 }
 
                 return Ok(widget_events);
             }
-            SystemEvent::KeyUp(_) => {
+            Event::KeyUp(_) => {
                 // A widget has focus.
                 if let Some(focused_widget) = &mut self.focused_widget {
                     // Let the focused widget handle the key event.
                     focused_widget
                         .borrow_mut()
-                        .handle_event(system_event, &mut widget_events);
+                        .handle_event(event, &mut widget_events);
                 }
 
                 return Ok(widget_events);
@@ -137,7 +154,7 @@ impl WidgetManager {
             // Let the main widget handle the given user event.
             main_widget
                 .borrow_mut()
-                .handle_event(system_event, &mut widget_events);
+                .handle_event(event, &mut widget_events);
         }
 
         // Focus handling.
@@ -147,7 +164,7 @@ impl WidgetManager {
             // Iterate over the widget events in search of focus events.
             for widget_event in &widget_events {
                 match widget_event {
-                    WidgetEvent::GotFocus(widget_id) => {
+                    WidgetEvent::GainedFocus(widget_id) => {
                         // A widget gained focus.
                         id_of_the_last_widget_that_gained_focus = Some(widget_id);
                     }
@@ -231,7 +248,8 @@ impl WidgetManager {
             widget_id,
             Rc::new(RefCell::new(Box::new(Column::new(
                 widget_id,
-                self.style.padding,
+                self.style.debug_rendering_stroke.clone(),
+                self.style.spacing,
             )))),
         );
 
@@ -327,6 +345,7 @@ impl WidgetManager {
             widget_id,
             Rc::new(RefCell::new(Box::new(Button::new(
                 widget_id,
+                self.style.debug_rendering_stroke.clone(),
                 Rc::new(RefCell::new(Box::new(Text::new(
                     child_widget_id,
                     self.style.debug_rendering_stroke.clone(),
@@ -445,6 +464,16 @@ impl WidgetManager {
                         .borrow_mut()
                         .handle_command(WidgetCommand::SetDebugRendering(debug_rendering))?;
                 }
+                Command::SetFill(_widget_id, fill) => {
+                    widget_box
+                        .borrow_mut()
+                        .handle_command(WidgetCommand::SetFill(fill))?;
+                }
+                Command::SetFont(_widget_id, font) => {
+                    widget_box
+                        .borrow_mut()
+                        .handle_command(WidgetCommand::SetFont(font))?;
+                }
                 Command::SetHasFocus(_widget_id, has_focus) => {
                     // A widget had focus.
                     if let Some(focused_widget) = &mut self.focused_widget {
@@ -463,6 +492,11 @@ impl WidgetManager {
                         .borrow_mut()
                         .handle_command(WidgetCommand::SetHasFocus(has_focus))?;
                 }
+                Command::SetHorizontalAlignment(_widget_id, horizontal_alignment) => {
+                    widget_box.borrow_mut().handle_command(
+                        WidgetCommand::SetHorizontalAlignment(horizontal_alignment),
+                    )?;
+                }
                 Command::SetIsDisabled(_widget_id, is_disabled) => {
                     widget_box
                         .borrow_mut()
@@ -477,10 +511,20 @@ impl WidgetManager {
                     widget_box.borrow_mut().set_origin((1.0, 1.0).into());
                     self.main_widget = Some(widget_box.clone());
                 }
+                Command::SetStroke(_widget_id, stroke) => {
+                    widget_box
+                        .borrow_mut()
+                        .handle_command(WidgetCommand::SetStroke(stroke))?;
+                }
                 Command::SetValue(_widget_id, value) => {
                     widget_box
                         .borrow_mut()
                         .handle_command(WidgetCommand::SetValue(value))?;
+                }
+                Command::SetVerticalAlignment(_widget_id, vertical_alignment) => {
+                    widget_box
+                        .borrow_mut()
+                        .handle_command(WidgetCommand::SetVerticalAlignment(vertical_alignment))?;
                 }
             };
         }

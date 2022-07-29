@@ -1,7 +1,7 @@
 use crate::stroke::Stroke;
 use crate::widget::{WidgetCommand, WidgetError, WidgetId};
 use crate::widget_manager::WidgetBox;
-use crate::{SizeConstraints, SystemEvent, VerticalAlignment, Widget, WidgetEvent};
+use crate::{Event, SizeConstraints, VerticalAlignment, Widget, WidgetEvent};
 use druid_shell::kurbo::{Point, Rect, Size};
 use druid_shell::piet::{Piet, RenderContext};
 use druid_shell::{piet, Region};
@@ -54,27 +54,35 @@ impl Row {
 
         let number_of_spacers = max(number_of_child_widgets - 1, 0);
 
-        // TODO: improve the layout algorithm used here.
-
+        // Determine the child size constraints.
         let child_size_constraints = SizeConstraints::new(
-            Size::new(0.0, self.rectangle.size().height),
+            Size::new(0.0, self.size_constraints.minimum().height),
             Size::new(
-                (self.rectangle.size().width - number_of_spacers as f64 * self.spacing)
+                (self.size_constraints.maximum().width - number_of_spacers as f64 * self.spacing)
                     / (number_of_child_widgets as f64),
-                self.rectangle.size().height,
+                self.size_constraints.maximum().height,
             ),
         );
 
-        // TODO
-        self.rectangle = self.rectangle.with_size(*self.size_constraints.maximum());
-
+        let mut parent_size = Size::ZERO;
         let mut child_x = self.rectangle.origin().x;
 
-        for child_widget in &mut self.child_widgets {
+        for (i, child_widget) in &mut self.child_widgets.iter().enumerate() {
             let child_size = RefCell::borrow_mut(&child_widget)
                 .borrow_mut()
                 .apply_size_constraints(child_size_constraints);
 
+            // Update the parent size.
+            {
+                parent_size.height = child_size.height.max(parent_size.height);
+                parent_size.width += child_size.width;
+
+                if i > 0 {
+                    parent_size.width += self.spacing;
+                }
+            }
+
+            // Determine the child's vertical position.
             let child_y = match self.vertical_alignment {
                 VerticalAlignment::Bottom => {
                     self.rectangle.origin().y
@@ -94,6 +102,9 @@ impl Row {
 
             child_x += child_size.width + self.spacing;
         }
+
+        // Set the parent size.
+        self.rectangle = self.rectangle.with_size(parent_size);
     }
 }
 
@@ -118,30 +129,67 @@ impl Widget for Row {
             }
             WidgetCommand::RemoveChild(_) => {
                 // TODO
-                println!("`Row::handle_widget_command(RemoveChild)`: TODO");
+                println!("`Row::handle_command(RemoveChild)`: TODO");
             }
             WidgetCommand::SetDebugRendering(debug_rendering) => {
                 self.debug_rendering = debug_rendering;
             }
-            WidgetCommand::SetHasFocus(_) => {}
+            WidgetCommand::SetFill(ref _value) => {
+                return Err(WidgetError::CommandNotHandled(
+                    self.widget_id,
+                    widget_command,
+                ));
+            }
+            WidgetCommand::SetFont(_) => {
+                return Err(WidgetError::CommandNotHandled(
+                    self.widget_id,
+                    widget_command,
+                ));
+            }
+            WidgetCommand::SetHasFocus(_) => {
+                return Err(WidgetError::CommandNotHandled(
+                    self.widget_id,
+                    widget_command,
+                ));
+            }
+            WidgetCommand::SetHorizontalAlignment(_) => {
+                return Err(WidgetError::CommandNotHandled(
+                    self.widget_id,
+                    widget_command,
+                ));
+            }
             WidgetCommand::SetIsDisabled(_) => {
                 // TODO
-                println!("`Row::handle_widget_command(SetIsDisabled)`: TODO");
+                println!("`Row::handle_command(SetIsDisabled)`: TODO");
             }
             WidgetCommand::SetIsHidden(is_hidden) => {
                 // Hide/show this widget.
                 self.is_hidden = is_hidden;
             }
-            WidgetCommand::SetValue(_) => {}
+            WidgetCommand::SetStroke(ref _value) => {
+                return Err(WidgetError::CommandNotHandled(
+                    self.widget_id,
+                    widget_command,
+                ));
+            }
+            WidgetCommand::SetValue(_) => {
+                return Err(WidgetError::CommandNotHandled(
+                    self.widget_id,
+                    widget_command,
+                ));
+            }
+            WidgetCommand::SetVerticalAlignment(vertical_alignment) => {
+                self.vertical_alignment = vertical_alignment;
+            }
         }
 
         Ok(())
     }
 
-    fn handle_event(&mut self, system_event: &SystemEvent, widget_events: &mut Vec<WidgetEvent>) {
+    fn handle_event(&mut self, event: &Event, widget_events: &mut Vec<WidgetEvent>) {
         // Iterate over the child widgets.
         for child_widget in &mut self.child_widgets {
-            RefCell::borrow_mut(&child_widget).handle_event(system_event, widget_events);
+            RefCell::borrow_mut(&child_widget).handle_event(event, widget_events);
         }
     }
 

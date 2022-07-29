@@ -1,23 +1,32 @@
+use crate::stroke::Stroke;
 use crate::widget::{WidgetCommand, WidgetError, WidgetId};
-use crate::{SizeConstraints, SystemEvent, Widget, WidgetEvent};
+use crate::{Event, SizeConstraints, Widget, WidgetEvent};
 use druid_shell::kurbo::{Line, Point, Rect, Size};
 use druid_shell::piet::{Color, Piet, RenderContext};
 use druid_shell::{piet, Region};
+use piet::{PaintBrush, StrokeDash};
 
 /// A placeholder widget.
 pub struct Placeholder {
-    color: Color,
+    fill: Option<PaintBrush>,
     is_hidden: bool,
     rectangle: Rect,
+    stroke: Option<Stroke>,
     widget_id: WidgetId,
 }
 
 impl Placeholder {
     pub fn new(widget_id: WidgetId) -> Self {
         Placeholder {
-            color: Color::rgb8(255, 255, 255),
+            fill: None,
             is_hidden: false,
             rectangle: Rect::default(),
+            stroke: Some(Stroke {
+                brush: PaintBrush::Color(Color::rgb8(255, 255, 255)),
+                dash: Some(StrokeDash::default()),
+                style: Default::default(),
+                width: 1.0,
+            }),
             widget_id,
         }
     }
@@ -53,18 +62,29 @@ impl Widget for Placeholder {
             WidgetCommand::SetDebugRendering(_debug_rendering) => {
                 // Debug rendering is unnecessary for placeholder widgets.
             }
+            WidgetCommand::SetFill(fill) => {
+                self.fill = fill;
+            }
+            WidgetCommand::SetFont(_) => {
+                return Err(WidgetError::CommandNotHandled(
+                    self.widget_id,
+                    widget_command,
+                ));
+            }
             WidgetCommand::SetHasFocus(_has_focus) => {
                 return Err(WidgetError::CommandNotHandled(
                     self.widget_id,
                     widget_command,
                 ));
             }
-            WidgetCommand::SetIsDisabled(_) => {
-                // TODO
-                println!("`Placeholder::handle_widget_command(SetIsDisabled)`: TODO");
-            }
+            WidgetCommand::SetHorizontalAlignment(_) => {}
+            WidgetCommand::SetIsDisabled(_) => {}
             WidgetCommand::SetIsHidden(is_hidden) => {
                 self.is_hidden = is_hidden;
+            }
+            WidgetCommand::SetStroke(_) => {
+                // TODO
+                println!("`Placeholder::handle_command(SetStroke)`: TODO");
             }
             WidgetCommand::SetValue(ref _value) => {
                 return Err(WidgetError::CommandNotHandled(
@@ -72,12 +92,13 @@ impl Widget for Placeholder {
                     widget_command,
                 ));
             }
+            WidgetCommand::SetVerticalAlignment(_) => {}
         }
 
         Ok(())
     }
 
-    fn handle_event(&mut self, _event: &SystemEvent, _widget_events: &mut Vec<WidgetEvent>) {
+    fn handle_event(&mut self, _event: &Event, _widget_events: &mut Vec<WidgetEvent>) {
         // Nothing to do.
     }
 
@@ -89,26 +110,40 @@ impl Widget for Placeholder {
 
         // TODO: check the region
 
-        // Draw a cross.
-        piet.stroke(
-            Line::new(
-                (self.rectangle.x0, self.rectangle.y0),
-                (self.rectangle.x1, self.rectangle.y1),
-            ),
-            &self.color,
-            1.0,
-        );
-        piet.stroke(
-            Line::new(
-                (self.rectangle.x0, self.rectangle.y1),
-                (self.rectangle.x1, self.rectangle.y0),
-            ),
-            &self.color,
-            1.0,
-        );
+        // Fill.
+        if let Some(fill) = &self.fill {
+            piet.fill(&self.rectangle, fill);
+        }
 
-        // Draw the rectangle.
-        piet.stroke(&self.rectangle, &self.color, 1.0);
+        // Stroke.
+        if let Some(stroke) = &self.stroke {
+            // TODO: use `stroke.style`
+
+            if let Some(_dash) = &stroke.dash {
+                // TODO: use the dash pattern
+            }
+
+            // Draw a cross.
+            piet.stroke(
+                Line::new(
+                    (self.rectangle.x0, self.rectangle.y0),
+                    (self.rectangle.x1, self.rectangle.y1),
+                ),
+                &stroke.brush,
+                stroke.width,
+            );
+            piet.stroke(
+                Line::new(
+                    (self.rectangle.x0, self.rectangle.y1),
+                    (self.rectangle.x1, self.rectangle.y0),
+                ),
+                &stroke.brush,
+                stroke.width,
+            );
+
+            // Draw the rectangle.
+            piet.stroke(&self.rectangle, &stroke.brush, stroke.width);
+        }
 
         Ok(())
     }

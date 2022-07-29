@@ -1,5 +1,5 @@
 use crate::window_event_handler::WindowEventHandler;
-use crate::SystemEvent;
+use crate::Event;
 use druid_shell::kurbo::Size;
 use druid_shell::piet::Piet;
 use druid_shell::{Region, WindowBuilder};
@@ -7,7 +7,7 @@ use druid_shell::{Region, WindowBuilder};
 ///
 pub trait Application {
     ///
-    fn handle_system_event(&mut self, system_event: &SystemEvent);
+    fn handle_event(&mut self, event: &Event);
 
     ///
     fn paint(&mut self, piet: &mut Piet, region: &Region);

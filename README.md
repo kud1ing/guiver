@@ -1,10 +1,11 @@
-# guiver 0.1.0
+# guiver 0.1
 
-guiver is an approach to making GUI programming with Rust simple, with the downside of not perfect efficiency.
+guiver is an attempt to make GUI programming with Rust simple, with the downside of not perfect efficiency.
 
 guiver can be used in immediate mode, which is inspired by [egui](https://github.com/emilk/egui). In this case it is
 just a thin wrapper around [druid-shell](https://github.com/linebender/druid/tree/master/druid-shell) for event
 handling/windowing and [Piet](https://github.com/linebender/piet) for rendering.
+Some layout widgets are inspired by [Flutter](https://flutter.dev).
 
 There are retained mode widgets that can be used with the help of an optional widget manager.
 The widgets are decoupled from the application data via message passing, which is inspired by
@@ -13,6 +14,8 @@ In a way the widget manager acts like a garbage collecting subsystem.
 
 If you look at the example code, it appears a bit verbose.
 On the upside you get simple setup and simple control flow.
+
+<img width="912" alt="Bildschirmfoto 2022-07-29 um 15 05 59" src="https://user-images.githubusercontent.com/391975/181766876-e0d7d3b6-dda4-4b30-bed6-9db1cb21b1df.png">
 
 <img width="179" alt="Bildschirmfoto 2022-07-25 um 19 35 35" src="https://user-images.githubusercontent.com/391975/180839538-64f2a0a7-6dd8-4e1f-bdd7-ddeac2e98ed7.png">
 
@@ -30,10 +33,12 @@ On the upside you get simple setup and simple control flow.
 
 ## Backlog
 
+* [ ] resize of `7guis_temperature_converter` is slow. correlated to `TextInput`?
 * [ ] add layout widget `Stacked` + `Positioned`
+* [ ] add layout widget `Expanded`
+  * [ ] rethink layouting in `Row`, `Column`
+* [ ] `TextInput`: if a text is too large to fit in, the size of the text input should not increase but truncate 
 * `TextInput`:
-  * [ ] use `HorizontalAlignment`
-  * [ ] handle a command to set the `HorizontalAlignment`
   * [ ] accept paste
   * [ ] display a caret
   * [ ] arrow keys should move the caret
@@ -42,7 +47,10 @@ On the upside you get simple setup and simple control flow.
     * [ ] Ctrl + A
   * [ ] Ctrl+X should cut the text
   * [ ] Ctrl-C should copy the text
-* [ ] `Row`: use `VerticalAlignment`
+* `WidgetManager`: add tab order
+  * [ ] define tab order
+    * how? explicitly or implicitly?
+  * [ ] use tab order when tab key is pressed
 * [ ] support a concept of layers/z-order for dropdown boxes, tooltips etc.
 * [ ] implement [7GUIs](https://eugenkiss.github.io/7guis/tasks)
   * [ ] 7GUIs "Flight Booker"
@@ -51,10 +59,6 @@ On the upside you get simple setup and simple control flow.
   * [ ] 7GUIs "CRUD"
   * [ ] 7GUIs "Circle Drawer"
   * [ ] 7GUIs "Cells"
-* `WidgetManager`: add tab order
-  * [ ] define tab order
-    * how? explicitly or implicitly?
-  * [ ] use tab order when tab key is pressed
 * [ ] add Redmond 31 widgets?
 * [ ] `WidgetManager`: implement `collect_garbage()`
   * remove all widgets that do not have the main widget as ancestor

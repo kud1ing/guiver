@@ -1,7 +1,7 @@
 use druid_shell::kurbo::Size;
 
 ///
-#[derive(Clone, Copy, Default)]
+#[derive(Clone, Copy, Debug, Default)]
 pub struct SizeConstraints {
     maximum: Size,
     minimum: Size,

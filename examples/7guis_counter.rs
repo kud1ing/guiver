@@ -5,7 +5,7 @@ use druid_shell::kurbo::Size;
 use druid_shell::piet::Piet;
 use druid_shell::Region;
 use guiver::{run, Command, WidgetEvent, WidgetId, WidgetManager};
-use guiver::{Application, SystemEvent};
+use guiver::{Application, Event};
 
 pub(crate) struct App {
     counter: u32,
@@ -44,9 +44,9 @@ impl App {
 }
 
 impl Application for App {
-    fn handle_system_event(&mut self, system_event: &SystemEvent) {
+    fn handle_event(&mut self, event: &Event) {
         // Handle the system event, possibly create widget events.
-        let widget_events = self.widget_manager.handle_event(system_event).unwrap();
+        let widget_events = self.widget_manager.handle_event(event).unwrap();
 
         // Iterate over the generated widget events.
         for widget_event in widget_events {

@@ -1,4 +1,4 @@
-use guiver::{run, Application, Command, Piet, Region, Size, SystemEvent, WidgetManager};
+use guiver::{run, Application, Command, Event, Piet, Region, Size, WidgetManager};
 
 pub(crate) struct App {
     widget_manager: WidgetManager,
@@ -31,7 +31,7 @@ impl App {
 }
 
 impl Application for App {
-    fn handle_system_event(&mut self, _system_event: &SystemEvent) {}
+    fn handle_event(&mut self, _system_event: &Event) {}
 
     fn paint(&mut self, piet: &mut Piet, region: &Region) {
         self.widget_manager.paint(piet, region).unwrap();

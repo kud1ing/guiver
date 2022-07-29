@@ -2,7 +2,7 @@ use crate::font::Font;
 
 use crate::stroke::Stroke;
 use crate::widget::{WidgetCommand, WidgetError, WidgetId};
-use crate::{SizeConstraints, SystemEvent, Widget, WidgetEvent};
+use crate::{Event, SizeConstraints, Widget, WidgetEvent};
 use druid_shell::kurbo::{Point, Rect, Size};
 use druid_shell::piet::{Piet, PietTextLayout, RenderContext, TextLayout};
 use druid_shell::{piet, Region};
@@ -14,6 +14,7 @@ pub struct Text {
     font: Font,
     is_hidden: bool,
     rectangle: Rect,
+    size_constraints: SizeConstraints,
     text: String,
     text_layout: PietTextLayout,
     widget_id: WidgetId,
@@ -35,6 +36,7 @@ impl Text {
             font: font.clone(),
             is_hidden: false,
             rectangle: Rect::default(),
+            size_constraints: SizeConstraints::default(),
             text: text.clone(),
             text_layout: font.text_layout(text),
             widget_id,
@@ -42,21 +44,24 @@ impl Text {
     }
 
     ///
-    fn set_text(&mut self, text: impl Into<String>) {
-        self.text = text.into();
+    fn layout(&mut self) {
         self.text_layout = self.font.text_layout(self.text.clone());
+
+        // Adjust the text layout size to the given constraints.
+        self.rectangle = self.rectangle.with_size(
+            self.text_layout
+                .size()
+                .clamp(self.text_layout.size(), *self.size_constraints.maximum()),
+        );
     }
 }
 
 impl Widget for Text {
     ///
     fn apply_size_constraints(&mut self, size_constraints: SizeConstraints) -> Size {
-        // Adjust the text layout size to the given constraints.
-        self.rectangle = self.rectangle.with_size(
-            self.text_layout
-                .size()
-                .clamp(self.text_layout.size(), *size_constraints.maximum()),
-        );
+        self.size_constraints = size_constraints;
+
+        self.layout();
 
         self.rectangle.size()
     }
@@ -87,50 +92,73 @@ impl Widget for Text {
                     widget_command,
                 ));
             }
+            WidgetCommand::SetFill(_) => {
+                // TODO
+                println!("`Text::handle_command(SetFill)`: TODO");
+            }
+            WidgetCommand::SetFont(font) => {
+                self.font = font;
+
+                self.layout();
+            }
+            WidgetCommand::SetHorizontalAlignment(_) => {
+                // TODO
+                println!("`Text::handle_command(SetHorizontalAlignment)`: TODO");
+            }
             WidgetCommand::SetDebugRendering(debug_rendering) => {
                 self.debug_rendering = debug_rendering;
             }
             WidgetCommand::SetIsDisabled(_) => {
                 // TODO
-                println!("`Label::handle_widget_command(SetIsDisabled)`: TODO");
+                println!("`Text::handle_command(SetIsDisabled)`: TODO");
             }
             WidgetCommand::SetIsHidden(is_hidden) => {
                 self.is_hidden = is_hidden;
             }
+            WidgetCommand::SetStroke(_) => {
+                // TODO
+                println!("`Text::handle_command(SetStroke)`: TODO");
+            }
             WidgetCommand::SetValue(value) => {
                 // The given value is a string.
                 if let Some(string) = value.downcast_ref::<String>() {
-                    self.set_text(string);
+                    self.text = string.clone();
                 }
                 // The given value is something else.
                 else {
-                    self.set_text(format!("{:?}", value));
+                    self.text = format!("{:?}", value);
                 }
+
+                self.layout();
+            }
+            WidgetCommand::SetVerticalAlignment(_) => {
+                // TODO
+                println!("`Text::handle_command(SetVerticalAlignment)`: TODO");
             }
         }
 
         Ok(())
     }
 
-    fn handle_event(&mut self, system_event: &SystemEvent, widget_events: &mut Vec<WidgetEvent>) {
-        match system_event {
-            SystemEvent::KeyDown(_) => {}
-            SystemEvent::KeyUp(_) => {}
-            SystemEvent::MouseDown(mouse_event) => {
+    fn handle_event(&mut self, event: &Event, widget_events: &mut Vec<WidgetEvent>) {
+        match event {
+            Event::KeyDown(_) => {}
+            Event::KeyUp(_) => {}
+            Event::MouseDown(mouse_event) => {
                 if !self.rectangle.contains(mouse_event.pos) {
                     return;
                 }
 
                 widget_events.push(WidgetEvent::Clicked(self.widget_id));
             }
-            SystemEvent::MouseMove(mouse_event) => {
+            Event::MouseMove(mouse_event) => {
                 if self.rectangle.contains(mouse_event.pos) {
                     // TODO
                 } else {
                     // TODO
                 }
             }
-            SystemEvent::MouseUp(mouse_event) => {
+            Event::MouseUp(mouse_event) => {
                 if self.rectangle.contains(mouse_event.pos) {
                     // TODO
                 } else {

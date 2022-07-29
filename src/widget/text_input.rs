@@ -1,6 +1,6 @@
 use crate::stroke::Stroke;
 use crate::widget::{Text, WidgetCommand, WidgetError};
-use crate::{Font, SizeConstraints, SystemEvent, Widget, WidgetEvent, WidgetId};
+use crate::{Event, Font, HorizontalAlignment, SizeConstraints, Widget, WidgetEvent, WidgetId};
 use druid_shell::kurbo::{Point, Rect, RoundedRect, Size};
 use druid_shell::piet::{Color, Error, PaintBrush, Piet, RenderContext};
 use druid_shell::{KbKey, Region};
@@ -13,6 +13,7 @@ pub struct TextInput {
     debug_rendering_stroke: Stroke,
     fill_brush: Option<PaintBrush>,
     has_focus: bool,
+    horizontal_alignment: HorizontalAlignment,
     is_disabled: bool,
     is_hidden: bool,
     padding: f64,
@@ -47,6 +48,7 @@ impl TextInput {
             debug_rendering_stroke: debug_rendering_stroke.clone(),
             fill_brush: None,
             has_focus: false,
+            horizontal_alignment: HorizontalAlignment::Center,
             is_disabled: true,
             is_hidden: false,
             padding: 4.0,
@@ -91,13 +93,22 @@ impl TextInput {
         ));
 
         // Set the child's origin.
-        self.text_widget.borrow_mut().set_origin(
-            self.rectangle.origin()
-                + (
-                    0.5 * (self.rectangle.size().width - child_size.width).max(0.0),
-                    0.5 * (self.rectangle.size().height - child_size.height).max(0.0),
-                ),
-        );
+        {
+            let delta_child_x = match self.horizontal_alignment {
+                HorizontalAlignment::Center => {
+                    0.5 * (self.rectangle.size().width - child_size.width).max(0.0)
+                }
+                HorizontalAlignment::Left => self.padding,
+                HorizontalAlignment::Right => {
+                    (self.rectangle.size().width - child_size.width).max(0.0) - self.padding
+                }
+            };
+            let delta_child_y = 0.5 * (self.rectangle.size().height - child_size.height).max(0.0);
+
+            self.text_widget
+                .borrow_mut()
+                .set_origin(self.rectangle.origin() + (delta_child_x, delta_child_y));
+        }
     }
 
     ///
@@ -107,6 +118,8 @@ impl TextInput {
             .borrow_mut()
             .handle_command(WidgetCommand::SetValue(Box::new(self.text.clone())))
             .unwrap();
+
+        self.layout_child();
     }
 }
 
@@ -140,14 +153,28 @@ impl Widget for TextInput {
             WidgetCommand::SetDebugRendering(debug_rendering) => {
                 self.debug_rendering = debug_rendering;
             }
+            WidgetCommand::SetFill(_) => {
+                // TODO
+                println!("`TextInput::handle_command(SetFill)`: TODO");
+            }
+            WidgetCommand::SetFont(_) => {
+                self.text_widget.handle_command(widget_command)?;
+            }
             WidgetCommand::SetHasFocus(has_focus) => {
                 self.has_focus = has_focus;
+            }
+            WidgetCommand::SetHorizontalAlignment(horizontal_alignment) => {
+                self.horizontal_alignment = horizontal_alignment;
             }
             WidgetCommand::SetIsDisabled(is_disabled) => {
                 self.is_disabled = is_disabled;
             }
             WidgetCommand::SetIsHidden(is_hidden) => {
                 self.is_hidden = is_hidden;
+            }
+            WidgetCommand::SetStroke(_) => {
+                // TODO
+                println!("`TextInput::handle_command(SetStroke)`: TODO");
             }
             WidgetCommand::SetValue(value) => {
                 // The given value is a string.
@@ -158,14 +185,18 @@ impl Widget for TextInput {
                     self.update_text_widget();
                 }
             }
+            WidgetCommand::SetVerticalAlignment(_) => {
+                // TODO
+                println!("`TextInput::handle_command(SetVerticalAlignment)`: TODO");
+            }
         }
 
         Ok(())
     }
 
-    fn handle_event(&mut self, system_event: &SystemEvent, widget_events: &mut Vec<WidgetEvent>) {
-        match system_event {
-            SystemEvent::KeyDown(key_event) => match &key_event.key {
+    fn handle_event(&mut self, event: &Event, widget_events: &mut Vec<WidgetEvent>) {
+        match event {
+            Event::KeyDown(key_event) => match &key_event.key {
                 KbKey::Character(string) => {
                     // Append the character to the text.
                     self.text.push_str(&string);
@@ -182,10 +213,17 @@ impl Widget for TextInput {
                     // Apply the text changes.
                     self.broadcast_modified_text(widget_events);
                 }
+                KbKey::Enter => {
+                    // Enter on a (focused) text input submits the value.
+                    widget_events.push(WidgetEvent::ValueSubmitted(
+                        self.widget_id,
+                        Box::new(self.text.clone()),
+                    ));
+                }
                 _ => {}
             },
-            SystemEvent::KeyUp(_key_event) => {}
-            SystemEvent::MouseDown(mouse_event) => {
+            Event::KeyUp(_key_event) => {}
+            Event::MouseDown(mouse_event) => {
                 // The mouse is down within this text input.
                 if self.rectangle.contains(mouse_event.pos) {
                     // This widget has no focus.
@@ -194,7 +232,7 @@ impl Widget for TextInput {
                         self.has_focus = true;
 
                         // Tell the widget manager about the change of focus.
-                        widget_events.push(WidgetEvent::GotFocus(self.widget_id))
+                        widget_events.push(WidgetEvent::GainedFocus(self.widget_id))
                     }
                 }
                 // The mouse is down outside of this text input.
@@ -209,8 +247,8 @@ impl Widget for TextInput {
                     }
                 }
             }
-            SystemEvent::MouseMove(_) => {}
-            SystemEvent::MouseUp(_) => {}
+            Event::MouseMove(_) => {}
+            Event::MouseUp(_) => {}
         }
     }
 

@@ -1,7 +1,7 @@
 use crate::{PaintBrush, StrokeDash, StrokeStyle};
 
 ///
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Stroke {
     pub brush: PaintBrush,
     pub dash: Option<StrokeDash>,

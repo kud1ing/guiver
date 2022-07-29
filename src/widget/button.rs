@@ -1,15 +1,17 @@
+use crate::stroke::Stroke;
 use crate::widget::{WidgetCommand, WidgetError};
 use crate::widget_manager::WidgetBox;
-use crate::{SizeConstraints, SystemEvent, Widget, WidgetEvent, WidgetId};
+use crate::{Event, SizeConstraints, Widget, WidgetEvent, WidgetId};
 use druid_shell::kurbo::{Point, Rect, RoundedRect, Size};
 use druid_shell::piet::{Color, LinearGradient, PaintBrush, Piet, RenderContext, UnitPoint};
-use druid_shell::{piet, Region};
+use druid_shell::{piet, KbKey, Region};
 
 ///
 pub struct Button {
     child_widget: Option<WidgetBox>,
     corner_radius: f64,
     debug_rendering: bool,
+    debug_rendering_stroke: Stroke,
     fill_brush_down: Option<PaintBrush>,
     fill_brush_up: Option<PaintBrush>,
     has_focus: bool,
@@ -31,6 +33,7 @@ impl Button {
     ///
     pub fn new(
         widget_id: WidgetId,
+        debug_rendering_stroke: Stroke,
         child_widget: WidgetBox,
         frame_color: Option<Color>,
         frame_color_focused: Option<Color>,
@@ -39,6 +42,7 @@ impl Button {
             child_widget: Some(child_widget),
             corner_radius: 4.0,
             debug_rendering: false,
+            debug_rendering_stroke,
             fill_brush_down: Some(PaintBrush::Color(Color::rgb8(0, 0, 0))),
             fill_brush_up: Some(PaintBrush::Linear(LinearGradient::new(
                 UnitPoint::TOP,
@@ -114,13 +118,26 @@ impl Widget for Button {
             }
             WidgetCommand::RemoveChild(_) => {
                 // TODO
-                println!("`Button::handle_command()`: TODO");
+                println!("`Button::handle_command(RemoveChild)`: TODO");
             }
             WidgetCommand::SetDebugRendering(debug_rendering) => {
                 self.debug_rendering = debug_rendering;
             }
+            WidgetCommand::SetFill(_) => {
+                // TODO
+                println!("`Button::handle_command(SetFill)`: TODO");
+            }
+            WidgetCommand::SetFont(_) => {
+                if let Some(child_widget) = &mut self.child_widget {
+                    child_widget.borrow_mut().handle_command(widget_command)?;
+                }
+            }
             WidgetCommand::SetHasFocus(has_focus) => {
                 self.has_focus = has_focus;
+            }
+            WidgetCommand::SetHorizontalAlignment(_) => {
+                // TODO
+                println!("`Button::handle_command(SetHorizontalAlignment)`: TODO");
             }
             WidgetCommand::SetIsDisabled(is_disabled) => {
                 self.is_disabled = is_disabled;
@@ -128,23 +145,34 @@ impl Widget for Button {
             WidgetCommand::SetIsHidden(is_hidden) => {
                 self.is_hidden = is_hidden;
             }
+            WidgetCommand::SetStroke(_) => {
+                // TODO
+                println!("`Button::handle_command(SetStroke)`: TODO");
+            }
             WidgetCommand::SetValue(_) => {
                 // TODO
-                println!("`Button::handle_command()`: TODO");
+                println!("`Button::handle_command(SetValue)`: TODO");
+            }
+            WidgetCommand::SetVerticalAlignment(_) => {
+                // TODO
+                println!("`Button::handle_command(SetVerticalAlignment)`: TODO");
             }
         }
 
         Ok(())
     }
 
-    fn handle_event(&mut self, system_event: &SystemEvent, widget_events: &mut Vec<WidgetEvent>) {
-        match system_event {
-            SystemEvent::KeyDown(_) => {
-                // TODO
-                println!("`Button::handle_event()`: TODO");
-            }
-            SystemEvent::KeyUp(_) => {}
-            SystemEvent::MouseDown(mouse_event) => {
+    fn handle_event(&mut self, event: &Event, widget_events: &mut Vec<WidgetEvent>) {
+        match event {
+            Event::KeyDown(key_event) => match &key_event.key {
+                KbKey::Enter => {
+                    // Enter on a (focused) button is like a click.
+                    widget_events.push(WidgetEvent::Clicked(self.widget_id));
+                }
+                _ => {}
+            },
+            Event::KeyUp(_) => {}
+            Event::MouseDown(mouse_event) => {
                 // The mouse is down within this button.
                 if self.rectangle.contains(mouse_event.pos) {
                     // This widget was not focused.
@@ -153,7 +181,7 @@ impl Widget for Button {
                         self.has_focus = true;
 
                         // Tell the widget manager about the change of focus.
-                        widget_events.push(WidgetEvent::GotFocus(self.widget_id))
+                        widget_events.push(WidgetEvent::GainedFocus(self.widget_id))
                     }
 
                     self.is_down = true;
@@ -172,7 +200,7 @@ impl Widget for Button {
                     self.is_hot = false;
                 }
             }
-            SystemEvent::MouseMove(mouse_event) => {
+            Event::MouseMove(mouse_event) => {
                 // The mouse moved inside of this button.
                 if self.is_hot && self.rectangle.contains(mouse_event.pos) {
                     self.is_down = true;
@@ -182,7 +210,7 @@ impl Widget for Button {
                     self.is_down = false;
                 }
             }
-            SystemEvent::MouseUp(mouse_event) => {
+            Event::MouseUp(mouse_event) => {
                 if self.is_hot && self.rectangle.contains(mouse_event.pos) {
                     widget_events.push(WidgetEvent::Clicked(self.widget_id));
                 }
@@ -237,7 +265,14 @@ impl Widget for Button {
             child_widget_rc.borrow().paint(piet, region)?;
         }
 
-        // TODO: use `self.debug_rendering`
+        // Render debug hints.
+        if self.debug_rendering {
+            piet.stroke(
+                self.rectangle,
+                &self.debug_rendering_stroke.brush,
+                self.debug_rendering_stroke.width,
+            );
+        }
 
         Ok(())
     }

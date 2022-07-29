@@ -3,7 +3,7 @@ use druid_shell::piet::{
 };
 
 ///
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Font {
     pub color: Color,
     pub font_family: FontFamily,

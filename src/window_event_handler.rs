@@ -1,4 +1,4 @@
-use crate::{Application, SystemEvent};
+use crate::{Application, Event};
 use druid_shell::kurbo::Size;
 use druid_shell::piet::Piet;
 use druid_shell::{
@@ -9,11 +9,11 @@ use std::any::Any;
 
 ///
 pub struct WindowEventHandler {
-    ///
+    /// The application.
     application: Box<dyn Application>,
-    ///
+    /// The window handle.
     window_handle: WindowHandle,
-    ///
+    /// The window size. Needed for repainting.
     window_size: Size,
 }
 
@@ -34,8 +34,8 @@ impl WinHandler for WindowEventHandler {
     }
 
     fn size(&mut self, size: Size) {
-        self.window_size = size;
         self.application.resize(size);
+        self.window_size = size;
     }
 
     fn scale(&mut self, _scale: Scale) {
@@ -48,7 +48,6 @@ impl WinHandler for WindowEventHandler {
     fn prepare_paint(&mut self) {}
 
     fn paint(&mut self, piet: &mut Piet, region: &Region) {
-        // First let the application paint.
         self.application.paint(piet, region);
     }
 
@@ -63,17 +62,16 @@ impl WinHandler for WindowEventHandler {
     fn key_down(&mut self, event: KeyEvent) -> bool {
         // Handle the key down event.
         self.application
-            .handle_system_event(&SystemEvent::KeyDown(event.clone()));
+            .handle_event(&Event::KeyDown(event.clone()));
 
         self.window_handle
             .invalidate_rect(self.window_size.to_rect());
-        false
+        true
     }
 
     fn key_up(&mut self, event: KeyEvent) {
         // Handle the key up event.
-        self.application
-            .handle_system_event(&SystemEvent::KeyUp(event.clone()));
+        self.application.handle_event(&Event::KeyUp(event.clone()));
 
         self.window_handle
             .invalidate_rect(self.window_size.to_rect());
@@ -96,7 +94,7 @@ impl WinHandler for WindowEventHandler {
     fn mouse_move(&mut self, event: &MouseEvent) {
         // Handle the mouse move event.
         self.application
-            .handle_system_event(&SystemEvent::MouseMove(event.clone()));
+            .handle_event(&Event::MouseMove(event.clone()));
 
         self.window_handle
             .invalidate_rect(self.window_size.to_rect());
@@ -105,7 +103,7 @@ impl WinHandler for WindowEventHandler {
     fn mouse_down(&mut self, event: &MouseEvent) {
         // Handle the mouse down event.
         self.application
-            .handle_system_event(&SystemEvent::MouseDown(event.clone()));
+            .handle_event(&Event::MouseDown(event.clone()));
 
         self.window_handle
             .invalidate_rect(self.window_size.to_rect());
@@ -114,7 +112,7 @@ impl WinHandler for WindowEventHandler {
     fn mouse_up(&mut self, event: &MouseEvent) {
         // Handle the mouse up event.
         self.application
-            .handle_system_event(&SystemEvent::MouseUp(event.clone()));
+            .handle_event(&Event::MouseUp(event.clone()));
 
         self.window_handle
             .invalidate_rect(self.window_size.to_rect());

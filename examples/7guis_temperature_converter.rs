@@ -2,8 +2,8 @@
 This implements the "Counter" task from [7GUIs](https://eugenkiss.github.io/7guis/tasks/).
  */
 use guiver::{
-    run, Application, Command, Piet, Region, Size, SystemEvent, WidgetEvent, WidgetId,
-    WidgetManager,
+    run, Application, Command, Event, HorizontalAlignment, Piet, Region, Size, WidgetEvent,
+    WidgetId, WidgetManager,
 };
 
 pub(crate) struct App {
@@ -33,6 +33,10 @@ impl App {
                 Command::AppendChild(row, text1),
                 Command::AppendChild(row, text_input_fahrenheit),
                 Command::AppendChild(row, text2),
+                //
+                Command::SetHasFocus(text_input_celsius, true),
+                Command::SetHorizontalAlignment(text_input_celsius, HorizontalAlignment::Right),
+                Command::SetHorizontalAlignment(text_input_fahrenheit, HorizontalAlignment::Left),
             ])
             .unwrap();
 
@@ -53,9 +57,9 @@ fn fahrenheit_from_celsius(celsius: f32) -> f32 {
 }
 
 impl Application for App {
-    fn handle_system_event(&mut self, system_event: &SystemEvent) {
+    fn handle_event(&mut self, event: &Event) {
         // Handle the system event, possibly create widget events.
-        let widget_events = self.widget_manager.handle_event(system_event).unwrap();
+        let widget_events = self.widget_manager.handle_event(event).unwrap();
 
         // Iterate over the generated widget events.
         for widget_event in widget_events {

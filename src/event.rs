@@ -2,7 +2,7 @@ use druid_shell::{KeyEvent, MouseEvent};
 
 ///
 #[derive(Clone, Debug, PartialEq)]
-pub enum SystemEvent {
+pub enum Event {
     KeyDown(KeyEvent),
     KeyUp(KeyEvent),
     MouseDown(MouseEvent),

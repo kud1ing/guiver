@@ -1,30 +1,45 @@
 use crate::stroke::Stroke;
 use crate::widget::{WidgetCommand, WidgetError, WidgetId};
 use crate::widget_manager::WidgetBox;
-use crate::{SizeConstraints, SystemEvent, Widget, WidgetEvent};
+use crate::{Event, SizeConstraints, Widget, WidgetEvent};
 use druid_shell::kurbo::{Point, Rect, Size};
 use druid_shell::piet::{Piet, RenderContext};
 use druid_shell::{piet, Region};
 
-/// A centering layout widget.
-pub struct Center {
+/// A padding layout widget.
+pub struct Padding {
     child_widget: Option<WidgetBox>,
     debug_rendering: bool,
     debug_rendering_stroke: Stroke,
     is_hidden: bool,
+    padding_bottom: f64,
+    padding_left: f64,
+    padding_right: f64,
+    padding_top: f64,
     rectangle: Rect,
     size_constraints: SizeConstraints,
     widget_id: WidgetId,
 }
 
-impl Center {
+impl Padding {
     ///
-    pub fn new(widget_id: WidgetId, debug_rendering_stroke: Stroke) -> Self {
-        Center {
+    pub fn new(
+        widget_id: WidgetId,
+        debug_rendering_stroke: Stroke,
+        padding_left: f64,
+        padding_top: f64,
+        padding_right: f64,
+        padding_bottom: f64,
+    ) -> Self {
+        Padding {
             child_widget: None,
             debug_rendering: false,
             debug_rendering_stroke,
             is_hidden: false,
+            padding_bottom,
+            padding_left,
+            padding_right,
+            padding_top,
             rectangle: Rect::default(),
             size_constraints: SizeConstraints::default(),
             widget_id,
@@ -33,14 +48,19 @@ impl Center {
 
     ///
     fn layout_child(&mut self) {
-        self.rectangle = self.rectangle.with_size(*self.size_constraints.maximum());
-
         // There is a child widget.
         if let Some(child_widget) = &mut self.child_widget {
+            let padding_size = Size::new(
+                self.padding_left + self.padding_right,
+                self.padding_top + self.padding_bottom,
+            );
+
             // Apply the child widget's size constraints.
             let child_size = child_widget
                 .borrow_mut()
-                .apply_size_constraints(self.size_constraints);
+                .apply_size_constraints(self.size_constraints.shrink(padding_size));
+
+            self.rectangle = self.rectangle.with_size(child_size + padding_size);
 
             // Set the child's origin.
             child_widget.borrow_mut().set_origin(
@@ -51,10 +71,14 @@ impl Center {
                     ),
             );
         }
+        // There is no child widget.
+        else {
+            self.rectangle = self.rectangle.with_size(*self.size_constraints.maximum());
+        }
     }
 }
 
-impl Widget for Center {
+impl Widget for Padding {
     ///
     fn apply_size_constraints(&mut self, size_constraints: SizeConstraints) -> Size {
         self.size_constraints = size_constraints;
@@ -78,31 +102,69 @@ impl Widget for Center {
             }
             WidgetCommand::RemoveChild(_) => {
                 // TODO
-                println!("`Center::handle_widget_command(RemoveChild)`: TODO");
+                println!("`Padding::handle_command(RemoveChild)`: TODO");
             }
             WidgetCommand::SetDebugRendering(debug_rendering) => {
                 self.debug_rendering = debug_rendering;
             }
-            WidgetCommand::SetHasFocus(_) => {}
+            WidgetCommand::SetFill(ref _value) => {
+                return Err(WidgetError::CommandNotHandled(
+                    self.widget_id,
+                    widget_command,
+                ));
+            }
+            WidgetCommand::SetFont(_) => {
+                return Err(WidgetError::CommandNotHandled(
+                    self.widget_id,
+                    widget_command,
+                ));
+            }
+            WidgetCommand::SetHasFocus(_) => {
+                return Err(WidgetError::CommandNotHandled(
+                    self.widget_id,
+                    widget_command,
+                ));
+            }
+            WidgetCommand::SetHorizontalAlignment(_) => {
+                return Err(WidgetError::CommandNotHandled(
+                    self.widget_id,
+                    widget_command,
+                ));
+            }
             WidgetCommand::SetIsDisabled(_) => {
                 // TODO
-                println!("`Center::handle_widget_command(SetIsDisabled)`: TODO");
+                println!("`Padding::handle_command(SetIsDisabled)`: TODO");
             }
             WidgetCommand::SetIsHidden(is_hidden) => {
                 self.is_hidden = is_hidden;
             }
-            WidgetCommand::SetValue(_value) => {}
+            WidgetCommand::SetStroke(ref _value) => {
+                return Err(WidgetError::CommandNotHandled(
+                    self.widget_id,
+                    widget_command,
+                ));
+            }
+            WidgetCommand::SetValue(ref _value) => {
+                return Err(WidgetError::CommandNotHandled(
+                    self.widget_id,
+                    widget_command,
+                ));
+            }
+            WidgetCommand::SetVerticalAlignment(_) => {
+                return Err(WidgetError::CommandNotHandled(
+                    self.widget_id,
+                    widget_command,
+                ));
+            }
         }
 
         Ok(())
     }
 
-    fn handle_event(&mut self, system_event: &SystemEvent, widget_events: &mut Vec<WidgetEvent>) {
+    fn handle_event(&mut self, event: &Event, widget_events: &mut Vec<WidgetEvent>) {
         // There is a child widget.
         if let Some(child_widget) = &mut self.child_widget {
-            child_widget
-                .borrow_mut()
-                .handle_event(system_event, widget_events);
+            child_widget.borrow_mut().handle_event(event, widget_events);
         }
     }
 
