@@ -1,5 +1,4 @@
-use druid_shell::piet::{PaintBrush, StrokeStyle};
-use piet::StrokeDash;
+use piet::{PaintBrush, StrokeDash, StrokeStyle};
 
 ///
 #[derive(Clone)]

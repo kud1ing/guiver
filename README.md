@@ -30,6 +30,7 @@ On the upside you get simple setup and simple control flow.
 
 ## Backlog
 
+* [ ] add layout widget `Stacked` + `Positioned`
 * `TextInput`:
   * [ ] use `HorizontalAlignment`
   * [ ] handle a command to set the `HorizontalAlignment`
