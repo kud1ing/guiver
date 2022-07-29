@@ -25,7 +25,7 @@ impl Default for Style {
                 width: 1.0,
             },
             font: Font::default(),
-            frame_color: Color::rgb8(150, 150, 150),
+            frame_color: Color::rgb8(120, 120, 120),
             padding: 15.0,
             spacing: 8.0,
             vertical_alignment: VerticalAlignment::Middle,

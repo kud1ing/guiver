@@ -86,7 +86,9 @@ impl Column {
                         + 0.5 * (self.rectangle.size().width - child_size.width).max(0.0)
                 }
                 HorizontalAlignment::Left => self.rectangle.origin().x,
-                HorizontalAlignment::Right => self.rectangle.origin().x - child_size.width,
+                HorizontalAlignment::Right => {
+                    self.rectangle.origin().x + parent_size.width - child_size.width
+                }
             };
 
             // Set the children's origins.
@@ -152,6 +154,11 @@ impl Widget for Column {
             WidgetCommand::SetIsDisabled(_) => {
                 // TODO
                 println!("`Column::handle_command(SetIsDisabled)`: TODO");
+                /*
+                for widget in &mut self.child_widgets {
+                    widget.borrow_mut().handle_command(widget_command.clone())?;
+                }
+                */
             }
             WidgetCommand::SetIsHidden(is_hidden) => {
                 // Hide/show this widget.

@@ -23,9 +23,8 @@ pub struct Button {
     padding_vertical: f64,
     rectangle: Rect,
     size_constraints: SizeConstraints,
-    stroke_brush: Option<PaintBrush>,
-    stroke_brush_focused: Option<PaintBrush>,
-    stroke_width: f64,
+    stroke: Option<Stroke>,
+    stroke_focused: Option<Stroke>,
     widget_id: WidgetId,
 }
 
@@ -35,6 +34,7 @@ impl Button {
         widget_id: WidgetId,
         debug_rendering_stroke: Stroke,
         child_widget: WidgetBox,
+        fill_brush_down: Option<PaintBrush>,
         frame_color: Option<Color>,
         frame_color_focused: Option<Color>,
     ) -> Self {
@@ -43,11 +43,11 @@ impl Button {
             corner_radius: 4.0,
             debug_rendering: false,
             debug_rendering_stroke,
-            fill_brush_down: Some(PaintBrush::Color(Color::rgb8(0, 0, 0))),
+            fill_brush_down,
             fill_brush_up: Some(PaintBrush::Linear(LinearGradient::new(
                 UnitPoint::TOP,
                 UnitPoint::BOTTOM,
-                (Color::rgb8(100, 100, 100), Color::rgb8(10, 10, 10)),
+                (Color::rgb8(100, 100, 100), Color::rgb8(50, 50, 50)),
             ))),
             has_focus: false,
             is_disabled: false,
@@ -58,9 +58,18 @@ impl Button {
             padding_vertical: 4.0,
             rectangle: Rect::default(),
             size_constraints: SizeConstraints::default(),
-            stroke_brush: frame_color.map(PaintBrush::Color),
-            stroke_brush_focused: frame_color_focused.map(PaintBrush::Color),
-            stroke_width: 1.0,
+            stroke: frame_color.map(|color| Stroke {
+                brush: PaintBrush::Color(color),
+                dash: None,
+                style: Default::default(),
+                width: 1.0,
+            }),
+            stroke_focused: frame_color_focused.map(|color| Stroke {
+                brush: PaintBrush::Color(color),
+                dash: None,
+                style: Default::default(),
+                width: 1.0,
+            }),
             widget_id,
         }
     }
@@ -123,9 +132,8 @@ impl Widget for Button {
             WidgetCommand::SetDebugRendering(debug_rendering) => {
                 self.debug_rendering = debug_rendering;
             }
-            WidgetCommand::SetFill(_) => {
-                // TODO
-                println!("`Button::handle_command(SetFill)`: TODO");
+            WidgetCommand::SetFill(fill) => {
+                self.fill_brush_up = fill;
             }
             WidgetCommand::SetFont(_) => {
                 if let Some(child_widget) = &mut self.child_widget {
@@ -145,9 +153,8 @@ impl Widget for Button {
             WidgetCommand::SetIsHidden(is_hidden) => {
                 self.is_hidden = is_hidden;
             }
-            WidgetCommand::SetStroke(_) => {
-                // TODO
-                println!("`Button::handle_command(SetStroke)`: TODO");
+            WidgetCommand::SetStroke(stroke) => {
+                self.stroke = stroke;
             }
             WidgetCommand::SetValue(_) => {
                 // TODO
@@ -244,15 +251,15 @@ impl Widget for Button {
             // The button is focused.
             if self.has_focus {
                 // There is a focuse stroke brush.
-                if let Some(brush) = &self.stroke_brush_focused {
-                    piet.stroke(button_shape, brush, self.stroke_width);
+                if let Some(stroke) = &self.stroke_focused {
+                    piet.stroke(button_shape, &stroke.brush, stroke.width);
                 }
             }
             // The button is not focused.
             else {
                 // There is a stroke brush.
-                if let Some(brush) = &self.stroke_brush {
-                    piet.stroke(button_shape, brush, self.stroke_width);
+                if let Some(stroke) = &self.stroke {
+                    piet.stroke(button_shape, &stroke.brush, stroke.width);
                 }
             }
         }

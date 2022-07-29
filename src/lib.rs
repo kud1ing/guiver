@@ -12,10 +12,13 @@ mod window_event_handler;
 pub use alignment::{HorizontalAlignment, VerticalAlignment};
 pub use application::{run, Application};
 pub use druid_shell::kurbo::{Rect, Size};
-pub use druid_shell::piet::{Color, PaintBrush, Piet, RenderContext, StrokeDash, StrokeStyle};
+pub use druid_shell::piet::{
+    Color, LinearGradient, PaintBrush, Piet, RenderContext, StrokeDash, StrokeStyle, UnitPoint,
+};
 pub use druid_shell::Region;
 pub use event::Event;
 pub use font::Font;
 pub use size_constraints::SizeConstraints;
+pub use stroke::Stroke;
 pub use widget::{Widget, WidgetEvent, WidgetId};
 pub use widget_manager::{Command, WidgetManager};

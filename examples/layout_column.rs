@@ -1,4 +1,7 @@
-use guiver::{run, Application, Command, Event, Piet, Region, Size, WidgetManager};
+use guiver::{
+    run, Application, Command, Event, HorizontalAlignment, Piet, Region, Size, VerticalAlignment,
+    WidgetManager,
+};
 
 pub(crate) struct App {
     widget_manager: WidgetManager,
@@ -13,12 +16,12 @@ impl App {
         let row = widget_manager.new_row();
         let column1 = widget_manager.new_column();
         let column2 = widget_manager.new_column();
+        let text1 = widget_manager.new_text("This is a text");
+        let text2 = widget_manager.new_text_button("This is a button");
         let placeholder1 = widget_manager.new_placeholder();
+        let text3 = widget_manager.new_text("This is a right aligned text");
         let placeholder2 = widget_manager.new_placeholder();
         let placeholder3 = widget_manager.new_placeholder();
-        let placeholder4 = widget_manager.new_placeholder();
-        let placeholder5 = widget_manager.new_placeholder();
-        let placeholder6 = widget_manager.new_placeholder();
 
         // Compose the widgets.
         widget_manager
@@ -26,13 +29,17 @@ impl App {
                 Command::SetMainWidget(padding),
                 Command::AppendChild(padding, row),
                 Command::AppendChild(row, column1),
-                Command::AppendChild(column1, placeholder1),
-                Command::AppendChild(column1, placeholder2),
+                Command::AppendChild(column1, text1),
+                Command::AppendChild(column1, text2),
                 Command::AppendChild(column1, placeholder3),
                 Command::AppendChild(row, column2),
-                Command::AppendChild(column2, placeholder4),
-                Command::AppendChild(column2, placeholder5),
-                Command::AppendChild(row, placeholder6),
+                Command::AppendChild(column2, placeholder1),
+                Command::AppendChild(column2, text3),
+                Command::AppendChild(row, placeholder2),
+                //
+                Command::SetVerticalAlignment(row, VerticalAlignment::Top),
+                Command::SetHorizontalAlignment(column1, HorizontalAlignment::Left),
+                Command::SetHorizontalAlignment(column2, HorizontalAlignment::Right),
             ])
             .unwrap();
 
@@ -41,7 +48,9 @@ impl App {
 }
 
 impl Application for App {
-    fn handle_event(&mut self, _system_event: &Event) {}
+    fn handle_event(&mut self, event: &Event) {
+        let _widget_events = self.widget_manager.handle_event(event);
+    }
 
     fn paint(&mut self, piet: &mut Piet, region: &Region) {
         self.widget_manager.paint(piet, region).unwrap();

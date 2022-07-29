@@ -352,6 +352,7 @@ impl WidgetManager {
                     self.style.font.clone(),
                     text,
                 )))),
+                Some(PaintBrush::Color(self.style.accent_color.clone())),
                 Some(self.style.frame_color.clone()),
                 Some(self.style.accent_color.clone()),
             )))),
