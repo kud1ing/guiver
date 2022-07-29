@@ -2,11 +2,13 @@
 
 guiver is an attempt to make GUI programming with Rust simple, perhaps without perfect efficiency.
 
-guiver can be used in immediate mode, which is inspired by [egui](https://github.com/emilk/egui). In this case it is
+guiver can be used in [immediate mode](https://en.wikipedia.org/wiki/Immediate_mode_(computer_graphics)), which is
+inspired by [egui](https://github.com/emilk/egui). In this case it is
 just a thin wrapper around [druid-shell](https://github.com/linebender/druid/tree/master/druid-shell) for event
 handling/windowing and [Piet](https://github.com/linebender/piet) for rendering.
 
-There are retained mode widgets that can be used with the help of an optional widget manager.
+There are [retained mode](https://en.wikipedia.org/wiki/Retained_mode) widgets that can be used with the help of an
+optional widget manager.
 The widgets are decoupled from the application data via message passing, which is inspired by
 [Tk commands](https://en.wikipedia.org/wiki/Tk_(software)) and egui.
 Some layout widgets are inspired by [Flutter](https://flutter.dev).
