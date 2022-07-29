@@ -1,5 +1,9 @@
-// TODO: This implements the "Flight Booker" task from [7GUIs](https://eugenkiss.github.io/7guis/tasks/).
-use guiver::{run, Application, Command, Event, Piet, Region, Size, WidgetManager};
+/**
+This implements the "Flight Booker" task from [7GUIs](https://eugenkiss.github.io/7guis/tasks/).
+*/
+use guiver::{
+    run, Application, Color, Command, Event, PaintBrush, Piet, Region, Size, WidgetManager,
+};
 
 pub(crate) struct App {
     widget_manager: WidgetManager,
@@ -26,6 +30,12 @@ impl App {
                 Command::AppendChild(column, text_input_start_date),
                 Command::AppendChild(column, text_input_return_date),
                 Command::AppendChild(column, book_button),
+                //
+                // TODO: remove
+                Command::SetFill(
+                    text_input_start_date,
+                    Some(PaintBrush::Color(Color::rgb8(255, 0, 0))),
+                ),
             ])
             .unwrap();
 
@@ -36,6 +46,8 @@ impl App {
 impl Application for App {
     fn handle_event(&mut self, event: &Event) {
         let _widget_events = self.widget_manager.handle_event(event).unwrap();
+
+        // TODO
     }
 
     fn paint(&mut self, piet: &mut Piet, region: &Region) {

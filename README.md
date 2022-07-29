@@ -1,6 +1,6 @@
 # guiver 0.1
 
-guiver is an attempt to make GUI programming with Rust simple, perhaps without perfect efficiency.
+guiver is an attempt to make GUI programming with Rust simple, but perhaps without perfect efficiency.
 
 guiver can be used in [immediate mode](https://en.wikipedia.org/wiki/Immediate_mode_(computer_graphics)), which is
 inspired by [egui](https://github.com/emilk/egui). In this case it is
@@ -9,8 +9,8 @@ handling/windowing and [Piet](https://github.com/linebender/piet) for rendering.
 
 There are [retained mode](https://en.wikipedia.org/wiki/Retained_mode) widgets that can be used with the help of an
 optional widget manager.
-The widgets are decoupled from the application data via message passing, which is inspired by
-[Tk commands](https://en.wikipedia.org/wiki/Tk_(software)) and egui.
+The widgets are decoupled from the application data via message passing, that is inspired by
+[Tk commands](https://www.tcl.tk/man/tcl/TkCmd/contents.html) and egui.
 Some layout widgets are inspired by [Flutter](https://flutter.dev).
 
 If you look at the [example code](examples/), it may appear a bit verbose.

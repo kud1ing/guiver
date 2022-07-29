@@ -11,7 +11,7 @@ pub struct TextInput {
     corner_radius: f64,
     debug_rendering: bool,
     debug_rendering_stroke: Stroke,
-    fill_brush: Option<PaintBrush>,
+    fill: Option<PaintBrush>,
     has_focus: bool,
     horizontal_alignment: HorizontalAlignment,
     is_disabled: bool,
@@ -46,7 +46,7 @@ impl TextInput {
             corner_radius: 2.0,
             debug_rendering: false,
             debug_rendering_stroke: debug_rendering_stroke.clone(),
-            fill_brush: None,
+            fill: None,
             has_focus: false,
             horizontal_alignment: HorizontalAlignment::Center,
             is_disabled: true,
@@ -153,9 +153,8 @@ impl Widget for TextInput {
             WidgetCommand::SetDebugRendering(debug_rendering) => {
                 self.debug_rendering = debug_rendering;
             }
-            WidgetCommand::SetFill(_) => {
-                // TODO
-                println!("`TextInput::handle_command(SetFill)`: TODO");
+            WidgetCommand::SetFill(fill) => {
+                self.fill = fill;
             }
             WidgetCommand::SetFont(_) => {
                 self.text_widget.handle_command(widget_command)?;
@@ -258,7 +257,7 @@ impl Widget for TextInput {
             let shape = RoundedRect::from_rect(self.rectangle, self.corner_radius);
 
             // Fill.
-            if let Some(fill_brush) = &self.fill_brush {
+            if let Some(fill_brush) = &self.fill {
                 piet.fill(shape, fill_brush);
             }
 
