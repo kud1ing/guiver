@@ -15,19 +15,19 @@ In a way the widget manager acts like a garbage collecting subsystem.
 If you look at the example code, it appears a bit verbose.
 On the upside you get simple setup and simple control flow.
 
-<img width="912" alt="Bildschirmfoto 2022-07-29 um 15 05 59" src="https://user-images.githubusercontent.com/391975/181766876-e0d7d3b6-dda4-4b30-bed6-9db1cb21b1df.png">
+<img width="788" alt="Bildschirmfoto 2022-07-29 um 21 09 50" src="https://user-images.githubusercontent.com/391975/181828289-797d1d0c-449e-4e38-9d3b-af0a3d4ef335.png">
 
-<img width="179" alt="Bildschirmfoto 2022-07-25 um 19 35 35" src="https://user-images.githubusercontent.com/391975/180839538-64f2a0a7-6dd8-4e1f-bdd7-ddeac2e98ed7.png">
+<img width="232" alt="Bildschirmfoto 2022-07-29 um 21 09 16" src="https://user-images.githubusercontent.com/391975/181828207-8c268397-f815-484a-a28f-22501fc04ec4.png">
 
-<img width="325" alt="Bildschirmfoto 2022-07-25 um 19 59 34" src="https://user-images.githubusercontent.com/391975/180843587-fbaa38fb-92dc-4201-98cd-db387aa122b7.png">
+<img width="334" alt="Bildschirmfoto 2022-07-29 um 21 08 38" src="https://user-images.githubusercontent.com/391975/181828121-526bddbf-8f9a-4e5a-8db8-2ce9ce4ec8c0.png">
 
-<img width="300" alt="Bildschirmfoto 2022-07-25 um 22 22 21" src="https://user-images.githubusercontent.com/391975/180867499-e1ea127a-acbd-4bcc-b614-7949c6bf6ad1.png">
+<img width="293" alt="Bildschirmfoto 2022-07-29 um 21 07 20" src="https://user-images.githubusercontent.com/391975/181827939-ba986efe-b0b7-4a2a-ba09-9eedff8c7846.png">
 
-<img width="348" alt="Bildschirmfoto 2022-07-25 um 22 23 16" src="https://user-images.githubusercontent.com/391975/180867615-52a6b8fa-1066-462d-af5b-5ab630bfe345.png">
+<img width="357" alt="Bildschirmfoto 2022-07-29 um 21 06 35" src="https://user-images.githubusercontent.com/391975/181827857-42b6ffb0-9837-4bfa-9552-e4e68f68d639.png">
 
-<img width="347" alt="Bildschirmfoto 2022-07-25 um 22 23 55" src="https://user-images.githubusercontent.com/391975/180867695-c977d027-5eb4-45a3-9d21-279ac4d3a3f6.png">
+<img width="399" alt="Bildschirmfoto 2022-07-29 um 21 05 50" src="https://user-images.githubusercontent.com/391975/181827755-3e8e9e82-155c-4c0e-aa37-4963f1db49b0.png">
 
-<img width="400" alt="Bildschirmfoto 2022-07-25 um 22 24 23" src="https://user-images.githubusercontent.com/391975/180867766-5d564ba6-1507-49e2-907c-1ec0f43dbcc5.png">
+<img width="631" alt="Bildschirmfoto 2022-07-29 um 21 04 20" src="https://user-images.githubusercontent.com/391975/181827655-c8945f84-be44-47ab-836c-64a1c41bc945.png">
 
 <img width="315" alt="Bildschirmfoto 2022-07-25 um 21 57 15" src="https://user-images.githubusercontent.com/391975/180863911-98ca0572-d700-426a-be9b-3f96c708f478.png">
 
