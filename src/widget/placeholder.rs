@@ -4,7 +4,7 @@ use crate::{Event, SizeConstraints, Widget, WidgetEvent};
 use druid_shell::kurbo::{Line, Point, Rect, Size};
 use druid_shell::piet::{Color, Piet, RenderContext};
 use druid_shell::{piet, Region};
-use piet::{PaintBrush, StrokeDash};
+use piet::{PaintBrush, StrokeDash, StrokeStyle};
 
 /// A placeholder widget.
 pub struct Placeholder {
@@ -17,14 +17,20 @@ pub struct Placeholder {
 
 impl Placeholder {
     pub fn new(widget_id: WidgetId) -> Self {
+        let style = StrokeStyle {
+            line_join: Default::default(),
+            line_cap: Default::default(),
+            dash_pattern: StrokeDash::default(),
+            dash_offset: 0.0,
+        };
+
         Placeholder {
             fill: None,
             is_hidden: false,
             rectangle: Rect::default(),
             stroke: Some(Stroke {
                 brush: PaintBrush::Color(Color::rgb8(255, 255, 255)),
-                dash: Some(StrokeDash::default()),
-                style: Default::default(),
+                style: style.dash_pattern(&[4.0, 2.0]),
                 width: 1.0,
             }),
             widget_id,
@@ -117,32 +123,28 @@ impl Widget for Placeholder {
 
         // Stroke.
         if let Some(stroke) = &self.stroke {
-            // TODO: use `stroke.style`
-
-            if let Some(_dash) = &stroke.dash {
-                // TODO: use the dash pattern
-            }
-
             // Draw a cross.
-            piet.stroke(
+            piet.stroke_styled(
                 Line::new(
                     (self.rectangle.x0, self.rectangle.y0),
                     (self.rectangle.x1, self.rectangle.y1),
                 ),
                 &stroke.brush,
                 stroke.width,
+                &stroke.style,
             );
-            piet.stroke(
+            piet.stroke_styled(
                 Line::new(
                     (self.rectangle.x0, self.rectangle.y1),
                     (self.rectangle.x1, self.rectangle.y0),
                 ),
                 &stroke.brush,
                 stroke.width,
+                &stroke.style,
             );
 
             // Draw the rectangle.
-            piet.stroke(&self.rectangle, &stroke.brush, stroke.width);
+            piet.stroke_styled(&self.rectangle, &stroke.brush, stroke.width, &stroke.style);
         }
 
         Ok(())

@@ -60,13 +60,11 @@ impl Button {
             size_constraints: SizeConstraints::default(),
             stroke: frame_color.map(|color| Stroke {
                 brush: PaintBrush::Color(color),
-                dash: None,
                 style: Default::default(),
                 width: 1.0,
             }),
             stroke_focused: frame_color_focused.map(|color| Stroke {
                 brush: PaintBrush::Color(color),
-                dash: None,
                 style: Default::default(),
                 width: 1.0,
             }),

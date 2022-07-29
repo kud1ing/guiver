@@ -20,7 +20,6 @@ impl Default for Style {
             accent_color: Color::rgb8(255, 200, 0),
             debug_rendering_stroke: Stroke {
                 brush: PaintBrush::Color(Color::rgb8(255, 0, 0)),
-                dash: None,
                 style: StrokeStyle::default(),
                 width: 1.0,
             },

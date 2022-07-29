@@ -33,7 +33,6 @@ On the upside you get simple setup and simple control flow.
 
 ## Backlog
 
-* [ ] `Placeholder::paint()`: use `stroke.style`
 * [ ] resize of `7guis_temperature_converter` is slow. correlated to `TextInput`?
 * [ ] add layout widget `Stacked` + `Positioned`
 * [ ] add layout widget `Expanded`
