@@ -25,7 +25,7 @@ impl App {
 }
 
 impl Application for App {
-    fn handle_event(&mut self, _system_event: &Event) {}
+    fn handle_event(&mut self, _system_event_event: &Event) {}
 
     fn paint(&mut self, piet: &mut Piet, region: &Region) {
         self.widget_manager.paint(piet, region).unwrap();

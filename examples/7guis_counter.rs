@@ -45,7 +45,7 @@ impl App {
 
 impl Application for App {
     fn handle_event(&mut self, event: &Event) {
-        // Handle the system event, possibly create widget events.
+        // Handle the event, possibly create widget events.
         let widget_events = self.widget_manager.handle_event(event).unwrap();
 
         // Iterate over the generated widget events.
