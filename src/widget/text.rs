@@ -45,8 +45,6 @@ impl Text {
 
     ///
     fn layout(&mut self) {
-        self.text_layout = self.font.text_layout(self.text.clone());
-
         // Adjust the text layout size to the given constraints.
         self.rectangle = self.rectangle.with_size(
             self.text_layout
@@ -98,6 +96,7 @@ impl Widget for Text {
             }
             WidgetCommand::SetFont(font) => {
                 self.font = font;
+                self.text_layout = self.font.text_layout(self.text.clone());
 
                 self.layout();
             }
@@ -129,6 +128,7 @@ impl Widget for Text {
                     self.text = format!("{:?}", value);
                 }
 
+                self.text_layout = self.font.text_layout(self.text.clone());
                 self.layout();
             }
             WidgetCommand::SetVerticalAlignment(_) => {

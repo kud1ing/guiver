@@ -43,7 +43,6 @@ On the upside you get simple setup and simple control flow.
   * [ ] explicitly define a tab order
     * [ ] how?
   * [ ] use tab order when tab key is pressed
-* [ ] resize of `7guis_temperature_converter` is slow. correlated to `TextInput`?
 * [ ] add layout widget `Stacked` + `Positioned`
 * [ ] add layout widget `Expanded`
   * [ ] rethink layouting in `Row`, `Column`
