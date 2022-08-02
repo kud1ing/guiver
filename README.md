@@ -37,6 +37,9 @@ On the upside you get simple setup and simple control flow.
 ## Backlog
 
 * [ ] `TextInput`: display a caret
+  * `caret_x`
+    * `caret_chareacter_index` = child postion.x + child_size.width + offset
+  * `caret_height` = `child_size.height`
 * [ ] `TextInput`: accept paste
   * https://github.com/linebender/druid/blob/master/druid-shell/src/clipboard.rs
 * `WidgetManager`: tab order:

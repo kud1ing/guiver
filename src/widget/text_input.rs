@@ -214,10 +214,7 @@ impl Widget for TextInput {
                 }
                 KbKey::Enter => {
                     // Enter on a (focused) text input submits the value.
-                    widget_events.push(WidgetEvent::ValueSubmitted(
-                        self.widget_id,
-                        Box::new(self.text.clone()),
-                    ));
+                    widget_events.push(WidgetEvent::ValueSubmitted(self.widget_id));
                 }
                 _ => {}
             },
