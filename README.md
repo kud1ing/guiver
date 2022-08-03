@@ -16,7 +16,7 @@ Some layout widgets are inspired by [Flutter](https://flutter.dev).
 If you look at the [example code](examples/), it may appear a bit verbose.
 On the upside you get simple setup and simple control flow.
 
-<img width="788" alt="Bildschirmfoto 2022-07-29 um 21 09 50" src="https://user-images.githubusercontent.com/391975/181828289-797d1d0c-449e-4e38-9d3b-af0a3d4ef335.png">
+<img width="702" alt="Bildschirmfoto 2022-08-03 um 22 08 20" src="https://user-images.githubusercontent.com/391975/182699745-84732a53-6cb0-41d9-af5d-0c9bf7035d44.png">
 
 <img width="888" alt="Bildschirmfoto 2022-07-05 um 19 43 55" src="https://user-images.githubusercontent.com/391975/177385769-598d0fd0-c15b-4d7e-bb98-5fd46bd9d415.png">
 
@@ -36,6 +36,7 @@ On the upside you get simple setup and simple control flow.
 
 ## Backlog
 
+* [ ] make `Column::layout_children()` respect `flex_factor()` analogous to `Row`
 * [ ] `TextInput`: display a caret
   * `caret_x`
     * `caret_chareacter_index` = child postion.x + child_size.width + offset
@@ -47,8 +48,6 @@ On the upside you get simple setup and simple control flow.
     * [ ] how?
   * [ ] use tab order when tab key is pressed
 * [ ] add layout widget `Stacked` + `Positioned`
-* [ ] add layout widget `Expanded`
-  * [ ] rethink layouting in `Row`, `Column`
 * [ ] `TextInput`: if a text is too large to fit in, the size of the text input should not increase but truncate
 * [ ] `TextInput`: arrow keys should move the caret
 * support text selection:

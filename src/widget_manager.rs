@@ -1,6 +1,6 @@
 use crate::stroke::Stroke;
 use crate::style::Style;
-use crate::widget::layout::{Center, Column, Padding, Row};
+use crate::widget::layout::{Center, Column, Expanded, Padding, Row};
 use crate::widget::{Button, Placeholder, Text, TextInput, WidgetCommand, WidgetError};
 use crate::{
     Event, Font, HorizontalAlignment, SizeConstraints, VerticalAlignment, Widget, WidgetEvent,
@@ -234,7 +234,7 @@ impl WidgetManager {
             )))),
         );
 
-        // Return the center layout's widget ID.
+        // Return the widget ID.
         widget_id
     }
 
@@ -253,7 +253,26 @@ impl WidgetManager {
             )))),
         );
 
-        // Return the column's layout widget ID.
+        // Return the widget ID.
+        widget_id
+    }
+
+    ///
+    pub fn new_expanded(&mut self, flex_factor: u16) -> WidgetId {
+        // Get a new widget ID.
+        let widget_id = self.next_widget_id();
+
+        // Add a new expanded widget.
+        self.widgets.insert(
+            widget_id,
+            Rc::new(RefCell::new(Box::new(Expanded::new(
+                widget_id,
+                self.style.debug_rendering_stroke.clone(),
+                flex_factor,
+            )))),
+        );
+
+        // Return the widget ID.
         widget_id
     }
 
@@ -275,7 +294,7 @@ impl WidgetManager {
             )))),
         );
 
-        // Return the padding's widget ID.
+        // Return the widget ID.
         widget_id
     }
 
@@ -290,7 +309,7 @@ impl WidgetManager {
             Rc::new(RefCell::new(Box::new(Placeholder::new(widget_id)))),
         );
 
-        // Return the placeholder's widget ID.
+        // Return the widget ID.
         widget_id
     }
 
@@ -310,7 +329,7 @@ impl WidgetManager {
             )))),
         );
 
-        // Return the row's widget ID.
+        // Return the widget ID.
         widget_id
     }
 
@@ -330,7 +349,7 @@ impl WidgetManager {
             )))),
         );
 
-        // Return the text's widget ID.
+        // Return the widget ID.
         widget_id
     }
 
@@ -358,7 +377,7 @@ impl WidgetManager {
             )))),
         );
 
-        // Return the button's widget ID.
+        // Return the widget ID.
         widget_id
     }
 
@@ -381,7 +400,7 @@ impl WidgetManager {
             )))),
         );
 
-        // Return the text input's widget ID.
+        // Return the widget ID.
         widget_id
     }
 

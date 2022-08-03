@@ -5,7 +5,7 @@ use crate::{Event, SizeConstraints, VerticalAlignment, Widget, WidgetEvent};
 use druid_shell::kurbo::{Point, Rect, Size};
 use druid_shell::piet::{Piet, RenderContext};
 use druid_shell::{piet, Region};
-use std::borrow::BorrowMut;
+use std::borrow::{Borrow, BorrowMut};
 use std::cell::RefCell;
 use std::cmp::max;
 
@@ -45,13 +45,15 @@ impl Row {
 
     ///
     fn layout_children(&mut self) {
+        // Determine the number of child widgets.
         let number_of_child_widgets = self.child_widgets.len();
 
-        // There are no children.
+        // There are no child widgets.
         if number_of_child_widgets <= 0 {
             return;
         }
 
+        // Determine the number of spacers between the child widgets.
         let number_of_spacers = max(number_of_child_widgets - 1, 0);
 
         // Determine the child size constraints.
@@ -64,23 +66,89 @@ impl Row {
             ),
         );
 
-        let mut parent_size = Size::ZERO;
-        let mut child_x = self.rectangle.origin().x;
+        let mut child_and_spacing_size_sum = Size::ZERO;
+        let mut flex_factor_sum: u16 = 0;
 
+        // First pass over the children.
         for (i, child_widget) in &mut self.child_widgets.iter().enumerate() {
+            // Apply the size constraints to the child widget.
             let child_size = RefCell::borrow_mut(&child_widget)
                 .borrow_mut()
                 .apply_size_constraints(child_size_constraints);
 
-            // Update the parent size.
-            {
-                parent_size.height = child_size.height.max(parent_size.height);
-                parent_size.width += child_size.width;
+            // Update the sum of child and spacing sizes.
+            // Include the child widget's height.
+            child_and_spacing_size_sum.height =
+                child_and_spacing_size_sum.height.max(child_size.height);
 
-                if i > 0 {
-                    parent_size.width += self.spacing;
-                }
+            // Add the spacer to child and spacing sizes.
+            if i > 0 {
+                child_and_spacing_size_sum.width += self.spacing;
             }
+
+            // Get the child widget's flex factor.
+            let flex_factor = RefCell::borrow(&child_widget).borrow().flex_factor();
+
+            // The child widget does not have a flex factor.
+            if flex_factor == 0 {
+                // Add the child widget's width.
+                child_and_spacing_size_sum.width += child_size.width;
+            }
+            // The child widget does have a flex factor.
+            else {
+                // Do not add the child widget's width. It will grab the remaining width together
+                // with all other widgets having a flex factor.
+
+                // Add the child widget's flex factor.
+                flex_factor_sum += flex_factor;
+            }
+        }
+
+        // The child widgets do not have a flex factor.
+        if flex_factor_sum == 0 {
+            // Set the parent size to the sum of the child and spacing sizes.
+            self.rectangle = self.rectangle.with_size(child_and_spacing_size_sum);
+        }
+        // The child widgets do have a flex factor.
+        else {
+            // Set the parent size to the child widget's height and the maximum width.
+            self.rectangle = self.rectangle.with_size(Size::new(
+                self.size_constraints.maximum().width,
+                child_and_spacing_size_sum.height,
+            ));
+        }
+
+        // Calculate the remaining width.
+        let remaining_width = (self.rectangle.width() - child_and_spacing_size_sum.width).max(0.0);
+
+        let mut child_x = self.rectangle.origin().x;
+
+        // Second pass over the children.
+        for child_widget in &mut self.child_widgets {
+            // Get the child's flex factor.
+            let flex_factor = RefCell::borrow(&child_widget).borrow().flex_factor();
+
+            // The child widget does not have a flex factor.
+            let child_size = if flex_factor == 0 {
+                RefCell::borrow(&child_widget).borrow().size()
+            }
+            // The child widget does have a flex factor.
+            else {
+                let child_size = RefCell::borrow(&child_widget).borrow().size();
+
+                // Devide the remaining width among the child widgets with flex factor.
+                let expanded_child_size = Size::new(
+                    remaining_width * (flex_factor as f64 / flex_factor_sum as f64),
+                    child_size.height,
+                );
+
+                // Apply the size constraints to the child widget.
+                RefCell::borrow_mut(&child_widget)
+                    .borrow_mut()
+                    .apply_size_constraints(SizeConstraints::tight(expanded_child_size));
+
+                expanded_child_size
+            };
 
             // Determine the child's vertical position.
             let child_y = match self.vertical_alignment {
@@ -102,9 +170,6 @@ impl Row {
 
             child_x += child_size.width + self.spacing;
         }
-
-        // Set the parent size.
-        self.rectangle = self.rectangle.with_size(parent_size);
     }
 }
 
@@ -123,9 +188,15 @@ impl Widget for Row {
         match widget_command {
             WidgetCommand::AppendChild(child_widget) => {
                 self.child_widgets.push(child_widget);
+
+                // Layout the children.
+                self.layout_children();
             }
             WidgetCommand::RemoveAllChildren => {
                 self.child_widgets.clear();
+
+                // Layout the children.
+                self.layout_children();
             }
             WidgetCommand::RemoveChild(_) => {
                 // TODO
@@ -180,6 +251,9 @@ impl Widget for Row {
             }
             WidgetCommand::SetVerticalAlignment(vertical_alignment) => {
                 self.vertical_alignment = vertical_alignment;
+
+                // Layout the children.
+                self.layout_children();
             }
         }
 
@@ -220,6 +294,10 @@ impl Widget for Row {
 
         // Layout the children.
         self.layout_children();
+    }
+
+    fn size(&self) -> Size {
+        self.rectangle.size()
     }
 
     fn widget_id(&self) -> &WidgetId {

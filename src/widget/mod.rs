@@ -134,6 +134,11 @@ pub trait Widget {
     fn apply_size_constraints(&mut self, size_constraints: SizeConstraints) -> Size;
 
     ///
+    fn flex_factor(&self) -> u16 {
+        0
+    }
+
+    ///
     fn handle_command(&mut self, widget_command: WidgetCommand) -> Result<(), WidgetError>;
 
     ///
@@ -144,6 +149,9 @@ pub trait Widget {
 
     ///
     fn set_origin(&mut self, origin: Point);
+
+    ///
+    fn size(&self) -> Size;
 
     ///
     fn widget_id(&self) -> &WidgetId;

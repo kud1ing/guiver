@@ -154,6 +154,10 @@ impl Widget for Placeholder {
         self.rectangle = self.rectangle.with_origin(origin)
     }
 
+    fn size(&self) -> Size {
+        self.rectangle.size()
+    }
+
     fn widget_id(&self) -> &WidgetId {
         &self.widget_id
     }

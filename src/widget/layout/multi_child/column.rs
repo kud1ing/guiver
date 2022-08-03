@@ -119,13 +119,22 @@ impl Widget for Column {
         match widget_command {
             WidgetCommand::AppendChild(child_widget) => {
                 self.child_widgets.push(child_widget);
+
+                // Layout the children.
+                self.layout_children();
             }
             WidgetCommand::RemoveAllChildren => {
                 self.child_widgets.clear();
+
+                // Layout the children.
+                self.layout_children();
             }
             WidgetCommand::RemoveChild(_) => {
                 // TODO
                 println!("`Column::handle_command(RemoveChild)`: TODO");
+
+                // Layout the children.
+                self.layout_children();
             }
             WidgetCommand::SetDebugRendering(debug_rendering) => {
                 self.debug_rendering = debug_rendering;
@@ -150,6 +159,9 @@ impl Widget for Column {
             }
             WidgetCommand::SetHorizontalAlignment(horizontal_alignment) => {
                 self.horizontal_alignment = horizontal_alignment;
+
+                // Layout the children.
+                self.layout_children();
             }
             WidgetCommand::SetIsDisabled(_) => {
                 // TODO
@@ -221,6 +233,10 @@ impl Widget for Column {
 
         // Layout the children.
         self.layout_children();
+    }
+
+    fn size(&self) -> Size {
+        self.rectangle.size()
     }
 
     fn widget_id(&self) -> &WidgetId {

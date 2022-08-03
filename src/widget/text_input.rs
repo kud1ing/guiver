@@ -296,6 +296,10 @@ impl Widget for TextInput {
         self.layout_child();
     }
 
+    fn size(&self) -> Size {
+        self.rectangle.size()
+    }
+
     fn widget_id(&self) -> &WidgetId {
         &self.widget_id
     }
