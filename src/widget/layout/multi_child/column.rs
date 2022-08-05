@@ -8,7 +8,6 @@ use druid_shell::{piet, Region};
 use piet::RenderContext;
 use std::borrow::{Borrow, BorrowMut};
 use std::cell::RefCell;
-use std::cmp::max;
 
 ///
 pub struct Column {
@@ -48,9 +47,6 @@ impl Column {
         if number_of_child_widgets <= 0 {
             return;
         }
-
-        // Determine the number of spacers between the child widgets.
-        let number_of_spacers = max(number_of_child_widgets - 1, 0);
 
         // Determine the child size constraints.
         let child_size_constraints =

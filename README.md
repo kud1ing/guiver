@@ -36,7 +36,7 @@ On the upside you get simple setup and simple control flow.
 
 ## Backlog
 
-* [ ] `layout_expanded`: the 2nd row always has height 0 because the 1st row grabs all height
+* [ ] `layout_expanded`: make the row not grab all height
 * [ ] `TextInput`: display a caret
   * `caret_x`
     * `caret_chareacter_index` = child postion.x + child_size.width + offset
@@ -47,9 +47,12 @@ On the upside you get simple setup and simple control flow.
   * [ ] explicitly define a tab order
     * [ ] how?
   * [ ] use tab order when tab key is pressed
+* [ ] all layout widgets need to clip too big child widgets
 * [ ] add layout widget `Stacked` + `Positioned`
 * [ ] `TextInput`: if a text is too large to fit in, the size of the text input should not increase but truncate
 * [ ] `TextInput`: arrow keys should move the caret
+* [ ] `TextInput`: Shift + arrow keys should de/select text
+* [ ] `TextInput`: double click should select the text
 * support text selection:
   * [ ] Shift + cursor movement
   * [ ] Ctrl + A
@@ -63,6 +66,7 @@ On the upside you get simple setup and simple control flow.
   * [ ] 7GUIs "CRUD"
   * [ ] 7GUIs "Circle Drawer"
   * [ ] 7GUIs "Cells"
+* [ ] optimize: do not paint on every event. Make the widgets request the repaint in a region/Rect
 * [ ] add Redmond 31 widgets?
 * [ ] `WidgetManager`: implement `collect_garbage()`
   * remove all widgets that do not have the main widget as ancestor

@@ -38,12 +38,12 @@ impl Expanded {
 
         // There is a child widget.
         if let Some(child_widget) = &mut self.child_widget {
-            // Set the child's size.
+            // Set the child widget's size.
             child_widget
                 .borrow_mut()
                 .apply_size_constraints(SizeConstraints::tight(self.rectangle.size()));
 
-            // Set the child's origin.
+            // Set the child widget's origin.
             child_widget
                 .borrow_mut()
                 .set_origin(self.rectangle.origin());
