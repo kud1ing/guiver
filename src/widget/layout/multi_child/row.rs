@@ -57,14 +57,8 @@ impl Row {
         let number_of_spacers = max(number_of_child_widgets - 1, 0);
 
         // Determine the child size constraints.
-        let child_size_constraints = SizeConstraints::new(
-            Size::new(0.0, self.size_constraints.minimum().height),
-            Size::new(
-                (self.size_constraints.maximum().width - number_of_spacers as f64 * self.spacing)
-                    / (number_of_child_widgets as f64),
-                self.size_constraints.maximum().height,
-            ),
-        );
+        let child_size_constraints =
+            SizeConstraints::new(Size::ZERO, *self.size_constraints.maximum());
 
         let mut child_and_spacing_size_sum = Size::ZERO;
         let mut flex_factor_sum: u16 = 0;

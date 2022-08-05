@@ -299,14 +299,17 @@ impl WidgetManager {
     }
 
     ///
-    pub fn new_placeholder(&mut self) -> WidgetId {
+    pub fn new_placeholder(&mut self, maximum_size: Size) -> WidgetId {
         // Get a new widget ID.
         let widget_id = self.next_widget_id();
 
         // Add a new placeholder widget.
         self.widgets.insert(
             widget_id,
-            Rc::new(RefCell::new(Box::new(Placeholder::new(widget_id)))),
+            Rc::new(RefCell::new(Box::new(Placeholder::new(
+                widget_id,
+                maximum_size,
+            )))),
         );
 
         // Return the widget ID.

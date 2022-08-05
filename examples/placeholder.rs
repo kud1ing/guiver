@@ -9,7 +9,7 @@ impl App {
         let mut widget_manager = WidgetManager::new();
 
         // Create the widget.
-        let placeholder = widget_manager.new_placeholder();
+        let placeholder = widget_manager.new_placeholder(Size::new(100.0, 50.0));
 
         // Compose the widget.
         widget_manager

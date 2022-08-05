@@ -15,8 +15,8 @@ impl App {
         let row = widget_manager.new_row();
         let expanded1 = widget_manager.new_expanded(1);
         let expanded2 = widget_manager.new_expanded(1);
-        let placeholder1 = widget_manager.new_placeholder();
-        let placeholder2 = widget_manager.new_placeholder();
+        let placeholder1 = widget_manager.new_placeholder(Size::new(100.0, 50.0));
+        let placeholder2 = widget_manager.new_placeholder(Size::new(100.0, 50.0));
 
         // Compose the widgets.
         widget_manager

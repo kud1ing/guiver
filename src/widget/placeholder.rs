@@ -10,13 +10,14 @@ use piet::{PaintBrush, StrokeDash, StrokeStyle};
 pub struct Placeholder {
     fill: Option<PaintBrush>,
     is_hidden: bool,
+    maximum_size: Size,
     rectangle: Rect,
     stroke: Option<Stroke>,
     widget_id: WidgetId,
 }
 
 impl Placeholder {
-    pub fn new(widget_id: WidgetId) -> Self {
+    pub fn new(widget_id: WidgetId, maximum_size: Size) -> Self {
         let style = StrokeStyle {
             line_join: Default::default(),
             line_cap: Default::default(),
@@ -27,6 +28,7 @@ impl Placeholder {
         Placeholder {
             fill: None,
             is_hidden: false,
+            maximum_size,
             rectangle: Rect::default(),
             stroke: Some(Stroke {
                 brush: PaintBrush::Color(Color::rgb8(255, 255, 255)),
@@ -41,7 +43,10 @@ impl Placeholder {
 impl Widget for Placeholder {
     ///
     fn apply_size_constraints(&mut self, size_constraints: SizeConstraints) -> Size {
-        self.rectangle = self.rectangle.with_size(*size_constraints.maximum());
+        self.rectangle = self.rectangle.with_size(
+            self.maximum_size
+                .clamp(*size_constraints.minimum(), *size_constraints.maximum()),
+        );
         self.rectangle.size()
     }
 

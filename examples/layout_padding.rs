@@ -10,7 +10,7 @@ impl App {
 
         // Create the widgets.
         let padding = widget_manager.new_padding();
-        let placeholder = widget_manager.new_placeholder();
+        let placeholder = widget_manager.new_placeholder(Size::new(100.0, 50.0));
 
         // Compose the widgets.
         widget_manager

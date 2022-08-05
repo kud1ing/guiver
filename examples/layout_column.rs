@@ -18,10 +18,10 @@ impl App {
         let column2 = widget_manager.new_column();
         let text1 = widget_manager.new_text("This is a text");
         let text2 = widget_manager.new_text_button("This is a button");
-        let placeholder1 = widget_manager.new_placeholder();
+        let placeholder1 = widget_manager.new_placeholder(Size::new(200.0, 50.0));
         let text3 = widget_manager.new_text("This is a right aligned text");
-        let placeholder2 = widget_manager.new_placeholder();
-        let placeholder3 = widget_manager.new_placeholder();
+        let placeholder2 = widget_manager.new_placeholder(Size::new(100.0, 50.0));
+        let placeholder3 = widget_manager.new_placeholder(Size::new(100.0, 50.0));
 
         // Compose the widgets.
         widget_manager
