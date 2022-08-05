@@ -36,7 +36,7 @@ On the upside you get simple setup and simple control flow.
 
 ## Backlog
 
-* [ ] make `Column::layout_children()` respect `flex_factor()` analogous to `Row`
+* [ ] `layout_expanded`: the 2nd row always has height 0 because the 1st row grabs all height
 * [ ] `TextInput`: display a caret
   * `caret_x`
     * `caret_chareacter_index` = child postion.x + child_size.width + offset
