@@ -36,7 +36,7 @@ On the upside you get simple setup and simple control flow.
 
 ## Backlog
 
-* [ ] `layout_expanded`: make the row not grab all height
+* [ ] `layout_expanded_row_column`: make the row not grab all height
 * [ ] `TextInput`: display a caret
   * `caret_x`
     * `caret_chareacter_index` = child postion.x + child_size.width + offset
