@@ -47,5 +47,9 @@ impl Application for App {
 }
 
 pub fn main() {
-    run(Box::new(App::new()), "expanded column", (300.0, 150.0).into());
+    run(
+        Box::new(App::new()),
+        "expanded column",
+        (300.0, 150.0).into(),
+    );
 }

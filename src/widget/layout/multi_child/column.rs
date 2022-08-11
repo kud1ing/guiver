@@ -184,11 +184,13 @@ impl Widget for Column {
                 // Layout the children.
                 self.layout_children();
             }
-            WidgetCommand::RemoveChild(_) => {
-                // TODO
-                println!("`Column::handle_command(RemoveChild)`: TODO");
+            WidgetCommand::RemoveChild(child_widget_id) => {
+                // Remove the widget with the given ID.
+                self.child_widgets.retain(|child_widget| {
+                    *RefCell::borrow(&child_widget).widget_id() != child_widget_id
+                });
 
-                // Layout the children.
+                // Layout the remaining children.
                 self.layout_children();
             }
             WidgetCommand::SetDebugRendering(debug_rendering) => {
