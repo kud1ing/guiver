@@ -92,19 +92,22 @@ impl Button {
                 *self.size_constraints.maximum(),
             ));
 
-            let child_origin = self.rectangle.origin()
-                + (
-                    0.5 * (self.rectangle.size().width - child_size.width).max(0.0),
-                    0.5 * (self.rectangle.size().height - child_size.height).max(0.0),
-                );
+            // Set the child widget's origin.
+            {
+                let child_origin = self.rectangle.origin()
+                    + (
+                        0.5 * (self.rectangle.size().width - child_size.width).max(0.0),
+                        0.5 * (self.rectangle.size().height - child_size.height).max(0.0),
+                    );
 
-            // Set the child's origin.
-            child_widget.borrow_mut().set_origin(child_origin);
+                // Set the child's origin.
+                child_widget.borrow_mut().set_origin(child_origin);
 
-            self.child_rectangle = self
-                .child_rectangle
-                .with_size(child_size)
-                .with_origin(child_origin);
+                self.child_rectangle = self
+                    .child_rectangle
+                    .with_size(child_size)
+                    .with_origin(child_origin);
+            }
         }
         // There is no child widget.
         else {

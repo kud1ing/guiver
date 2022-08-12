@@ -8,6 +8,7 @@ use std::borrow::BorrowMut;
 
 /// A text input widget.
 pub struct TextInput {
+    child_rectangle: Rect,
     corner_radius: f64,
     debug_rendering: bool,
     debug_rendering_stroke: Stroke,
@@ -43,6 +44,7 @@ impl TextInput {
         let text = text.into();
 
         TextInput {
+            child_rectangle: Rect::default(),
             corner_radius: 2.0,
             debug_rendering: false,
             debug_rendering_stroke: debug_rendering_stroke.clone(),
@@ -86,28 +88,41 @@ impl TextInput {
             .borrow_mut()
             .apply_size_constraints(self.size_constraints.shrink(padding_size));
 
-        // Make the text input at least as wide as its width.
-        self.rectangle = self.rectangle.with_size(Size::new(
-            self.width.max(child_size.width + padding_size.width),
-            child_size.height + padding_size.height,
-        ));
+        self.rectangle = self.rectangle.with_size(
+            Size::new(
+                self.width + 2.0 * self.padding,
+                child_size.height + 2.0 * self.padding,
+            )
+            .clamp(
+                *self.size_constraints.minimum(),
+                *self.size_constraints.maximum(),
+            ),
+        );
 
-        // Set the child's origin.
+        // Set the child widget's origin.
         {
-            let delta_child_x = match self.horizontal_alignment {
-                HorizontalAlignment::Center => {
-                    0.5 * (self.rectangle.size().width - child_size.width).max(0.0)
-                }
-                HorizontalAlignment::Left => self.padding,
-                HorizontalAlignment::Right => {
-                    (self.rectangle.size().width - child_size.width).max(0.0) - self.padding
-                }
-            };
-            let delta_child_y = 0.5 * (self.rectangle.size().height - child_size.height).max(0.0);
+            let child_origin = {
+                let delta_child_x = match self.horizontal_alignment {
+                    HorizontalAlignment::Center => {
+                        0.5 * (self.rectangle.size().width - child_size.width).max(0.0)
+                    }
+                    HorizontalAlignment::Left => self.padding,
+                    HorizontalAlignment::Right => {
+                        (self.rectangle.size().width - child_size.width).max(0.0) - self.padding
+                    }
+                };
+                let delta_child_y =
+                    0.5 * (self.rectangle.size().height - child_size.height).max(0.0);
 
-            self.text_widget
-                .borrow_mut()
-                .set_origin(self.rectangle.origin() + (delta_child_x, delta_child_y));
+                self.rectangle.origin() + (delta_child_x, delta_child_y)
+            };
+
+            self.text_widget.borrow_mut().set_origin(child_origin);
+
+            self.child_rectangle = self
+                .child_rectangle
+                .with_size(child_size)
+                .with_origin(child_origin);
         }
     }
 
@@ -127,7 +142,7 @@ impl Widget for TextInput {
     fn apply_size_constraints(&mut self, size_constraints: SizeConstraints) -> Size {
         self.size_constraints = size_constraints;
 
-        // Layout the child.
+        // Layout the child widget.
         self.layout_child();
 
         self.rectangle.size()
@@ -271,14 +286,11 @@ impl Widget for TextInput {
             }
         }
 
-        // Paint the inner content.
+        // Paint the text widget clipped.
         {
             piet.save()?;
-            piet.clip(&self.rectangle);
-
-            // Paint the text.
+            piet.clip(&self.child_rectangle);
             self.text_widget.paint(piet, region)?;
-
             piet.restore()?;
         }
 
@@ -297,7 +309,7 @@ impl Widget for TextInput {
     fn set_origin(&mut self, origin: Point) {
         self.rectangle = self.rectangle.with_origin(origin);
 
-        // Layout the child.
+        // Layout the child widget.
         self.layout_child();
     }
 

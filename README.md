@@ -58,7 +58,6 @@ On the upside you get simple setup and simple control flow.
     * [ ] add `Column`
     * [ ] add `Padding`
     * [ ] add `Row`
-    * [ ] add `TextInput`
   * add for `Column`:
     * [ ] `test_apply_size_constraints()`
     * [ ] `test_handle_command()`

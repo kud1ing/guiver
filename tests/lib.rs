@@ -1,8 +1,8 @@
 #[cfg(test)]
 mod tests {
     use druid_shell::kurbo::Size;
-    use guiver::widget::{Button, Placeholder, Text, WidgetCommand};
-    use guiver::{Font, SizeConstraints, Stroke, Widget};
+    use guiver::widget::{Button, Placeholder, Text, TextInput};
+    use guiver::{Color, Font, SizeConstraints, Stroke, Widget};
     use std::cell::RefCell;
     use std::rc::Rc;
 
@@ -41,7 +41,7 @@ mod tests {
 
     ///
     fn widgets() -> Vec<Box<dyn Widget>> {
-        let mut button_with_text = Button::new(
+        let button_with_text = Button::new(
             0,
             Stroke::default(),
             Rc::new(RefCell::new(Box::new(Text::new(
@@ -54,26 +54,25 @@ mod tests {
             None,
             None,
         );
-        button_with_text
-            .handle_command(WidgetCommand::SetValue(Box::new("Button".to_string())))
-            .unwrap();
 
         vec![
+            // Add a text button widget.
             Box::new(button_with_text),
+            // Add a placeholder widget.
             Box::new(Placeholder::new(0, Size::new(100.0, 50.0))),
-            // TODO: add a center
-            // TODO: add a column
-            // TODO: add a expanded?
-            // TODO: add a padding
-            // TODO: add a row
+            // TODO: Add a center widget.
+            // TODO: Add a column widget.
+            // TODO: Add a expanded widget?
+            // TODO: Add a padding widget.
+            // TODO: Add a row widget.
+            // Add a text widget.
             Box::new(Text::new(
                 0,
                 Stroke::default(),
                 Font::default(),
                 "Test text".to_string(),
             )),
-            // TODO: add a text input
-            /*
+            // Add a text input widget.
             Box::new(TextInput::new(
                 0,
                 Stroke::default(),
@@ -83,7 +82,6 @@ mod tests {
                 Color::rgb8(0, 0, 0),
                 Color::rgb8(255, 255, 255),
             )),
-            */
         ]
     }
 }
