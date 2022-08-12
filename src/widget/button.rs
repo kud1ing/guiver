@@ -60,14 +60,14 @@ impl Button {
             rectangle: Rect::default(),
             size_constraints: SizeConstraints::default(),
             stroke: frame_color.map(|color| Stroke {
-                brush: PaintBrush::Color(color),
-                style: Default::default(),
-                width: 1.0,
+                stroke_brush: PaintBrush::Color(color),
+                stroke_style: Default::default(),
+                stroke_width: 1.0,
             }),
             stroke_focused: frame_color_focused.map(|color| Stroke {
-                brush: PaintBrush::Color(color),
-                style: Default::default(),
-                width: 1.0,
+                stroke_brush: PaintBrush::Color(color),
+                stroke_style: Default::default(),
+                stroke_width: 1.0,
             }),
             widget_id,
         }
@@ -255,14 +255,14 @@ impl Widget for Button {
             if self.has_focus {
                 // There is a focuse stroke brush.
                 if let Some(stroke) = &self.stroke_focused {
-                    piet.stroke(button_shape, &stroke.brush, stroke.width);
+                    piet.stroke(button_shape, &stroke.stroke_brush, stroke.stroke_width);
                 }
             }
             // The button is not focused.
             else {
                 // There is a stroke brush.
                 if let Some(stroke) = &self.stroke {
-                    piet.stroke(button_shape, &stroke.brush, stroke.width);
+                    piet.stroke(button_shape, &stroke.stroke_brush, stroke.stroke_width);
                 }
             }
         }
@@ -277,8 +277,8 @@ impl Widget for Button {
         if self.debug_rendering {
             piet.stroke(
                 self.rectangle,
-                &self.debug_rendering_stroke.brush,
-                self.debug_rendering_stroke.width,
+                &self.debug_rendering_stroke.stroke_brush,
+                self.debug_rendering_stroke.stroke_width,
             );
         }
 

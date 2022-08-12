@@ -19,9 +19,9 @@ impl Default for Style {
         Style {
             accent_color: Color::rgb8(255, 200, 0),
             debug_rendering_stroke: Stroke {
-                brush: PaintBrush::Color(Color::rgb8(255, 0, 0)),
-                style: StrokeStyle::default(),
-                width: 1.0,
+                stroke_brush: PaintBrush::Color(Color::rgb8(255, 0, 0)),
+                stroke_style: StrokeStyle::default(),
+                stroke_width: 1.0,
             },
             font: Font::default(),
             frame_color: Color::rgb8(120, 120, 120),

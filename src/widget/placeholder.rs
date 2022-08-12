@@ -8,17 +8,17 @@ use piet::{PaintBrush, StrokeDash, StrokeStyle};
 
 /// A placeholder widget.
 pub struct Placeholder {
+    desired_size: Size,
     fill: Option<PaintBrush>,
     is_hidden: bool,
-    maximum_size: Size,
     rectangle: Rect,
     stroke: Option<Stroke>,
     widget_id: WidgetId,
 }
 
 impl Placeholder {
-    pub fn new(widget_id: WidgetId, maximum_size: Size) -> Self {
-        let style = StrokeStyle {
+    pub fn new(widget_id: WidgetId, desired_size: Size) -> Self {
+        let stroke_style = StrokeStyle {
             line_join: Default::default(),
             line_cap: Default::default(),
             dash_pattern: StrokeDash::default(),
@@ -26,14 +26,14 @@ impl Placeholder {
         };
 
         Placeholder {
+            desired_size,
             fill: None,
             is_hidden: false,
-            maximum_size,
             rectangle: Rect::default(),
             stroke: Some(Stroke {
-                brush: PaintBrush::Color(Color::rgb8(255, 255, 255)),
-                style: style.dash_pattern(&[4.0, 2.0]),
-                width: 1.0,
+                stroke_brush: PaintBrush::Color(Color::rgb8(255, 255, 255)),
+                stroke_style: stroke_style.dash_pattern(&[4.0, 2.0]),
+                stroke_width: 1.0,
             }),
             widget_id,
         }
@@ -44,7 +44,7 @@ impl Widget for Placeholder {
     ///
     fn apply_size_constraints(&mut self, size_constraints: SizeConstraints) -> Size {
         self.rectangle = self.rectangle.with_size(
-            self.maximum_size
+            self.desired_size
                 .clamp(*size_constraints.minimum(), *size_constraints.maximum()),
         );
         self.rectangle.size()
@@ -134,22 +134,27 @@ impl Widget for Placeholder {
                     (self.rectangle.x0, self.rectangle.y0),
                     (self.rectangle.x1, self.rectangle.y1),
                 ),
-                &stroke.brush,
-                stroke.width,
-                &stroke.style,
+                &stroke.stroke_brush,
+                stroke.stroke_width,
+                &stroke.stroke_style,
             );
             piet.stroke_styled(
                 Line::new(
                     (self.rectangle.x0, self.rectangle.y1),
                     (self.rectangle.x1, self.rectangle.y0),
                 ),
-                &stroke.brush,
-                stroke.width,
-                &stroke.style,
+                &stroke.stroke_brush,
+                stroke.stroke_width,
+                &stroke.stroke_style,
             );
 
             // Draw the rectangle.
-            piet.stroke_styled(&self.rectangle, &stroke.brush, stroke.width, &stroke.style);
+            piet.stroke_styled(
+                &self.rectangle,
+                &stroke.stroke_brush,
+                stroke.stroke_width,
+                &stroke.stroke_style,
+            );
         }
 
         Ok(())

@@ -216,8 +216,8 @@ impl Widget for Text {
         if self.debug_rendering {
             piet.stroke(
                 self.rectangle,
-                &self.debug_rendering_stroke.brush,
-                self.debug_rendering_stroke.width,
+                &self.debug_rendering_stroke.stroke_brush,
+                self.debug_rendering_stroke.stroke_width,
             );
         }
 
