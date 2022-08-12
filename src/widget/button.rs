@@ -9,7 +9,6 @@ use druid_shell::{piet, KbKey, Region};
 ///
 #[derive(Default)]
 pub struct Button {
-    child_rectangle: Rect,
     child_widget: Option<WidgetBox>,
     corner_radius: f64,
     debug_rendering: bool,
@@ -41,7 +40,6 @@ impl Button {
         frame_color_focused: Option<Color>,
     ) -> Self {
         Button {
-            child_rectangle: Rect::default(),
             child_widget: Some(child_widget),
             corner_radius: 4.0,
             debug_rendering: false,
@@ -102,17 +100,11 @@ impl Button {
 
                 // Set the child's origin.
                 child_widget.borrow_mut().set_origin(child_origin);
-
-                self.child_rectangle = self
-                    .child_rectangle
-                    .with_size(child_size)
-                    .with_origin(child_origin);
             }
         }
         // There is no child widget.
         else {
             self.rectangle = self.rectangle.with_size(*self.size_constraints.minimum());
-            self.child_rectangle = Rect::default();
         }
     }
 }
@@ -277,11 +269,8 @@ impl Widget for Button {
 
         // There is a child widget.
         if let Some(child_widget_rc) = &self.child_widget {
-            // Paint the child widget clipped.
-            piet.save()?;
-            piet.clip(&self.child_rectangle);
+            // Paint the child widget.
             child_widget_rc.borrow().paint(piet, region)?;
-            piet.restore()?;
         }
 
         // Render debug hints.

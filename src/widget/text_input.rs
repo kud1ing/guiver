@@ -8,7 +8,6 @@ use std::borrow::BorrowMut;
 
 /// A text input widget.
 pub struct TextInput {
-    child_rectangle: Rect,
     corner_radius: f64,
     debug_rendering: bool,
     debug_rendering_stroke: Stroke,
@@ -44,7 +43,6 @@ impl TextInput {
         let text = text.into();
 
         TextInput {
-            child_rectangle: Rect::default(),
             corner_radius: 2.0,
             debug_rendering: false,
             debug_rendering_stroke: debug_rendering_stroke.clone(),
@@ -118,11 +116,6 @@ impl TextInput {
             };
 
             self.text_widget.borrow_mut().set_origin(child_origin);
-
-            self.child_rectangle = self
-                .child_rectangle
-                .with_size(child_size)
-                .with_origin(child_origin);
         }
     }
 
@@ -286,13 +279,8 @@ impl Widget for TextInput {
             }
         }
 
-        // Paint the text widget clipped.
-        {
-            piet.save()?;
-            piet.clip(&self.child_rectangle);
-            self.text_widget.paint(piet, region)?;
-            piet.restore()?;
-        }
+        // Paint the text widget.
+        self.text_widget.paint(piet, region)?;
 
         // Render debug hints.
         if self.debug_rendering {
