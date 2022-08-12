@@ -1,9 +1,10 @@
 #[cfg(test)]
 mod tests {
-
     use druid_shell::kurbo::Size;
-    use guiver::widget::{Button, Placeholder, Text, TextInput, WidgetCommand};
-    use guiver::{widget, Color, Font, SizeConstraints, Stroke, Widget, WidgetId};
+    use guiver::widget::{Button, Placeholder, Text, WidgetCommand};
+    use guiver::{Font, SizeConstraints, Stroke, Widget};
+    use std::cell::RefCell;
+    use std::rc::Rc;
 
     #[test]
     fn test_apply_size_constraints() {
@@ -40,29 +41,37 @@ mod tests {
 
     ///
     fn widgets() -> Vec<Box<dyn Widget>> {
-        let mut button = Button::default();
-        button
+        let mut button_with_text = Button::new(
+            0,
+            Stroke::default(),
+            Rc::new(RefCell::new(Box::new(Text::new(
+                1,
+                Stroke::default(),
+                Font::default(),
+                "Button text".to_string(),
+            )))),
+            None,
+            None,
+            None,
+        );
+        button_with_text
             .handle_command(WidgetCommand::SetValue(Box::new("Button".to_string())))
             .unwrap();
 
         vec![
-            // TODO: add a button
-            // Box::new(button),
+            Box::new(button_with_text),
             Box::new(Placeholder::new(0, Size::new(100.0, 50.0))),
             // TODO: add a center
             // TODO: add a column
             // TODO: add a expanded?
             // TODO: add a padding
             // TODO: add a row
-            // TODO: add a text
-            /*
             Box::new(Text::new(
                 0,
                 Stroke::default(),
                 Font::default(),
-                "Text".to_string(),
+                "Test text".to_string(),
             )),
-            */
             // TODO: add a text input
             /*
             Box::new(TextInput::new(

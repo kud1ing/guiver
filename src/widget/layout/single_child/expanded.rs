@@ -155,6 +155,7 @@ impl Widget for Expanded {
     }
 
     fn paint(&self, piet: &mut Piet, region: &Region) -> Result<(), Error> {
+        // The expanded widget is hidden.
         if self.is_hidden {
             return Ok(());
         }

@@ -179,6 +179,7 @@ impl Widget for Padding {
     }
 
     fn paint(&self, piet: &mut Piet, region: &Region) -> Result<(), piet::Error> {
+        // The padding widget is hidden.
         if self.is_hidden {
             return Ok(());
         }

@@ -13,7 +13,7 @@ impl SizeConstraints {
         SizeConstraints { maximum, minimum }
     }
 
-    /// Creates box constraints, where the minimum size is zero and the maximum size equals the
+    /// Creates size constraints, where the minimum size is zero and the maximum size equals the
     /// given size.
     pub fn loose(size: Size) -> Self {
         SizeConstraints {
@@ -32,7 +32,7 @@ impl SizeConstraints {
         &self.minimum
     }
 
-    /// Shrinks the current box constraints by the given delta size.
+    /// Shrinks the current size constraints by the given delta size.
     pub fn shrink(&self, delta: impl Into<Size>) -> Self {
         let delta = delta.into();
 
@@ -48,7 +48,7 @@ impl SizeConstraints {
         SizeConstraints::new(minimum, maximum)
     }
 
-    /// Creates box constraints, where both the minimum and the maximum size equal the given size.
+    /// Creates size constraints, where both the minimum and the maximum size equal the given size.
     pub fn tight(size: Size) -> Self {
         SizeConstraints {
             maximum: size,

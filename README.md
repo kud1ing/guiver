@@ -54,12 +54,10 @@ On the upside you get simple setup and simple control flow.
     * [ ] `test_handle_event()`
 * integration tests:
   * `widgets()`:
-    * [ ] add `Button`
     * [ ] add `Center`
     * [ ] add `Column`
     * [ ] add `Padding`
     * [ ] add `Row`
-    * [ ] add `Text`
     * [ ] add `TextInput`
   * add for `Column`:
     * [ ] `test_apply_size_constraints()`

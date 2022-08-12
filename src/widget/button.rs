@@ -9,6 +9,7 @@ use druid_shell::{piet, KbKey, Region};
 ///
 #[derive(Default)]
 pub struct Button {
+    child_rectangle: Rect,
     child_widget: Option<WidgetBox>,
     corner_radius: f64,
     debug_rendering: bool,
@@ -40,6 +41,7 @@ impl Button {
         frame_color_focused: Option<Color>,
     ) -> Self {
         Button {
+            child_rectangle: Rect::default(),
             child_widget: Some(child_widget),
             corner_radius: 4.0,
             debug_rendering: false,
@@ -85,20 +87,29 @@ impl Button {
                 .borrow_mut()
                 .apply_size_constraints(self.size_constraints.shrink(padding_size));
 
-            // Set the child's origin.
-            child_widget.borrow_mut().set_origin(
-                self.rectangle.origin()
-                    + (
-                        0.5 * (self.rectangle.size().width - child_size.width).max(0.0),
-                        0.5 * (self.rectangle.size().height - child_size.height).max(0.0),
-                    ),
-            );
+            self.rectangle = self.rectangle.with_size((child_size + padding_size).clamp(
+                *self.size_constraints.minimum(),
+                *self.size_constraints.maximum(),
+            ));
 
-            self.rectangle = self.rectangle.with_size(child_size + padding_size);
+            let child_origin = self.rectangle.origin()
+                + (
+                    0.5 * (self.rectangle.size().width - child_size.width).max(0.0),
+                    0.5 * (self.rectangle.size().height - child_size.height).max(0.0),
+                );
+
+            // Set the child's origin.
+            child_widget.borrow_mut().set_origin(child_origin);
+
+            self.child_rectangle = self
+                .child_rectangle
+                .with_size(child_size)
+                .with_origin(child_origin);
         }
         // There is no child widget.
         else {
-            self.rectangle = self.rectangle.with_size(*self.size_constraints.maximum());
+            self.rectangle = self.rectangle.with_size(*self.size_constraints.minimum());
+            self.child_rectangle = Rect::default();
         }
     }
 }
@@ -107,7 +118,7 @@ impl Widget for Button {
     fn apply_size_constraints(&mut self, size_constraints: SizeConstraints) -> Size {
         self.size_constraints = size_constraints;
 
-        // Layout the child.
+        // Layout the child widget.
         self.layout_child();
 
         self.rectangle.size()
@@ -118,7 +129,7 @@ impl Widget for Button {
             WidgetCommand::AppendChild(child_widget) => {
                 self.child_widget = Some(child_widget);
 
-                // Layout the child.
+                // Layout the child widget.
                 self.layout_child();
             }
             WidgetCommand::RemoveAllChildren => {
@@ -227,6 +238,7 @@ impl Widget for Button {
     }
 
     fn paint(&self, piet: &mut Piet, region: &Region) -> Result<(), piet::Error> {
+        // The button widget is hidden.
         if self.is_hidden {
             return Ok(());
         }
@@ -262,10 +274,11 @@ impl Widget for Button {
 
         // There is a child widget.
         if let Some(child_widget_rc) = &self.child_widget {
-            // TODO: Clip the child widget.
-
-            // Paint the child widget.
+            // Paint the child widget clipped.
+            piet.save()?;
+            piet.clip(&self.child_rectangle);
             child_widget_rc.borrow().paint(piet, region)?;
+            piet.restore()?;
         }
 
         // Render debug hints.
@@ -283,7 +296,7 @@ impl Widget for Button {
     fn set_origin(&mut self, origin: Point) {
         self.rectangle = self.rectangle.with_origin(origin);
 
-        // Layout the child.
+        // Layout the child widget.
         self.layout_child();
     }
 

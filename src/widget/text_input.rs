@@ -249,6 +249,11 @@ impl Widget for TextInput {
     }
 
     fn paint(&self, piet: &mut Piet, region: &Region) -> Result<(), Error> {
+        // The text input widget is hidden.
+        if self.is_hidden {
+            return Ok(());
+        }
+
         // Paint the input field frame.
         {
             let shape = RoundedRect::from_rect(self.rectangle, self.corner_radius);

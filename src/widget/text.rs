@@ -2,7 +2,7 @@ use crate::font::Font;
 
 use crate::stroke::Stroke;
 use crate::widget::{WidgetCommand, WidgetError, WidgetId};
-use crate::{Event, SizeConstraints, Widget, WidgetEvent};
+use crate::{Event, HorizontalAlignment, SizeConstraints, VerticalAlignment, Widget, WidgetEvent};
 use druid_shell::kurbo::{Point, Rect, Size};
 use druid_shell::piet::{Piet, PietTextLayout, RenderContext, TextLayout};
 use druid_shell::{piet, Region};
@@ -12,11 +12,14 @@ pub struct Text {
     debug_rendering: bool,
     debug_rendering_stroke: Stroke,
     font: Font,
+    horizontal_alignment: HorizontalAlignment,
     is_hidden: bool,
     rectangle: Rect,
     size_constraints: SizeConstraints,
     text: String,
     text_layout: PietTextLayout,
+    text_origin: Point,
+    vertical_alignment: VerticalAlignment,
     widget_id: WidgetId,
 }
 
@@ -34,23 +37,55 @@ impl Text {
             debug_rendering: false,
             debug_rendering_stroke,
             font: font.clone(),
+            horizontal_alignment: HorizontalAlignment::Center,
             is_hidden: false,
             rectangle: Rect::default(),
             size_constraints: SizeConstraints::default(),
             text: text.clone(),
             text_layout: font.text_layout(text),
+            text_origin: Point::default(),
+            vertical_alignment: VerticalAlignment::Middle,
             widget_id,
         }
     }
 
     ///
-    fn layout(&mut self) {
+    fn layout_text(&mut self) {
+        let text_size = self.text_layout.size();
+
         // Adjust the text layout size to the given constraints.
-        self.rectangle = self.rectangle.with_size(
-            self.text_layout
-                .size()
-                .clamp(self.text_layout.size(), *self.size_constraints.maximum()),
-        );
+        self.rectangle = self.rectangle.with_size(text_size.clamp(
+            *self.size_constraints.minimum(),
+            *self.size_constraints.maximum(),
+        ));
+
+        // Determine the text's horizontal position.
+        let text_x = match self.horizontal_alignment {
+            HorizontalAlignment::Center => {
+                self.rectangle.origin().x
+                    + 0.5 * (self.rectangle.size().width - text_size.width).max(0.0)
+            }
+            HorizontalAlignment::Left => self.rectangle.origin().x,
+            HorizontalAlignment::Right => {
+                self.rectangle.origin().x + self.rectangle.size().width - text_size.width
+            }
+        };
+
+        // Determine the text's vertical position.
+        let text_y = match self.vertical_alignment {
+            VerticalAlignment::Bottom => {
+                self.rectangle.origin().y
+                    + (self.rectangle.size().height - text_size.height).max(0.0)
+            }
+            VerticalAlignment::Middle => {
+                self.rectangle.origin().y
+                    + 0.5 * (self.rectangle.size().height - text_size.height).max(0.0)
+            }
+            VerticalAlignment::Top => self.rectangle.origin().y,
+        };
+
+        // Set the text's origin.
+        self.text_origin = (text_x, text_y).into();
     }
 }
 
@@ -59,7 +94,7 @@ impl Widget for Text {
     fn apply_size_constraints(&mut self, size_constraints: SizeConstraints) -> Size {
         self.size_constraints = size_constraints;
 
-        self.layout();
+        self.layout_text();
 
         self.rectangle.size()
     }
@@ -84,11 +119,8 @@ impl Widget for Text {
                     widget_command,
                 ));
             }
-            WidgetCommand::SetHasFocus(_) => {
-                return Err(WidgetError::CommandNotHandled(
-                    self.widget_id,
-                    widget_command,
-                ));
+            WidgetCommand::SetDebugRendering(debug_rendering) => {
+                self.debug_rendering = debug_rendering;
             }
             WidgetCommand::SetFill(_) => {
                 // TODO
@@ -98,14 +130,19 @@ impl Widget for Text {
                 self.font = font;
                 self.text_layout = self.font.text_layout(self.text.clone());
 
-                self.layout();
+                self.layout_text();
             }
-            WidgetCommand::SetHorizontalAlignment(_) => {
-                // TODO
-                println!("`Text::handle_command(SetHorizontalAlignment)`: TODO");
+            WidgetCommand::SetHasFocus(_) => {
+                return Err(WidgetError::CommandNotHandled(
+                    self.widget_id,
+                    widget_command,
+                ));
             }
-            WidgetCommand::SetDebugRendering(debug_rendering) => {
-                self.debug_rendering = debug_rendering;
+            WidgetCommand::SetHorizontalAlignment(horizontal_alignment) => {
+                self.horizontal_alignment = horizontal_alignment;
+
+                // Layout.
+                self.layout_text();
             }
             WidgetCommand::SetIsDisabled(_) => {
                 // TODO
@@ -129,11 +166,13 @@ impl Widget for Text {
                 }
 
                 self.text_layout = self.font.text_layout(self.text.clone());
-                self.layout();
+                self.layout_text();
             }
-            WidgetCommand::SetVerticalAlignment(_) => {
-                // TODO
-                println!("`Text::handle_command(SetVerticalAlignment)`: TODO");
+            WidgetCommand::SetVerticalAlignment(vertical_alignment) => {
+                self.vertical_alignment = vertical_alignment;
+
+                // Layout.
+                self.layout_text();
             }
         }
 
@@ -158,7 +197,7 @@ impl Widget for Text {
     }
 
     fn paint(&self, piet: &mut Piet, _region: &Region) -> Result<(), piet::Error> {
-        // The text is hidden.
+        // The text widget is hidden.
         if self.is_hidden {
             return Ok(());
         }
@@ -166,10 +205,12 @@ impl Widget for Text {
         // TODO: Check the region.
 
         // Draw the text clipped.
-        piet.save()?;
-        piet.clip(&self.rectangle);
-        piet.draw_text(&self.text_layout, self.rectangle.origin());
-        piet.restore()?;
+        {
+            piet.save()?;
+            piet.clip(&self.rectangle);
+            piet.draw_text(&self.text_layout, self.text_origin);
+            piet.restore()?;
+        }
 
         // Render debug hints.
         if self.debug_rendering {
@@ -184,7 +225,11 @@ impl Widget for Text {
     }
 
     fn set_origin(&mut self, origin: Point) {
+        let delta = origin - self.rectangle.origin();
+
         self.rectangle = self.rectangle.with_origin(origin);
+
+        self.text_origin += delta;
     }
 
     fn size(&self) -> Size {

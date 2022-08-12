@@ -114,7 +114,7 @@ impl Widget for Placeholder {
     }
 
     fn paint(&self, piet: &mut Piet, _region: &Region) -> Result<(), piet::Error> {
-        // The placeholder is hidden.
+        // The placeholder widget is hidden.
         if self.is_hidden {
             return Ok(());
         }
