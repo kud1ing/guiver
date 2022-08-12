@@ -36,6 +36,16 @@ On the upside you get simple setup and simple control flow.
 
 ## Backlog
 
+* [ ] add unit tests:
+  * for `apply_size_constraints()` + `size()`:
+    * Unconstrained
+    * Min too large
+    * Max too small
+  * for `handle_command()`
+  * for `handle_event()`
+* [ ] add a `Grid` layout widget
+* [ ] add a `Table`widget
+* [ ] add integration tests
 * [ ] `layout_expanded_row_column`: make the row not grab all height
 * [ ] `TextInput`: display a caret
   * `caret_x`
