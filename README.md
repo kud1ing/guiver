@@ -36,8 +36,38 @@ On the upside you get simple setup and simple control flow.
 
 ## Backlog
 
+* [ ] `TextInput`: accept paste
+  * https://github.com/linebender/druid/blob/master/druid-shell/src/clipboard.rs
+* [ ] add a `Hyperlink` widget
+* [ ] `TextInput`: display a caret
+  * `caret_x`
+    * `caret_chareacter_index` = child postion.x + child_size.width + offset
+  * `caret_height` = `child_size.height`
 * [ ] add a `Grid` layout widget
-* integration tests:
+  * [ ] add itegration test
+  * supply functionality:
+    * clear: `WidgetCommand::RemoveAllChildren`
+      * Nur alle Kinder entfernen?
+      * Auch Tabelle implodieren?
+    * remove widget:
+      * RemoveWidget(ID)?
+        * braucht man sowieso
+      * RemoveWidgetAt(…)
+        * Any? Nachteil: Box
+        * x, y?
+    * remove column:
+      * RemoveWidget(ID)?
+      * ???
+    * remove row:
+      * RemoveWidget(ID)?
+      * ???
+    * set widget to a grid cell:
+      * SetWidgetAt(…)?
+        * Any? Nachteil: Box
+        * X, y?
+* [ ] publish 0.1.1, once the updated `druid-shell` and `piet` are released
+  * https://github.com/linebender/druid/issues/2236
+* add integration tests:
   * `widgets()`:
     * [ ] add `Column`
     * [ ] add `Padding`
@@ -58,7 +88,7 @@ On the upside you get simple setup and simple control flow.
     * [ ] `test_apply_size_constraints()`
     * [ ] `test_handle_command()`
     * [ ] `test_handle_event()`
-* unit tests:
+* add unit tests:
   * add for `Button`:
     * [ ] `test_apply_size_constraints()`
     * [ ] `test_handle_command()`
@@ -74,14 +104,7 @@ On the upside you get simple setup and simple control flow.
     * [ ] `test_handle_command()`
     * [ ] `test_handle_event()`
 * [ ] add a `Table`widget
-* [ ] add integration tests
-* [ ] `layout_expanded_row_column`: make the row not grab all height
-* [ ] `TextInput`: display a caret
-  * `caret_x`
-    * `caret_chareacter_index` = child postion.x + child_size.width + offset
-  * `caret_height` = `child_size.height`
-* [ ] `TextInput`: accept paste
-  * https://github.com/linebender/druid/blob/master/druid-shell/src/clipboard.rs
+* [ ] example `layout_expanded_row_column.rs`: make the row not grab all height
 * `WidgetManager`: tab order:
   * [ ] explicitly define a tab order
     * [ ] how?
