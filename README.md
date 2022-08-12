@@ -16,7 +16,7 @@ Some layout widgets are inspired by [Flutter](https://flutter.dev).
 If you look at the [example code](examples/), it may appear a bit verbose.
 On the upside you get simple setup and simple control flow.
 
-<img width="702" alt="Bildschirmfoto 2022-08-03 um 22 08 20" src="https://user-images.githubusercontent.com/391975/182699745-84732a53-6cb0-41d9-af5d-0c9bf7035d44.png">
+<img width="800" alt="Bildschirmfoto 2022-08-12 um 20 15 37" src="https://user-images.githubusercontent.com/391975/184419581-8ff808d5-f980-4bca-b43d-9843563da326.png">
 
 <img width="888" alt="Bildschirmfoto 2022-07-05 um 19 43 55" src="https://user-images.githubusercontent.com/391975/177385769-598d0fd0-c15b-4d7e-bb98-5fd46bd9d415.png">
 
