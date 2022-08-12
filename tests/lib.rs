@@ -1,7 +1,8 @@
 #[cfg(test)]
 mod tests {
     use druid_shell::kurbo::Size;
-    use guiver::widget::{Button, Placeholder, Text, TextInput};
+    use guiver::widget::layout::Center;
+    use guiver::widget::{Button, Placeholder, Text, TextInput, WidgetCommand};
     use guiver::{Color, Font, SizeConstraints, Stroke, Widget};
     use std::cell::RefCell;
     use std::rc::Rc;
@@ -55,12 +56,20 @@ mod tests {
             None,
         );
 
+        let mut center_widget = Center::new(0, Stroke::default());
+        center_widget
+            .handle_command(WidgetCommand::AppendChild(Rc::new(RefCell::new(Box::new(
+                Placeholder::new(0, Size::new(100.0, 50.0)),
+            )))))
+            .unwrap();
+
         vec![
             // Add a text button widget.
             Box::new(button_with_text),
             // Add a placeholder widget.
             Box::new(Placeholder::new(0, Size::new(100.0, 50.0))),
-            // TODO: Add a center widget.
+            // Add a center widget.
+            Box::new(center_widget),
             // TODO: Add a column widget.
             // TODO: Add a expanded widget?
             // TODO: Add a padding widget.

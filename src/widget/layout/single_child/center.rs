@@ -33,14 +33,17 @@ impl Center {
 
     ///
     fn layout_child(&mut self) {
-        self.rectangle = self.rectangle.with_size(*self.size_constraints.maximum());
-
         // There is a child widget.
         if let Some(child_widget) = &mut self.child_widget {
             // Apply the child widget's size constraints.
             let child_size = child_widget
                 .borrow_mut()
                 .apply_size_constraints(self.size_constraints);
+
+            self.rectangle = self.rectangle.with_size(child_size.clamp(
+                *self.size_constraints.minimum(),
+                *self.size_constraints.maximum(),
+            ));
 
             // Set the child's origin.
             child_widget.borrow_mut().set_origin(
@@ -50,6 +53,8 @@ impl Center {
                         0.5 * (self.rectangle.size().height - child_size.height).max(0.0),
                     ),
             );
+        } else {
+            self.rectangle = self.rectangle.with_size(*self.size_constraints.minimum());
         }
     }
 }

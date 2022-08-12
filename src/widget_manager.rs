@@ -498,22 +498,32 @@ impl WidgetManager {
                         .handle_command(WidgetCommand::SetFont(font))?;
                 }
                 Command::SetHasFocus(_widget_id, has_focus) => {
+                    let mut widget_had_focus_already = false;
+
                     // A widget had focus.
                     if let Some(focused_widget) = &mut self.focused_widget {
-                        // TODO: only unfocus if the affected widgets are different.
-                        // Unfocus that widget.
-                        focused_widget
-                            .borrow_mut()
-                            .handle_command(WidgetCommand::SetHasFocus(false))?;
+                        // The widgets are different.
+                        if focused_widget.borrow().widget_id() != widget_id {
+                            // Unfocus that widget.
+                            focused_widget
+                                .borrow_mut()
+                                .handle_command(WidgetCommand::SetHasFocus(false))?;
+                        }
+                        // The widgets are the same.
+                        else {
+                            widget_had_focus_already = true;
+                        }
                     }
 
-                    // Remember the current widget as focused.
-                    self.focused_widget = Some(widget_box.clone());
+                    if !widget_had_focus_already {
+                        // Remember the current widget as focused.
+                        self.focused_widget = Some(widget_box.clone());
 
-                    // Tell the widget it has focus now.
-                    widget_box
-                        .borrow_mut()
-                        .handle_command(WidgetCommand::SetHasFocus(has_focus))?;
+                        // Tell the widget it has focus now.
+                        widget_box
+                            .borrow_mut()
+                            .handle_command(WidgetCommand::SetHasFocus(has_focus))?;
+                    }
                 }
                 Command::SetHorizontalAlignment(_widget_id, horizontal_alignment) => {
                     widget_box.borrow_mut().handle_command(
