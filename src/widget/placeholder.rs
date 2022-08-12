@@ -167,3 +167,41 @@ impl Widget for Placeholder {
         &self.widget_id
     }
 }
+
+// =================================================================================================
+
+#[cfg(test)]
+mod tests {
+    use crate::widget::Placeholder;
+    use crate::{Size, SizeConstraints, Widget};
+
+    #[test]
+    fn test_apply_size_constraints() {
+        // Create the placeholder widget.
+        let placeholder_maximum_size = Size::new(200.0, 100.0);
+        let mut placeholder_widget = Placeholder::new(0, placeholder_maximum_size);
+
+        // Apply an unbounded `SizeConstraints`.
+        {
+            placeholder_widget.apply_size_constraints(SizeConstraints::unbounded());
+
+            assert_eq!(
+                placeholder_widget.size(),
+                placeholder_maximum_size,
+                "The placeholder widget should not be larger than its maximum size"
+            );
+        }
+
+        // Common tests are in the integration test directory.
+    }
+
+    #[test]
+    fn test_handle_command() {
+        // TODO
+    }
+
+    #[test]
+    fn test_handle_event() {
+        // TODO
+    }
+}

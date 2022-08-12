@@ -7,6 +7,7 @@ use druid_shell::piet::{Color, LinearGradient, PaintBrush, Piet, RenderContext, 
 use druid_shell::{piet, KbKey, Region};
 
 ///
+#[derive(Default)]
 pub struct Button {
     child_widget: Option<WidgetBox>,
     corner_radius: f64,
@@ -292,5 +293,30 @@ impl Widget for Button {
 
     fn widget_id(&self) -> &WidgetId {
         &self.widget_id
+    }
+}
+
+// =================================================================================================
+
+#[cfg(test)]
+mod tests {
+
+    #[test]
+    fn test_apply_size_constraints() {
+        // TODO: Create the widget.
+
+        // TODO: Apply an unbounded `SizeConstraints`.
+
+        // Common tests are in the integration test directory.
+    }
+
+    #[test]
+    fn test_handle_command() {
+        // TODO
+    }
+
+    #[test]
+    fn test_handle_event() {
+        // TODO
     }
 }

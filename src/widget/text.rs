@@ -195,3 +195,40 @@ impl Widget for Text {
         &self.widget_id
     }
 }
+
+// =================================================================================================
+
+#[cfg(test)]
+mod tests {
+    use crate::widget::Text;
+    use crate::{Font, SizeConstraints, Stroke, Widget};
+
+    #[test]
+    fn test_apply_size_constraints() {
+        // Create the text widget.
+        let font = Font::default();
+        let mut text_widget = Text::new(0, Stroke::default(), font.clone(), "Test text");
+
+        // Apply an unbounded `SizeConstraints`.
+        {
+            text_widget.apply_size_constraints(SizeConstraints::unbounded());
+
+            assert!(
+                text_widget.size().height >= font.font_size,
+                "The text widget's height should be at least as large as the font size"
+            );
+        }
+
+        // Common tests are in the integration test directory.
+    }
+
+    #[test]
+    fn test_handle_command() {
+        // TODO
+    }
+
+    #[test]
+    fn test_handle_event() {
+        // TODO
+    }
+}

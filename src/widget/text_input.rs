@@ -304,3 +304,28 @@ impl Widget for TextInput {
         &self.widget_id
     }
 }
+
+// =================================================================================================
+
+#[cfg(test)]
+mod tests {
+
+    #[test]
+    fn test_apply_size_constraints() {
+        // TODO: Create the widget.
+
+        // TODO: Apply an unbounded `SizeConstraints`.
+
+        // Common tests are in the integration test directory.
+    }
+
+    #[test]
+    fn test_handle_command() {
+        // TODO
+    }
+
+    #[test]
+    fn test_handle_event() {
+        // TODO
+    }
+}

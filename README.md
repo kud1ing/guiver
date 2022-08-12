@@ -36,13 +36,47 @@ On the upside you get simple setup and simple control flow.
 
 ## Backlog
 
-* [ ] add unit tests:
-  * for `apply_size_constraints()` + `size()`:
-    * Unconstrained
-    * Min too large
-    * Max too small
-  * for `handle_command()`
-  * for `handle_event()`
+* unit tests:
+  * add for `Button`:
+    * [ ] `test_apply_size_constraints()`
+    * [ ] `test_handle_command()`
+    * [ ] `test_handle_event()`
+  * add for `Placeholder`:
+    * [ ] `test_handle_command()`
+    * [ ] `test_handle_event()`
+  * add for `Text`:
+    * [ ] `test_apply_size_constraints()`
+    * [ ] `test_handle_command()`
+    * [ ] `test_handle_event()`
+  * add for `TextInput`:
+    * [ ] `test_apply_size_constraints()`
+    * [ ] `test_handle_command()`
+    * [ ] `test_handle_event()`
+* integration tests:
+  * `widgets()`:
+    * [ ] add `Button`
+    * [ ] add `Center`
+    * [ ] add `Column`
+    * [ ] add `Padding`
+    * [ ] add `Row`
+    * [ ] add `Text`
+    * [ ] add `TextInput`
+  * add for `Column`:
+    * [ ] `test_apply_size_constraints()`
+    * [ ] `test_handle_command()`
+    * [ ] `test_handle_event()`
+  * add for `Row`:
+    * [ ] `test_apply_size_constraints()`
+    * [ ] `test_handle_command()`
+    * [ ] `test_handle_event()`
+  * add for `Center`:
+    * [ ] `test_apply_size_constraints()`
+    * [ ] `test_handle_command()`
+    * [ ] `test_handle_event()`
+  * add for `Padding`:
+    * [ ] `test_apply_size_constraints()`
+    * [ ] `test_handle_command()`
+    * [ ] `test_handle_event()`
 * [ ] add a `Grid` layout widget
 * [ ] add a `Table`widget
 * [ ] add integration tests
