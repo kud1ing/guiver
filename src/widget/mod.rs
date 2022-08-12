@@ -58,45 +58,45 @@ impl Debug for WidgetCommand {
             WidgetCommand::AppendChild(widget_box) => {
                 write!(
                     f,
-                    "AppendChild({:?})",
+                    "WidgetCommand::AppendChild({:?})",
                     RefCell::borrow(widget_box).widget_id()
                 )
             }
             WidgetCommand::RemoveAllChildren => {
-                write!(f, "{:?}", self)
+                write!(f, "WidgetCommand::RemoveAllChildren")
             }
             WidgetCommand::RemoveChild(_) => {
-                write!(f, "{:?}", self)
+                write!(f, "WidgetCommand::RemoveChild(...)")
             }
             WidgetCommand::SetDebugRendering(_) => {
-                write!(f, "{:?}", self)
+                write!(f, "WidgetCommand::SetDebugRendering(...)")
             }
             WidgetCommand::SetFill(_) => {
-                write!(f, "{:?}", self)
+                write!(f, "WidgetCommand::SetFill(...)")
             }
             WidgetCommand::SetFont(_) => {
-                write!(f, "{:?}", self)
+                write!(f, "WidgetCommand::SetFont(...)")
             }
             WidgetCommand::SetHasFocus(_) => {
-                write!(f, "{:?}", self)
+                write!(f, "WidgetCommand::SetHasFocus(...)")
             }
             WidgetCommand::SetHorizontalAlignment(_) => {
-                write!(f, "{:?}", self)
+                write!(f, "WidgetCommand::SetHorizontalAlignment(...)")
             }
             WidgetCommand::SetIsDisabled(_) => {
-                write!(f, "{:?}", self)
+                write!(f, "WidgetCommand::SetIsDisabled(...)")
             }
             WidgetCommand::SetIsHidden(_) => {
-                write!(f, "{:?}", self)
+                write!(f, "WidgetCommand::SetIsHidden(...)")
             }
             WidgetCommand::SetStroke(_) => {
-                write!(f, "{:?}", self)
+                write!(f, "WidgetCommand::SetStroke(...)")
             }
             WidgetCommand::SetValue(_) => {
-                write!(f, "{:?}", self)
+                write!(f, "WidgetCommand::SetValue(...)")
             }
             WidgetCommand::SetVerticalAlignment(_) => {
-                write!(f, "{:?}", self)
+                write!(f, "WidgetCommand::SetVerticalAlignment(...)")
             }
         }
     }

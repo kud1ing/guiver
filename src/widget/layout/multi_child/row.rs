@@ -48,7 +48,7 @@ impl Row {
         let number_of_child_widgets = self.child_widgets.len();
 
         // There are no child widgets.
-        if number_of_child_widgets <= 0 {
+        if number_of_child_widgets == 0 {
             return;
         }
 
@@ -62,7 +62,7 @@ impl Row {
         // First pass over the children.
         for (i, child_widget) in &mut self.child_widgets.iter().enumerate() {
             // Apply the size constraints to the child widget.
-            let child_size = RefCell::borrow_mut(&child_widget)
+            let child_size = RefCell::borrow_mut(child_widget)
                 .borrow_mut()
                 .apply_size_constraints(child_size_constraints);
 
@@ -77,7 +77,7 @@ impl Row {
             }
 
             // Get the child widget's flex factor.
-            let flex_factor = RefCell::borrow(&child_widget).borrow().flex_factor();
+            let flex_factor = RefCell::borrow(child_widget).borrow().flex_factor();
 
             // The child widget does not have a flex factor.
             if flex_factor == 0 {
@@ -116,15 +116,15 @@ impl Row {
         // Second pass over the children.
         for child_widget in &mut self.child_widgets {
             // Get the child's flex factor.
-            let flex_factor = RefCell::borrow(&child_widget).borrow().flex_factor();
+            let flex_factor = RefCell::borrow(child_widget).borrow().flex_factor();
 
             // The child widget does not have a flex factor.
             let child_size = if flex_factor == 0 {
-                RefCell::borrow(&child_widget).borrow().size()
+                RefCell::borrow(child_widget).borrow().size()
             }
             // The child widget does have a flex factor.
             else {
-                let child_size = RefCell::borrow(&child_widget).borrow().size();
+                let child_size = RefCell::borrow(child_widget).borrow().size();
 
                 // Devide the remaining width among the child widgets with flex factor.
                 let expanded_child_size = Size::new(
@@ -133,7 +133,7 @@ impl Row {
                 );
 
                 // Apply the size constraints to the child widget.
-                RefCell::borrow_mut(&child_widget)
+                RefCell::borrow_mut(child_widget)
                     .borrow_mut()
                     .apply_size_constraints(SizeConstraints::tight(expanded_child_size));
 
@@ -154,7 +154,7 @@ impl Row {
             };
 
             // Set the children's origins.
-            RefCell::borrow_mut(&child_widget)
+            RefCell::borrow_mut(child_widget)
                 .borrow_mut()
                 .set_origin((child_x, child_y).into());
 
@@ -191,7 +191,7 @@ impl Widget for Row {
             WidgetCommand::RemoveChild(child_widget_id) => {
                 // Remove the widget with the given ID.
                 self.child_widgets.retain(|child_widget| {
-                    *RefCell::borrow(&child_widget).widget_id() != child_widget_id
+                    *RefCell::borrow(child_widget).widget_id() != child_widget_id
                 });
 
                 // Layout the remaining children.
@@ -258,7 +258,7 @@ impl Widget for Row {
     fn handle_event(&mut self, event: &Event, widget_events: &mut Vec<WidgetEvent>) {
         // Iterate over the child widgets.
         for child_widget in &mut self.child_widgets {
-            RefCell::borrow_mut(&child_widget).handle_event(event, widget_events);
+            RefCell::borrow_mut(child_widget).handle_event(event, widget_events);
         }
     }
 
@@ -269,7 +269,7 @@ impl Widget for Row {
 
         // Iterate over the child widgets.
         for child_widget in &self.child_widgets {
-            RefCell::borrow(&child_widget).paint(piet, region)?;
+            RefCell::borrow(child_widget).paint(piet, region)?;
         }
 
         // Render debug hints.

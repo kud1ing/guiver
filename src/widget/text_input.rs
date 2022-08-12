@@ -198,13 +198,13 @@ impl Widget for TextInput {
             Event::KeyDown(key_event) => match &key_event.key {
                 KbKey::Character(string) => {
                     // Append the character to the text.
-                    self.text.push_str(&string);
+                    self.text.push_str(string);
 
                     // Apply the text changes.
                     self.broadcast_modified_text(widget_events);
                 }
                 KbKey::Backspace => {
-                    if self.text.len() > 0 {
+                    if !self.text.is_empty() {
                         // Drop the last character from the text.
                         self.text.remove(self.text.len() - 1);
                     }

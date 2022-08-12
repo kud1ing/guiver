@@ -61,8 +61,7 @@ impl WinHandler for WindowEventHandler {
 
     fn key_down(&mut self, event: KeyEvent) -> bool {
         // Handle the key down event.
-        self.application
-            .handle_event(&Event::KeyDown(event.clone()));
+        self.application.handle_event(&Event::KeyDown(event));
 
         self.window_handle
             .invalidate_rect(self.window_size.to_rect());
@@ -71,7 +70,7 @@ impl WinHandler for WindowEventHandler {
 
     fn key_up(&mut self, event: KeyEvent) {
         // Handle the key up event.
-        self.application.handle_event(&Event::KeyUp(event.clone()));
+        self.application.handle_event(&Event::KeyUp(event));
 
         self.window_handle
             .invalidate_rect(self.window_size.to_rect());

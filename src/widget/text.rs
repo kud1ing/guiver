@@ -145,26 +145,15 @@ impl Widget for Text {
             Event::KeyDown(_) => {}
             Event::KeyUp(_) => {}
             Event::MouseDown(mouse_event) => {
+                // The click is outside of the text.
                 if !self.rectangle.contains(mouse_event.pos) {
                     return;
                 }
 
                 widget_events.push(WidgetEvent::Clicked(self.widget_id));
             }
-            Event::MouseMove(mouse_event) => {
-                if self.rectangle.contains(mouse_event.pos) {
-                    // TODO
-                } else {
-                    // TODO
-                }
-            }
-            Event::MouseUp(mouse_event) => {
-                if self.rectangle.contains(mouse_event.pos) {
-                    // TODO
-                } else {
-                    // TODO
-                }
-            }
+            Event::MouseMove(_mouse_event) => {}
+            Event::MouseUp(_mouse_event) => {}
         }
     }
 

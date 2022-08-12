@@ -169,13 +169,12 @@ impl Widget for Button {
 
     fn handle_event(&mut self, event: &Event, widget_events: &mut Vec<WidgetEvent>) {
         match event {
-            Event::KeyDown(key_event) => match &key_event.key {
-                KbKey::Enter => {
+            Event::KeyDown(key_event) => {
+                if key_event.key == KbKey::Enter {
                     // Enter on a (focused) button is like a click.
                     widget_events.push(WidgetEvent::Clicked(self.widget_id));
                 }
-                _ => {}
-            },
+            }
             Event::KeyUp(_) => {}
             Event::MouseDown(mouse_event) => {
                 // The mouse is down within this button.
@@ -239,10 +238,8 @@ impl Widget for Button {
                 if let Some(brush) = &self.fill_brush_down {
                     piet.fill(button_shape, brush);
                 }
-            } else {
-                if let Some(brush) = &self.fill_brush_up {
-                    piet.fill(button_shape, brush);
-                }
+            } else if let Some(brush) = &self.fill_brush_up {
+                piet.fill(button_shape, brush);
             }
 
             // Stroke.
