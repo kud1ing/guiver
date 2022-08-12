@@ -6,3 +6,4 @@ pub use multi_child::row::Row;
 pub use single_child::center::Center;
 pub use single_child::expanded::Expanded;
 pub use single_child::padding::Padding;
+pub use single_child::sized_box::SizedBox;

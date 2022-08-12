@@ -1,7 +1,7 @@
 #[cfg(test)]
 mod tests {
     use druid_shell::kurbo::Size;
-    use guiver::widget::layout::Center;
+    use guiver::widget::layout::{Center, SizedBox};
     use guiver::widget::{Button, Placeholder, Text, TextInput, WidgetCommand};
     use guiver::{Color, Font, SizeConstraints, Stroke, Widget};
     use std::cell::RefCell;
@@ -63,6 +63,9 @@ mod tests {
             )))))
             .unwrap();
 
+        let mut sized_box_widget_without_a_child =
+            SizedBox::new(0, Stroke::default(), Size::new(100.0, 50.0));
+
         vec![
             // Add a text button widget.
             Box::new(button_with_text),
@@ -74,6 +77,9 @@ mod tests {
             // TODO: Add a expanded widget?
             // TODO: Add a padding widget.
             // TODO: Add a row widget.
+            // Add a sized box widget without a child widget.
+            Box::new(sized_box_widget_without_a_child),
+            // TODO: Add a sized box widget with a child widget.
             // Add a text widget.
             Box::new(Text::new(
                 0,

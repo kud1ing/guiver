@@ -1,29 +1,30 @@
-use crate::stroke::Stroke;
-use crate::widget::{WidgetCommand, WidgetError, WidgetId};
+use crate::widget::{WidgetCommand, WidgetError};
 use crate::widget_manager::WidgetBox;
-use crate::{Event, SizeConstraints, Widget, WidgetEvent};
+use crate::{Event, Piet, SizeConstraints, Stroke, Widget, WidgetEvent, WidgetId};
 use druid_shell::kurbo::{Point, Rect, Size};
-use druid_shell::piet::{Piet, RenderContext};
-use druid_shell::{piet, Region};
+use druid_shell::piet::{Error, RenderContext};
+use druid_shell::Region;
 
-/// A centering layout widget.
-pub struct Center {
+///
+pub struct SizedBox {
     child_widget: Option<WidgetBox>,
     debug_rendering: bool,
     debug_rendering_stroke: Stroke,
+    desired_size: Size,
     is_hidden: bool,
     rectangle: Rect,
     size_constraints: SizeConstraints,
     widget_id: WidgetId,
 }
 
-impl Center {
+impl SizedBox {
     ///
-    pub fn new(widget_id: WidgetId, debug_rendering_stroke: Stroke) -> Self {
-        Center {
+    pub fn new(widget_id: WidgetId, debug_rendering_stroke: Stroke, desired_size: Size) -> Self {
+        SizedBox {
             child_widget: None,
             debug_rendering: false,
             debug_rendering_stroke,
+            desired_size,
             is_hidden: false,
             rectangle: Rect::default(),
             size_constraints: SizeConstraints::default(),
@@ -33,34 +34,29 @@ impl Center {
 
     ///
     fn layout_child(&mut self) {
+        let widget_size = self.desired_size.clamp(
+            *self.size_constraints.minimum(),
+            *self.size_constraints.maximum(),
+        );
+
+        self.rectangle = self.rectangle.with_size(widget_size);
+
         // There is a child widget.
         if let Some(child_widget) = &mut self.child_widget {
             // Apply the child widget's size constraints.
-            let child_size = child_widget
+            child_widget
                 .borrow_mut()
-                .apply_size_constraints(self.size_constraints);
-
-            self.rectangle = self.rectangle.with_size(child_size.clamp(
-                *self.size_constraints.minimum(),
-                *self.size_constraints.maximum(),
-            ));
+                .apply_size_constraints(SizeConstraints::tight(widget_size));
 
             // Set the child's origin.
-            child_widget.borrow_mut().set_origin(
-                self.rectangle.origin()
-                    + (
-                        0.5 * (self.rectangle.size().width - child_size.width).max(0.0),
-                        0.5 * (self.rectangle.size().height - child_size.height).max(0.0),
-                    ),
-            );
-        } else {
-            self.rectangle = self.rectangle.with_size(*self.size_constraints.minimum());
+            child_widget
+                .borrow_mut()
+                .set_origin(self.rectangle.origin());
         }
     }
 }
 
-impl Widget for Center {
-    ///
+impl Widget for SizedBox {
     fn apply_size_constraints(&mut self, size_constraints: SizeConstraints) -> Size {
         self.size_constraints = size_constraints;
 
@@ -83,7 +79,7 @@ impl Widget for Center {
             }
             WidgetCommand::RemoveChild(_) => {
                 // TODO
-                println!("`Center::handle_command(RemoveChild)`: TODO");
+                println!("`SizedBox::handle_command(RemoveChild)`: TODO");
             }
             WidgetCommand::SetDebugRendering(debug_rendering) => {
                 self.debug_rendering = debug_rendering;
@@ -114,7 +110,7 @@ impl Widget for Center {
             }
             WidgetCommand::SetIsDisabled(_) => {
                 // TODO
-                println!("`Center::handle_command(SetIsDisabled)`: TODO");
+                println!("`SizedBox::handle_command(SetIsDisabled)`: TODO");
             }
             WidgetCommand::SetIsHidden(is_hidden) => {
                 self.is_hidden = is_hidden;
@@ -150,8 +146,8 @@ impl Widget for Center {
         }
     }
 
-    fn paint(&self, piet: &mut Piet, region: &Region) -> Result<(), piet::Error> {
-        // The center widget is hidden.
+    fn paint(&self, piet: &mut Piet, region: &Region) -> Result<(), Error> {
+        // The sized box widget is hidden.
         if self.is_hidden {
             return Ok(());
         }
