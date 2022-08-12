@@ -37,6 +37,8 @@ On the upside you get simple setup and simple control flow.
 ## Backlog
 
 * [ ] add a `Grid` layout widget
+* [ ] publish 0.1.1, once the updated `druid-shell` and `piet` are released
+  * https://github.com/linebender/druid/issues/2236
 * integration tests:
   * `widgets()`:
     * [ ] add `Column`
