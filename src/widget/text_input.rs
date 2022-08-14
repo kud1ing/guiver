@@ -84,23 +84,26 @@ impl TextInput {
 
     ///
     fn layout_child(&mut self) {
-        let frame_size = Size::new(2.0 * self.padding, 2.0 * self.padding);
+        // Add the padding to the border size.
+        let mut border_width = 2.0 * self.padding;
+        let mut border_height = 2.0 * self.padding;
 
-        // TODO: subtract the stroke
-        // if let Some(stroke) = self.stroke_width
+        // Add the stroke width to the border size.
+        {
+            let stroke = self.stroke();
+
+            border_width += 2.0 * stroke.stroke_width;
+            border_height += 2.0 * stroke.stroke_width;
+        }
 
         // Apply the child widget's size constraints.
-        let child_size = self
-            .text_widget
-            .borrow_mut()
-            .apply_size_constraints(self.size_constraints.shrink(frame_size));
+        let child_size = self.text_widget.borrow_mut().apply_size_constraints(
+            self.size_constraints
+                .shrink(Size::new(border_width, border_height)),
+        );
 
         self.rectangle = self.rectangle.with_size(
-            Size::new(
-                self.width + 2.0 * self.padding,
-                child_size.height + 2.0 * self.padding,
-            )
-            .clamp(
+            Size::new(self.width + border_width, child_size.height + border_height).clamp(
                 *self.size_constraints.minimum(),
                 *self.size_constraints.maximum(),
             ),
