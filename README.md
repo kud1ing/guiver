@@ -1,4 +1,4 @@
-# guiver 0.1
+# guiver
 
 guiver is an attempt to make GUI programming with Rust simple, but perhaps without perfect efficiency.
 
@@ -36,11 +36,22 @@ On the upside you get simple setup and simple control flow.
 
 ## Backlog
 
-* [ ] add a `Hyperlink` widget
+* `Hyperlink`:
+  * [ ] `handle_command()`: call `adjust_font()` for every font change
+  * adjust `handle_event()`:
+    * [ ] set `is_being_clicked`
+    * [ ] set `was_visited`
+    * set the fonts to the underlying `Text`
+      * [ ] if `is_being_clicked`
+      * [ ] if `was_visited`
+      * [ ] if !`was_visited`
+  * [ ] `WidgetManager::new_hyperlink()` use `Hyperlink`
+  * [ ] add integration test
 * [ ] `TextInput`: display a caret
   * `caret_x`
     * `caret_chareacter_index` = child postion.x + child_size.width + offset
   * `caret_height` = `child_size.height`
+* [ ] make `Text` selectable
 * [ ] add a `Grid` layout widget
   * [ ] add itegration test
   * supply functionality:

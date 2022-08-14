@@ -3,8 +3,8 @@ use crate::style::Style;
 use crate::widget::layout::{Center, Column, Expanded, Padding, Row, SizedBox};
 use crate::widget::{Button, Placeholder, Text, TextInput, WidgetCommand, WidgetError};
 use crate::{
-    Event, Font, HorizontalAlignment, SizeConstraints, VerticalAlignment, Widget, WidgetEvent,
-    WidgetId,
+    Color, Event, Font, HorizontalAlignment, SizeConstraints, VerticalAlignment, Widget,
+    WidgetEvent, WidgetId,
 };
 use druid_shell::kurbo::Size;
 use druid_shell::piet::Piet;
@@ -299,6 +299,31 @@ impl WidgetManager {
                 widget_id,
                 self.style.debug_rendering_stroke.clone(),
                 flex_factor,
+            )))),
+        );
+
+        // Return the widget ID.
+        widget_id
+    }
+
+    ///
+    pub fn new_hyper_link(&mut self, text: impl Into<String>) -> WidgetId {
+        // Get a new widget ID.
+        let widget_id = self.next_widget_id();
+
+        let mut font = self.style.font.clone();
+        font.has_underline = true;
+        font.font_color = Color::rgb8(0, 0, 255);
+
+        // Add a new hyperlink widget.
+        // TODO: Create `Hyperlink`
+        self.widgets.insert(
+            widget_id,
+            Rc::new(RefCell::new(Box::new(Text::new(
+                widget_id,
+                self.style.debug_rendering_stroke.clone(),
+                font,
+                text,
             )))),
         );
 
