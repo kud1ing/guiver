@@ -8,7 +8,7 @@ use crate::{
 };
 use druid_shell::kurbo::Size;
 use druid_shell::piet::Piet;
-use druid_shell::{piet, Region};
+use druid_shell::{piet, Application, Clipboard, Code, KbKey, KeyEvent, Modifiers, Region};
 use piet::PaintBrush;
 use std::any::Any;
 use std::cell::RefCell;
@@ -79,6 +79,8 @@ impl Command {
 pub struct WidgetManager {
     /// The widget that has the focus.
     focused_widget: Option<WidgetBox>,
+    /// Indicates whether the meta key (Cmd/Ctrl) is down.
+    key_meta_is_down: bool,
     /// The main widget that fills the whole window.
     main_widget: Option<WidgetBox>,
     /// The counter for the next widget ID.
@@ -98,6 +100,7 @@ impl WidgetManager {
     pub fn new() -> Self {
         WidgetManager {
             focused_widget: None,
+            key_meta_is_down: false,
             main_widget: None,
             next_widget_id_counter: 0,
             size_constraints: SizeConstraints::default(),
@@ -119,23 +122,56 @@ impl WidgetManager {
     }
 
     ///
-    pub fn handle_event(&mut self, event: &Event) -> Result<Vec<WidgetEvent>, WidgetError> {
+    pub fn handle_event(
+        &mut self,
+        event: &Event,
+        clipboard: Option<&Clipboard>,
+    ) -> Result<Vec<WidgetEvent>, WidgetError> {
         let mut widget_events = vec![];
 
         // Handle key events.
         match event {
-            Event::KeyDown(_) => {
+            Event::KeyDown(key_event) => {
                 // A widget has focus.
                 if let Some(focused_widget) = &mut self.focused_widget {
-                    // Let the focused widget handle the key event.
-                    focused_widget
-                        .borrow_mut()
-                        .handle_event(event, &mut widget_events);
+                    // The Meta key is pressed.
+                    if key_event.mods.contains(Modifiers::META) {
+                        if let Some(clipboard) = clipboard {
+                            // Handle paste from clipboard.
+                            if key_event.key == KbKey::Character("v".to_string()) {
+                                // Could get a string from the clipboard.
+                                if let Some(string) = clipboard.get_string() {
+                                    // Let the focused widget handle a clipboard past event.
+                                    focused_widget.borrow_mut().handle_event(
+                                        &Event::ClipboardPaste(string),
+                                        &mut widget_events,
+                                    );
+                                }
+                            }
+                            // Handle copy to clipboard.
+                            else if key_event.key == KbKey::Character("c".to_string()) {
+                                // TODO
+                                println!("TODO: copy");
+                            }
+                            // Handle cut to clipboard.
+                            else if key_event.key == KbKey::Character("x".to_string()) {
+                                // TODO
+                                println!("TODO: cut");
+                            }
+                        }
+                    }
+                    // The Meta key is not pressed.
+                    else {
+                        // Let the focused widget handle the key event.
+                        focused_widget
+                            .borrow_mut()
+                            .handle_event(event, &mut widget_events);
+                    }
                 }
 
                 return Ok(widget_events);
             }
-            Event::KeyUp(_) => {
+            Event::KeyUp(key_event) => {
                 // A widget has focus.
                 if let Some(focused_widget) = &mut self.focused_widget {
                     // Let the focused widget handle the key event.

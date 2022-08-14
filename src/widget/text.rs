@@ -181,6 +181,7 @@ impl Widget for Text {
 
     fn handle_event(&mut self, event: &Event, widget_events: &mut Vec<WidgetEvent>) {
         match event {
+            Event::ClipboardPaste(_) => {}
             Event::KeyDown(_) => {}
             Event::KeyUp(_) => {}
             Event::MouseDown(mouse_event) => {

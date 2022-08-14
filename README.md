@@ -36,8 +36,6 @@ On the upside you get simple setup and simple control flow.
 
 ## Backlog
 
-* [ ] `TextInput`: accept paste
-  * https://github.com/linebender/druid/blob/master/druid-shell/src/clipboard.rs
 * [ ] add a `Hyperlink` widget
 * [ ] `TextInput`: display a caret
   * `caret_x`
@@ -118,8 +116,8 @@ On the upside you get simple setup and simple control flow.
 * support text selection:
   * [ ] Shift + cursor movement
   * [ ] Ctrl + A
+* [ ] `TextInput`: Ctrl+C should copy the text
 * [ ] `TextInput`: Ctrl+X should cut the text
-* [ ] `TextInput`: Ctrl-C should copy the text
 * [ ] support a concept of layers/z-order for dropdown boxes, tooltips etc.
 * [ ] implement [7GUIs](https://eugenkiss.github.io/7guis/tasks)
   * [ ] 7GUIs "Flight Booker"

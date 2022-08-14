@@ -2,7 +2,7 @@ use crate::window_event_handler::WindowEventHandler;
 use crate::Event;
 use druid_shell::kurbo::Size;
 use druid_shell::piet::Piet;
-use druid_shell::{Region, WindowBuilder};
+use druid_shell::{Clipboard, Region, WindowBuilder};
 
 ///
 pub trait Application {
@@ -14,12 +14,18 @@ pub trait Application {
 
     ///
     fn resize(&mut self, size: Size);
+
+    ///
+    fn set_clipboard(&mut self, clipboard: Clipboard);
 }
 
 ///
 pub fn run(mut application: Box<dyn Application>, title: impl Into<String>, size: Size) {
     // Create a druid shell application.
     let druid_shell_application = druid_shell::Application::new().unwrap();
+
+    // Set the global clipboard.
+    application.set_clipboard(druid_shell_application.clipboard());
 
     // Set the initial size.
     application.resize(size);

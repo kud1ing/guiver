@@ -16,7 +16,7 @@ pub use druid_shell::piet::{
     Color, FontFamily, FontWeight, LinearGradient, PaintBrush, Piet, RenderContext, StrokeDash,
     StrokeStyle, UnitPoint,
 };
-pub use druid_shell::Region;
+pub use druid_shell::{Clipboard, Region};
 pub use event::Event;
 pub use font::Font;
 pub use size_constraints::SizeConstraints;

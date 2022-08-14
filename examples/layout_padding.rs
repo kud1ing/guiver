@@ -1,3 +1,4 @@
+use druid_shell::Clipboard;
 use guiver::{run, Application, Command, Event, Piet, Region, Size, WidgetManager};
 
 pub(crate) struct App {
@@ -34,6 +35,7 @@ impl Application for App {
     fn resize(&mut self, size: Size) {
         self.widget_manager.resize(size);
     }
+    fn set_clipboard(&mut self, _clipboard: Clipboard) {}
 }
 
 pub fn main() {

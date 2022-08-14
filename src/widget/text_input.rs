@@ -225,6 +225,13 @@ impl Widget for TextInput {
 
     fn handle_event(&mut self, event: &Event, widget_events: &mut Vec<WidgetEvent>) {
         match event {
+            Event::ClipboardPaste(string) => {
+                // Append the character to the text.
+                self.text.push_str(string);
+
+                // Apply the text changes.
+                self.broadcast_modified_text(widget_events);
+            }
             Event::KeyDown(key_event) => match &key_event.key {
                 KbKey::Character(string) => {
                     // Append the character to the text.

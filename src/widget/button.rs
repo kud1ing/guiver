@@ -176,6 +176,7 @@ impl Widget for Button {
 
     fn handle_event(&mut self, event: &Event, widget_events: &mut Vec<WidgetEvent>) {
         match event {
+            Event::ClipboardPaste(_) => {}
             Event::KeyDown(key_event) => {
                 if key_event.key == KbKey::Enter {
                     // Enter on a (focused) button is like a click.
