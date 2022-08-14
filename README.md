@@ -16,7 +16,7 @@ Some layout widgets are inspired by [Flutter](https://flutter.dev).
 If you look at the [example code](examples/), it may appear a bit verbose.
 On the upside you get simple setup and simple control flow.
 
-<img width="800" alt="Bildschirmfoto 2022-08-12 um 20 15 37" src="https://user-images.githubusercontent.com/391975/184419581-8ff808d5-f980-4bca-b43d-9843563da326.png">
+<img width="912" alt="Bildschirmfoto 2022-08-14 um 21 09 06" src="https://user-images.githubusercontent.com/391975/184551353-b7327855-c88f-4041-8868-4b21c3494a12.png">
 
 <img width="888" alt="Bildschirmfoto 2022-07-05 um 19 43 55" src="https://user-images.githubusercontent.com/391975/177385769-598d0fd0-c15b-4d7e-bb98-5fd46bd9d415.png">
 
@@ -128,10 +128,13 @@ On the upside you get simple setup and simple control flow.
   * [ ] 7GUIs "Cells"
 * [ ] optimize: do not paint on every event. Make the widgets request the repaint in a region/Rect
 * [ ] add Redmond 31 widgets?
-* [ ] `WidgetManager`: implement `collect_garbage()`
-  * remove all widgets that do not have the main widget as ancestor
+* [ ] add widget garbage collection:
+  * add a `Command::Destroy(WidgetId)`? 
+  * implement `WidgetManager::collect_garbage()`?
+    * remove all widgets that do not have the main widget as ancestor
 * [ ] add Python bindings
-* [ ] provide native widgets? 
+* [ ] provide native widgets?
 * [ ] provide a WebAssembly demo
+* [ ] consider decoupling from druid-shell/piet 
 
 See also ["So you want to write a GUI framework"](https://www.cmyr.net/blog/gui-framework-ingredients.html)

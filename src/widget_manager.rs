@@ -116,12 +116,6 @@ impl WidgetManager {
     }
 
     ///
-    pub fn collect_garbage(&mut self) {
-        // TODO: Remove all widgets that do not have the main widget as ancestor.
-        println!("TODO: `collect_garbage()`");
-    }
-
-    ///
     pub fn handle_event(
         &mut self,
         event: &Event,
