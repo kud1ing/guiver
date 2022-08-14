@@ -19,9 +19,8 @@ pub struct TextInput {
     padding: f64,
     rectangle: Rect,
     size_constraints: SizeConstraints,
-    stroke_brush: PaintBrush,
-    stroke_brush_focused: PaintBrush,
-    stroke_width: f64,
+    stroke: Stroke,
+    stroke_focused: Stroke,
     text: String,
     text_widget: Text,
     widget_id: WidgetId,
@@ -54,9 +53,16 @@ impl TextInput {
             padding: 4.0,
             rectangle: Rect::default(),
             size_constraints: SizeConstraints::unbounded(),
-            stroke_brush: PaintBrush::Color(frame_color),
-            stroke_brush_focused: PaintBrush::Color(frame_color_focused),
-            stroke_width: 1.0,
+            stroke: Stroke {
+                stroke_brush: PaintBrush::Color(frame_color),
+                stroke_style: Default::default(),
+                stroke_width: 1.0,
+            },
+            stroke_focused: Stroke {
+                stroke_brush: PaintBrush::Color(frame_color_focused),
+                stroke_style: Default::default(),
+                stroke_width: 1.0,
+            },
             text: text.clone(),
             text_widget: Text::new(child_widget_id, debug_rendering_stroke, font, text),
             widget_id,
@@ -78,13 +84,16 @@ impl TextInput {
 
     ///
     fn layout_child(&mut self) {
-        let padding_size = Size::new(2.0 * self.padding, 2.0 * self.padding);
+        let frame_size = Size::new(2.0 * self.padding, 2.0 * self.padding);
+
+        // TODO: subtract the stroke
+        // if let Some(stroke) = self.stroke_width
 
         // Apply the child widget's size constraints.
         let child_size = self
             .text_widget
             .borrow_mut()
-            .apply_size_constraints(self.size_constraints.shrink(padding_size));
+            .apply_size_constraints(self.size_constraints.shrink(frame_size));
 
         self.rectangle = self.rectangle.with_size(
             Size::new(
@@ -116,6 +125,16 @@ impl TextInput {
             };
 
             self.text_widget.borrow_mut().set_origin(child_origin);
+        }
+    }
+
+    ///
+    fn stroke(&self) -> &Stroke {
+        // Stroke.
+        if self.has_focus {
+            &self.stroke_focused
+        } else {
+            &self.stroke
         }
     }
 
@@ -272,10 +291,9 @@ impl Widget for TextInput {
             }
 
             // Stroke.
-            if self.has_focus {
-                piet.stroke(shape, &self.stroke_brush_focused, self.stroke_width);
-            } else {
-                piet.stroke(shape, &self.stroke_brush, self.stroke_width);
+            {
+                let stroke = self.stroke();
+                piet.stroke(shape, &stroke.stroke_brush, stroke.stroke_width);
             }
         }
 
