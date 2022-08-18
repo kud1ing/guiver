@@ -3,6 +3,12 @@ use druid_shell::piet::{
     TextLayoutBuilder, TextStorage,
 };
 
+#[cfg(any(target_os = "linux", target_os = "openbsd", target_os = "freebsd"))]
+use druid_shell::piet::CairoText;
+
+#[cfg(target_os = "windows")]
+use druid_shell::piet::{D2DText, DwriteFactory};
+
 ///
 #[derive(Clone, Debug)]
 pub struct Font {
@@ -27,12 +33,26 @@ impl Default for Font {
     }
 }
 
+#[cfg(any(target_os = "linux", target_os = "openbsd", target_os = "freebsd"))]
+fn piet_text() -> PietText {
+    CairoText::new()
+}
+
+#[cfg(any(target_os = "macos", target_os = "ios"))]
+fn piet_text() -> PietText {
+    PietText::new_with_unique_state()
+}
+
+#[cfg(target_os = "windows")]
+fn piet_text() -> PietText {
+    let dwrite = DwriteFactory::new().unwrap();
+    D2DText::new_with_shared_fonts(dwrite, None)
+}
+
 impl Font {
     ///
     pub fn text_layout(&self, text: impl TextStorage) -> PietTextLayout {
-        let mut piet_text = PietText::new_with_unique_state();
-
-        piet_text
+        piet_text()
             .new_text_layout(text)
             .default_attribute(TextAttribute::Weight(self.font_weight))
             .default_attribute(TextAttribute::Underline(self.has_underline))
