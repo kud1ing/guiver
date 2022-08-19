@@ -1,6 +1,6 @@
 use crate::widget::{Text, WidgetCommand, WidgetError};
 use crate::{Event, Font, Piet, Size, SizeConstraints, Stroke, Widget, WidgetEvent, WidgetId};
-use druid_shell::kurbo::Point;
+use druid_shell::kurbo::{Point, Rect};
 use druid_shell::piet::Error;
 use druid_shell::Region;
 
@@ -31,7 +31,7 @@ impl Hyperlink {
     ) -> Self {
         adjust_font(&mut font_visited);
         adjust_font(&mut font_being_clicked);
-        adjust_font(&mut font_visited);
+        adjust_font(&mut font_unvisited);
 
         Hyperlink {
             is_being_clicked: false,
@@ -50,23 +50,78 @@ impl Widget for Hyperlink {
     }
 
     fn handle_command(&mut self, widget_command: WidgetCommand) -> Result<(), WidgetError> {
-        todo!()
+        return match widget_command {
+            WidgetCommand::AppendChild(_) => self.text_widget.handle_command(widget_command),
+            WidgetCommand::RemoveAllChildren => self.text_widget.handle_command(widget_command),
+            WidgetCommand::RemoveChild(_) => self.text_widget.handle_command(widget_command),
+            WidgetCommand::SetDebugRendering(_) => self.text_widget.handle_command(widget_command),
+            WidgetCommand::SetFill(_) => self.text_widget.handle_command(widget_command),
+            WidgetCommand::SetFont(_) => {
+                // TODO
+                /*
+                adjust_font(&mut font_visited);
+                adjust_font(&mut font_being_clicked);
+                adjust_font(&mut font_unvisited);
+                */
+
+                self.text_widget.handle_command(widget_command)
+            }
+            WidgetCommand::SetHasFocus(_) => self.text_widget.handle_command(widget_command),
+            WidgetCommand::SetHorizontalAlignment(_) => {
+                self.text_widget.handle_command(widget_command)
+            }
+            WidgetCommand::SetIsDisabled(_) => self.text_widget.handle_command(widget_command),
+            WidgetCommand::SetIsHidden(_) => self.text_widget.handle_command(widget_command),
+            WidgetCommand::SetStroke(_) => self.text_widget.handle_command(widget_command),
+            WidgetCommand::SetValue(_) => self.text_widget.handle_command(widget_command),
+            WidgetCommand::SetVerticalAlignment(_) => {
+                self.text_widget.handle_command(widget_command)
+            }
+        };
     }
 
     fn handle_event(&mut self, event: &Event, widget_events: &mut Vec<WidgetEvent>) {
-        todo!()
+        match event {
+            Event::ClipboardPaste(_) => {}
+            Event::KeyDown(_) => {}
+            Event::KeyUp(_) => {}
+            Event::MouseDown(mouse_event) => {
+                // The click is outside of the text.
+                if !self.text_widget.rectangle().contains(mouse_event.pos) {
+                    self.is_being_clicked = false;
+                    return;
+                }
+
+                self.is_being_clicked = true;
+
+                widget_events.push(WidgetEvent::Clicked(*self.text_widget.widget_id()));
+            }
+            Event::MouseMove(_) => {}
+            Event::MouseUp(mouse_event) => {
+                // The click is outside of the text.
+                if !self.text_widget.rectangle().contains(mouse_event.pos) {
+                    // TODO:
+                    return;
+                }
+
+                if self.is_being_clicked {
+                    self.is_being_clicked = false;
+                    self.was_visited = true;
+                }
+            }
+        }
     }
 
     fn paint(&self, piet: &mut Piet, region: &Region) -> Result<(), Error> {
         self.text_widget.paint(piet, region)
     }
 
-    fn set_origin(&mut self, origin: Point) {
-        self.text_widget.set_origin(origin)
+    fn rectangle(&self) -> &Rect {
+        self.text_widget.rectangle()
     }
 
-    fn size(&self) -> Size {
-        self.text_widget.size()
+    fn set_origin(&mut self, origin: Point) {
+        self.text_widget.set_origin(origin)
     }
 
     fn widget_id(&self) -> &WidgetId {

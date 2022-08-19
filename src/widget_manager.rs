@@ -1,14 +1,14 @@
 use crate::stroke::Stroke;
 use crate::style::Style;
 use crate::widget::layout::{Center, Column, Expanded, Padding, Row, SizedBox};
-use crate::widget::{Button, Placeholder, Text, TextInput, WidgetCommand, WidgetError};
+use crate::widget::{Button, Hyperlink, Placeholder, Text, TextInput, WidgetCommand, WidgetError};
 use crate::{
     Color, Event, Font, HorizontalAlignment, SizeConstraints, VerticalAlignment, Widget,
     WidgetEvent, WidgetId,
 };
 use druid_shell::kurbo::Size;
 use druid_shell::piet::Piet;
-use druid_shell::{piet, Application, Clipboard, Code, KbKey, KeyEvent, Modifiers, Region};
+use druid_shell::{piet, Clipboard, KbKey, Modifiers, Region};
 use piet::PaintBrush;
 use std::any::Any;
 use std::cell::RefCell;
@@ -165,7 +165,7 @@ impl WidgetManager {
 
                 return Ok(widget_events);
             }
-            Event::KeyUp(key_event) => {
+            Event::KeyUp(_key_event) => {
                 // A widget has focus.
                 if let Some(focused_widget) = &mut self.focused_widget {
                     // Let the focused widget handle the key event.
@@ -311,18 +311,24 @@ impl WidgetManager {
         // Get a new widget ID.
         let widget_id = self.next_widget_id();
 
-        let mut font = self.style.font.clone();
-        font.has_underline = true;
-        font.font_color = Color::rgb8(0, 0, 255);
+        let mut font_unvisited = self.style.font.clone();
+        font_unvisited.font_color = Color::rgb8(0, 0, 255);
+
+        let mut font_being_clicked = self.style.font.clone();
+        font_being_clicked.font_color = self.style.accent_color.clone();
+
+        let mut font_visited = self.style.font.clone();
+        font_visited.font_color = Color::rgb8(0, 0, 100);
 
         // Add a new hyperlink widget.
-        // TODO: Create `Hyperlink`
         self.widgets.insert(
             widget_id,
-            Rc::new(RefCell::new(Box::new(Text::new(
-                widget_id,
+            Rc::new(RefCell::new(Box::new(Hyperlink::new(
+                0,
                 self.style.debug_rendering_stroke.clone(),
-                font,
+                font_unvisited,
+                font_being_clicked,
+                font_visited,
                 text,
             )))),
         );

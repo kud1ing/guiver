@@ -286,15 +286,15 @@ impl Widget for Button {
         Ok(())
     }
 
+    fn rectangle(&self) -> &Rect {
+        &self.rectangle
+    }
+
     fn set_origin(&mut self, origin: Point) {
         self.rectangle = self.rectangle.with_origin(origin);
 
         // Layout the child widget.
         self.layout_child();
-    }
-
-    fn size(&self) -> Size {
-        self.rectangle.size()
     }
 
     fn widget_id(&self) -> &WidgetId {

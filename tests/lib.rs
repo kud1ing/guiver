@@ -2,7 +2,7 @@
 mod tests {
     use druid_shell::kurbo::Size;
     use guiver::widget::layout::{Center, SizedBox};
-    use guiver::widget::{Button, Placeholder, Text, TextInput, WidgetCommand};
+    use guiver::widget::{Button, Hyperlink, Placeholder, Text, TextInput, WidgetCommand};
     use guiver::{Color, Font, SizeConstraints, Stroke, Widget};
     use std::cell::RefCell;
     use std::rc::Rc;
@@ -63,7 +63,7 @@ mod tests {
             )))))
             .unwrap();
 
-        let mut sized_box_widget_without_a_child =
+        let sized_box_widget_without_a_child =
             SizedBox::new(0, Stroke::default(), Size::new(100.0, 50.0));
 
         vec![
@@ -75,6 +75,15 @@ mod tests {
             Box::new(center_widget),
             // TODO: Add a column widget.
             // TODO: Add a expanded widget?
+            // Add a hyperlink widget.
+            Box::new(Hyperlink::new(
+                0,
+                Stroke::default(),
+                Font::default(),
+                Font::default(),
+                Font::default(),
+                "Test hyperlink",
+            )),
             // TODO: Add a padding widget.
             // TODO: Add a row widget.
             // Add a sized box widget without a child widget.

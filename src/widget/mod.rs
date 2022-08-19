@@ -7,11 +7,12 @@ mod text_input;
 
 use crate::stroke::Stroke;
 use crate::widget_manager::WidgetBox;
-use crate::{Event, Font, HorizontalAlignment, SizeConstraints, VerticalAlignment};
+use crate::{Event, Font, HorizontalAlignment, Rect, SizeConstraints, VerticalAlignment};
 pub use button::Button;
 use druid_shell::kurbo::{Point, Size};
 use druid_shell::piet;
 use druid_shell::Region;
+pub use hyperlink::Hyperlink;
 use piet::PaintBrush;
 pub use placeholder::Placeholder;
 use std::any::Any;
@@ -149,10 +150,10 @@ pub trait Widget {
     fn paint(&self, piet: &mut piet::Piet, region: &Region) -> Result<(), piet::Error>;
 
     ///
-    fn set_origin(&mut self, origin: Point);
+    fn rectangle(&self) -> &Rect;
 
     ///
-    fn size(&self) -> Size;
+    fn set_origin(&mut self, origin: Point);
 
     ///
     fn widget_id(&self) -> &WidgetId;

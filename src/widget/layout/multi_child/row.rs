@@ -120,11 +120,11 @@ impl Row {
 
             // The child widget does not have a flex factor.
             let child_size = if flex_factor == 0 {
-                RefCell::borrow(child_widget).borrow().size()
+                RefCell::borrow(child_widget).borrow().rectangle().size()
             }
             // The child widget does have a flex factor.
             else {
-                let child_size = RefCell::borrow(child_widget).borrow().size();
+                let child_size = RefCell::borrow(child_widget).borrow().rectangle().size();
 
                 // Devide the remaining width among the child widgets with flex factor.
                 let expanded_child_size = Size::new(
@@ -284,15 +284,15 @@ impl Widget for Row {
         Ok(())
     }
 
+    fn rectangle(&self) -> &Rect {
+        &self.rectangle
+    }
+
     fn set_origin(&mut self, origin: Point) {
         self.rectangle = self.rectangle.with_origin(origin);
 
         // Layout the children.
         self.layout_children();
-    }
-
-    fn size(&self) -> Size {
-        self.rectangle.size()
     }
 
     fn widget_id(&self) -> &WidgetId {

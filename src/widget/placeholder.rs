@@ -160,12 +160,12 @@ impl Widget for Placeholder {
         Ok(())
     }
 
-    fn set_origin(&mut self, origin: Point) {
-        self.rectangle = self.rectangle.with_origin(origin)
+    fn rectangle(&self) -> &Rect {
+        &self.rectangle
     }
 
-    fn size(&self) -> Size {
-        self.rectangle.size()
+    fn set_origin(&mut self, origin: Point) {
+        self.rectangle = self.rectangle.with_origin(origin)
     }
 
     fn widget_id(&self) -> &WidgetId {

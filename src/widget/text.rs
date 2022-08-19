@@ -225,16 +225,16 @@ impl Widget for Text {
         Ok(())
     }
 
+    fn rectangle(&self) -> &Rect {
+        &self.rectangle
+    }
+
     fn set_origin(&mut self, origin: Point) {
         let delta = origin - self.rectangle.origin();
 
         self.rectangle = self.rectangle.with_origin(origin);
 
         self.text_origin += delta;
-    }
-
-    fn size(&self) -> Size {
-        self.rectangle.size()
     }
 
     fn widget_id(&self) -> &WidgetId {

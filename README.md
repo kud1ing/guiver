@@ -37,7 +37,6 @@ On the upside you get simple setup and simple control flow.
 ## Backlog
 
 * `Hyperlink`:
-  * [ ] `handle_command()`: call `adjust_font()` for every font change
   * adjust `handle_event()`:
     * [ ] set `is_being_clicked`
     * [ ] set `was_visited`
@@ -45,8 +44,6 @@ On the upside you get simple setup and simple control flow.
       * [ ] if `is_being_clicked`
       * [ ] if `was_visited`
       * [ ] if !`was_visited`
-  * [ ] `WidgetManager::new_hyperlink()` use `Hyperlink`
-  * [ ] add integration test
 * [ ] `TextInput`: display a caret
   * `caret_x`
     * `caret_chareacter_index` = child postion.x + child_size.width + offset
