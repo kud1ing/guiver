@@ -36,6 +36,22 @@ On the upside you get simple setup and simple control flow.
 
 ## Backlog
 
+* [ ] `TextInput`: display a caret
+  * [ ] `paint()`: draw the caret when the widget has focus
+  * update `caret_character_index` = child postion.x + child_size.width + offset:
+    * [ ] when the text changes
+      * [ ] update `caret_x`
+    * [ ] when the caret is moved:
+      * [ ] update `caret_x`
+      * `caret_height` in `layout()`: `child_size.height`
+* [ ] `TextInput`: Meta+C should copy the (selected) text
+  * [ ] add `Widget::get_selected_value() -> Option<Box<dyn Any>>`
+  * [ ] implement `TextInput::get_selected_value()`
+  * [ ] `WidgetManager`: call `Widget::get_selected_value()` on the focused widget on a Meta+C
+  * [ ] `WidgetManager`: put the value in the clipboard
+* [ ] make `Text` selectable
+  * [ ] double click
+  * [ ] click + drag
 * `Hyperlink`:
   * adjust `handle_event()`:
     * [ ] set `is_being_clicked`
@@ -44,11 +60,6 @@ On the upside you get simple setup and simple control flow.
       * [ ] if `is_being_clicked`
       * [ ] if `was_visited`
       * [ ] if !`was_visited`
-* [ ] `TextInput`: display a caret
-  * `caret_x`
-    * `caret_chareacter_index` = child postion.x + child_size.width + offset
-  * `caret_height` = `child_size.height`
-* [ ] make `Text` selectable
 * [ ] add a `Grid` layout widget
   * [ ] add itegration test
   * supply functionality:
@@ -109,7 +120,7 @@ On the upside you get simple setup and simple control flow.
     * [ ] `test_apply_size_constraints()`
     * [ ] `test_handle_command()`
     * [ ] `test_handle_event()`
-* [ ] add a `Table`widget
+* [ ] add a `Table` widget
 * [ ] example `layout_expanded_row_column.rs`: make the row not grab all height
 * `WidgetManager`: tab order:
   * [ ] explicitly define a tab order
@@ -123,10 +134,11 @@ On the upside you get simple setup and simple control flow.
 * [ ] `TextInput`: double click should select the text
 * support text selection:
   * [ ] Shift + cursor movement
-  * [ ] Ctrl + A
-* [ ] `TextInput`: Ctrl+C should copy the text
-* [ ] `TextInput`: Ctrl+X should cut the text
+  * [ ] Meta+A
+* [ ] `TextInput`: Meta+X should cut the text
 * [ ] support a concept of layers/z-order for dropdown boxes, tooltips etc.
+* [ ] support Drag and drop
+  * `druid-shell` has [no support](https://github.com/linebender/druid/issues/1742)
 * [ ] implement [7GUIs](https://eugenkiss.github.io/7guis/tasks)
   * [ ] 7GUIs "Flight Booker"
     * [ ] implement `DropdownBox`

@@ -8,6 +8,9 @@ use std::borrow::BorrowMut;
 
 /// A text input widget.
 pub struct TextInput {
+    caret_character_index: usize,
+    caret_height: f64,
+    caret_x: f64,
     corner_radius: f64,
     debug_rendering: bool,
     debug_rendering_stroke: Stroke,
@@ -42,6 +45,9 @@ impl TextInput {
         let text = text.into();
 
         TextInput {
+            caret_character_index: 0,
+            caret_height: 0.0,
+            caret_x: 0.0,
             corner_radius: 2.0,
             debug_rendering: false,
             debug_rendering_stroke: debug_rendering_stroke.clone(),
@@ -309,6 +315,11 @@ impl Widget for TextInput {
 
         // Paint the text widget.
         self.text_widget.paint(piet, region)?;
+
+        // Draw the caret.
+        if self.has_focus {
+            // TODO
+        }
 
         // Render debug hints.
         if self.debug_rendering {
