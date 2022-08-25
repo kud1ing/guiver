@@ -36,14 +36,9 @@ On the upside you get simple setup and simple control flow.
 
 ## Backlog
 
-* [ ] `TextInput`: display a caret
-  * [ ] `paint()`: draw the caret when the widget has focus
-  * update `caret_character_index` = child postion.x + child_size.width + offset:
-    * [ ] when the text changes
-      * [ ] update `caret_x`
-    * [ ] when the caret is moved:
-      * [ ] update `caret_x`
-      * `caret_height` in `layout()`: `child_size.height`
+* `TextInput` caret:
+  * [ ] `TextInput::handle_event()`: increase/decrease `self.caret_character_index` on arrow left/right
+  * [ ] `TextInput::update_caret_character_index()`: implement
 * [ ] `TextInput`: Meta+C should copy the (selected) text
   * [ ] add `Widget::get_selected_value() -> Option<Box<dyn Any>>`
   * [ ] implement `TextInput::get_selected_value()`

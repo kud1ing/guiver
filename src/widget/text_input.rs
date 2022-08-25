@@ -1,7 +1,7 @@
 use crate::stroke::Stroke;
 use crate::widget::{Text, WidgetCommand, WidgetError};
 use crate::{Event, Font, HorizontalAlignment, SizeConstraints, Widget, WidgetEvent, WidgetId};
-use druid_shell::kurbo::{Point, Rect, RoundedRect, Size};
+use druid_shell::kurbo::{Line, Point, Rect, RoundedRect, Size};
 use druid_shell::piet::{Color, Error, PaintBrush, Piet, RenderContext};
 use druid_shell::{KbKey, Region};
 use std::borrow::BorrowMut;
@@ -9,8 +9,9 @@ use std::borrow::BorrowMut;
 /// A text input widget.
 pub struct TextInput {
     caret_character_index: usize,
-    caret_height: f64,
     caret_x: f64,
+    caret_y1: f64,
+    caret_y2: f64,
     corner_radius: f64,
     debug_rendering: bool,
     debug_rendering_stroke: Stroke,
@@ -46,8 +47,9 @@ impl TextInput {
 
         TextInput {
             caret_character_index: 0,
-            caret_height: 0.0,
             caret_x: 0.0,
+            caret_y1: 0.0,
+            caret_y2: 0.0,
             corner_radius: 2.0,
             debug_rendering: false,
             debug_rendering_stroke: debug_rendering_stroke.clone(),
@@ -135,6 +137,26 @@ impl TextInput {
 
             self.text_widget.borrow_mut().set_origin(child_origin);
         }
+
+        // Update the caret postion and dimension.
+        self.update_caret_position();
+    }
+
+    ///
+    fn update_caret_character_index(&mut self) {
+        // TODO: Decrease the index when the text shrank.
+
+        // Update the caret postion and dimension.
+        self.update_caret_position();
+    }
+
+    ///
+    fn update_caret_position(&mut self) {
+        // Put the care to the right of the text widget.
+        self.caret_x = self.text_widget.rectangle().x1;
+
+        self.caret_y1 = self.rectangle.y0 + self.padding;
+        self.caret_y2 = self.rectangle.y1 - self.padding;
     }
 
     ///
@@ -154,6 +176,9 @@ impl TextInput {
             .borrow_mut()
             .handle_command(WidgetCommand::SetValue(Box::new(self.text.clone())))
             .unwrap();
+
+        // Update the caret index, if necessary.
+        self.update_caret_character_index();
 
         self.layout_child();
     }
@@ -297,20 +322,19 @@ impl Widget for TextInput {
             return Ok(());
         }
 
-        // Paint the input field frame.
+        let stroke = self.stroke();
+
+        // Paint the frame.
         {
             let shape = RoundedRect::from_rect(self.rectangle, self.corner_radius);
 
-            // Fill.
+            // Fill the frame.
             if let Some(fill_brush) = &self.fill {
                 piet.fill(shape, fill_brush);
             }
 
-            // Stroke.
-            {
-                let stroke = self.stroke();
-                piet.stroke(shape, &stroke.stroke_brush, stroke.stroke_width);
-            }
+            // Stroke the frame.
+            piet.stroke(shape, &stroke.stroke_brush, stroke.stroke_width);
         }
 
         // Paint the text widget.
@@ -318,7 +342,12 @@ impl Widget for TextInput {
 
         // Draw the caret.
         if self.has_focus {
-            // TODO
+            piet.stroke_styled(
+                Line::new((self.caret_x, self.caret_y1), (self.caret_x, self.caret_y2)),
+                &stroke.stroke_brush,
+                1.0,
+                &stroke.stroke_style,
+            );
         }
 
         // Render debug hints.
