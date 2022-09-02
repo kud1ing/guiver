@@ -1,6 +1,6 @@
 # guiver
 
-guiver is an attempt to make GUI programming with Rust simple, but perhaps without perfect efficiency.
+guiver tries to make GUI programming with Rust simple, but perhaps without perfect efficiency.
 
 guiver can be used in [immediate mode](https://en.wikipedia.org/wiki/Immediate_mode_(computer_graphics)), which is
 inspired by [egui](https://github.com/emilk/egui). In this case it is
@@ -37,6 +37,9 @@ On the upside you get simple setup and simple control flow.
 ## Backlog
 
 * `TextInput` caret:
+  * [ ] add a hash map from caret character indices to x positions
+    * [ ] update it when the text is changed
+    * [ ] use it in `paint()` to position the caret
   * [ ] `TextInput::handle_event()`: increase/decrease `self.caret_character_index` on arrow left/right
   * [ ] `TextInput::update_caret_character_index()`: implement
 * [ ] `TextInput`: Meta+C should copy the (selected) text
