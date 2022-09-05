@@ -79,8 +79,6 @@ impl Command {
 pub struct WidgetManager {
     /// The widget that has the focus.
     focused_widget: Option<WidgetBox>,
-    /// Indicates whether the meta key (Cmd/Ctrl) is down.
-    key_meta_is_down: bool,
     /// The main widget that fills the whole window.
     main_widget: Option<WidgetBox>,
     /// The counter for the next widget ID.
@@ -100,7 +98,6 @@ impl WidgetManager {
     pub fn new() -> Self {
         WidgetManager {
             focused_widget: None,
-            key_meta_is_down: false,
             main_widget: None,
             next_widget_id_counter: 0,
             size_constraints: SizeConstraints::default(),
