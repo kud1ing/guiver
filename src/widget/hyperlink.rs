@@ -50,7 +50,7 @@ impl Widget for Hyperlink {
     }
 
     fn handle_command(&mut self, widget_command: WidgetCommand) -> Result<(), WidgetError> {
-        return match widget_command {
+        match widget_command {
             WidgetCommand::AppendChild(_) => self.text_widget.handle_command(widget_command),
             WidgetCommand::RemoveAllChildren => self.text_widget.handle_command(widget_command),
             WidgetCommand::RemoveChild(_) => self.text_widget.handle_command(widget_command),
@@ -77,7 +77,7 @@ impl Widget for Hyperlink {
             WidgetCommand::SetVerticalAlignment(_) => {
                 self.text_widget.handle_command(widget_command)
             }
-        };
+        }
     }
 
     fn handle_event(&mut self, event: &Event, widget_events: &mut Vec<WidgetEvent>) {
