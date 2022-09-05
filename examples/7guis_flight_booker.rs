@@ -1,9 +1,9 @@
-use druid_shell::Clipboard;
 /**
 This implements the "Flight Booker" task from [7GUIs](https://eugenkiss.github.io/7guis/tasks/).
 */
 use guiver::{
-    run, Application, Color, Command, Event, PaintBrush, Piet, Region, Size, WidgetManager,
+    run, Application, Clipboard, Color, Command, Event, PaintBrush, Piet, Region, Size,
+    WidgetManager,
 };
 
 pub(crate) struct App {

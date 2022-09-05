@@ -1,5 +1,4 @@
-use druid_shell::Clipboard;
-use guiver::{run, Application, Command, Event, Piet, Region, Size, WidgetManager};
+use guiver::{run, Application, Clipboard, Command, Event, Piet, Region, Size, WidgetManager};
 
 pub(crate) struct App {
     widget_manager: WidgetManager,

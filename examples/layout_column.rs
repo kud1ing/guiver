@@ -1,7 +1,6 @@
-use druid_shell::Clipboard;
 use guiver::{
-    run, Application, Command, Event, HorizontalAlignment, Piet, Region, Size, VerticalAlignment,
-    WidgetManager,
+    run, Application, Clipboard, Command, Event, HorizontalAlignment, Piet, Region, Size,
+    VerticalAlignment, WidgetManager,
 };
 
 pub(crate) struct App {

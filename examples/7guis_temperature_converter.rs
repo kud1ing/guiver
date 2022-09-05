@@ -1,10 +1,9 @@
-use druid_shell::Clipboard;
 /**
 This implements the "Counter" task from [7GUIs](https://eugenkiss.github.io/7guis/tasks/).
  */
 use guiver::{
-    run, Application, Command, Event, HorizontalAlignment, Piet, Region, Size, WidgetEvent,
-    WidgetId, WidgetManager,
+    run, Application, Clipboard, Command, Event, HorizontalAlignment, Piet, Region, Size,
+    WidgetEvent, WidgetId, WidgetManager,
 };
 
 pub(crate) struct App {
