@@ -20,7 +20,7 @@ mod tests {
                 ));
 
                 assert_eq!(
-                    widget.size(),
+                    widget.rectangle().size(),
                     large_minimum_size,
                     "The widget should be at least as large as the given minimum size"
                 );
@@ -32,7 +32,7 @@ mod tests {
                 widget.apply_size_constraints(SizeConstraints::loose(small_maximum_size));
 
                 assert_eq!(
-                    widget.size(),
+                    widget.rectangle().size(),
                     small_maximum_size,
                     "The widget should not be larger than the given maximum size"
                 );

@@ -191,7 +191,7 @@ mod tests {
             placeholder_widget.apply_size_constraints(SizeConstraints::unbounded());
 
             assert_eq!(
-                placeholder_widget.size(),
+                placeholder_widget.rectangle().size(),
                 placeholder_maximum_size,
                 "The placeholder widget should not be larger than its maximum size"
             );

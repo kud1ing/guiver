@@ -260,7 +260,7 @@ mod tests {
             text_widget.apply_size_constraints(SizeConstraints::unbounded());
 
             assert!(
-                text_widget.size().height >= font.font_size,
+                text_widget.rectangle().size().height >= font.font_size,
                 "The text widget's height should be at least as large as the font size"
             );
         }
