@@ -36,17 +36,40 @@ On the upside you get simple setup and simple control flow.
 
 ## Backlog
 
+* [ ] add a `Grid` layout widget
+  * [ ] add integration test
+  * supply functionality:
+    * clear: `WidgetCommand::RemoveAllChildren`
+      * only remove the children
+      * also implode the grid?
+    * remove widget:
+      * `RemoveWidget(ID)`?
+        * needed anyway
+      * `RemoveWidgetAt(...)`
+        * `Any`? Downside: `Box`
+        * x, y?
+    * remove column:
+      * `RemoveWidget(ID)`?
+      * ???
+    * remove row:
+      * `RemoveWidget(ID)`?
+      * ???
+    * set widget to a grid cell:
+      * `SetWidgetAt(...)`?
+        * `Any`? Downside: `Box`
+        * X, y?
+* [ ] `TextInput`: Meta+C should copy the (selected) text/value
+  * [ ] add `WidgetEvent::SelectionChanged(WidgetId, Box<dyn Any>)`
+  * [ ] `TextInput`: produce `WidgetEvent::SelectionChanged`
+  * [ ] `WidgetManager`: intercept `WidgetEvent::SelectionChanged` from the focussed widget
+  * [ ] `WidgetManager`: put the value in the clipboard
+    * [ ] how?
 * `TextInput` caret:
   * [ ] add a hash map from caret character indices to x positions
     * [ ] update it when the text is changed
     * [ ] use it in `paint()` to position the caret
   * [ ] `TextInput::handle_event()`: increase/decrease `self.caret_character_index` on arrow left/right
   * [ ] `TextInput::update_caret_character_index()`: implement
-* [ ] `TextInput`: Meta+C should copy the (selected) text
-  * [ ] add `Widget::get_selected_value() -> Option<Box<dyn Any>>`
-  * [ ] implement `TextInput::get_selected_value()`
-  * [ ] `WidgetManager`: call `Widget::get_selected_value()` on the focused widget on a Meta+C
-  * [ ] `WidgetManager`: put the value in the clipboard
 * [ ] make `Text` selectable
   * [ ] double click
   * [ ] click + drag
@@ -58,28 +81,6 @@ On the upside you get simple setup and simple control flow.
       * [ ] if `is_being_clicked`
       * [ ] if `was_visited`
       * [ ] if !`was_visited`
-* [ ] add a `Grid` layout widget
-  * [ ] add itegration test
-  * supply functionality:
-    * clear: `WidgetCommand::RemoveAllChildren`
-      * Nur alle Kinder entfernen?
-      * Auch Tabelle implodieren?
-    * remove widget:
-      * RemoveWidget(ID)?
-        * braucht man sowieso
-      * RemoveWidgetAt(…)
-        * Any? Nachteil: Box
-        * x, y?
-    * remove column:
-      * RemoveWidget(ID)?
-      * ???
-    * remove row:
-      * RemoveWidget(ID)?
-      * ???
-    * set widget to a grid cell:
-      * SetWidgetAt(…)?
-        * Any? Nachteil: Box
-        * X, y?
 * [ ] publish 0.1.1, once the updated `druid-shell` and `piet` are released
   * https://github.com/linebender/druid/issues/2236
 * add integration tests:
