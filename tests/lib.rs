@@ -1,9 +1,9 @@
 #[cfg(test)]
 mod tests {
     use druid_shell::kurbo::Size;
-    use guiver::widget::layout::{Center, SizedBox};
+    use guiver::widget::layout::{Center, Column, Grid, Row, SizedBox};
     use guiver::widget::{Button, Hyperlink, Placeholder, Text, TextInput, WidgetCommand};
-    use guiver::{Color, Font, SizeConstraints, Stroke, Widget};
+    use guiver::{Color, Font, HorizontalAlignment, SizeConstraints, Stroke, VerticalAlignment, Widget};
     use std::cell::RefCell;
     use std::rc::Rc;
 
@@ -40,8 +40,41 @@ mod tests {
         }
     }
 
-    ///
+    /// Returns all widgets.
     fn widgets() -> Vec<Box<dyn Widget>> {
+        // TODO: Also add layout widgets with children.
+        let mut widgets = widgets_layout();
+        widgets.append(&mut widgets_non_layout());
+        widgets
+    }
+
+    /// Returns the layout widgets.
+    fn widgets_layout() -> Vec<Box<dyn Widget>> {
+        let mut center_widget = Center::new(0, Stroke::default());
+        center_widget
+            .handle_command(WidgetCommand::AppendChild(Rc::new(RefCell::new(Box::new(
+                Placeholder::new(0, Size::new(100.0, 50.0)),
+            )))))
+            .unwrap();
+
+        vec![
+            // Add a center widget.
+            Box::new(center_widget),
+            // TODO: Add a column widget.
+            //Box::new(Column::new(0, Stroke::default(), HorizontalAlignment::Center, 10.0)),
+            // TODO: Add a expanded widget?
+            // TODO: Add a grid widget.
+            //Box::new(Grid::new(0, Stroke::default(), 10.0)),
+            // TODO: Add a padding widget.
+            // TODO: Add a row widget.
+            //Box::new(Row::new(0, Stroke::default(), VerticalAlignment::default(), 10.0)),
+            // Add a sized box widget.
+            Box::new(SizedBox::new(0, Stroke::default(), Size::new(100.0, 50.0))),
+        ]
+    }
+
+    /// Returns the non-layout widgets.
+    fn widgets_non_layout() -> Vec<Box<dyn Widget>> {
         let button_with_text = Button::new(
             0,
             Stroke::default(),
@@ -56,25 +89,11 @@ mod tests {
             None,
         );
 
-        let mut center_widget = Center::new(0, Stroke::default());
-        center_widget
-            .handle_command(WidgetCommand::AppendChild(Rc::new(RefCell::new(Box::new(
-                Placeholder::new(0, Size::new(100.0, 50.0)),
-            )))))
-            .unwrap();
-
-        let sized_box_widget_without_a_child =
-            SizedBox::new(0, Stroke::default(), Size::new(100.0, 50.0));
-
         vec![
             // Add a text button widget.
             Box::new(button_with_text),
             // Add a placeholder widget.
             Box::new(Placeholder::new(0, Size::new(100.0, 50.0))),
-            // Add a center widget.
-            Box::new(center_widget),
-            // TODO: Add a column widget.
-            // TODO: Add a expanded widget?
             // Add a hyperlink widget.
             Box::new(Hyperlink::new(
                 0,
@@ -84,11 +103,6 @@ mod tests {
                 Font::default(),
                 "Test hyperlink",
             )),
-            // TODO: Add a padding widget.
-            // TODO: Add a row widget.
-            // Add a sized box widget without a child widget.
-            Box::new(sized_box_widget_without_a_child),
-            // TODO: Add a sized box widget with a child widget.
             // Add a text widget.
             Box::new(Text::new(
                 0,

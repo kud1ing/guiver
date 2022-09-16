@@ -124,6 +124,8 @@ pub enum WidgetEvent {
     GainedFocus(WidgetId),
     /// The widget lost focus.
     LostFocus(WidgetId),
+    /// The widget selected value was changed.
+    SelectedValueChanged(WidgetId, Box<dyn Any>),
     /// The widget was submitted, e.g. by pressing Enter on a text input.
     Submitted(WidgetId),
     /// The widget value was changed.

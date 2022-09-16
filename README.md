@@ -36,11 +36,10 @@ On the upside you get simple setup and simple control flow.
 
 ## Backlog
 
-* [ ] add a `Grid` layout widget
-  * [ ] add integration test
+* [ ] `Grid`:
   * supply functionality:
     * clear: `WidgetCommand::RemoveAllChildren`
-      * only remove the children
+      * only remove the children?
       * also implode the grid?
     * remove widget:
       * `RemoveWidget(ID)`?
@@ -57,13 +56,14 @@ On the upside you get simple setup and simple control flow.
     * set widget to a grid cell:
       * `SetWidgetAt(...)`?
         * `Any`? Downside: `Box`
-        * X, y?
+        * x, y?
+* [ ] `test::widgets_layout()`: add remaining layout widgets
+* [ ] `test::widgets()`: also produce layout widgets that have child widgets
 * [ ] `TextInput`: Meta+C should copy the (selected) text/value
-  * [ ] add `WidgetEvent::SelectionChanged(WidgetId, Box<dyn Any>)`
+  * [ ] `WidgetManager::handle_event()`: intercept `WidgetEvent::SelectedValueChanged` from the focussed widget
+    * [ ] `WidgetManager`: put the value in the clipboard
+      * [ ] how?
   * [ ] `TextInput`: produce `WidgetEvent::SelectionChanged`
-  * [ ] `WidgetManager`: intercept `WidgetEvent::SelectionChanged` from the focussed widget
-  * [ ] `WidgetManager`: put the value in the clipboard
-    * [ ] how?
 * `TextInput` caret:
   * [ ] add a hash map from caret character indices to x positions
     * [ ] update it when the text is changed

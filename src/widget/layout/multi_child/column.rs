@@ -24,12 +24,17 @@ pub struct Column {
 
 impl Column {
     ///
-    pub fn new(widget_id: WidgetId, debug_rendering_stroke: Stroke, spacing: f64) -> Self {
+    pub fn new(
+        widget_id: WidgetId,
+        debug_rendering_stroke: Stroke,
+        horizontal_alignment: HorizontalAlignment,
+        spacing: f64,
+    ) -> Self {
         Column {
             child_widgets: vec![],
             debug_rendering: false,
             debug_rendering_stroke,
-            horizontal_alignment: HorizontalAlignment::Center,
+            horizontal_alignment,
             is_hidden: false,
             rectangle: Rect::default(),
             size_constraints: SizeConstraints::unbounded(),

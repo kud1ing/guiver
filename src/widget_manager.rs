@@ -1,6 +1,6 @@
 use crate::stroke::Stroke;
 use crate::style::Style;
-use crate::widget::layout::{Center, Column, Expanded, Padding, Row, SizedBox};
+use crate::widget::layout::{Center, Column, Expanded, Grid, Padding, Row, SizedBox};
 use crate::widget::{Button, Hyperlink, Placeholder, Text, TextInput, WidgetCommand, WidgetError};
 use crate::{
     Color, Event, Font, HorizontalAlignment, SizeConstraints, VerticalAlignment, Widget,
@@ -276,6 +276,7 @@ impl WidgetManager {
             Rc::new(RefCell::new(Box::new(Column::new(
                 widget_id,
                 self.style.debug_rendering_stroke.clone(),
+                HorizontalAlignment::Center,
                 self.style.spacing,
             )))),
         );
@@ -296,6 +297,25 @@ impl WidgetManager {
                 widget_id,
                 self.style.debug_rendering_stroke.clone(),
                 flex_factor,
+            )))),
+        );
+
+        // Return the widget ID.
+        widget_id
+    }
+
+    ///
+    pub fn new_grid(&mut self) -> WidgetId {
+        // Get a new widget ID.
+        let widget_id = self.next_widget_id();
+
+        // Add a new grid layout widget.
+        self.widgets.insert(
+            widget_id,
+            Rc::new(RefCell::new(Box::new(Grid::new(
+                widget_id,
+                self.style.debug_rendering_stroke.clone(),
+                self.style.spacing,
             )))),
         );
 
