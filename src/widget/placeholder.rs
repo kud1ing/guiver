@@ -1,4 +1,5 @@
 use crate::stroke::Stroke;
+use crate::widget::core::WidgetCore;
 use crate::widget::{WidgetCommand, WidgetError, WidgetId};
 use crate::{Event, SizeConstraints, Widget, WidgetEvent};
 use druid_shell::kurbo::{Line, Point, Rect, Size};
@@ -8,6 +9,7 @@ use piet::{PaintBrush, StrokeDash, StrokeStyle};
 
 /// A placeholder widget.
 pub struct Placeholder {
+    core: WidgetCore,
     desired_size: Size,
     fill: Option<PaintBrush>,
     is_hidden: bool,
@@ -17,7 +19,7 @@ pub struct Placeholder {
 }
 
 impl Placeholder {
-    pub fn new(widget_id: WidgetId, desired_size: Size) -> Self {
+    pub fn new(widget_id: WidgetId, debug_rendering_stroke: Stroke, desired_size: Size) -> Self {
         let stroke_style = StrokeStyle {
             line_join: Default::default(),
             line_cap: Default::default(),
@@ -26,6 +28,7 @@ impl Placeholder {
         };
 
         Placeholder {
+            core: WidgetCore::new(widget_id, debug_rendering_stroke),
             desired_size,
             fill: None,
             is_hidden: false,
@@ -54,19 +57,19 @@ impl Widget for Placeholder {
         match widget_command {
             WidgetCommand::AppendChild(_) => {
                 return Err(WidgetError::CommandNotHandled(
-                    self.widget_id,
+                    self.core.widget_id,
                     widget_command,
                 ));
             }
             WidgetCommand::RemoveAllChildren => {
                 return Err(WidgetError::CommandNotHandled(
-                    self.widget_id,
+                    self.core.widget_id,
                     widget_command,
                 ));
             }
             WidgetCommand::RemoveChild(_) => {
                 return Err(WidgetError::CommandNotHandled(
-                    self.widget_id,
+                    self.core.widget_id,
                     widget_command,
                 ));
             }
@@ -78,13 +81,13 @@ impl Widget for Placeholder {
             }
             WidgetCommand::SetFont(_) => {
                 return Err(WidgetError::CommandNotHandled(
-                    self.widget_id,
+                    self.core.widget_id,
                     widget_command,
                 ));
             }
             WidgetCommand::SetHasFocus(_has_focus) => {
                 return Err(WidgetError::CommandNotHandled(
-                    self.widget_id,
+                    self.core.widget_id,
                     widget_command,
                 ));
             }
@@ -99,7 +102,7 @@ impl Widget for Placeholder {
             }
             WidgetCommand::SetValue(ref _value) => {
                 return Err(WidgetError::CommandNotHandled(
-                    self.widget_id,
+                    self.core.widget_id,
                     widget_command,
                 ));
             }
@@ -169,7 +172,7 @@ impl Widget for Placeholder {
     }
 
     fn widget_id(&self) -> &WidgetId {
-        &self.widget_id
+        &self.core.widget_id
     }
 }
 
@@ -178,13 +181,14 @@ impl Widget for Placeholder {
 #[cfg(test)]
 mod tests {
     use crate::widget::Placeholder;
-    use crate::{Size, SizeConstraints, Widget};
+    use crate::{Size, SizeConstraints, Stroke, Widget};
 
     #[test]
     fn test_apply_size_constraints() {
         // Create the placeholder widget.
         let placeholder_maximum_size = Size::new(200.0, 100.0);
-        let mut placeholder_widget = Placeholder::new(0, placeholder_maximum_size);
+        let mut placeholder_widget =
+            Placeholder::new(0, Stroke::default(), placeholder_maximum_size);
 
         // Apply an unbounded `SizeConstraints`.
         {

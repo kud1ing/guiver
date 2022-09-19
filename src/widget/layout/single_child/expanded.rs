@@ -1,3 +1,4 @@
+use crate::widget::core::WidgetCore;
 use crate::widget::{WidgetCommand, WidgetError};
 use crate::widget_manager::WidgetBox;
 use crate::{Event, Piet, Size, SizeConstraints, Stroke, Widget, WidgetEvent, WidgetId};
@@ -8,13 +9,11 @@ use druid_shell::Region;
 /// A widget that takes all of the available space.
 pub struct Expanded {
     child_widget: Option<WidgetBox>,
-    debug_rendering: bool,
-    debug_rendering_stroke: Stroke,
+    core: WidgetCore,
     flex_factor: u16,
     is_hidden: bool,
     rectangle: Rect,
     size_constraints: SizeConstraints,
-    widget_id: WidgetId,
 }
 
 impl Expanded {
@@ -22,13 +21,11 @@ impl Expanded {
     pub fn new(widget_id: WidgetId, debug_rendering_stroke: Stroke, flex_factor: u16) -> Self {
         Expanded {
             child_widget: None,
-            debug_rendering: false,
-            debug_rendering_stroke,
+            core: WidgetCore::new(widget_id, debug_rendering_stroke),
             flex_factor,
             is_hidden: false,
             rectangle: Rect::default(),
             size_constraints: SizeConstraints::unbounded(),
-            widget_id,
         }
     }
 
@@ -85,35 +82,35 @@ impl Widget for Expanded {
                 // There is no child widget.
                 else {
                     return Err(WidgetError::CommandNotHandled(
-                        self.widget_id,
+                        self.core.widget_id,
                         widget_command,
                     ));
                 }
             }
             WidgetCommand::SetDebugRendering(debug_rendering) => {
-                self.debug_rendering = debug_rendering;
+                self.core.debug_rendering = debug_rendering;
             }
             WidgetCommand::SetFill(ref _value) => {
                 return Err(WidgetError::CommandNotHandled(
-                    self.widget_id,
+                    self.core.widget_id,
                     widget_command,
                 ));
             }
             WidgetCommand::SetFont(_) => {
                 return Err(WidgetError::CommandNotHandled(
-                    self.widget_id,
+                    self.core.widget_id,
                     widget_command,
                 ));
             }
             WidgetCommand::SetHasFocus(_) => {
                 return Err(WidgetError::CommandNotHandled(
-                    self.widget_id,
+                    self.core.widget_id,
                     widget_command,
                 ));
             }
             WidgetCommand::SetHorizontalAlignment(_) => {
                 return Err(WidgetError::CommandNotHandled(
-                    self.widget_id,
+                    self.core.widget_id,
                     widget_command,
                 ));
             }
@@ -126,19 +123,19 @@ impl Widget for Expanded {
             }
             WidgetCommand::SetStroke(ref _value) => {
                 return Err(WidgetError::CommandNotHandled(
-                    self.widget_id,
+                    self.core.widget_id,
                     widget_command,
                 ));
             }
             WidgetCommand::SetValue(ref _value) => {
                 return Err(WidgetError::CommandNotHandled(
-                    self.widget_id,
+                    self.core.widget_id,
                     widget_command,
                 ));
             }
             WidgetCommand::SetVerticalAlignment(_) => {
                 return Err(WidgetError::CommandNotHandled(
-                    self.widget_id,
+                    self.core.widget_id,
                     widget_command,
                 ));
             }
@@ -167,11 +164,11 @@ impl Widget for Expanded {
         }
 
         // Render debug hints.
-        if self.debug_rendering {
+        if self.core.debug_rendering {
             piet.stroke(
                 self.rectangle,
-                &self.debug_rendering_stroke.stroke_brush,
-                self.debug_rendering_stroke.stroke_width,
+                &self.core.debug_rendering_stroke.stroke_brush,
+                self.core.debug_rendering_stroke.stroke_width,
             );
         }
 
@@ -190,6 +187,6 @@ impl Widget for Expanded {
     }
 
     fn widget_id(&self) -> &WidgetId {
-        &self.widget_id
+        &self.core.widget_id
     }
 }

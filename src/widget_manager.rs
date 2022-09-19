@@ -386,6 +386,7 @@ impl WidgetManager {
             widget_id,
             Rc::new(RefCell::new(Box::new(Placeholder::new(
                 widget_id,
+                self.style.debug_rendering_stroke.clone(),
                 maximum_size,
             )))),
         );

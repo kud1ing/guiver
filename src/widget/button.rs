@@ -1,4 +1,5 @@
 use crate::stroke::Stroke;
+use crate::widget::core::WidgetCore;
 use crate::widget::{WidgetCommand, WidgetError};
 use crate::widget_manager::WidgetBox;
 use crate::{Event, SizeConstraints, Widget, WidgetEvent, WidgetId};
@@ -10,23 +11,18 @@ use druid_shell::{piet, KbKey, Region};
 #[derive(Default)]
 pub struct Button {
     child_widget: Option<WidgetBox>,
+    core: WidgetCore,
     corner_radius: f64,
-    debug_rendering: bool,
-    debug_rendering_stroke: Stroke,
     fill_brush_down: Option<PaintBrush>,
     fill_brush_up: Option<PaintBrush>,
     has_focus: bool,
     is_disabled: bool,
     is_down: bool,
-    is_hidden: bool,
     is_hot: bool,
     padding_horizontal: f64,
     padding_vertical: f64,
-    rectangle: Rect,
-    size_constraints: SizeConstraints,
     stroke: Option<Stroke>,
     stroke_focused: Option<Stroke>,
-    widget_id: WidgetId,
 }
 
 impl Button {
@@ -41,9 +37,8 @@ impl Button {
     ) -> Self {
         Button {
             child_widget: Some(child_widget),
+            core: WidgetCore::new(widget_id, debug_rendering_stroke),
             corner_radius: 4.0,
-            debug_rendering: false,
-            debug_rendering_stroke,
             fill_brush_down,
             fill_brush_up: Some(PaintBrush::Linear(LinearGradient::new(
                 UnitPoint::TOP,
@@ -53,12 +48,9 @@ impl Button {
             has_focus: false,
             is_disabled: false,
             is_down: false,
-            is_hidden: false,
             is_hot: false,
             padding_horizontal: 4.0,
             padding_vertical: 4.0,
-            rectangle: Rect::default(),
-            size_constraints: SizeConstraints::default(),
             stroke: frame_color.map(|color| Stroke {
                 stroke_brush: PaintBrush::Color(color),
                 stroke_style: Default::default(),
@@ -69,7 +61,6 @@ impl Button {
                 stroke_style: Default::default(),
                 stroke_width: 1.0,
             }),
-            widget_id,
         }
     }
 
@@ -83,19 +74,22 @@ impl Button {
             // Apply the child widget's size constraints.
             let child_size = child_widget
                 .borrow_mut()
-                .apply_size_constraints(self.size_constraints.shrink(padding_size));
+                .apply_size_constraints(self.core.size_constraints.shrink(padding_size));
 
-            self.rectangle = self.rectangle.with_size((child_size + padding_size).clamp(
-                *self.size_constraints.minimum(),
-                *self.size_constraints.maximum(),
-            ));
+            self.core.rectangle = self
+                .core
+                .rectangle
+                .with_size((child_size + padding_size).clamp(
+                    *self.core.size_constraints.minimum(),
+                    *self.core.size_constraints.maximum(),
+                ));
 
             // Set the child widget's origin.
             {
-                let child_origin = self.rectangle.origin()
+                let child_origin = self.core.rectangle.origin()
                     + (
-                        0.5 * (self.rectangle.size().width - child_size.width).max(0.0),
-                        0.5 * (self.rectangle.size().height - child_size.height).max(0.0),
+                        0.5 * (self.core.rectangle.size().width - child_size.width).max(0.0),
+                        0.5 * (self.core.rectangle.size().height - child_size.height).max(0.0),
                     );
 
                 // Set the child's origin.
@@ -104,19 +98,22 @@ impl Button {
         }
         // There is no child widget.
         else {
-            self.rectangle = self.rectangle.with_size(*self.size_constraints.minimum());
+            self.core.rectangle = self
+                .core
+                .rectangle
+                .with_size(*self.core.size_constraints.minimum());
         }
     }
 }
 
 impl Widget for Button {
     fn apply_size_constraints(&mut self, size_constraints: SizeConstraints) -> Size {
-        self.size_constraints = size_constraints;
+        self.core.size_constraints = size_constraints;
 
         // Layout the child widget.
         self.layout_child();
 
-        self.rectangle.size()
+        self.core.rectangle.size()
     }
 
     fn handle_command(&mut self, widget_command: WidgetCommand) -> Result<(), WidgetError> {
@@ -135,7 +132,7 @@ impl Widget for Button {
                 println!("`Button::handle_command(RemoveChild)`: TODO");
             }
             WidgetCommand::SetDebugRendering(debug_rendering) => {
-                self.debug_rendering = debug_rendering;
+                self.core.debug_rendering = debug_rendering;
             }
             WidgetCommand::SetFill(fill) => {
                 self.fill_brush_up = fill;
@@ -156,7 +153,7 @@ impl Widget for Button {
                 self.is_disabled = is_disabled;
             }
             WidgetCommand::SetIsHidden(is_hidden) => {
-                self.is_hidden = is_hidden;
+                self.core.is_hidden = is_hidden;
             }
             WidgetCommand::SetStroke(stroke) => {
                 self.stroke = stroke;
@@ -180,20 +177,20 @@ impl Widget for Button {
             Event::KeyDown(key_event) => {
                 if key_event.key == KbKey::Enter {
                     // Enter on a (focused) button is like a click.
-                    widget_events.push(WidgetEvent::Clicked(self.widget_id));
+                    widget_events.push(WidgetEvent::Clicked(self.core.widget_id));
                 }
             }
             Event::KeyUp(_) => {}
             Event::MouseDown(mouse_event) => {
                 // The mouse is down within this button.
-                if self.rectangle.contains(mouse_event.pos) {
+                if self.core.rectangle.contains(mouse_event.pos) {
                     // This widget was not focused.
                     if !self.has_focus {
                         // Give it focus.
                         self.has_focus = true;
 
                         // Tell the widget manager about the change of focus.
-                        widget_events.push(WidgetEvent::GainedFocus(self.widget_id))
+                        widget_events.push(WidgetEvent::GainedFocus(self.core.widget_id))
                     }
 
                     self.is_down = true;
@@ -204,7 +201,7 @@ impl Widget for Button {
                     // This widget was focused.
                     if self.has_focus {
                         // Tell the widget manager about the change of focus.
-                        widget_events.push(WidgetEvent::LostFocus(self.widget_id))
+                        widget_events.push(WidgetEvent::LostFocus(self.core.widget_id))
                     }
 
                     self.has_focus = false;
@@ -214,7 +211,7 @@ impl Widget for Button {
             }
             Event::MouseMove(mouse_event) => {
                 // The mouse moved inside of this button.
-                if self.is_hot && self.rectangle.contains(mouse_event.pos) {
+                if self.is_hot && self.core.rectangle.contains(mouse_event.pos) {
                     self.is_down = true;
                 }
                 // The mouse moved outside of this button.
@@ -223,8 +220,8 @@ impl Widget for Button {
                 }
             }
             Event::MouseUp(mouse_event) => {
-                if self.is_hot && self.rectangle.contains(mouse_event.pos) {
-                    widget_events.push(WidgetEvent::Clicked(self.widget_id));
+                if self.is_hot && self.core.rectangle.contains(mouse_event.pos) {
+                    widget_events.push(WidgetEvent::Clicked(self.core.widget_id));
                 }
 
                 self.is_down = false;
@@ -235,13 +232,13 @@ impl Widget for Button {
 
     fn paint(&self, piet: &mut Piet, region: &Region) -> Result<(), piet::Error> {
         // The button widget is hidden.
-        if self.is_hidden {
+        if self.core.is_hidden {
             return Ok(());
         }
 
         // Paint the button itself.
         {
-            let button_shape = RoundedRect::from_rect(self.rectangle, self.corner_radius);
+            let button_shape = RoundedRect::from_rect(self.core.rectangle, self.corner_radius);
 
             if self.is_down {
                 if let Some(brush) = &self.fill_brush_down {
@@ -275,11 +272,11 @@ impl Widget for Button {
         }
 
         // Render debug hints.
-        if self.debug_rendering {
+        if self.core.debug_rendering {
             piet.stroke(
-                self.rectangle,
-                &self.debug_rendering_stroke.stroke_brush,
-                self.debug_rendering_stroke.stroke_width,
+                self.core.rectangle,
+                &self.core.debug_rendering_stroke.stroke_brush,
+                self.core.debug_rendering_stroke.stroke_width,
             );
         }
 
@@ -287,18 +284,18 @@ impl Widget for Button {
     }
 
     fn rectangle(&self) -> &Rect {
-        &self.rectangle
+        &self.core.rectangle
     }
 
     fn set_origin(&mut self, origin: Point) {
-        self.rectangle = self.rectangle.with_origin(origin);
+        self.core.rectangle = self.core.rectangle.with_origin(origin);
 
         // Layout the child widget.
         self.layout_child();
     }
 
     fn widget_id(&self) -> &WidgetId {
-        &self.widget_id
+        &self.core.widget_id
     }
 }
 

@@ -1,4 +1,5 @@
 use crate::stroke::Stroke;
+use crate::widget::core::WidgetCore;
 use crate::widget::{WidgetCommand, WidgetError, WidgetId};
 use crate::widget_manager::WidgetBox;
 use crate::{Event, SizeConstraints, VerticalAlignment, Widget, WidgetEvent};
@@ -11,14 +12,9 @@ use std::cell::RefCell;
 ///
 pub struct Row {
     child_widgets: Vec<WidgetBox>,
-    debug_rendering: bool,
-    debug_rendering_stroke: Stroke,
-    is_hidden: bool,
-    rectangle: Rect,
-    size_constraints: SizeConstraints,
+    core: WidgetCore,
     spacing: f64,
     vertical_alignment: VerticalAlignment,
-    widget_id: WidgetId,
 }
 
 impl Row {
@@ -31,14 +27,9 @@ impl Row {
     ) -> Self {
         Row {
             child_widgets: vec![],
-            debug_rendering: false,
-            debug_rendering_stroke,
-            is_hidden: false,
-            rectangle: Rect::default(),
-            size_constraints: SizeConstraints::unbounded(),
+            core: WidgetCore::new(widget_id, debug_rendering_stroke),
             spacing,
             vertical_alignment,
-            widget_id,
         }
     }
 
@@ -54,7 +45,7 @@ impl Row {
 
         // Determine the child size constraints.
         let child_size_constraints =
-            SizeConstraints::new(Size::ZERO, *self.size_constraints.maximum());
+            SizeConstraints::new(Size::ZERO, *self.core.size_constraints.maximum());
 
         let mut child_and_spacing_size_sum = Size::ZERO;
         let mut flex_factor_sum: u16 = 0;
@@ -97,21 +88,22 @@ impl Row {
         // The child widgets do not have a flex factor.
         if flex_factor_sum == 0 {
             // Set the parent size to the sum of the child and spacing sizes.
-            self.rectangle = self.rectangle.with_size(child_and_spacing_size_sum);
+            self.core.rectangle = self.core.rectangle.with_size(child_and_spacing_size_sum);
         }
         // The child widgets do have a flex factor.
         else {
             // Set the parent size to the child widget's height and the maximum width.
-            self.rectangle = self.rectangle.with_size(Size::new(
-                self.size_constraints.maximum().width,
+            self.core.rectangle = self.core.rectangle.with_size(Size::new(
+                self.core.size_constraints.maximum().width,
                 child_and_spacing_size_sum.height,
             ));
         }
 
         // Calculate the remaining width.
-        let remaining_width = (self.rectangle.width() - child_and_spacing_size_sum.width).max(0.0);
+        let remaining_width =
+            (self.core.rectangle.width() - child_and_spacing_size_sum.width).max(0.0);
 
-        let mut child_x = self.rectangle.origin().x;
+        let mut child_x = self.core.rectangle.origin().x;
 
         // Second pass over the children.
         for child_widget in &mut self.child_widgets {
@@ -143,14 +135,14 @@ impl Row {
             // Determine the child's vertical position.
             let child_y = match self.vertical_alignment {
                 VerticalAlignment::Bottom => {
-                    self.rectangle.origin().y
-                        + (self.rectangle.size().height - child_size.height).max(0.0)
+                    self.core.rectangle.origin().y
+                        + (self.core.rectangle.size().height - child_size.height).max(0.0)
                 }
                 VerticalAlignment::Middle => {
-                    self.rectangle.origin().y
-                        + 0.5 * (self.rectangle.size().height - child_size.height).max(0.0)
+                    self.core.rectangle.origin().y
+                        + 0.5 * (self.core.rectangle.size().height - child_size.height).max(0.0)
                 }
-                VerticalAlignment::Top => self.rectangle.origin().y,
+                VerticalAlignment::Top => self.core.rectangle.origin().y,
             };
 
             // Set the children's origins.
@@ -166,12 +158,12 @@ impl Row {
 impl Widget for Row {
     ///
     fn apply_size_constraints(&mut self, size_constraints: SizeConstraints) -> Size {
-        self.size_constraints = size_constraints;
+        self.core.size_constraints = size_constraints;
 
         // Layout the children.
         self.layout_children();
 
-        self.rectangle.size()
+        self.core.rectangle.size()
     }
 
     fn handle_command(&mut self, widget_command: WidgetCommand) -> Result<(), WidgetError> {
@@ -198,29 +190,29 @@ impl Widget for Row {
                 self.layout_children();
             }
             WidgetCommand::SetDebugRendering(debug_rendering) => {
-                self.debug_rendering = debug_rendering;
+                self.core.debug_rendering = debug_rendering;
             }
             WidgetCommand::SetFill(ref _value) => {
                 return Err(WidgetError::CommandNotHandled(
-                    self.widget_id,
+                    self.core.widget_id,
                     widget_command,
                 ));
             }
             WidgetCommand::SetFont(_) => {
                 return Err(WidgetError::CommandNotHandled(
-                    self.widget_id,
+                    self.core.widget_id,
                     widget_command,
                 ));
             }
             WidgetCommand::SetHasFocus(_) => {
                 return Err(WidgetError::CommandNotHandled(
-                    self.widget_id,
+                    self.core.widget_id,
                     widget_command,
                 ));
             }
             WidgetCommand::SetHorizontalAlignment(_) => {
                 return Err(WidgetError::CommandNotHandled(
-                    self.widget_id,
+                    self.core.widget_id,
                     widget_command,
                 ));
             }
@@ -230,17 +222,17 @@ impl Widget for Row {
             }
             WidgetCommand::SetIsHidden(is_hidden) => {
                 // Hide/show this widget.
-                self.is_hidden = is_hidden;
+                self.core.is_hidden = is_hidden;
             }
             WidgetCommand::SetStroke(ref _value) => {
                 return Err(WidgetError::CommandNotHandled(
-                    self.widget_id,
+                    self.core.widget_id,
                     widget_command,
                 ));
             }
             WidgetCommand::SetValue(_) => {
                 return Err(WidgetError::CommandNotHandled(
-                    self.widget_id,
+                    self.core.widget_id,
                     widget_command,
                 ));
             }
@@ -263,7 +255,7 @@ impl Widget for Row {
     }
 
     fn paint(&self, piet: &mut Piet, region: &Region) -> Result<(), piet::Error> {
-        if self.is_hidden {
+        if self.core.is_hidden {
             return Ok(());
         }
 
@@ -273,11 +265,11 @@ impl Widget for Row {
         }
 
         // Render debug hints.
-        if self.debug_rendering {
+        if self.core.debug_rendering {
             piet.stroke(
-                self.rectangle,
-                &self.debug_rendering_stroke.stroke_brush,
-                self.debug_rendering_stroke.stroke_width,
+                self.core.rectangle,
+                &self.core.debug_rendering_stroke.stroke_brush,
+                self.core.debug_rendering_stroke.stroke_width,
             );
         }
 
@@ -285,17 +277,17 @@ impl Widget for Row {
     }
 
     fn rectangle(&self) -> &Rect {
-        &self.rectangle
+        &self.core.rectangle
     }
 
     fn set_origin(&mut self, origin: Point) {
-        self.rectangle = self.rectangle.with_origin(origin);
+        self.core.rectangle = self.core.rectangle.with_origin(origin);
 
         // Layout the children.
         self.layout_children();
     }
 
     fn widget_id(&self) -> &WidgetId {
-        &self.widget_id
+        &self.core.widget_id
     }
 }

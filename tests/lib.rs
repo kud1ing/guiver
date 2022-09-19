@@ -3,7 +3,9 @@ mod tests {
     use druid_shell::kurbo::Size;
     use guiver::widget::layout::{Center, Column, Grid, Row, SizedBox};
     use guiver::widget::{Button, Hyperlink, Placeholder, Text, TextInput, WidgetCommand};
-    use guiver::{Color, Font, HorizontalAlignment, SizeConstraints, Stroke, VerticalAlignment, Widget};
+    use guiver::{
+        Color, Font, HorizontalAlignment, SizeConstraints, Stroke, VerticalAlignment, Widget,
+    };
     use std::cell::RefCell;
     use std::rc::Rc;
 
@@ -53,7 +55,7 @@ mod tests {
         let mut center_widget = Center::new(0, Stroke::default());
         center_widget
             .handle_command(WidgetCommand::AppendChild(Rc::new(RefCell::new(Box::new(
-                Placeholder::new(0, Size::new(100.0, 50.0)),
+                Placeholder::new(0, Stroke::default(), Size::new(100.0, 50.0)),
             )))))
             .unwrap();
 
@@ -93,7 +95,11 @@ mod tests {
             // Add a text button widget.
             Box::new(button_with_text),
             // Add a placeholder widget.
-            Box::new(Placeholder::new(0, Size::new(100.0, 50.0))),
+            Box::new(Placeholder::new(
+                0,
+                Stroke::default(),
+                Size::new(100.0, 50.0),
+            )),
             // Add a hyperlink widget.
             Box::new(Hyperlink::new(
                 0,

@@ -1,6 +1,7 @@
 use crate::font::Font;
 
 use crate::stroke::Stroke;
+use crate::widget::core::WidgetCore;
 use crate::widget::{WidgetCommand, WidgetError, WidgetId};
 use crate::{Event, HorizontalAlignment, SizeConstraints, VerticalAlignment, Widget, WidgetEvent};
 use druid_shell::kurbo::{Point, Rect, Size};
@@ -9,8 +10,7 @@ use druid_shell::{piet, Region};
 
 /// A text widget.
 pub struct Text {
-    debug_rendering: bool,
-    debug_rendering_stroke: Stroke,
+    core: WidgetCore,
     font: Font,
     horizontal_alignment: HorizontalAlignment,
     is_hidden: bool,
@@ -20,7 +20,6 @@ pub struct Text {
     text_layout: PietTextLayout,
     text_origin: Point,
     vertical_alignment: VerticalAlignment,
-    widget_id: WidgetId,
 }
 
 impl Text {
@@ -34,8 +33,7 @@ impl Text {
         let text = text.into();
 
         Text {
-            debug_rendering: false,
-            debug_rendering_stroke,
+            core: WidgetCore::new(widget_id, debug_rendering_stroke),
             font: font.clone(),
             horizontal_alignment: HorizontalAlignment::Center,
             is_hidden: false,
@@ -45,7 +43,6 @@ impl Text {
             text_layout: font.text_layout(text),
             text_origin: Point::default(),
             vertical_alignment: VerticalAlignment::Middle,
-            widget_id,
         }
     }
 
@@ -103,24 +100,24 @@ impl Widget for Text {
         match widget_command {
             WidgetCommand::AppendChild(_) => {
                 return Err(WidgetError::CommandNotHandled(
-                    self.widget_id,
+                    self.core.widget_id,
                     widget_command,
                 ));
             }
             WidgetCommand::RemoveAllChildren => {
                 return Err(WidgetError::CommandNotHandled(
-                    self.widget_id,
+                    self.core.widget_id,
                     widget_command,
                 ));
             }
             WidgetCommand::RemoveChild(_) => {
                 return Err(WidgetError::CommandNotHandled(
-                    self.widget_id,
+                    self.core.widget_id,
                     widget_command,
                 ));
             }
             WidgetCommand::SetDebugRendering(debug_rendering) => {
-                self.debug_rendering = debug_rendering;
+                self.core.debug_rendering = debug_rendering;
             }
             WidgetCommand::SetFill(_) => {
                 // TODO
@@ -134,7 +131,7 @@ impl Widget for Text {
             }
             WidgetCommand::SetHasFocus(_) => {
                 return Err(WidgetError::CommandNotHandled(
-                    self.widget_id,
+                    self.core.widget_id,
                     widget_command,
                 ));
             }
@@ -190,7 +187,7 @@ impl Widget for Text {
                     return;
                 }
 
-                widget_events.push(WidgetEvent::Clicked(self.widget_id));
+                widget_events.push(WidgetEvent::Clicked(self.core.widget_id));
             }
             Event::MouseMove(_mouse_event) => {}
             Event::MouseUp(_mouse_event) => {}
@@ -214,11 +211,11 @@ impl Widget for Text {
         }
 
         // Render debug hints.
-        if self.debug_rendering {
+        if self.core.debug_rendering {
             piet.stroke(
                 self.rectangle,
-                &self.debug_rendering_stroke.stroke_brush,
-                self.debug_rendering_stroke.stroke_width,
+                &self.core.debug_rendering_stroke.stroke_brush,
+                self.core.debug_rendering_stroke.stroke_width,
             );
         }
 
@@ -238,7 +235,7 @@ impl Widget for Text {
     }
 
     fn widget_id(&self) -> &WidgetId {
-        &self.widget_id
+        &self.core.widget_id
     }
 }
 

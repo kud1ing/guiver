@@ -1,4 +1,5 @@
 use crate::stroke::Stroke;
+use crate::widget::core::WidgetCore;
 use crate::widget::{WidgetCommand, WidgetError, WidgetId};
 use crate::widget_manager::WidgetBox;
 use crate::{Event, SizeConstraints, Widget, WidgetEvent};
@@ -9,12 +10,10 @@ use druid_shell::{piet, Region};
 /// A centering layout widget.
 pub struct Center {
     child_widget: Option<WidgetBox>,
-    debug_rendering: bool,
-    debug_rendering_stroke: Stroke,
+    core: WidgetCore,
     is_hidden: bool,
     rectangle: Rect,
     size_constraints: SizeConstraints,
-    widget_id: WidgetId,
 }
 
 impl Center {
@@ -22,12 +21,10 @@ impl Center {
     pub fn new(widget_id: WidgetId, debug_rendering_stroke: Stroke) -> Self {
         Center {
             child_widget: None,
-            debug_rendering: false,
-            debug_rendering_stroke,
+            core: WidgetCore::new(widget_id, debug_rendering_stroke),
             is_hidden: false,
             rectangle: Rect::default(),
             size_constraints: SizeConstraints::default(),
-            widget_id,
         }
     }
 
@@ -86,29 +83,29 @@ impl Widget for Center {
                 println!("`Center::handle_command(RemoveChild)`: TODO");
             }
             WidgetCommand::SetDebugRendering(debug_rendering) => {
-                self.debug_rendering = debug_rendering;
+                self.core.debug_rendering = debug_rendering;
             }
             WidgetCommand::SetFill(ref _value) => {
                 return Err(WidgetError::CommandNotHandled(
-                    self.widget_id,
+                    self.core.widget_id,
                     widget_command,
                 ));
             }
             WidgetCommand::SetFont(_) => {
                 return Err(WidgetError::CommandNotHandled(
-                    self.widget_id,
+                    self.core.widget_id,
                     widget_command,
                 ));
             }
             WidgetCommand::SetHasFocus(_) => {
                 return Err(WidgetError::CommandNotHandled(
-                    self.widget_id,
+                    self.core.widget_id,
                     widget_command,
                 ));
             }
             WidgetCommand::SetHorizontalAlignment(_) => {
                 return Err(WidgetError::CommandNotHandled(
-                    self.widget_id,
+                    self.core.widget_id,
                     widget_command,
                 ));
             }
@@ -121,19 +118,19 @@ impl Widget for Center {
             }
             WidgetCommand::SetStroke(ref _value) => {
                 return Err(WidgetError::CommandNotHandled(
-                    self.widget_id,
+                    self.core.widget_id,
                     widget_command,
                 ));
             }
             WidgetCommand::SetValue(ref _value) => {
                 return Err(WidgetError::CommandNotHandled(
-                    self.widget_id,
+                    self.core.widget_id,
                     widget_command,
                 ));
             }
             WidgetCommand::SetVerticalAlignment(_) => {
                 return Err(WidgetError::CommandNotHandled(
-                    self.widget_id,
+                    self.core.widget_id,
                     widget_command,
                 ));
             }
@@ -163,11 +160,11 @@ impl Widget for Center {
         }
 
         // Render debug hints.
-        if self.debug_rendering {
+        if self.core.debug_rendering {
             piet.stroke(
                 self.rectangle,
-                &self.debug_rendering_stroke.stroke_brush,
-                self.debug_rendering_stroke.stroke_width,
+                &self.core.debug_rendering_stroke.stroke_brush,
+                self.core.debug_rendering_stroke.stroke_width,
             );
         }
 
@@ -186,6 +183,6 @@ impl Widget for Center {
     }
 
     fn widget_id(&self) -> &WidgetId {
-        &self.widget_id
+        &self.core.widget_id
     }
 }

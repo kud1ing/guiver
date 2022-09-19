@@ -1,3 +1,4 @@
+use crate::widget::core::WidgetCore;
 use crate::widget::{Text, WidgetCommand, WidgetError};
 use crate::{Event, Font, Piet, Size, SizeConstraints, Stroke, Widget, WidgetEvent, WidgetId};
 use druid_shell::kurbo::{Point, Rect};
@@ -6,6 +7,7 @@ use druid_shell::Region;
 
 ///
 pub struct Hyperlink {
+    core: WidgetCore,
     is_being_clicked: bool,
     font_being_clicked: Font,
     font_unvisited: Font,
@@ -34,6 +36,7 @@ impl Hyperlink {
         adjust_font(&mut font_unvisited);
 
         Hyperlink {
+            core: WidgetCore::new(widget_id, debug_rendering_stroke.clone()),
             is_being_clicked: false,
             font_being_clicked,
             font_unvisited: font_unvisited.clone(),

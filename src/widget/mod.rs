@@ -1,4 +1,5 @@
 mod button;
+mod core;
 mod hyperlink;
 pub mod layout;
 mod placeholder;

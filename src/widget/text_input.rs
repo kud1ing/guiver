@@ -1,4 +1,5 @@
 use crate::stroke::Stroke;
+use crate::widget::core::WidgetCore;
 use crate::widget::{Text, WidgetCommand, WidgetError};
 use crate::{Event, Font, HorizontalAlignment, SizeConstraints, Widget, WidgetEvent, WidgetId};
 use druid_shell::kurbo::{Line, Point, Rect, RoundedRect, Size};
@@ -12,9 +13,8 @@ pub struct TextInput {
     caret_x: f64,
     caret_y1: f64,
     caret_y2: f64,
+    core: WidgetCore,
     corner_radius: f64,
-    debug_rendering: bool,
-    debug_rendering_stroke: Stroke,
     fill: Option<PaintBrush>,
     has_focus: bool,
     horizontal_alignment: HorizontalAlignment,
@@ -27,7 +27,6 @@ pub struct TextInput {
     stroke_focused: Stroke,
     text: String,
     text_widget: Text,
-    widget_id: WidgetId,
     width: f64,
 }
 
@@ -50,9 +49,8 @@ impl TextInput {
             caret_x: 0.0,
             caret_y1: 0.0,
             caret_y2: 0.0,
+            core: WidgetCore::new(widget_id, debug_rendering_stroke.clone()),
             corner_radius: 2.0,
-            debug_rendering: false,
-            debug_rendering_stroke: debug_rendering_stroke.clone(),
             fill: None,
             has_focus: false,
             horizontal_alignment: HorizontalAlignment::Center,
@@ -73,7 +71,6 @@ impl TextInput {
             },
             text: text.clone(),
             text_widget: Text::new(child_widget_id, debug_rendering_stroke, font, text),
-            widget_id,
             width,
         }
     }
@@ -85,7 +82,7 @@ impl TextInput {
 
         // Inform the world that the text has changed.
         widget_events.push(WidgetEvent::ValueChanged(
-            self.widget_id,
+            self.core.widget_id,
             Box::new(self.text.clone()),
         ));
     }
@@ -198,13 +195,13 @@ impl Widget for TextInput {
         match widget_command {
             WidgetCommand::AppendChild(_) => {
                 return Err(WidgetError::CommandNotHandled(
-                    self.widget_id,
+                    self.core.widget_id,
                     widget_command,
                 ));
             }
             WidgetCommand::RemoveAllChildren => {
                 return Err(WidgetError::CommandNotHandled(
-                    self.widget_id,
+                    self.core.widget_id,
                     widget_command,
                 ));
             }
@@ -212,7 +209,7 @@ impl Widget for TextInput {
                 return Err(WidgetError::NoSuchWidget(widget_id));
             }
             WidgetCommand::SetDebugRendering(debug_rendering) => {
-                self.debug_rendering = debug_rendering;
+                self.core.debug_rendering = debug_rendering;
             }
             WidgetCommand::SetFill(fill) => {
                 self.fill = fill;
@@ -282,7 +279,7 @@ impl Widget for TextInput {
                 }
                 KbKey::Enter => {
                     // Enter on a (focused) text input submits the value.
-                    widget_events.push(WidgetEvent::Submitted(self.widget_id));
+                    widget_events.push(WidgetEvent::Submitted(self.core.widget_id));
                 }
                 _ => {}
             },
@@ -296,7 +293,7 @@ impl Widget for TextInput {
                         self.has_focus = true;
 
                         // Tell the widget manager about the change of focus.
-                        widget_events.push(WidgetEvent::GainedFocus(self.widget_id))
+                        widget_events.push(WidgetEvent::GainedFocus(self.core.widget_id))
                     }
                 }
                 // The mouse is down outside of this text input.
@@ -307,7 +304,7 @@ impl Widget for TextInput {
                         self.has_focus = false;
 
                         // Tell the widget manager about the change of focus.
-                        widget_events.push(WidgetEvent::LostFocus(self.widget_id));
+                        widget_events.push(WidgetEvent::LostFocus(self.core.widget_id));
                     }
                 }
             }
@@ -351,11 +348,11 @@ impl Widget for TextInput {
         }
 
         // Render debug hints.
-        if self.debug_rendering {
+        if self.core.debug_rendering {
             piet.stroke(
                 self.rectangle,
-                &self.debug_rendering_stroke.stroke_brush,
-                self.debug_rendering_stroke.stroke_width,
+                &self.core.debug_rendering_stroke.stroke_brush,
+                self.core.debug_rendering_stroke.stroke_width,
             );
         }
 
@@ -374,7 +371,7 @@ impl Widget for TextInput {
     }
 
     fn widget_id(&self) -> &WidgetId {
-        &self.widget_id
+        &self.core.widget_id
     }
 }
 

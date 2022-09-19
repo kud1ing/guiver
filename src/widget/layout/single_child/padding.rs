@@ -1,4 +1,5 @@
 use crate::stroke::Stroke;
+use crate::widget::core::WidgetCore;
 use crate::widget::{WidgetCommand, WidgetError, WidgetId};
 use crate::widget_manager::WidgetBox;
 use crate::{Event, SizeConstraints, Widget, WidgetEvent};
@@ -9,8 +10,7 @@ use druid_shell::{piet, Region};
 /// A padding layout widget.
 pub struct Padding {
     child_widget: Option<WidgetBox>,
-    debug_rendering: bool,
-    debug_rendering_stroke: Stroke,
+    core: WidgetCore,
     is_hidden: bool,
     padding_bottom: f64,
     padding_left: f64,
@@ -18,7 +18,6 @@ pub struct Padding {
     padding_top: f64,
     rectangle: Rect,
     size_constraints: SizeConstraints,
-    widget_id: WidgetId,
 }
 
 impl Padding {
@@ -33,8 +32,7 @@ impl Padding {
     ) -> Self {
         Padding {
             child_widget: None,
-            debug_rendering: false,
-            debug_rendering_stroke,
+            core: WidgetCore::new(widget_id, debug_rendering_stroke),
             is_hidden: false,
             padding_bottom,
             padding_left,
@@ -42,7 +40,6 @@ impl Padding {
             padding_top,
             rectangle: Rect::default(),
             size_constraints: SizeConstraints::default(),
-            widget_id,
         }
     }
 
@@ -109,35 +106,35 @@ impl Widget for Padding {
                 // There is no child widget.
                 else {
                     return Err(WidgetError::CommandNotHandled(
-                        self.widget_id,
+                        self.core.widget_id,
                         widget_command,
                     ));
                 }
             }
             WidgetCommand::SetDebugRendering(debug_rendering) => {
-                self.debug_rendering = debug_rendering;
+                self.core.debug_rendering = debug_rendering;
             }
             WidgetCommand::SetFill(ref _value) => {
                 return Err(WidgetError::CommandNotHandled(
-                    self.widget_id,
+                    self.core.widget_id,
                     widget_command,
                 ));
             }
             WidgetCommand::SetFont(_) => {
                 return Err(WidgetError::CommandNotHandled(
-                    self.widget_id,
+                    self.core.widget_id,
                     widget_command,
                 ));
             }
             WidgetCommand::SetHasFocus(_) => {
                 return Err(WidgetError::CommandNotHandled(
-                    self.widget_id,
+                    self.core.widget_id,
                     widget_command,
                 ));
             }
             WidgetCommand::SetHorizontalAlignment(_) => {
                 return Err(WidgetError::CommandNotHandled(
-                    self.widget_id,
+                    self.core.widget_id,
                     widget_command,
                 ));
             }
@@ -150,19 +147,19 @@ impl Widget for Padding {
             }
             WidgetCommand::SetStroke(ref _value) => {
                 return Err(WidgetError::CommandNotHandled(
-                    self.widget_id,
+                    self.core.widget_id,
                     widget_command,
                 ));
             }
             WidgetCommand::SetValue(ref _value) => {
                 return Err(WidgetError::CommandNotHandled(
-                    self.widget_id,
+                    self.core.widget_id,
                     widget_command,
                 ));
             }
             WidgetCommand::SetVerticalAlignment(_) => {
                 return Err(WidgetError::CommandNotHandled(
-                    self.widget_id,
+                    self.core.widget_id,
                     widget_command,
                 ));
             }
@@ -191,11 +188,11 @@ impl Widget for Padding {
         }
 
         // Render debug hints.
-        if self.debug_rendering {
+        if self.core.debug_rendering {
             piet.stroke(
                 self.rectangle,
-                &self.debug_rendering_stroke.stroke_brush,
-                self.debug_rendering_stroke.stroke_width,
+                &self.core.debug_rendering_stroke.stroke_brush,
+                self.core.debug_rendering_stroke.stroke_width,
             );
         }
 
@@ -214,6 +211,6 @@ impl Widget for Padding {
     }
 
     fn widget_id(&self) -> &WidgetId {
-        &self.widget_id
+        &self.core.widget_id
     }
 }

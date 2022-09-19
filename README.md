@@ -36,6 +36,16 @@ On the upside you get simple setup and simple control flow.
 
 ## Backlog
 
+* use `WidgetCore`:
+  * [ ] `center.rs`
+  * [ ] `expanded.rs`
+  * [ ] `padding.rs`
+  * [ ] `sized_box.rs`
+  * [ ] `hyperlink.rs`
+  * [ ] `placeholder.rs`
+  * [ ] `text.rs`
+  * [ ] `text_input.rs`
+* [ ] add `WidgetCore::is_disabled`?
 * [ ] `Grid`:
   * supply functionality:
     * clear: `WidgetCommand::RemoveAllChildren`
