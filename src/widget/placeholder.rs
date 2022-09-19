@@ -12,8 +12,6 @@ pub struct Placeholder {
     core: WidgetCore,
     desired_size: Size,
     fill: Option<PaintBrush>,
-    is_hidden: bool,
-    rectangle: Rect,
     stroke: Option<Stroke>,
     widget_id: WidgetId,
 }
@@ -31,8 +29,6 @@ impl Placeholder {
             core: WidgetCore::new(widget_id, debug_rendering_stroke),
             desired_size,
             fill: None,
-            is_hidden: false,
-            rectangle: Rect::default(),
             stroke: Some(Stroke {
                 stroke_brush: PaintBrush::Color(Color::rgb8(255, 255, 255)),
                 stroke_style: stroke_style.dash_pattern(&[4.0, 2.0]),
@@ -46,70 +42,28 @@ impl Placeholder {
 impl Widget for Placeholder {
     ///
     fn apply_size_constraints(&mut self, size_constraints: SizeConstraints) -> Size {
-        self.rectangle = self.rectangle.with_size(
+        self.core.rectangle = self.core.rectangle.with_size(
             self.desired_size
                 .clamp(*size_constraints.minimum(), *size_constraints.maximum()),
         );
-        self.rectangle.size()
+        self.core.rectangle.size()
     }
 
     fn handle_command(&mut self, widget_command: WidgetCommand) -> Result<(), WidgetError> {
         match widget_command {
-            WidgetCommand::AppendChild(_) => {
-                return Err(WidgetError::CommandNotHandled(
-                    self.core.widget_id,
-                    widget_command,
-                ));
-            }
-            WidgetCommand::RemoveAllChildren => {
-                return Err(WidgetError::CommandNotHandled(
-                    self.core.widget_id,
-                    widget_command,
-                ));
-            }
-            WidgetCommand::RemoveChild(_) => {
-                return Err(WidgetError::CommandNotHandled(
-                    self.core.widget_id,
-                    widget_command,
-                ));
-            }
-            WidgetCommand::SetDebugRendering(_debug_rendering) => {
-                // Debug rendering is unnecessary for placeholder widgets.
-            }
             WidgetCommand::SetFill(fill) => {
                 self.fill = fill;
-            }
-            WidgetCommand::SetFont(_) => {
-                return Err(WidgetError::CommandNotHandled(
-                    self.core.widget_id,
-                    widget_command,
-                ));
-            }
-            WidgetCommand::SetHasFocus(_has_focus) => {
-                return Err(WidgetError::CommandNotHandled(
-                    self.core.widget_id,
-                    widget_command,
-                ));
-            }
-            WidgetCommand::SetHorizontalAlignment(_) => {}
-            WidgetCommand::SetIsDisabled(_) => {}
-            WidgetCommand::SetIsHidden(is_hidden) => {
-                self.is_hidden = is_hidden;
+
+                Ok(())
             }
             WidgetCommand::SetStroke(_) => {
                 // TODO
                 println!("`Placeholder::handle_command(SetStroke)`: TODO");
-            }
-            WidgetCommand::SetValue(ref _value) => {
-                return Err(WidgetError::CommandNotHandled(
-                    self.core.widget_id,
-                    widget_command,
-                ));
-            }
-            WidgetCommand::SetVerticalAlignment(_) => {}
-        }
 
-        Ok(())
+                Ok(())
+            }
+            _ => return self.core.handle_command(widget_command),
+        }
     }
 
     fn handle_event(&mut self, _event: &Event, _widget_events: &mut Vec<WidgetEvent>) {
@@ -118,7 +72,7 @@ impl Widget for Placeholder {
 
     fn paint(&self, piet: &mut Piet, _region: &Region) -> Result<(), piet::Error> {
         // The placeholder widget is hidden.
-        if self.is_hidden {
+        if self.core.is_hidden {
             return Ok(());
         }
 
@@ -126,7 +80,7 @@ impl Widget for Placeholder {
 
         // Fill.
         if let Some(fill) = &self.fill {
-            piet.fill(&self.rectangle, fill);
+            piet.fill(&self.core.rectangle, fill);
         }
 
         // Stroke.
@@ -134,8 +88,8 @@ impl Widget for Placeholder {
             // Draw a cross.
             piet.stroke_styled(
                 Line::new(
-                    (self.rectangle.x0, self.rectangle.y0),
-                    (self.rectangle.x1, self.rectangle.y1),
+                    (self.core.rectangle.x0, self.core.rectangle.y0),
+                    (self.core.rectangle.x1, self.core.rectangle.y1),
                 ),
                 &stroke.stroke_brush,
                 stroke.stroke_width,
@@ -143,8 +97,8 @@ impl Widget for Placeholder {
             );
             piet.stroke_styled(
                 Line::new(
-                    (self.rectangle.x0, self.rectangle.y1),
-                    (self.rectangle.x1, self.rectangle.y0),
+                    (self.core.rectangle.x0, self.core.rectangle.y1),
+                    (self.core.rectangle.x1, self.core.rectangle.y0),
                 ),
                 &stroke.stroke_brush,
                 stroke.stroke_width,
@@ -153,7 +107,7 @@ impl Widget for Placeholder {
 
             // Draw the rectangle.
             piet.stroke_styled(
-                &self.rectangle,
+                &self.core.rectangle,
                 &stroke.stroke_brush,
                 stroke.stroke_width,
                 &stroke.stroke_style,
@@ -164,11 +118,11 @@ impl Widget for Placeholder {
     }
 
     fn rectangle(&self) -> &Rect {
-        &self.rectangle
+        &self.core.rectangle
     }
 
     fn set_origin(&mut self, origin: Point) {
-        self.rectangle = self.rectangle.with_origin(origin)
+        self.core.rectangle = self.core.rectangle.with_origin(origin)
     }
 
     fn widget_id(&self) -> &WidgetId {

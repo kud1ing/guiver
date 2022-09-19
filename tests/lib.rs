@@ -1,7 +1,7 @@
 #[cfg(test)]
 mod tests {
     use druid_shell::kurbo::Size;
-    use guiver::widget::layout::{Center, Column, Grid, Row, SizedBox};
+    use guiver::widget::layout::{Center, Column, Grid, Padding, Row, SizedBox};
     use guiver::widget::{Button, Hyperlink, Placeholder, Text, TextInput, WidgetCommand};
     use guiver::{
         Color, Font, HorizontalAlignment, SizeConstraints, Stroke, VerticalAlignment, Widget,
@@ -55,7 +55,29 @@ mod tests {
         let mut center_widget = Center::new(0, Stroke::default());
         center_widget
             .handle_command(WidgetCommand::AppendChild(Rc::new(RefCell::new(Box::new(
-                Placeholder::new(0, Stroke::default(), Size::new(100.0, 50.0)),
+                Placeholder::new(1, Stroke::default(), Size::new(100.0, 50.0)),
+            )))))
+            .unwrap();
+
+        let mut column_widget =
+            Column::new(2, Stroke::default(), HorizontalAlignment::Center, 10.0);
+        column_widget
+            .handle_command(WidgetCommand::AppendChild(Rc::new(RefCell::new(Box::new(
+                Placeholder::new(3, Stroke::default(), Size::new(100.0, 50.0)),
+            )))))
+            .unwrap();
+
+        let mut padding_widget = Padding::new(4, Stroke::default(), 10.0, 10.0, 10.0, 10.0);
+        padding_widget
+            .handle_command(WidgetCommand::AppendChild(Rc::new(RefCell::new(Box::new(
+                Placeholder::new(5, Stroke::default(), Size::new(100.0, 50.0)),
+            )))))
+            .unwrap();
+
+        let mut row_widget = Row::new(6, Stroke::default(), VerticalAlignment::Middle, 10.0);
+        row_widget
+            .handle_command(WidgetCommand::AppendChild(Rc::new(RefCell::new(Box::new(
+                Placeholder::new(7, Stroke::default(), Size::new(100.0, 50.0)),
             )))))
             .unwrap();
 
@@ -63,46 +85,45 @@ mod tests {
             // Add a center widget.
             Box::new(center_widget),
             // TODO: Add a column widget.
-            //Box::new(Column::new(0, Stroke::default(), HorizontalAlignment::Center, 10.0)),
+            //Box::new(column_widget),
             // TODO: Add a expanded widget?
             // TODO: Add a grid widget.
             //Box::new(Grid::new(0, Stroke::default(), 10.0)),
             // TODO: Add a padding widget.
+            //Box::new(padding_widget),
             // TODO: Add a row widget.
-            //Box::new(Row::new(0, Stroke::default(), VerticalAlignment::default(), 10.0)),
+            //Box::new(row_widget),
             // Add a sized box widget.
-            Box::new(SizedBox::new(0, Stroke::default(), Size::new(100.0, 50.0))),
+            Box::new(SizedBox::new(8, Stroke::default(), Size::new(100.0, 50.0))),
         ]
     }
 
     /// Returns the non-layout widgets.
     fn widgets_non_layout() -> Vec<Box<dyn Widget>> {
-        let button_with_text = Button::new(
-            0,
-            Stroke::default(),
-            Rc::new(RefCell::new(Box::new(Text::new(
-                1,
-                Stroke::default(),
-                Font::default(),
-                "Button text".to_string(),
-            )))),
-            None,
-            None,
-            None,
-        );
-
         vec![
             // Add a text button widget.
-            Box::new(button_with_text),
+            Box::new(Button::new(
+                100,
+                Stroke::default(),
+                Rc::new(RefCell::new(Box::new(Text::new(
+                    101,
+                    Stroke::default(),
+                    Font::default(),
+                    "Button text".to_string(),
+                )))),
+                None,
+                None,
+                None,
+            )),
             // Add a placeholder widget.
             Box::new(Placeholder::new(
-                0,
+                102,
                 Stroke::default(),
                 Size::new(100.0, 50.0),
             )),
             // Add a hyperlink widget.
             Box::new(Hyperlink::new(
-                0,
+                103,
                 Stroke::default(),
                 Font::default(),
                 Font::default(),
@@ -111,17 +132,17 @@ mod tests {
             )),
             // Add a text widget.
             Box::new(Text::new(
-                0,
+                104,
                 Stroke::default(),
                 Font::default(),
                 "Test text".to_string(),
             )),
             // Add a text input widget.
             Box::new(TextInput::new(
-                0,
+                105,
                 Stroke::default(),
                 Font::default(),
-                "Text Input".to_string(),
+                "Text input".to_string(),
                 100.0,
                 Color::rgb8(0, 0, 0),
                 Color::rgb8(255, 255, 255),

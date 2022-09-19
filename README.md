@@ -36,18 +36,14 @@ On the upside you get simple setup and simple control flow.
 
 ## Backlog
 
-* use `WidgetCore`:
-  * [ ] `center.rs`
-  * [ ] `expanded.rs`
-  * [ ] `padding.rs`
-  * [ ] `sized_box.rs`
-  * [ ] `hyperlink.rs`
-  * [ ] `placeholder.rs`
-  * [ ] `text.rs`
-  * [ ] `text_input.rs`
-* [ ] add `WidgetCore::is_disabled`?
-* [ ] `Grid`:
-  * supply functionality:
+* `Grid`:
+  * [ ] adjust `Grid::new()`:
+    * [ ] configure columns: `minimum_width`, `flex_factor`, `spacing`
+    * [ ] configure row: `minimum_height`, `flex_factor`, `spacing`
+  * [ ] create `layout_grid.rs`
+  * supply functionality (https://www.tcl.tk/man/tcl/TkCmd/grid.html):
+    * add:
+      * `AppendChildren(Vec<Option<WidgetBox>>)`?
     * clear: `WidgetCommand::RemoveAllChildren`
       * only remove the children?
       * also implode the grid?
@@ -67,22 +63,37 @@ On the upside you get simple setup and simple control flow.
       * `SetWidgetAt(...)`?
         * `Any`? Downside: `Box`
         * x, y?
+  * [ ] implement `layout_children()`
+    * https://www.tcl.tk/man/tcl/TkCmd/grid.html#M33:
+      * In the first step, the minimum size needed to fit all of the content is computed, then (if propagation is turned
+        on), a request is made of the container window to become that size.
+      * In the second step, the requested size is compared against the actual size of the container. If the sizes are
+        different, then spaces is added to or taken away from the layout as needed.
+      * For the final step, each content is positioned in its row(s) and column(s) based on the setting of its sticky flag.
 * [ ] `test::widgets_layout()`: add remaining layout widgets
 * [ ] `test::widgets()`: also produce layout widgets that have child widgets
+* [ ] add `WidgetCore::is_disabled`?
+  * makes sense for non-layout widgets:
+    * `Button`
+    * `Hyperlink`
+    * `Text`
+    * `TextInput`
+  * does it make sense for layout widgets?
+    * should they pass the command down to its children?
 * [ ] `TextInput`: Meta+C should copy the (selected) text/value
   * [ ] `WidgetManager::handle_event()`: intercept `WidgetEvent::SelectedValueChanged` from the focussed widget
     * [ ] `WidgetManager`: put the value in the clipboard
       * [ ] how?
-  * [ ] `TextInput`: produce `WidgetEvent::SelectionChanged`
+  * [ ] `TextInput`: produce `WidgetEvent::SelectedValueChanged`
 * `TextInput` caret:
   * [ ] add a hash map from caret character indices to x positions
     * [ ] update it when the text is changed
     * [ ] use it in `paint()` to position the caret
   * [ ] `TextInput::handle_event()`: increase/decrease `self.caret_character_index` on arrow left/right
   * [ ] `TextInput::update_caret_character_index()`: implement
-* [ ] make `Text` selectable
-  * [ ] double click
-  * [ ] click + drag
+* [ ] make `Text` selectable:
+  * [ ] via double click
+  * [ ] via click + drag
 * `Hyperlink`:
   * adjust `handle_event()`:
     * [ ] set `is_being_clicked`
@@ -91,6 +102,11 @@ On the upside you get simple setup and simple control flow.
       * [ ] if `is_being_clicked`
       * [ ] if `was_visited`
       * [ ] if !`was_visited`
+* `WidgetManager`: implement tab order `tab_order: Vec<WidgetId>`:
+  * [ ] tab order is equal to the order of creation
+    * [ ] widgets need to tell the widget manager somehow, that they accept focus
+      * `accepts_focus()` (`Button`, `TextInput`)
+  * [ ] give the next widget in the tab order the focus when tab key is pressed
 * [ ] publish 0.1.1, once the updated `druid-shell` and `piet` are released
   * https://github.com/linebender/druid/issues/2236
 * add integration tests:
@@ -131,10 +147,6 @@ On the upside you get simple setup and simple control flow.
     * [ ] `test_handle_event()`
 * [ ] add a `Table` widget
 * [ ] example `layout_expanded_row_column.rs`: make the row not grab all height
-* `WidgetManager`: tab order:
-  * [ ] explicitly define a tab order
-    * [ ] how?
-  * [ ] use tab order when tab key is pressed
 * [ ] all layout widgets need to clip too big child widgets
 * [ ] add layout widget `Stacked` + `Positioned`
 * [ ] `TextInput`: if a text is too large to fit in, the size of the text input should not increase but truncate

@@ -11,9 +11,6 @@ pub struct SizedBox {
     child_widget: Option<WidgetBox>,
     core: WidgetCore,
     desired_size: Size,
-    is_hidden: bool,
-    rectangle: Rect,
-    size_constraints: SizeConstraints,
 }
 
 impl SizedBox {
@@ -23,20 +20,17 @@ impl SizedBox {
             child_widget: None,
             core: WidgetCore::new(widget_id, debug_rendering_stroke),
             desired_size,
-            is_hidden: false,
-            rectangle: Rect::default(),
-            size_constraints: SizeConstraints::default(),
         }
     }
 
     ///
     fn layout_child(&mut self) {
         let widget_size = self.desired_size.clamp(
-            *self.size_constraints.minimum(),
-            *self.size_constraints.maximum(),
+            *self.core.size_constraints.minimum(),
+            *self.core.size_constraints.maximum(),
         );
 
-        self.rectangle = self.rectangle.with_size(widget_size);
+        self.core.rectangle = self.core.rectangle.with_size(widget_size);
 
         // There is a child widget.
         if let Some(child_widget) = &mut self.child_widget {
@@ -48,19 +42,19 @@ impl SizedBox {
             // Set the child's origin.
             child_widget
                 .borrow_mut()
-                .set_origin(self.rectangle.origin());
+                .set_origin(self.core.rectangle.origin());
         }
     }
 }
 
 impl Widget for SizedBox {
     fn apply_size_constraints(&mut self, size_constraints: SizeConstraints) -> Size {
-        self.size_constraints = size_constraints;
+        self.core.size_constraints = size_constraints;
 
         // Layout the child.
         self.layout_child();
 
-        self.rectangle.size()
+        self.core.rectangle.size()
     }
 
     fn handle_command(&mut self, widget_command: WidgetCommand) -> Result<(), WidgetError> {
@@ -70,69 +64,27 @@ impl Widget for SizedBox {
 
                 // Layout the child.
                 self.layout_child();
+
+                Ok(())
             }
             WidgetCommand::RemoveAllChildren => {
                 self.child_widget = None;
+                Ok(())
             }
             WidgetCommand::RemoveChild(_) => {
                 // TODO
                 println!("`SizedBox::handle_command(RemoveChild)`: TODO");
-            }
-            WidgetCommand::SetDebugRendering(debug_rendering) => {
-                self.core.debug_rendering = debug_rendering;
-            }
-            WidgetCommand::SetFill(ref _value) => {
-                return Err(WidgetError::CommandNotHandled(
-                    self.core.widget_id,
-                    widget_command,
-                ));
-            }
-            WidgetCommand::SetFont(_) => {
-                return Err(WidgetError::CommandNotHandled(
-                    self.core.widget_id,
-                    widget_command,
-                ));
-            }
-            WidgetCommand::SetHasFocus(_) => {
-                return Err(WidgetError::CommandNotHandled(
-                    self.core.widget_id,
-                    widget_command,
-                ));
-            }
-            WidgetCommand::SetHorizontalAlignment(_) => {
-                return Err(WidgetError::CommandNotHandled(
-                    self.core.widget_id,
-                    widget_command,
-                ));
+
+                Ok(())
             }
             WidgetCommand::SetIsDisabled(_) => {
                 // TODO
                 println!("`SizedBox::handle_command(SetIsDisabled)`: TODO");
-            }
-            WidgetCommand::SetIsHidden(is_hidden) => {
-                self.is_hidden = is_hidden;
-            }
-            WidgetCommand::SetStroke(ref _value) => {
-                return Err(WidgetError::CommandNotHandled(
-                    self.core.widget_id,
-                    widget_command,
-                ));
-            }
-            WidgetCommand::SetValue(ref _value) => {
-                return Err(WidgetError::CommandNotHandled(
-                    self.core.widget_id,
-                    widget_command,
-                ));
-            }
-            WidgetCommand::SetVerticalAlignment(_) => {
-                return Err(WidgetError::CommandNotHandled(
-                    self.core.widget_id,
-                    widget_command,
-                ));
-            }
-        }
 
-        Ok(())
+                Ok(())
+            }
+            _ => self.core.handle_command(widget_command),
+        }
     }
 
     fn handle_event(&mut self, event: &Event, widget_events: &mut Vec<WidgetEvent>) {
@@ -145,7 +97,7 @@ impl Widget for SizedBox {
 
     fn paint(&self, piet: &mut Piet, region: &Region) -> Result<(), Error> {
         // The sized box widget is hidden.
-        if self.is_hidden {
+        if self.core.is_hidden {
             return Ok(());
         }
 
@@ -158,7 +110,7 @@ impl Widget for SizedBox {
         // Render debug hints.
         if self.core.debug_rendering {
             piet.stroke(
-                self.rectangle,
+                self.core.rectangle,
                 &self.core.debug_rendering_stroke.stroke_brush,
                 self.core.debug_rendering_stroke.stroke_width,
             );
@@ -168,11 +120,11 @@ impl Widget for SizedBox {
     }
 
     fn rectangle(&self) -> &Rect {
-        &self.rectangle
+        &self.core.rectangle
     }
 
     fn set_origin(&mut self, origin: Point) {
-        self.rectangle = self.rectangle.with_origin(origin);
+        self.core.rectangle = self.core.rectangle.with_origin(origin);
 
         // Layout the child.
         self.layout_child();

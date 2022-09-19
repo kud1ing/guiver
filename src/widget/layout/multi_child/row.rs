@@ -173,12 +173,16 @@ impl Widget for Row {
 
                 // Layout the children.
                 self.layout_children();
+
+                Ok(())
             }
             WidgetCommand::RemoveAllChildren => {
                 self.child_widgets.clear();
 
                 // Layout the children.
                 self.layout_children();
+
+                Ok(())
             }
             WidgetCommand::RemoveChild(child_widget_id) => {
                 // Remove the widget with the given ID.
@@ -188,63 +192,25 @@ impl Widget for Row {
 
                 // Layout the remaining children.
                 self.layout_children();
-            }
-            WidgetCommand::SetDebugRendering(debug_rendering) => {
-                self.core.debug_rendering = debug_rendering;
-            }
-            WidgetCommand::SetFill(ref _value) => {
-                return Err(WidgetError::CommandNotHandled(
-                    self.core.widget_id,
-                    widget_command,
-                ));
-            }
-            WidgetCommand::SetFont(_) => {
-                return Err(WidgetError::CommandNotHandled(
-                    self.core.widget_id,
-                    widget_command,
-                ));
-            }
-            WidgetCommand::SetHasFocus(_) => {
-                return Err(WidgetError::CommandNotHandled(
-                    self.core.widget_id,
-                    widget_command,
-                ));
-            }
-            WidgetCommand::SetHorizontalAlignment(_) => {
-                return Err(WidgetError::CommandNotHandled(
-                    self.core.widget_id,
-                    widget_command,
-                ));
+
+                Ok(())
             }
             WidgetCommand::SetIsDisabled(_) => {
                 // TODO
                 println!("`Row::handle_command(SetIsDisabled)`: TODO");
-            }
-            WidgetCommand::SetIsHidden(is_hidden) => {
-                // Hide/show this widget.
-                self.core.is_hidden = is_hidden;
-            }
-            WidgetCommand::SetStroke(ref _value) => {
-                return Err(WidgetError::CommandNotHandled(
-                    self.core.widget_id,
-                    widget_command,
-                ));
-            }
-            WidgetCommand::SetValue(_) => {
-                return Err(WidgetError::CommandNotHandled(
-                    self.core.widget_id,
-                    widget_command,
-                ));
+
+                Ok(())
             }
             WidgetCommand::SetVerticalAlignment(vertical_alignment) => {
                 self.vertical_alignment = vertical_alignment;
 
                 // Layout the children.
                 self.layout_children();
-            }
-        }
 
-        Ok(())
+                Ok(())
+            }
+            _ => self.core.handle_command(widget_command),
+        }
     }
 
     fn handle_event(&mut self, event: &Event, widget_events: &mut Vec<WidgetEvent>) {

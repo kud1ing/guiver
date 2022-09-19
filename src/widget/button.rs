@@ -123,52 +123,67 @@ impl Widget for Button {
 
                 // Layout the child widget.
                 self.layout_child();
+
+                Ok(())
             }
             WidgetCommand::RemoveAllChildren => {
                 self.child_widget = None;
+
+                Ok(())
             }
             WidgetCommand::RemoveChild(_) => {
                 // TODO
                 println!("`Button::handle_command(RemoveChild)`: TODO");
-            }
-            WidgetCommand::SetDebugRendering(debug_rendering) => {
-                self.core.debug_rendering = debug_rendering;
+
+                Ok(())
             }
             WidgetCommand::SetFill(fill) => {
                 self.fill_brush_up = fill;
+
+                Ok(())
             }
             WidgetCommand::SetFont(_) => {
                 if let Some(child_widget) = &mut self.child_widget {
                     child_widget.borrow_mut().handle_command(widget_command)?;
                 }
+
+                Ok(())
             }
             WidgetCommand::SetHasFocus(has_focus) => {
                 self.has_focus = has_focus;
+
+                Ok(())
             }
             WidgetCommand::SetHorizontalAlignment(_) => {
                 // TODO
                 println!("`Button::handle_command(SetHorizontalAlignment)`: TODO");
+
+                Ok(())
             }
             WidgetCommand::SetIsDisabled(is_disabled) => {
                 self.is_disabled = is_disabled;
-            }
-            WidgetCommand::SetIsHidden(is_hidden) => {
-                self.core.is_hidden = is_hidden;
+
+                Ok(())
             }
             WidgetCommand::SetStroke(stroke) => {
                 self.stroke = stroke;
+
+                Ok(())
             }
             WidgetCommand::SetValue(_) => {
                 // TODO
                 println!("`Button::handle_command(SetValue)`: TODO");
+
+                Ok(())
             }
             WidgetCommand::SetVerticalAlignment(_) => {
                 // TODO
                 println!("`Button::handle_command(SetVerticalAlignment)`: TODO");
-            }
-        }
 
-        Ok(())
+                Ok(())
+            }
+            _ => self.core.handle_command(widget_command),
+        }
     }
 
     fn handle_event(&mut self, event: &Event, widget_events: &mut Vec<WidgetEvent>) {

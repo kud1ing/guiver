@@ -19,10 +19,7 @@ pub struct TextInput {
     has_focus: bool,
     horizontal_alignment: HorizontalAlignment,
     is_disabled: bool,
-    is_hidden: bool,
     padding: f64,
-    rectangle: Rect,
-    size_constraints: SizeConstraints,
     stroke: Stroke,
     stroke_focused: Stroke,
     text: String,
@@ -55,10 +52,7 @@ impl TextInput {
             has_focus: false,
             horizontal_alignment: HorizontalAlignment::Center,
             is_disabled: true,
-            is_hidden: false,
             padding: 4.0,
-            rectangle: Rect::default(),
-            size_constraints: SizeConstraints::unbounded(),
             stroke: Stroke {
                 stroke_brush: PaintBrush::Color(frame_color),
                 stroke_style: Default::default(),
@@ -103,14 +97,15 @@ impl TextInput {
 
         // Apply the child widget's size constraints.
         let child_size = self.text_widget.borrow_mut().apply_size_constraints(
-            self.size_constraints
+            self.core
+                .size_constraints
                 .shrink(Size::new(border_width, border_height)),
         );
 
-        self.rectangle = self.rectangle.with_size(
+        self.core.rectangle = self.core.rectangle.with_size(
             Size::new(self.width + border_width, child_size.height + border_height).clamp(
-                *self.size_constraints.minimum(),
-                *self.size_constraints.maximum(),
+                *self.core.size_constraints.minimum(),
+                *self.core.size_constraints.maximum(),
             ),
         );
 
@@ -119,17 +114,18 @@ impl TextInput {
             let child_origin = {
                 let delta_child_x = match self.horizontal_alignment {
                     HorizontalAlignment::Center => {
-                        0.5 * (self.rectangle.size().width - child_size.width).max(0.0)
+                        0.5 * (self.core.rectangle.size().width - child_size.width).max(0.0)
                     }
                     HorizontalAlignment::Left => self.padding,
                     HorizontalAlignment::Right => {
-                        (self.rectangle.size().width - child_size.width).max(0.0) - self.padding
+                        (self.core.rectangle.size().width - child_size.width).max(0.0)
+                            - self.padding
                     }
                 };
                 let delta_child_y =
-                    0.5 * (self.rectangle.size().height - child_size.height).max(0.0);
+                    0.5 * (self.core.rectangle.size().height - child_size.height).max(0.0);
 
-                self.rectangle.origin() + (delta_child_x, delta_child_y)
+                self.core.rectangle.origin() + (delta_child_x, delta_child_y)
             };
 
             self.text_widget.borrow_mut().set_origin(child_origin);
@@ -152,8 +148,8 @@ impl TextInput {
         // Put the care to the right of the text widget.
         self.caret_x = self.text_widget.rectangle().x1;
 
-        self.caret_y1 = self.rectangle.y0 + self.padding;
-        self.caret_y2 = self.rectangle.y1 - self.padding;
+        self.caret_y1 = self.core.rectangle.y0 + self.padding;
+        self.caret_y2 = self.core.rectangle.y1 - self.padding;
     }
 
     ///
@@ -183,55 +179,46 @@ impl TextInput {
 
 impl Widget for TextInput {
     fn apply_size_constraints(&mut self, size_constraints: SizeConstraints) -> Size {
-        self.size_constraints = size_constraints;
+        self.core.size_constraints = size_constraints;
 
         // Layout the child widget.
         self.layout_child();
 
-        self.rectangle.size()
+        self.core.rectangle.size()
     }
 
     fn handle_command(&mut self, widget_command: WidgetCommand) -> Result<(), WidgetError> {
         match widget_command {
-            WidgetCommand::AppendChild(_) => {
-                return Err(WidgetError::CommandNotHandled(
-                    self.core.widget_id,
-                    widget_command,
-                ));
-            }
-            WidgetCommand::RemoveAllChildren => {
-                return Err(WidgetError::CommandNotHandled(
-                    self.core.widget_id,
-                    widget_command,
-                ));
-            }
-            WidgetCommand::RemoveChild(widget_id) => {
-                return Err(WidgetError::NoSuchWidget(widget_id));
-            }
-            WidgetCommand::SetDebugRendering(debug_rendering) => {
-                self.core.debug_rendering = debug_rendering;
-            }
             WidgetCommand::SetFill(fill) => {
                 self.fill = fill;
+
+                Ok(())
             }
             WidgetCommand::SetFont(_) => {
                 self.text_widget.handle_command(widget_command)?;
+
+                Ok(())
             }
             WidgetCommand::SetHasFocus(has_focus) => {
                 self.has_focus = has_focus;
+
+                Ok(())
             }
             WidgetCommand::SetHorizontalAlignment(horizontal_alignment) => {
                 self.horizontal_alignment = horizontal_alignment;
+
+                Ok(())
             }
             WidgetCommand::SetIsDisabled(is_disabled) => {
                 self.is_disabled = is_disabled;
-            }
-            WidgetCommand::SetIsHidden(is_hidden) => {
-                self.is_hidden = is_hidden;
+
+                Ok(())
             }
             WidgetCommand::SetStroke(_) => {
                 // TODO
                 println!("`TextInput::handle_command(SetStroke)`: TODO");
+
+                Ok(())
             }
             WidgetCommand::SetValue(value) => {
                 // The given value is a string.
@@ -241,14 +228,17 @@ impl Widget for TextInput {
                     // Apply the text changes.
                     self.update_text_widget();
                 }
+
+                Ok(())
             }
             WidgetCommand::SetVerticalAlignment(_) => {
                 // TODO
                 println!("`TextInput::handle_command(SetVerticalAlignment)`: TODO");
-            }
-        }
 
-        Ok(())
+                Ok(())
+            }
+            _ => self.core.handle_command(widget_command),
+        }
     }
 
     fn handle_event(&mut self, event: &Event, widget_events: &mut Vec<WidgetEvent>) {
@@ -286,7 +276,7 @@ impl Widget for TextInput {
             Event::KeyUp(_key_event) => {}
             Event::MouseDown(mouse_event) => {
                 // The mouse is down within this text input.
-                if self.rectangle.contains(mouse_event.pos) {
+                if self.core.rectangle.contains(mouse_event.pos) {
                     // This widget has no focus.
                     if !self.has_focus {
                         // Accept focus.
@@ -315,7 +305,7 @@ impl Widget for TextInput {
 
     fn paint(&self, piet: &mut Piet, region: &Region) -> Result<(), Error> {
         // The text input widget is hidden.
-        if self.is_hidden {
+        if self.core.is_hidden {
             return Ok(());
         }
 
@@ -323,7 +313,7 @@ impl Widget for TextInput {
 
         // Paint the frame.
         {
-            let shape = RoundedRect::from_rect(self.rectangle, self.corner_radius);
+            let shape = RoundedRect::from_rect(self.core.rectangle, self.corner_radius);
 
             // Fill the frame.
             if let Some(fill_brush) = &self.fill {
@@ -350,7 +340,7 @@ impl Widget for TextInput {
         // Render debug hints.
         if self.core.debug_rendering {
             piet.stroke(
-                self.rectangle,
+                self.core.rectangle,
                 &self.core.debug_rendering_stroke.stroke_brush,
                 self.core.debug_rendering_stroke.stroke_width,
             );
@@ -360,11 +350,11 @@ impl Widget for TextInput {
     }
 
     fn rectangle(&self) -> &Rect {
-        &self.rectangle
+        &self.core.rectangle
     }
 
     fn set_origin(&mut self, origin: Point) {
-        self.rectangle = self.rectangle.with_origin(origin);
+        self.core.rectangle = self.core.rectangle.with_origin(origin);
 
         // Layout the child widget.
         self.layout_child();

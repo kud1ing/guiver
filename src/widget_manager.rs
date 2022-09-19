@@ -196,7 +196,7 @@ impl WidgetManager {
                         id_of_the_last_widget_that_gained_focus = Some(widget_id);
                     }
                     WidgetEvent::LostFocus(widget_id) => {
-                        // A widget has focus.
+                        // A widget had focus.
                         if let Some(focused_widget) = &mut self.focused_widget {
                             // The widget that lost focus had focus before.
                             if focused_widget.borrow().widget_id() == widget_id {

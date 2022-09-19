@@ -8,7 +8,6 @@ use druid_shell::Region;
 ///
 pub struct Grid {
     core: WidgetCore,
-    is_hidden: bool,
     spacing: f64,
 }
 
@@ -17,7 +16,6 @@ impl Grid {
     pub fn new(widget_id: WidgetId, debug_rendering_stroke: Stroke, spacing: f64) -> Self {
         Grid {
             core: WidgetCore::new(widget_id, debug_rendering_stroke),
-            is_hidden: false,
             spacing,
         }
     }
@@ -43,71 +41,25 @@ impl Widget for Grid {
             WidgetCommand::AppendChild(_) => {
                 // TODO
                 println!("TODO: `Grid::handle_command()`");
+                Ok(())
             }
             WidgetCommand::RemoveAllChildren => {
                 // TODO
                 println!("TODO: `Grid::handle_command()`");
+                Ok(())
             }
             WidgetCommand::RemoveChild(_) => {
                 // TODO
                 println!("TODO: `Grid::handle_command()`");
-            }
-            WidgetCommand::SetDebugRendering(debug_rendering) => {
-                self.core.debug_rendering = debug_rendering;
-            }
-            WidgetCommand::SetFill(_) => {
-                return Err(WidgetError::CommandNotHandled(
-                    self.core.widget_id,
-                    widget_command,
-                ));
-            }
-            WidgetCommand::SetFont(_) => {
-                return Err(WidgetError::CommandNotHandled(
-                    self.core.widget_id,
-                    widget_command,
-                ));
-            }
-            WidgetCommand::SetHasFocus(_) => {
-                return Err(WidgetError::CommandNotHandled(
-                    self.core.widget_id,
-                    widget_command,
-                ));
-            }
-            WidgetCommand::SetHorizontalAlignment(_) => {
-                return Err(WidgetError::CommandNotHandled(
-                    self.core.widget_id,
-                    widget_command,
-                ));
+                Ok(())
             }
             WidgetCommand::SetIsDisabled(_) => {
                 // TODO
                 println!("TODO: `Grid::handle_command()`");
+                Ok(())
             }
-            WidgetCommand::SetIsHidden(is_hidden) => {
-                // Hide/show this widget.
-                self.is_hidden = is_hidden;
-            }
-            WidgetCommand::SetStroke(_) => {
-                return Err(WidgetError::CommandNotHandled(
-                    self.core.widget_id,
-                    widget_command,
-                ));
-            }
-            WidgetCommand::SetValue(_) => {
-                return Err(WidgetError::CommandNotHandled(
-                    self.core.widget_id,
-                    widget_command,
-                ));
-            }
-            WidgetCommand::SetVerticalAlignment(_) => {
-                return Err(WidgetError::CommandNotHandled(
-                    self.core.widget_id,
-                    widget_command,
-                ));
-            }
+            _ => self.core.handle_command(widget_command),
         }
-
-        Ok(())
     }
 
     fn handle_event(&mut self, event: &Event, widget_events: &mut Vec<WidgetEvent>) {
@@ -116,7 +68,7 @@ impl Widget for Grid {
     }
 
     fn paint(&self, piet: &mut Piet, region: &Region) -> Result<(), Error> {
-        if self.is_hidden {
+        if self.core.is_hidden {
             return Ok(());
         }
 

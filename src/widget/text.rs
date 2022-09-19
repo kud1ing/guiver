@@ -1,5 +1,4 @@
 use crate::font::Font;
-
 use crate::stroke::Stroke;
 use crate::widget::core::WidgetCore;
 use crate::widget::{WidgetCommand, WidgetError, WidgetId};
@@ -13,9 +12,6 @@ pub struct Text {
     core: WidgetCore,
     font: Font,
     horizontal_alignment: HorizontalAlignment,
-    is_hidden: bool,
-    rectangle: Rect,
-    size_constraints: SizeConstraints,
     text: String,
     text_layout: PietTextLayout,
     text_origin: Point,
@@ -36,9 +32,6 @@ impl Text {
             core: WidgetCore::new(widget_id, debug_rendering_stroke),
             font: font.clone(),
             horizontal_alignment: HorizontalAlignment::Center,
-            is_hidden: false,
-            rectangle: Rect::default(),
-            size_constraints: SizeConstraints::default(),
             text: text.clone(),
             text_layout: font.text_layout(text),
             text_origin: Point::default(),
@@ -51,34 +44,34 @@ impl Text {
         let text_size = self.text_layout.size();
 
         // Adjust the text layout size to the given constraints.
-        self.rectangle = self.rectangle.with_size(text_size.clamp(
-            *self.size_constraints.minimum(),
-            *self.size_constraints.maximum(),
+        self.core.rectangle = self.core.rectangle.with_size(text_size.clamp(
+            *self.core.size_constraints.minimum(),
+            *self.core.size_constraints.maximum(),
         ));
 
         // Determine the text's horizontal position.
         let text_x = match self.horizontal_alignment {
             HorizontalAlignment::Center => {
-                self.rectangle.origin().x
-                    + 0.5 * (self.rectangle.size().width - text_size.width).max(0.0)
+                self.core.rectangle.origin().x
+                    + 0.5 * (self.core.rectangle.size().width - text_size.width).max(0.0)
             }
-            HorizontalAlignment::Left => self.rectangle.origin().x,
+            HorizontalAlignment::Left => self.core.rectangle.origin().x,
             HorizontalAlignment::Right => {
-                self.rectangle.origin().x + self.rectangle.size().width - text_size.width
+                self.core.rectangle.origin().x + self.core.rectangle.size().width - text_size.width
             }
         };
 
         // Determine the text's vertical position.
         let text_y = match self.vertical_alignment {
             VerticalAlignment::Bottom => {
-                self.rectangle.origin().y
-                    + (self.rectangle.size().height - text_size.height).max(0.0)
+                self.core.rectangle.origin().y
+                    + (self.core.rectangle.size().height - text_size.height).max(0.0)
             }
             VerticalAlignment::Middle => {
-                self.rectangle.origin().y
-                    + 0.5 * (self.rectangle.size().height - text_size.height).max(0.0)
+                self.core.rectangle.origin().y
+                    + 0.5 * (self.core.rectangle.size().height - text_size.height).max(0.0)
             }
-            VerticalAlignment::Top => self.rectangle.origin().y,
+            VerticalAlignment::Top => self.core.rectangle.origin().y,
         };
 
         // Set the text's origin.
@@ -89,68 +82,48 @@ impl Text {
 impl Widget for Text {
     ///
     fn apply_size_constraints(&mut self, size_constraints: SizeConstraints) -> Size {
-        self.size_constraints = size_constraints;
+        self.core.size_constraints = size_constraints;
 
         self.layout_text();
 
-        self.rectangle.size()
+        self.core.rectangle.size()
     }
 
     fn handle_command(&mut self, widget_command: WidgetCommand) -> Result<(), WidgetError> {
         match widget_command {
-            WidgetCommand::AppendChild(_) => {
-                return Err(WidgetError::CommandNotHandled(
-                    self.core.widget_id,
-                    widget_command,
-                ));
-            }
-            WidgetCommand::RemoveAllChildren => {
-                return Err(WidgetError::CommandNotHandled(
-                    self.core.widget_id,
-                    widget_command,
-                ));
-            }
-            WidgetCommand::RemoveChild(_) => {
-                return Err(WidgetError::CommandNotHandled(
-                    self.core.widget_id,
-                    widget_command,
-                ));
-            }
-            WidgetCommand::SetDebugRendering(debug_rendering) => {
-                self.core.debug_rendering = debug_rendering;
-            }
             WidgetCommand::SetFill(_) => {
                 // TODO
                 println!("`Text::handle_command(SetFill)`: TODO");
+
+                Ok(())
             }
             WidgetCommand::SetFont(font) => {
                 self.font = font;
                 self.text_layout = self.font.text_layout(self.text.clone());
 
                 self.layout_text();
-            }
-            WidgetCommand::SetHasFocus(_) => {
-                return Err(WidgetError::CommandNotHandled(
-                    self.core.widget_id,
-                    widget_command,
-                ));
+
+                Ok(())
             }
             WidgetCommand::SetHorizontalAlignment(horizontal_alignment) => {
                 self.horizontal_alignment = horizontal_alignment;
 
                 // Layout.
                 self.layout_text();
+
+                Ok(())
             }
             WidgetCommand::SetIsDisabled(_) => {
                 // TODO
                 println!("`Text::handle_command(SetIsDisabled)`: TODO");
-            }
-            WidgetCommand::SetIsHidden(is_hidden) => {
-                self.is_hidden = is_hidden;
+
+                Ok(())
             }
             WidgetCommand::SetStroke(_) => {
                 // TODO
                 println!("`Text::handle_command(SetStroke)`: TODO");
+
+                Ok(())
             }
             WidgetCommand::SetValue(value) => {
                 // The given value is a string.
@@ -164,16 +137,19 @@ impl Widget for Text {
 
                 self.text_layout = self.font.text_layout(self.text.clone());
                 self.layout_text();
+
+                Ok(())
             }
             WidgetCommand::SetVerticalAlignment(vertical_alignment) => {
                 self.vertical_alignment = vertical_alignment;
 
                 // Layout.
                 self.layout_text();
-            }
-        }
 
-        Ok(())
+                Ok(())
+            }
+            _ => self.core.handle_command(widget_command),
+        }
     }
 
     fn handle_event(&mut self, event: &Event, widget_events: &mut Vec<WidgetEvent>) {
@@ -183,7 +159,7 @@ impl Widget for Text {
             Event::KeyUp(_) => {}
             Event::MouseDown(mouse_event) => {
                 // The click is outside of the text.
-                if !self.rectangle.contains(mouse_event.pos) {
+                if !self.core.rectangle.contains(mouse_event.pos) {
                     return;
                 }
 
@@ -196,7 +172,7 @@ impl Widget for Text {
 
     fn paint(&self, piet: &mut Piet, _region: &Region) -> Result<(), piet::Error> {
         // The text widget is hidden.
-        if self.is_hidden {
+        if self.core.is_hidden {
             return Ok(());
         }
 
@@ -205,7 +181,7 @@ impl Widget for Text {
         // Draw the text clipped.
         {
             piet.save()?;
-            piet.clip(&self.rectangle);
+            piet.clip(&self.core.rectangle);
             piet.draw_text(&self.text_layout, self.text_origin);
             piet.restore()?;
         }
@@ -213,7 +189,7 @@ impl Widget for Text {
         // Render debug hints.
         if self.core.debug_rendering {
             piet.stroke(
-                self.rectangle,
+                self.core.rectangle,
                 &self.core.debug_rendering_stroke.stroke_brush,
                 self.core.debug_rendering_stroke.stroke_width,
             );
@@ -223,13 +199,13 @@ impl Widget for Text {
     }
 
     fn rectangle(&self) -> &Rect {
-        &self.rectangle
+        &self.core.rectangle
     }
 
     fn set_origin(&mut self, origin: Point) {
-        let delta = origin - self.rectangle.origin();
+        let delta = origin - self.core.rectangle.origin();
 
-        self.rectangle = self.rectangle.with_origin(origin);
+        self.core.rectangle = self.core.rectangle.with_origin(origin);
 
         self.text_origin += delta;
     }
