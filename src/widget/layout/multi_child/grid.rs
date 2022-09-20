@@ -6,17 +6,61 @@ use druid_shell::piet::{Error, RenderContext};
 use druid_shell::Region;
 
 ///
-pub struct Grid {
-    core: WidgetCore,
+pub struct GridColumnProperties {
+    flex_factor: u16,
+    minimum_width: f64,
+    //number_of_columns: usize,
     spacing: f64,
+}
+
+impl Default for GridColumnProperties {
+    fn default() -> Self {
+        GridColumnProperties {
+            flex_factor: 1,
+            minimum_width: 0.0,
+            spacing: 10.0,
+        }
+    }
+}
+
+///
+pub struct GridRowProperties {
+    flex_factor: u16,
+    minimum_height: f64,
+    spacing: f64,
+}
+
+impl Default for GridRowProperties {
+    fn default() -> Self {
+        GridRowProperties {
+            flex_factor: 1,
+            minimum_height: 0.0,
+            spacing: 10.0,
+        }
+    }
+}
+
+// =================================================================================================
+
+/// A layout widget that positions its child widgets in a 2-dimensional grid.
+pub struct Grid {
+    column_properties: GridColumnProperties,
+    core: WidgetCore,
+    row_properties: GridRowProperties,
 }
 
 impl Grid {
     ///
-    pub fn new(widget_id: WidgetId, debug_rendering_stroke: Stroke, spacing: f64) -> Self {
+    pub fn new(
+        widget_id: WidgetId,
+        debug_rendering_stroke: Stroke,
+        column_properties: GridColumnProperties,
+        row_properties: GridRowProperties,
+    ) -> Self {
         Grid {
+            column_properties,
             core: WidgetCore::new(widget_id, debug_rendering_stroke),
-            spacing,
+            row_properties,
         }
     }
 

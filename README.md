@@ -37,39 +37,45 @@ On the upside you get simple setup and simple control flow.
 ## Backlog
 
 * `Grid`:
-  * [ ] adjust `Grid::new()`:
-    * [ ] configure columns: `minimum_width`, `flex_factor`, `spacing`
-    * [ ] configure row: `minimum_height`, `flex_factor`, `spacing`
-  * [ ] create `layout_grid.rs`
-  * supply functionality (https://www.tcl.tk/man/tcl/TkCmd/grid.html):
-    * add:
-      * `AppendChildren(Vec<Option<WidgetBox>>)`?
-    * clear: `WidgetCommand::RemoveAllChildren`
-      * only remove the children?
-      * also implode the grid?
-    * remove widget:
-      * `RemoveWidget(ID)`?
-        * needed anyway
-      * `RemoveWidgetAt(...)`
-        * `Any`? Downside: `Box`
-        * x, y?
-    * remove column:
-      * `RemoveWidget(ID)`?
-      * ???
-    * remove row:
-      * `RemoveWidget(ID)`?
-      * ???
-    * set widget to a grid cell:
-      * `SetWidgetAt(...)`?
-        * `Any`? Downside: `Box`
-        * x, y?
-  * [ ] implement `layout_children()`
+  * implement widget addition:
+    * by individual widgets?
+      * `SetChildWithProperties(WidgetBox, Box<dyn Any>),`?
+      * implement `Grid::handle_command(AppendChild)`?
+        * requires a maximum number of columns
+        * can not add "nothing"
+          * add a "nothing" widget?
+          * make it `AppendChildren(Option<AppendChild>)`?
+    * by row? add `AppendChildren(Vec<Option<WidgetBox>>)`?
+  * implement setting a widget to a grid cell:
+    * `SetWidgetAt(...)`?
+      * `Any`? Downside: `Box`
+      * x, y?
+  * [ ] implement `Grid::handle_command(RemoveAllChildren)`
+  * [ ] implement `Grid::handle_event()`
+  * [ ] implement `Grid::paint()`
+  * [ ] `layout_grid.rs`: add widgets
+  * [ ] implement `Grid::layout_children()`
     * https://www.tcl.tk/man/tcl/TkCmd/grid.html#M33:
       * In the first step, the minimum size needed to fit all of the content is computed, then (if propagation is turned
         on), a request is made of the container window to become that size.
       * In the second step, the requested size is compared against the actual size of the container. If the sizes are
         different, then spaces is added to or taken away from the layout as needed.
       * For the final step, each content is positioned in its row(s) and column(s) based on the setting of its sticky flag.
+  * implement removing all widgets: `WidgetCommand::RemoveAllChildren`
+    * only remove the children?
+    * also implode the grid?
+  * implement widget removal:
+    * by ID? `RemoveWidget(ID)`?
+      * needed anyway
+    * by column/row index? `RemoveWidgetAt(...)`
+      * `Any`? Downside: `Box`
+      * x, y?
+  * implement column removal:
+    * `RemoveWidget(ID)`?
+    * ???
+  * implement row removal:
+    * `RemoveWidget(ID)`?
+    * ???
 * [ ] `test::widgets_layout()`: add remaining layout widgets
 * [ ] `test::widgets()`: also produce layout widgets that have child widgets
 * [ ] add `WidgetCore::is_disabled`?

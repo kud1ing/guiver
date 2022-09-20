@@ -7,7 +7,7 @@ use druid_shell::kurbo::{Point, Rect, Size};
 use druid_shell::piet::{Piet, RenderContext};
 use druid_shell::{piet, Region};
 
-/// A centering layout widget.
+/// A layout widget that centers its child widget.
 pub struct Center {
     child_widget: Option<WidgetBox>,
     core: WidgetCore,

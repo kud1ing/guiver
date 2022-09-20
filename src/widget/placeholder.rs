@@ -62,7 +62,7 @@ impl Widget for Placeholder {
 
                 Ok(())
             }
-            _ => return self.core.handle_command(widget_command),
+            _ => self.core.handle_command(widget_command),
         }
     }
 

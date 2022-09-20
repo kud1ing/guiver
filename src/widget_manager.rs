@@ -1,6 +1,8 @@
 use crate::stroke::Stroke;
 use crate::style::Style;
-use crate::widget::layout::{Center, Column, Expanded, Grid, Padding, Row, SizedBox};
+use crate::widget::layout::{
+    Center, Column, Expanded, Grid, GridColumnProperties, GridRowProperties, Padding, Row, SizedBox,
+};
 use crate::widget::{Button, Hyperlink, Placeholder, Text, TextInput, WidgetCommand, WidgetError};
 use crate::{
     Color, Event, Font, HorizontalAlignment, SizeConstraints, VerticalAlignment, Widget,
@@ -107,9 +109,11 @@ impl WidgetManager {
     }
 
     ///
-    pub fn add_widget(&mut self, widget_id: WidgetId, widget: Box<dyn Widget>) {
+    pub fn add_widget(&mut self, widget: Box<dyn Widget>) {
+        // TODO: Append the widget to the tab order if it accepts focus.
+
         self.widgets
-            .insert(widget_id, Rc::new(RefCell::new(widget)));
+            .insert(*widget.widget_id(), Rc::new(RefCell::new(widget)));
     }
 
     ///
@@ -253,15 +257,11 @@ impl WidgetManager {
         let widget_id = self.next_widget_id();
 
         // Add a new center layout widget.
-        self.widgets.insert(
+        self.add_widget(Box::new(Center::new(
             widget_id,
-            Rc::new(RefCell::new(Box::new(Center::new(
-                widget_id,
-                self.style.debug_rendering_stroke.clone(),
-            )))),
-        );
+            self.style.debug_rendering_stroke.clone(),
+        )));
 
-        // Return the widget ID.
         widget_id
     }
 
@@ -271,15 +271,12 @@ impl WidgetManager {
         let widget_id = self.next_widget_id();
 
         // Add a new column layout widget.
-        self.widgets.insert(
+        self.add_widget(Box::new(Column::new(
             widget_id,
-            Rc::new(RefCell::new(Box::new(Column::new(
-                widget_id,
-                self.style.debug_rendering_stroke.clone(),
-                HorizontalAlignment::Center,
-                self.style.spacing,
-            )))),
-        );
+            self.style.debug_rendering_stroke.clone(),
+            HorizontalAlignment::Center,
+            self.style.spacing,
+        )));
 
         // Return the widget ID.
         widget_id
@@ -291,33 +288,32 @@ impl WidgetManager {
         let widget_id = self.next_widget_id();
 
         // Add a new expanded widget.
-        self.widgets.insert(
+        self.add_widget(Box::new(Expanded::new(
             widget_id,
-            Rc::new(RefCell::new(Box::new(Expanded::new(
-                widget_id,
-                self.style.debug_rendering_stroke.clone(),
-                flex_factor,
-            )))),
-        );
+            self.style.debug_rendering_stroke.clone(),
+            flex_factor,
+        )));
 
         // Return the widget ID.
         widget_id
     }
 
     ///
-    pub fn new_grid(&mut self) -> WidgetId {
+    pub fn new_grid(
+        &mut self,
+        column_properties: GridColumnProperties,
+        row_properties: GridRowProperties,
+    ) -> WidgetId {
         // Get a new widget ID.
         let widget_id = self.next_widget_id();
 
         // Add a new grid layout widget.
-        self.widgets.insert(
+        self.add_widget(Box::new(Grid::new(
             widget_id,
-            Rc::new(RefCell::new(Box::new(Grid::new(
-                widget_id,
-                self.style.debug_rendering_stroke.clone(),
-                self.style.spacing,
-            )))),
-        );
+            self.style.debug_rendering_stroke.clone(),
+            column_properties,
+            row_properties,
+        )));
 
         // Return the widget ID.
         widget_id
@@ -338,17 +334,14 @@ impl WidgetManager {
         font_visited.font_color = Color::rgb8(0, 0, 100);
 
         // Add a new hyperlink widget.
-        self.widgets.insert(
-            widget_id,
-            Rc::new(RefCell::new(Box::new(Hyperlink::new(
-                0,
-                self.style.debug_rendering_stroke.clone(),
-                font_unvisited,
-                font_being_clicked,
-                font_visited,
-                text,
-            )))),
-        );
+        self.add_widget(Box::new(Hyperlink::new(
+            0,
+            self.style.debug_rendering_stroke.clone(),
+            font_unvisited,
+            font_being_clicked,
+            font_visited,
+            text,
+        )));
 
         // Return the widget ID.
         widget_id
@@ -360,17 +353,14 @@ impl WidgetManager {
         let widget_id = self.next_widget_id();
 
         // Add a new padding widget.
-        self.widgets.insert(
+        self.add_widget(Box::new(Padding::new(
             widget_id,
-            Rc::new(RefCell::new(Box::new(Padding::new(
-                widget_id,
-                self.style.debug_rendering_stroke.clone(),
-                self.style.padding,
-                self.style.padding,
-                self.style.padding,
-                self.style.padding,
-            )))),
-        );
+            self.style.debug_rendering_stroke.clone(),
+            self.style.padding,
+            self.style.padding,
+            self.style.padding,
+            self.style.padding,
+        )));
 
         // Return the widget ID.
         widget_id
@@ -382,14 +372,11 @@ impl WidgetManager {
         let widget_id = self.next_widget_id();
 
         // Add a new placeholder widget.
-        self.widgets.insert(
+        self.add_widget(Box::new(Placeholder::new(
             widget_id,
-            Rc::new(RefCell::new(Box::new(Placeholder::new(
-                widget_id,
-                self.style.debug_rendering_stroke.clone(),
-                maximum_size,
-            )))),
-        );
+            self.style.debug_rendering_stroke.clone(),
+            maximum_size,
+        )));
 
         // Return the widget ID.
         widget_id
@@ -401,15 +388,12 @@ impl WidgetManager {
         let widget_id = self.next_widget_id();
 
         // Add a new row widget.
-        self.widgets.insert(
+        self.add_widget(Box::new(Row::new(
             widget_id,
-            Rc::new(RefCell::new(Box::new(Row::new(
-                widget_id,
-                self.style.debug_rendering_stroke.clone(),
-                self.style.vertical_alignment,
-                self.style.spacing,
-            )))),
-        );
+            self.style.debug_rendering_stroke.clone(),
+            self.style.vertical_alignment,
+            self.style.spacing,
+        )));
 
         // Return the widget ID.
         widget_id
@@ -421,14 +405,11 @@ impl WidgetManager {
         let widget_id = self.next_widget_id();
 
         // Add a new sized box layout widget.
-        self.widgets.insert(
+        self.add_widget(Box::new(SizedBox::new(
             widget_id,
-            Rc::new(RefCell::new(Box::new(SizedBox::new(
-                widget_id,
-                self.style.debug_rendering_stroke.clone(),
-                desired_size,
-            )))),
-        );
+            self.style.debug_rendering_stroke.clone(),
+            desired_size,
+        )));
 
         // Return the widget ID.
         widget_id
@@ -440,15 +421,12 @@ impl WidgetManager {
         let widget_id = self.next_widget_id();
 
         // Add a new text widget.
-        self.widgets.insert(
+        self.add_widget(Box::new(Text::new(
             widget_id,
-            Rc::new(RefCell::new(Box::new(Text::new(
-                widget_id,
-                self.style.debug_rendering_stroke.clone(),
-                self.style.font.clone(),
-                text,
-            )))),
-        );
+            self.style.debug_rendering_stroke.clone(),
+            self.style.font.clone(),
+            text,
+        )));
 
         // Return the widget ID.
         widget_id
@@ -461,22 +439,19 @@ impl WidgetManager {
         let child_widget_id = self.next_widget_id();
 
         // Add a new button with a text as inner child.
-        self.widgets.insert(
+        self.add_widget(Box::new(Button::new(
             widget_id,
-            Rc::new(RefCell::new(Box::new(Button::new(
-                widget_id,
+            self.style.debug_rendering_stroke.clone(),
+            Rc::new(RefCell::new(Box::new(Text::new(
+                child_widget_id,
                 self.style.debug_rendering_stroke.clone(),
-                Rc::new(RefCell::new(Box::new(Text::new(
-                    child_widget_id,
-                    self.style.debug_rendering_stroke.clone(),
-                    self.style.font.clone(),
-                    text,
-                )))),
-                Some(PaintBrush::Color(self.style.accent_color.clone())),
-                Some(self.style.frame_color.clone()),
-                Some(self.style.accent_color.clone()),
+                self.style.font.clone(),
+                text,
             )))),
-        );
+            Some(PaintBrush::Color(self.style.accent_color.clone())),
+            Some(self.style.frame_color.clone()),
+            Some(self.style.accent_color.clone()),
+        )));
 
         // Return the widget ID.
         widget_id
@@ -488,18 +463,15 @@ impl WidgetManager {
         let widget_id = self.next_widget_id();
 
         // Add a new text input widget.
-        self.widgets.insert(
+        self.add_widget(Box::new(TextInput::new(
             widget_id,
-            Rc::new(RefCell::new(Box::new(TextInput::new(
-                widget_id,
-                self.style.debug_rendering_stroke.clone(),
-                self.style.font.clone(),
-                text,
-                width,
-                self.style.frame_color.clone(),
-                self.style.accent_color.clone(),
-            )))),
-        );
+            self.style.debug_rendering_stroke.clone(),
+            self.style.font.clone(),
+            text,
+            width,
+            self.style.frame_color.clone(),
+            self.style.accent_color.clone(),
+        )));
 
         // Return the widget ID.
         widget_id

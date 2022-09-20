@@ -7,7 +7,7 @@ use druid_shell::kurbo::{Point, Rect, Size};
 use druid_shell::piet::{Piet, RenderContext};
 use druid_shell::{piet, Region};
 
-/// A padding layout widget.
+/// A layout widget that adds padding around its child widget.
 pub struct Padding {
     child_widget: Option<WidgetBox>,
     core: WidgetCore,
@@ -108,10 +108,10 @@ impl Widget for Padding {
                 }
                 // There is no child widget.
                 else {
-                    return Err(WidgetError::CommandNotHandled(
+                    Err(WidgetError::CommandNotHandled(
                         self.core.widget_id,
                         widget_command,
-                    ));
+                    ))
                 }
             }
             WidgetCommand::SetIsDisabled(_) => {

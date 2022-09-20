@@ -6,7 +6,8 @@ use druid_shell::kurbo::{Point, Rect};
 use druid_shell::piet::{Error, RenderContext};
 use druid_shell::Region;
 
-/// A widget that takes all of the available space.
+/// A layout widget that tries to adjust its child widget to take all of the available space.
+/// Mostly useful in `Column` and `Row`.
 pub struct Expanded {
     child_widget: Option<WidgetBox>,
     core: WidgetCore,
@@ -74,7 +75,7 @@ impl Widget for Expanded {
 
                 Ok(())
             }
-            WidgetCommand::RemoveChild(_) => {
+            WidgetCommand::RemoveChild(child_widget_id) => {
                 // There is a child widget.
                 if let Some(_child_widget) = &mut self.child_widget {
                     // TODO
@@ -84,10 +85,7 @@ impl Widget for Expanded {
                 }
                 // There is no child widget.
                 else {
-                    return Err(WidgetError::CommandNotHandled(
-                        self.core.widget_id,
-                        widget_command,
-                    ));
+                    Err(WidgetError::NoSuchWidget(child_widget_id))
                 }
             }
             WidgetCommand::SetIsDisabled(_) => {

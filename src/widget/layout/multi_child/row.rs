@@ -9,7 +9,7 @@ use druid_shell::{piet, Region};
 use std::borrow::{Borrow, BorrowMut};
 use std::cell::RefCell;
 
-///
+/// A layout widget that positions its child widgets in a horizontal row.
 pub struct Row {
     child_widgets: Vec<WidgetBox>,
     core: WidgetCore,

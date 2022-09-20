@@ -6,7 +6,7 @@ use druid_shell::kurbo::{Point, Rect, Size};
 use druid_shell::piet::{Error, RenderContext};
 use druid_shell::Region;
 
-///
+/// A layout widget that tries to adjust its child widget to a desired size.
 pub struct SizedBox {
     child_widget: Option<WidgetBox>,
     core: WidgetCore,

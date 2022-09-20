@@ -10,7 +10,7 @@ use piet::RenderContext;
 use std::borrow::{Borrow, BorrowMut};
 use std::cell::RefCell;
 
-///
+/// A layout widget that positions its child widgets in a vertical column.
 pub struct Column {
     child_widgets: Vec<WidgetBox>,
     core: WidgetCore,
