@@ -57,10 +57,10 @@ impl Widget for SizedBox {
         self.core.rectangle.size()
     }
 
-    fn handle_command(&mut self, widget_command: WidgetCommand) -> Result<(), WidgetError> {
+    fn handle_command(&mut self, widget_command: &WidgetCommand) -> Result<(), WidgetError> {
         match widget_command {
             WidgetCommand::AppendChild(child_widget) => {
-                self.child_widget = Some(child_widget);
+                self.child_widget = Some(child_widget.clone());
 
                 // Layout the child.
                 self.layout_child();
@@ -74,12 +74,6 @@ impl Widget for SizedBox {
             WidgetCommand::RemoveChild(_) => {
                 // TODO
                 println!("`SizedBox::handle_command(RemoveChild)`: TODO");
-
-                Ok(())
-            }
-            WidgetCommand::SetIsDisabled(_) => {
-                // TODO
-                println!("`SizedBox::handle_command(SetIsDisabled)`: TODO");
 
                 Ok(())
             }

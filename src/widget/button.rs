@@ -116,10 +116,10 @@ impl Widget for Button {
         self.core.rectangle.size()
     }
 
-    fn handle_command(&mut self, widget_command: WidgetCommand) -> Result<(), WidgetError> {
+    fn handle_command(&mut self, widget_command: &WidgetCommand) -> Result<(), WidgetError> {
         match widget_command {
             WidgetCommand::AppendChild(child_widget) => {
-                self.child_widget = Some(child_widget);
+                self.child_widget = Some(child_widget.clone());
 
                 // Layout the child widget.
                 self.layout_child();
@@ -128,18 +128,10 @@ impl Widget for Button {
             }
             WidgetCommand::RemoveAllChildren => {
                 self.child_widget = None;
-
-                Ok(())
-            }
-            WidgetCommand::RemoveChild(_) => {
-                // TODO
-                println!("`Button::handle_command(RemoveChild)`: TODO");
-
                 Ok(())
             }
             WidgetCommand::SetFill(fill) => {
-                self.fill_brush_up = fill;
-
+                self.fill_brush_up = fill.clone();
                 Ok(())
             }
             WidgetCommand::SetFont(_) => {
@@ -150,8 +142,7 @@ impl Widget for Button {
                 Ok(())
             }
             WidgetCommand::SetHasFocus(has_focus) => {
-                self.has_focus = has_focus;
-
+                self.has_focus = *has_focus;
                 Ok(())
             }
             WidgetCommand::SetHorizontalAlignment(_) => {
@@ -161,13 +152,11 @@ impl Widget for Button {
                 Ok(())
             }
             WidgetCommand::SetIsDisabled(is_disabled) => {
-                self.is_disabled = is_disabled;
-
+                self.is_disabled = *is_disabled;
                 Ok(())
             }
             WidgetCommand::SetStroke(stroke) => {
-                self.stroke = stroke;
-
+                self.stroke = stroke.clone();
                 Ok(())
             }
             WidgetCommand::SetValue(_) => {

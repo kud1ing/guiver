@@ -1,6 +1,6 @@
 use crate::stroke::Stroke;
 use crate::widget::core::WidgetCore;
-use crate::widget::{WidgetCommand, WidgetError, WidgetId};
+use crate::widget::{WidgetCommand, WidgetError, WidgetId, WidgetPlacement};
 use crate::widget_manager::WidgetBox;
 use crate::{Event, SizeConstraints, VerticalAlignment, Widget, WidgetEvent};
 use druid_shell::kurbo::{Point, Rect, Size};
@@ -166,15 +166,15 @@ impl Widget for Row {
         self.core.rectangle.size()
     }
 
-    fn handle_command(&mut self, widget_command: WidgetCommand) -> Result<(), WidgetError> {
+    fn handle_command(&mut self, widget_command: &WidgetCommand) -> Result<(), WidgetError> {
         match widget_command {
             WidgetCommand::AppendChild(child_widget) => {
-                self.child_widgets.push(child_widget);
+                self.child_widgets.push(child_widget.clone());
 
                 // Layout the children.
                 self.layout_children();
 
-                Ok(())
+                return Ok(());
             }
             WidgetCommand::RemoveAllChildren => {
                 self.child_widgets.clear();
@@ -182,35 +182,33 @@ impl Widget for Row {
                 // Layout the children.
                 self.layout_children();
 
-                Ok(())
+                return Ok(());
             }
             WidgetCommand::RemoveChild(child_widget_id) => {
+                // TODO: Error handling, if the widget does not exist.
+
                 // Remove the widget with the given ID.
                 self.child_widgets.retain(|child_widget| {
-                    *RefCell::borrow(child_widget).widget_id() != child_widget_id
+                    *RefCell::borrow(child_widget).widget_id() != *child_widget_id
                 });
 
                 // Layout the remaining children.
                 self.layout_children();
 
-                Ok(())
-            }
-            WidgetCommand::SetIsDisabled(_) => {
-                // TODO
-                println!("`Row::handle_command(SetIsDisabled)`: TODO");
-
-                Ok(())
+                return Ok(());
             }
             WidgetCommand::SetVerticalAlignment(vertical_alignment) => {
-                self.vertical_alignment = vertical_alignment;
+                self.vertical_alignment = vertical_alignment.clone();
 
                 // Layout the children.
                 self.layout_children();
 
-                Ok(())
+                return Ok(());
             }
-            _ => self.core.handle_command(widget_command),
+            _ => {}
         }
+
+        self.core.handle_command(widget_command)
     }
 
     fn handle_event(&mut self, event: &Event, widget_events: &mut Vec<WidgetEvent>) {

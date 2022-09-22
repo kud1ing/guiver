@@ -167,7 +167,7 @@ impl TextInput {
         // Pass the updated text to the child text widget.
         self.text_widget
             .borrow_mut()
-            .handle_command(WidgetCommand::SetValue(Box::new(self.text.clone())))
+            .handle_command(&WidgetCommand::SetValue(Box::new(self.text.clone())))
             .unwrap();
 
         // Update the caret index, if necessary.
@@ -187,10 +187,10 @@ impl Widget for TextInput {
         self.core.rectangle.size()
     }
 
-    fn handle_command(&mut self, widget_command: WidgetCommand) -> Result<(), WidgetError> {
+    fn handle_command(&mut self, widget_command: &WidgetCommand) -> Result<(), WidgetError> {
         match widget_command {
             WidgetCommand::SetFill(fill) => {
-                self.fill = fill;
+                self.fill = fill.clone();
 
                 Ok(())
             }
@@ -200,17 +200,17 @@ impl Widget for TextInput {
                 Ok(())
             }
             WidgetCommand::SetHasFocus(has_focus) => {
-                self.has_focus = has_focus;
+                self.has_focus = *has_focus;
 
                 Ok(())
             }
             WidgetCommand::SetHorizontalAlignment(horizontal_alignment) => {
-                self.horizontal_alignment = horizontal_alignment;
+                self.horizontal_alignment = *horizontal_alignment;
 
                 Ok(())
             }
             WidgetCommand::SetIsDisabled(is_disabled) => {
-                self.is_disabled = is_disabled;
+                self.is_disabled = *is_disabled;
 
                 Ok(())
             }

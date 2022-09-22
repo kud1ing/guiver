@@ -1,5 +1,5 @@
 use crate::widget::core::WidgetCore;
-use crate::widget::{WidgetCommand, WidgetError};
+use crate::widget::{WidgetCommand, WidgetError, WidgetPlacement};
 use crate::{Event, Piet, Size, SizeConstraints, Stroke, Widget, WidgetEvent, WidgetId};
 use druid_shell::kurbo::{Point, Rect};
 use druid_shell::piet::{Error, RenderContext};
@@ -80,30 +80,32 @@ impl Widget for Grid {
         self.core.rectangle.size()
     }
 
-    fn handle_command(&mut self, widget_command: WidgetCommand) -> Result<(), WidgetError> {
+    fn handle_command(&mut self, widget_command: &WidgetCommand) -> Result<(), WidgetError> {
         match widget_command {
-            WidgetCommand::AppendChild(_) => {
-                // TODO
-                println!("TODO: `Grid::handle_command()`");
-                Ok(())
+            WidgetCommand::SetChild(widget_placement, _) => {
+                match widget_placement {
+                    WidgetPlacement::AtCell { .. } => {
+                        // TODO
+                        println!("TODO: `Grid::handle_command(SetChild)`");
+                        return Ok(());
+                    }
+                    _ => {}
+                }
             }
             WidgetCommand::RemoveAllChildren => {
                 // TODO
-                println!("TODO: `Grid::handle_command()`");
-                Ok(())
+                println!("TODO: `Grid::handle_command(RemoveAllChildren)`");
+                return Ok(());
             }
             WidgetCommand::RemoveChild(_) => {
                 // TODO
-                println!("TODO: `Grid::handle_command()`");
-                Ok(())
+                println!("TODO: `Grid::handle_command(RemoveChild)`");
+                return Ok(());
             }
-            WidgetCommand::SetIsDisabled(_) => {
-                // TODO
-                println!("TODO: `Grid::handle_command()`");
-                Ok(())
-            }
-            _ => self.core.handle_command(widget_command),
+            _ => {}
         }
+
+        self.core.handle_command(widget_command)
     }
 
     fn handle_event(&mut self, event: &Event, widget_events: &mut Vec<WidgetEvent>) {

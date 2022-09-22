@@ -52,13 +52,12 @@ impl Widget for Hyperlink {
         self.text_widget.apply_size_constraints(size_constraints)
     }
 
-    fn handle_command(&mut self, widget_command: WidgetCommand) -> Result<(), WidgetError> {
+    fn handle_command(&mut self, widget_command: &WidgetCommand) -> Result<(), WidgetError> {
         match widget_command {
-            WidgetCommand::AppendChild(_) => self.text_widget.handle_command(widget_command),
-            WidgetCommand::RemoveAllChildren => self.text_widget.handle_command(widget_command),
-            WidgetCommand::RemoveChild(_) => self.text_widget.handle_command(widget_command),
-            WidgetCommand::SetDebugRendering(_) => self.text_widget.handle_command(widget_command),
-            WidgetCommand::SetFill(_) => self.text_widget.handle_command(widget_command),
+            WidgetCommand::SetDebugRendering(_) => {
+                return self.text_widget.handle_command(widget_command)
+            }
+            WidgetCommand::SetFill(_) => return self.text_widget.handle_command(widget_command),
             WidgetCommand::SetFont(_) => {
                 // TODO
                 /*
@@ -67,20 +66,26 @@ impl Widget for Hyperlink {
                 adjust_font(&mut font_unvisited);
                 */
 
-                self.text_widget.handle_command(widget_command)
+                return self.text_widget.handle_command(widget_command);
             }
-            WidgetCommand::SetHasFocus(_) => self.text_widget.handle_command(widget_command),
             WidgetCommand::SetHorizontalAlignment(_) => {
-                self.text_widget.handle_command(widget_command)
+                return self.text_widget.handle_command(widget_command)
             }
-            WidgetCommand::SetIsDisabled(_) => self.text_widget.handle_command(widget_command),
-            WidgetCommand::SetIsHidden(_) => self.text_widget.handle_command(widget_command),
-            WidgetCommand::SetStroke(_) => self.text_widget.handle_command(widget_command),
-            WidgetCommand::SetValue(_) => self.text_widget.handle_command(widget_command),
+            WidgetCommand::SetIsDisabled(_) => {
+                return self.text_widget.handle_command(widget_command)
+            }
+            WidgetCommand::SetIsHidden(_) => {
+                return self.text_widget.handle_command(widget_command)
+            }
+            WidgetCommand::SetStroke(_) => return self.text_widget.handle_command(widget_command),
+            WidgetCommand::SetValue(_) => return self.text_widget.handle_command(widget_command),
             WidgetCommand::SetVerticalAlignment(_) => {
-                self.text_widget.handle_command(widget_command)
+                return self.text_widget.handle_command(widget_command)
             }
-        }
+            _ => {}
+        };
+
+        self.core.handle_command(widget_command)
     }
 
     fn handle_event(&mut self, event: &Event, widget_events: &mut Vec<WidgetEvent>) {

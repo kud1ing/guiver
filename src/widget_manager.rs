@@ -3,7 +3,9 @@ use crate::style::Style;
 use crate::widget::layout::{
     Center, Column, Expanded, Grid, GridColumnProperties, GridRowProperties, Padding, Row, SizedBox,
 };
-use crate::widget::{Button, Hyperlink, Placeholder, Text, TextInput, WidgetCommand, WidgetError};
+use crate::widget::{
+    Button, Hyperlink, Placeholder, Text, TextInput, WidgetCommand, WidgetError, WidgetPlacement,
+};
 use crate::{
     Color, Event, Font, HorizontalAlignment, SizeConstraints, VerticalAlignment, Widget,
     WidgetEvent, WidgetId,
@@ -29,6 +31,8 @@ pub enum Command {
     RemoveAllChildren(WidgetId),
     /// Remove the child widget.
     RemoveChild(WidgetId, WidgetId),
+    /// Sets the child widget at the given placement.
+    SetChild(WidgetId, WidgetPlacement, WidgetId),
     /// Enables/disables debug rendering mode for the widget.
     SetDebugRendering(WidgetId, bool),
     /// Sets/unsets the widget's fill.
@@ -60,6 +64,7 @@ impl Command {
             Command::AppendChild(widget_id, _) => widget_id,
             Command::RemoveAllChildren(widget_id) => widget_id,
             Command::RemoveChild(widget_id, _) => widget_id,
+            Command::SetChild(widget_id, _, _) => widget_id,
             Command::SetDebugRendering(widget_id, _) => widget_id,
             Command::SetFill(widget_id, _) => widget_id,
             Command::SetFont(widget_id, _) => widget_id,
@@ -226,7 +231,7 @@ impl WidgetManager {
                             // Unfocus that previously focused widget.
                             focused_widget
                                 .borrow_mut()
-                                .handle_command(WidgetCommand::SetHasFocus(false))?;
+                                .handle_command(&WidgetCommand::SetHasFocus(false))?;
                         }
                     }
 
@@ -540,32 +545,49 @@ impl WidgetManager {
 
                     widget_box
                         .borrow_mut()
-                        .handle_command(WidgetCommand::AppendChild(child_widget_box.clone()))?;
+                        .handle_command(&WidgetCommand::AppendChild(child_widget_box.clone()))?;
                 }
                 Command::RemoveAllChildren(_widget_id) => {
                     widget_box
                         .borrow_mut()
-                        .handle_command(WidgetCommand::RemoveAllChildren)?;
+                        .handle_command(&WidgetCommand::RemoveAllChildren)?;
                 }
-                Command::RemoveChild(_widget_id, child_id) => {
+                Command::RemoveChild(_widget_id, widget_specification) => {
                     widget_box
                         .borrow_mut()
-                        .handle_command(WidgetCommand::RemoveChild(child_id))?;
+                        .handle_command(&WidgetCommand::RemoveChild(widget_specification))?;
+                }
+                Command::SetChild(_widget_id, widget_specification, child_widget_id) => {
+                    // There is a widget with the given child widget ID.
+                    let widget_box = if let Some(widget_box) = self.widgets.get(&child_widget_id) {
+                        widget_box
+                    }
+                    // There is no widget with the given ID.
+                    else {
+                        return Err(WidgetError::NoSuchWidget(child_widget_id));
+                    };
+
+                    widget_box
+                        .borrow_mut()
+                        .handle_command(&WidgetCommand::SetChild(
+                            widget_specification,
+                            widget_box.clone(),
+                        ))?;
                 }
                 Command::SetDebugRendering(_widget_id, debug_rendering) => {
                     widget_box
                         .borrow_mut()
-                        .handle_command(WidgetCommand::SetDebugRendering(debug_rendering))?;
+                        .handle_command(&WidgetCommand::SetDebugRendering(debug_rendering))?;
                 }
                 Command::SetFill(_widget_id, fill) => {
                     widget_box
                         .borrow_mut()
-                        .handle_command(WidgetCommand::SetFill(fill))?;
+                        .handle_command(&WidgetCommand::SetFill(fill))?;
                 }
                 Command::SetFont(_widget_id, font) => {
                     widget_box
                         .borrow_mut()
-                        .handle_command(WidgetCommand::SetFont(font))?;
+                        .handle_command(&WidgetCommand::SetFont(font))?;
                 }
                 Command::SetHasFocus(_widget_id, has_focus) => {
                     let mut widget_had_focus_already = false;
@@ -577,7 +599,7 @@ impl WidgetManager {
                             // Unfocus that widget.
                             focused_widget
                                 .borrow_mut()
-                                .handle_command(WidgetCommand::SetHasFocus(false))?;
+                                .handle_command(&WidgetCommand::SetHasFocus(false))?;
                         }
                         // The widgets are the same.
                         else {
@@ -592,23 +614,23 @@ impl WidgetManager {
                         // Tell the widget it has focus now.
                         widget_box
                             .borrow_mut()
-                            .handle_command(WidgetCommand::SetHasFocus(has_focus))?;
+                            .handle_command(&WidgetCommand::SetHasFocus(has_focus))?;
                     }
                 }
                 Command::SetHorizontalAlignment(_widget_id, horizontal_alignment) => {
                     widget_box.borrow_mut().handle_command(
-                        WidgetCommand::SetHorizontalAlignment(horizontal_alignment),
+                        &WidgetCommand::SetHorizontalAlignment(horizontal_alignment),
                     )?;
                 }
                 Command::SetIsDisabled(_widget_id, is_disabled) => {
                     widget_box
                         .borrow_mut()
-                        .handle_command(WidgetCommand::SetIsDisabled(is_disabled))?;
+                        .handle_command(&WidgetCommand::SetIsDisabled(is_disabled))?;
                 }
                 Command::SetIsHidden(_widget_id, is_hidden) => {
                     widget_box
                         .borrow_mut()
-                        .handle_command(WidgetCommand::SetIsHidden(is_hidden))?;
+                        .handle_command(&WidgetCommand::SetIsHidden(is_hidden))?;
                 }
                 Command::SetMainWidget(_widget_id) => {
                     widget_box.borrow_mut().set_origin((1.0, 1.0).into());
@@ -617,17 +639,17 @@ impl WidgetManager {
                 Command::SetStroke(_widget_id, stroke) => {
                     widget_box
                         .borrow_mut()
-                        .handle_command(WidgetCommand::SetStroke(stroke))?;
+                        .handle_command(&WidgetCommand::SetStroke(stroke))?;
                 }
                 Command::SetValue(_widget_id, value) => {
                     widget_box
                         .borrow_mut()
-                        .handle_command(WidgetCommand::SetValue(value))?;
+                        .handle_command(&WidgetCommand::SetValue(value))?;
                 }
                 Command::SetVerticalAlignment(_widget_id, vertical_alignment) => {
                     widget_box
                         .borrow_mut()
-                        .handle_command(WidgetCommand::SetVerticalAlignment(vertical_alignment))?;
+                        .handle_command(&WidgetCommand::SetVerticalAlignment(vertical_alignment))?;
                 }
             };
         }

@@ -33,6 +33,8 @@ pub enum WidgetCommand {
     RemoveAllChildren,
     /// Remove the child widget.
     RemoveChild(WidgetId),
+    /// Sets the child widget at the given placement.
+    SetChild(WidgetPlacement, WidgetBox),
     /// Enables/disables debug rendering mode.
     SetDebugRendering(bool),
     /// Sets/unsets the widget's fill.
@@ -70,6 +72,9 @@ impl Debug for WidgetCommand {
             }
             WidgetCommand::RemoveChild(_) => {
                 write!(f, "WidgetCommand::RemoveChild(...)")
+            }
+            WidgetCommand::SetChild(_, _) => {
+                write!(f, "WidgetCommand::SetChild(...)")
             }
             WidgetCommand::SetDebugRendering(_) => {
                 write!(f, "WidgetCommand::SetDebugRendering(...)")
@@ -110,7 +115,8 @@ impl Debug for WidgetCommand {
 ///
 #[derive(Debug)]
 pub enum WidgetError {
-    CommandNotHandled(WidgetId, WidgetCommand),
+    // TODO: Second argument should be `WidgetCommand` but it is not cloneable due to `Any`
+    CommandNotHandled(WidgetId, String),
     NoSuchWidget(WidgetId),
 }
 
@@ -133,6 +139,18 @@ pub enum WidgetEvent {
     ValueChanged(WidgetId, Box<dyn Any>),
 }
 
+// =================================================================================================
+
+///
+#[derive(Clone, Debug)]
+pub enum WidgetPlacement {
+    AtRow(usize),
+    AtColumn(usize),
+    AtCell { column: usize, row: usize },
+}
+
+// =================================================================================================
+
 ///
 pub trait Widget {
     ///
@@ -144,7 +162,7 @@ pub trait Widget {
     }
 
     ///
-    fn handle_command(&mut self, widget_command: WidgetCommand) -> Result<(), WidgetError>;
+    fn handle_command(&mut self, widget_command: &WidgetCommand) -> Result<(), WidgetError>;
 
     ///
     fn handle_event(&mut self, event: &Event, widget_events: &mut Vec<WidgetEvent>);

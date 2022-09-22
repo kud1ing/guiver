@@ -49,11 +49,10 @@ impl Widget for Placeholder {
         self.core.rectangle.size()
     }
 
-    fn handle_command(&mut self, widget_command: WidgetCommand) -> Result<(), WidgetError> {
+    fn handle_command(&mut self, widget_command: &WidgetCommand) -> Result<(), WidgetError> {
         match widget_command {
             WidgetCommand::SetFill(fill) => {
-                self.fill = fill;
-
+                self.fill = fill.clone();
                 Ok(())
             }
             WidgetCommand::SetStroke(_) => {

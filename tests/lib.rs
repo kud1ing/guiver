@@ -54,31 +54,47 @@ mod tests {
     fn widgets_layout() -> Vec<Box<dyn Widget>> {
         let mut center_widget = Center::new(0, Stroke::default());
         center_widget
-            .handle_command(WidgetCommand::AppendChild(Rc::new(RefCell::new(Box::new(
-                Placeholder::new(1, Stroke::default(), Size::new(100.0, 50.0)),
-            )))))
+            .handle_command(&WidgetCommand::AppendChild(Rc::new(RefCell::new(
+                Box::new(Placeholder::new(
+                    1,
+                    Stroke::default(),
+                    Size::new(100.0, 50.0),
+                )),
+            ))))
             .unwrap();
 
         let mut column_widget =
             Column::new(2, Stroke::default(), HorizontalAlignment::Center, 10.0);
         column_widget
-            .handle_command(WidgetCommand::AppendChild(Rc::new(RefCell::new(Box::new(
-                Placeholder::new(3, Stroke::default(), Size::new(100.0, 50.0)),
-            )))))
+            .handle_command(&WidgetCommand::AppendChild(Rc::new(RefCell::new(
+                Box::new(Placeholder::new(
+                    3,
+                    Stroke::default(),
+                    Size::new(100.0, 50.0),
+                )),
+            ))))
             .unwrap();
 
         let mut padding_widget = Padding::new(4, Stroke::default(), 10.0, 10.0, 10.0, 10.0);
         padding_widget
-            .handle_command(WidgetCommand::AppendChild(Rc::new(RefCell::new(Box::new(
-                Placeholder::new(5, Stroke::default(), Size::new(100.0, 50.0)),
-            )))))
+            .handle_command(&WidgetCommand::AppendChild(Rc::new(RefCell::new(
+                Box::new(Placeholder::new(
+                    5,
+                    Stroke::default(),
+                    Size::new(100.0, 50.0),
+                )),
+            ))))
             .unwrap();
 
         let mut row_widget = Row::new(6, Stroke::default(), VerticalAlignment::Middle, 10.0);
         row_widget
-            .handle_command(WidgetCommand::AppendChild(Rc::new(RefCell::new(Box::new(
-                Placeholder::new(7, Stroke::default(), Size::new(100.0, 50.0)),
-            )))))
+            .handle_command(&WidgetCommand::AppendChild(Rc::new(RefCell::new(
+                Box::new(Placeholder::new(
+                    7,
+                    Stroke::default(),
+                    Size::new(100.0, 50.0),
+                )),
+            ))))
             .unwrap();
 
         vec![

@@ -27,20 +27,20 @@ impl WidgetCore {
     }
 
     ///
-    pub fn handle_command(&mut self, widget_command: WidgetCommand) -> Result<(), WidgetError> {
+    pub fn handle_command(&mut self, widget_command: &WidgetCommand) -> Result<(), WidgetError> {
         match widget_command {
             WidgetCommand::SetDebugRendering(debug_rendering) => {
-                self.debug_rendering = debug_rendering;
+                self.debug_rendering = *debug_rendering;
                 Ok(())
             }
             WidgetCommand::SetIsHidden(is_hidden) => {
                 // Hide/show this widget.
-                self.is_hidden = is_hidden;
+                self.is_hidden = *is_hidden;
                 Ok(())
             }
             _ => Err(WidgetError::CommandNotHandled(
                 self.widget_id,
-                widget_command,
+                format!("{:?}", widget_command),
             )),
         }
     }

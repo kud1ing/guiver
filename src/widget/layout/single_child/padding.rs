@@ -83,10 +83,10 @@ impl Widget for Padding {
         self.core.rectangle.size()
     }
 
-    fn handle_command(&mut self, widget_command: WidgetCommand) -> Result<(), WidgetError> {
+    fn handle_command(&mut self, widget_command: &WidgetCommand) -> Result<(), WidgetError> {
         match widget_command {
             WidgetCommand::AppendChild(child_widget) => {
-                self.child_widget = Some(child_widget);
+                self.child_widget = Some(child_widget.clone());
 
                 // Layout the child.
                 self.layout_child();
@@ -110,15 +110,9 @@ impl Widget for Padding {
                 else {
                     Err(WidgetError::CommandNotHandled(
                         self.core.widget_id,
-                        widget_command,
+                        format!("{:?}", widget_command),
                     ))
                 }
-            }
-            WidgetCommand::SetIsDisabled(_) => {
-                // TODO
-                println!("`Padding::handle_command(SetIsDisabled)`: TODO");
-
-                Ok(())
             }
             _ => self.core.handle_command(widget_command),
         }

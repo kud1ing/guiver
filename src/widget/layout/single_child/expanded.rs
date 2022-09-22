@@ -1,5 +1,5 @@
 use crate::widget::core::WidgetCore;
-use crate::widget::{WidgetCommand, WidgetError};
+use crate::widget::{WidgetCommand, WidgetError, WidgetPlacement};
 use crate::widget_manager::WidgetBox;
 use crate::{Event, Piet, Size, SizeConstraints, Stroke, Widget, WidgetEvent, WidgetId};
 use druid_shell::kurbo::{Point, Rect};
@@ -60,20 +60,20 @@ impl Widget for Expanded {
         self.flex_factor
     }
 
-    fn handle_command(&mut self, widget_command: WidgetCommand) -> Result<(), WidgetError> {
+    fn handle_command(&mut self, widget_command: &WidgetCommand) -> Result<(), WidgetError> {
         match widget_command {
             WidgetCommand::AppendChild(child_widget) => {
-                self.child_widget = Some(child_widget);
+                self.child_widget = Some(child_widget.clone());
 
                 // Layout the child.
                 self.layout_child();
 
-                Ok(())
+                return Ok(());
             }
             WidgetCommand::RemoveAllChildren => {
                 self.child_widget = None;
 
-                Ok(())
+                return Ok(());
             }
             WidgetCommand::RemoveChild(child_widget_id) => {
                 // There is a child widget.
@@ -81,21 +81,17 @@ impl Widget for Expanded {
                     // TODO
                     println!("`Expanded::handle_command(RemoveChild)`: TODO");
 
-                    Ok(())
+                    return Ok(());
                 }
                 // There is no child widget.
                 else {
-                    Err(WidgetError::NoSuchWidget(child_widget_id))
+                    return Err(WidgetError::NoSuchWidget(*child_widget_id));
                 }
             }
-            WidgetCommand::SetIsDisabled(_) => {
-                // TODO
-                println!("`Expanded::handle_command(SetIsDisabled)`: TODO");
-
-                Ok(())
-            }
-            _ => self.core.handle_command(widget_command),
+            _ => {}
         }
+
+        self.core.handle_command(widget_command)
     }
 
     fn handle_event(&mut self, event: &Event, widget_events: &mut Vec<WidgetEvent>) {

@@ -89,7 +89,7 @@ impl Widget for Text {
         self.core.rectangle.size()
     }
 
-    fn handle_command(&mut self, widget_command: WidgetCommand) -> Result<(), WidgetError> {
+    fn handle_command(&mut self, widget_command: &WidgetCommand) -> Result<(), WidgetError> {
         match widget_command {
             WidgetCommand::SetFill(_) => {
                 // TODO
@@ -98,7 +98,7 @@ impl Widget for Text {
                 Ok(())
             }
             WidgetCommand::SetFont(font) => {
-                self.font = font;
+                self.font = font.clone();
                 self.text_layout = self.font.text_layout(self.text.clone());
 
                 self.layout_text();
@@ -106,7 +106,7 @@ impl Widget for Text {
                 Ok(())
             }
             WidgetCommand::SetHorizontalAlignment(horizontal_alignment) => {
-                self.horizontal_alignment = horizontal_alignment;
+                self.horizontal_alignment = horizontal_alignment.clone();
 
                 // Layout.
                 self.layout_text();
@@ -141,7 +141,7 @@ impl Widget for Text {
                 Ok(())
             }
             WidgetCommand::SetVerticalAlignment(vertical_alignment) => {
-                self.vertical_alignment = vertical_alignment;
+                self.vertical_alignment = vertical_alignment.clone();
 
                 // Layout.
                 self.layout_text();
