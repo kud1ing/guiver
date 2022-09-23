@@ -24,10 +24,10 @@ impl App {
         widget_manager
             .send_commands(vec![
                 Command::SetMainWidget(padding),
-                Command::AppendChild(padding, grid),
-                Command::AppendChild(grid, placeholder1),
-                Command::AppendChild(grid, placeholder2),
-                Command::AppendChild(grid, placeholder3),
+                Command::AddChild(padding, grid),
+                Command::AddChild(grid, placeholder1),
+                Command::AddChild(grid, placeholder2),
+                Command::AddChild(grid, placeholder3),
             ])
             .unwrap();
 

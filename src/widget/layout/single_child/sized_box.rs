@@ -59,7 +59,7 @@ impl Widget for SizedBox {
 
     fn handle_command(&mut self, widget_command: &WidgetCommand) -> Result<(), WidgetError> {
         match widget_command {
-            WidgetCommand::AppendChild(child_widget) => {
+            WidgetCommand::AddChild(child_widget) => {
                 self.child_widget = Some(child_widget.clone());
 
                 // Layout the child.

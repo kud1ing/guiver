@@ -4,7 +4,7 @@ use crate::widget::layout::{
     Center, Column, Expanded, Grid, GridColumnProperties, GridRowProperties, Padding, Row, SizedBox,
 };
 use crate::widget::{
-    Button, Hyperlink, Placeholder, Text, TextInput, WidgetCommand, WidgetError, WidgetPlacement,
+    Button, Hyperlink, Placeholder, Text, TextInput, WidgetCommand, WidgetError, WidgetLocation,
 };
 use crate::{
     Color, Event, Font, HorizontalAlignment, SizeConstraints, VerticalAlignment, Widget,
@@ -25,14 +25,14 @@ pub type WidgetBox = Rc<RefCell<Box<dyn Widget>>>;
 /// A command to the widget manager or widgets.
 #[derive(Debug)]
 pub enum Command {
-    /// Append the child widget.
-    AppendChild(WidgetId, WidgetId),
-    /// Remove the widget's children.
+    /// Adds the child widget.
+    AddChild(WidgetId, WidgetId),
+    /// Removes the widget's children.
     RemoveAllChildren(WidgetId),
-    /// Remove the child widget.
+    /// Removes the child widget.
     RemoveChild(WidgetId, WidgetId),
-    /// Sets the child widget at the given placement.
-    SetChild(WidgetId, WidgetPlacement, WidgetId),
+    /// Sets the child widget at the given location.
+    SetChild(WidgetId, WidgetLocation, WidgetId),
     /// Enables/disables debug rendering mode for the widget.
     SetDebugRendering(WidgetId, bool),
     /// Sets/unsets the widget's fill.
@@ -61,7 +61,7 @@ impl Command {
     /// Returns the ID of the receiver widget.
     pub fn widget_id(&self) -> &WidgetId {
         match self {
-            Command::AppendChild(widget_id, _) => widget_id,
+            Command::AddChild(widget_id, _) => widget_id,
             Command::RemoveAllChildren(widget_id) => widget_id,
             Command::RemoveChild(widget_id, _) => widget_id,
             Command::SetChild(widget_id, _, _) => widget_id,
@@ -330,17 +330,17 @@ impl WidgetManager {
         let widget_id = self.next_widget_id();
 
         let mut font_unvisited = self.style.font.clone();
-        font_unvisited.font_color = Color::rgb8(0, 0, 255);
+        font_unvisited.font_color = Color::rgb8(100, 100, 255);
 
         let mut font_being_clicked = self.style.font.clone();
         font_being_clicked.font_color = self.style.accent_color.clone();
 
         let mut font_visited = self.style.font.clone();
-        font_visited.font_color = Color::rgb8(0, 0, 100);
+        font_visited.font_color = Color::rgb8(50, 50, 100);
 
         // Add a new hyperlink widget.
         self.add_widget(Box::new(Hyperlink::new(
-            0,
+            widget_id,
             self.style.debug_rendering_stroke.clone(),
             font_unvisited,
             font_being_clicked,
@@ -532,7 +532,7 @@ impl WidgetManager {
             };
 
             match command {
-                Command::AppendChild(_widget_id, child_id) => {
+                Command::AddChild(_widget_id, child_id) => {
                     // There is a widget with the child ID from the command.
                     let child_widget_box =
                         if let Some(child_widget_box) = self.widgets.get(&child_id) {
@@ -545,7 +545,7 @@ impl WidgetManager {
 
                     widget_box
                         .borrow_mut()
-                        .handle_command(&WidgetCommand::AppendChild(child_widget_box.clone()))?;
+                        .handle_command(&WidgetCommand::AddChild(child_widget_box.clone()))?;
                 }
                 Command::RemoveAllChildren(_widget_id) => {
                     widget_box

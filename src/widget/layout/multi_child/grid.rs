@@ -1,15 +1,16 @@
 use crate::widget::core::WidgetCore;
-use crate::widget::{WidgetCommand, WidgetError, WidgetPlacement};
+use crate::widget::{WidgetCommand, WidgetError, WidgetLocation};
+use crate::widget_manager::WidgetBox;
 use crate::{Event, Piet, Size, SizeConstraints, Stroke, Widget, WidgetEvent, WidgetId};
 use druid_shell::kurbo::{Point, Rect};
 use druid_shell::piet::{Error, RenderContext};
 use druid_shell::Region;
+use std::collections::HashMap;
 
 ///
 pub struct GridColumnProperties {
     flex_factor: u16,
     minimum_width: f64,
-    //number_of_columns: usize,
     spacing: f64,
 }
 
@@ -22,6 +23,8 @@ impl Default for GridColumnProperties {
         }
     }
 }
+
+// =================================================================================================
 
 ///
 pub struct GridRowProperties {
@@ -44,6 +47,7 @@ impl Default for GridRowProperties {
 
 /// A layout widget that positions its child widgets in a 2-dimensional grid.
 pub struct Grid {
+    child_widgets: HashMap<(usize, usize), WidgetBox>,
     column_properties: GridColumnProperties,
     core: WidgetCore,
     row_properties: GridRowProperties,
@@ -58,6 +62,7 @@ impl Grid {
         row_properties: GridRowProperties,
     ) -> Self {
         Grid {
+            child_widgets: HashMap::new(),
             column_properties,
             core: WidgetCore::new(widget_id, debug_rendering_stroke),
             row_properties,
@@ -84,9 +89,12 @@ impl Widget for Grid {
         match widget_command {
             WidgetCommand::SetChild(widget_placement, _) => {
                 match widget_placement {
-                    WidgetPlacement::AtCell { .. } => {
+                    WidgetLocation::Cell { column: _, row: _ } => {
                         // TODO
                         println!("TODO: `Grid::handle_command(SetChild)`");
+
+                        self.layout_children();
+
                         return Ok(());
                     }
                     _ => {}
@@ -95,11 +103,17 @@ impl Widget for Grid {
             WidgetCommand::RemoveAllChildren => {
                 // TODO
                 println!("TODO: `Grid::handle_command(RemoveAllChildren)`");
+
+                self.layout_children();
+
                 return Ok(());
             }
             WidgetCommand::RemoveChild(_) => {
                 // TODO
                 println!("TODO: `Grid::handle_command(RemoveChild)`");
+
+                self.layout_children();
+
                 return Ok(());
             }
             _ => {}
@@ -108,12 +122,12 @@ impl Widget for Grid {
         self.core.handle_command(widget_command)
     }
 
-    fn handle_event(&mut self, event: &Event, widget_events: &mut Vec<WidgetEvent>) {
+    fn handle_event(&mut self, _event: &Event, _widget_events: &mut Vec<WidgetEvent>) {
         // TODO: Iterate over the child widgets.
         println!("TODO: `Grid::handle_event()`");
     }
 
-    fn paint(&self, piet: &mut Piet, region: &Region) -> Result<(), Error> {
+    fn paint(&self, piet: &mut Piet, _region: &Region) -> Result<(), Error> {
         if self.core.is_hidden {
             return Ok(());
         }

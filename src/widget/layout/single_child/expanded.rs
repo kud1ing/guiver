@@ -1,5 +1,5 @@
 use crate::widget::core::WidgetCore;
-use crate::widget::{WidgetCommand, WidgetError, WidgetPlacement};
+use crate::widget::{WidgetCommand, WidgetError};
 use crate::widget_manager::WidgetBox;
 use crate::{Event, Piet, Size, SizeConstraints, Stroke, Widget, WidgetEvent, WidgetId};
 use druid_shell::kurbo::{Point, Rect};
@@ -62,7 +62,7 @@ impl Widget for Expanded {
 
     fn handle_command(&mut self, widget_command: &WidgetCommand) -> Result<(), WidgetError> {
         match widget_command {
-            WidgetCommand::AppendChild(child_widget) => {
+            WidgetCommand::AddChild(child_widget) => {
                 self.child_widget = Some(child_widget.clone());
 
                 // Layout the child.

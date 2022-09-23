@@ -1,6 +1,6 @@
 use crate::stroke::Stroke;
 use crate::widget::core::WidgetCore;
-use crate::widget::{WidgetCommand, WidgetError, WidgetId, WidgetPlacement};
+use crate::widget::{WidgetCommand, WidgetError, WidgetId};
 use crate::widget_manager::WidgetBox;
 use crate::{Event, SizeConstraints, VerticalAlignment, Widget, WidgetEvent};
 use druid_shell::kurbo::{Point, Rect, Size};
@@ -168,7 +168,7 @@ impl Widget for Row {
 
     fn handle_command(&mut self, widget_command: &WidgetCommand) -> Result<(), WidgetError> {
         match widget_command {
-            WidgetCommand::AppendChild(child_widget) => {
+            WidgetCommand::AddChild(child_widget) => {
                 self.child_widgets.push(child_widget.clone());
 
                 // Layout the children.

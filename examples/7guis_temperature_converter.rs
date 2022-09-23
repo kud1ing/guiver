@@ -28,11 +28,11 @@ impl App {
         widget_manager
             .send_commands(vec![
                 Command::SetMainWidget(padding),
-                Command::AppendChild(padding, row),
-                Command::AppendChild(row, text_input_celsius),
-                Command::AppendChild(row, text1),
-                Command::AppendChild(row, text_input_fahrenheit),
-                Command::AppendChild(row, text2),
+                Command::AddChild(padding, row),
+                Command::AddChild(row, text_input_celsius),
+                Command::AddChild(row, text1),
+                Command::AddChild(row, text_input_fahrenheit),
+                Command::AddChild(row, text2),
                 //
                 Command::SetHasFocus(text_input_celsius, true),
                 Command::SetHorizontalAlignment(text_input_celsius, HorizontalAlignment::Right),

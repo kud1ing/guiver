@@ -27,14 +27,14 @@ pub type WidgetId = usize;
 
 /// A command to a widget.
 pub enum WidgetCommand {
-    /// Append the child widget.
-    AppendChild(WidgetBox),
-    /// Remove the widget's children.
+    /// Adds the given child widget.
+    AddChild(WidgetBox),
+    /// Remove all of the widget's child widgets.
     RemoveAllChildren,
-    /// Remove the child widget.
+    /// Remove the child widget with the given ID.
     RemoveChild(WidgetId),
-    /// Sets the child widget at the given placement.
-    SetChild(WidgetPlacement, WidgetBox),
+    /// Sets/replaces the child widget at the given location.
+    SetChild(WidgetLocation, WidgetBox),
     /// Enables/disables debug rendering mode.
     SetDebugRendering(bool),
     /// Sets/unsets the widget's fill.
@@ -60,7 +60,7 @@ pub enum WidgetCommand {
 impl Debug for WidgetCommand {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match self {
-            WidgetCommand::AppendChild(widget_box) => {
+            WidgetCommand::AddChild(widget_box) => {
                 write!(
                     f,
                     "WidgetCommand::AppendChild({:?})",
@@ -143,10 +143,30 @@ pub enum WidgetEvent {
 
 ///
 #[derive(Clone, Debug)]
+pub enum WidgetLocation {
+    Cell { column: usize, row: usize },
+}
+
+// =================================================================================================
+
+///
+#[derive(Clone, Debug)]
+pub enum WidgetsLocation {
+    Column(usize),
+    LastColumn,
+    LastRow,
+    Row(usize),
+}
+
+// =================================================================================================
+
+///
+#[derive(Clone, Debug)]
 pub enum WidgetPlacement {
-    AtRow(usize),
-    AtColumn(usize),
-    AtCell { column: usize, row: usize },
+    Above(WidgetsLocation),
+    Below(WidgetsLocation),
+    LeftOf(WidgetsLocation),
+    RightOf(WidgetsLocation),
 }
 
 // =================================================================================================

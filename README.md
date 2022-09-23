@@ -36,8 +36,11 @@ On the upside you get simple setup and simple control flow.
 
 ## Backlog
 
+* [ ] `WidgetCommand::AddChild`: use `Option<WidgetPlacement>`
+* [ ] remove `WidgetLocation` and integrate cell coordinates in `SetChild`?
+* [ ] fix the examples?
 * `Grid`:
-  * [ ] implement `Grid::handle_command(SetChild(WidgetPlacement, WidgetBox))`
+  * [ ] implement `Grid::handle_command(SetChild(WidgetLocation, WidgetBox))`
   * [ ] implement `Grid::handle_command(RemoveAllChildren)`
     * only remove the children?
     * also remove the grid cell?

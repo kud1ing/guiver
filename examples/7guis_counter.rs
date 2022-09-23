@@ -28,9 +28,9 @@ impl App {
         widget_manager
             .send_commands(vec![
                 Command::SetMainWidget(padding),
-                Command::AppendChild(padding, row),
-                Command::AppendChild(row, counter_text),
-                Command::AppendChild(row, counter_button),
+                Command::AddChild(padding, row),
+                Command::AddChild(row, counter_text),
+                Command::AddChild(row, counter_button),
             ])
             .unwrap();
 
