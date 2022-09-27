@@ -21,12 +21,12 @@ impl App {
         widget_manager
             .send_commands(vec![
                 Command::SetMainWidget(padding),
-                Command::AddChild(padding, row),
-                Command::AddChild(row, expanded1),
-                Command::AddChild(row, text),
-                Command::AddChild(row, expanded2),
-                Command::AddChild(expanded1, placeholder1),
-                Command::AddChild(expanded2, placeholder2),
+                Command::AddChild(padding, None, row),
+                Command::AddChild(row, None, expanded1),
+                Command::AddChild(row, None, text),
+                Command::AddChild(row, None, expanded2),
+                Command::AddChild(expanded1, None, placeholder1),
+                Command::AddChild(expanded2, None, placeholder2),
             ])
             .unwrap();
 

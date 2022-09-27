@@ -26,11 +26,11 @@ impl App {
         widget_manager
             .send_commands(vec![
                 Command::SetMainWidget(padding),
-                Command::AddChild(padding, column),
-                Command::AddChild(column, dropdown_box),
-                Command::AddChild(column, text_input_start_date),
-                Command::AddChild(column, text_input_return_date),
-                Command::AddChild(column, book_button),
+                Command::AddChild(padding, None, column),
+                Command::AddChild(column, None, dropdown_box),
+                Command::AddChild(column, None, text_input_start_date),
+                Command::AddChild(column, None, text_input_return_date),
+                Command::AddChild(column, None, book_button),
                 //
                 // TODO: remove
                 Command::SetFill(

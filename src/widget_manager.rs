@@ -4,7 +4,7 @@ use crate::widget::layout::{
     Center, Column, Expanded, Grid, GridColumnProperties, GridRowProperties, Padding, Row, SizedBox,
 };
 use crate::widget::{
-    Button, Hyperlink, Placeholder, Text, TextInput, WidgetCommand, WidgetError, WidgetLocation,
+    Button, Hyperlink, Placeholder, Text, TextInput, WidgetCommand, WidgetError, WidgetPlacement,
 };
 use crate::{
     Color, Event, Font, HorizontalAlignment, SizeConstraints, VerticalAlignment, Widget,
@@ -26,13 +26,18 @@ pub type WidgetBox = Rc<RefCell<Box<dyn Widget>>>;
 #[derive(Debug)]
 pub enum Command {
     /// Adds the child widget.
-    AddChild(WidgetId, WidgetId),
-    /// Removes the widget's children.
+    AddChild(WidgetId, Option<WidgetPlacement>, WidgetId),
+    /// Removes the widget's child widgets.
     RemoveAllChildren(WidgetId),
     /// Removes the child widget.
     RemoveChild(WidgetId, WidgetId),
     /// Sets the child widget at the given location.
-    SetChild(WidgetId, WidgetLocation, WidgetId),
+    SetChild {
+        widget_id: WidgetId,
+        column: usize,
+        row: usize,
+        child_widget_id: WidgetId,
+    },
     /// Enables/disables debug rendering mode for the widget.
     SetDebugRendering(WidgetId, bool),
     /// Sets/unsets the widget's fill.
@@ -61,10 +66,10 @@ impl Command {
     /// Returns the ID of the receiver widget.
     pub fn widget_id(&self) -> &WidgetId {
         match self {
-            Command::AddChild(widget_id, _) => widget_id,
+            Command::AddChild(widget_id, _, _) => widget_id,
             Command::RemoveAllChildren(widget_id) => widget_id,
             Command::RemoveChild(widget_id, _) => widget_id,
-            Command::SetChild(widget_id, _, _) => widget_id,
+            Command::SetChild { widget_id, .. } => widget_id,
             Command::SetDebugRendering(widget_id, _) => widget_id,
             Command::SetFill(widget_id, _) => widget_id,
             Command::SetFont(widget_id, _) => widget_id,
@@ -443,7 +448,7 @@ impl WidgetManager {
         let widget_id = self.next_widget_id();
         let child_widget_id = self.next_widget_id();
 
-        // Add a new button with a text as inner child.
+        // Add a new button with a text as inner child widget.
         self.add_widget(Box::new(Button::new(
             widget_id,
             self.style.debug_rendering_stroke.clone(),
@@ -532,7 +537,7 @@ impl WidgetManager {
             };
 
             match command {
-                Command::AddChild(_widget_id, child_id) => {
+                Command::AddChild(_widget_id, widget_placement, child_id) => {
                     // There is a widget with the child ID from the command.
                     let child_widget_box =
                         if let Some(child_widget_box) = self.widgets.get(&child_id) {
@@ -545,7 +550,10 @@ impl WidgetManager {
 
                     widget_box
                         .borrow_mut()
-                        .handle_command(&WidgetCommand::AddChild(child_widget_box.clone()))?;
+                        .handle_command(&WidgetCommand::AddChild(
+                            widget_placement,
+                            child_widget_box.clone(),
+                        ))?;
                 }
                 Command::RemoveAllChildren(_widget_id) => {
                     widget_box
@@ -557,7 +565,12 @@ impl WidgetManager {
                         .borrow_mut()
                         .handle_command(&WidgetCommand::RemoveChild(widget_specification))?;
                 }
-                Command::SetChild(_widget_id, widget_specification, child_widget_id) => {
+                Command::SetChild {
+                    widget_id: _,
+                    column,
+                    row,
+                    child_widget_id,
+                } => {
                     // There is a widget with the given child widget ID.
                     let widget_box = if let Some(widget_box) = self.widgets.get(&child_widget_id) {
                         widget_box
@@ -569,10 +582,11 @@ impl WidgetManager {
 
                     widget_box
                         .borrow_mut()
-                        .handle_command(&WidgetCommand::SetChild(
-                            widget_specification,
-                            widget_box.clone(),
-                        ))?;
+                        .handle_command(&WidgetCommand::SetChild {
+                            column,
+                            row,
+                            child_widget: widget_box.clone(),
+                        })?;
                 }
                 Command::SetDebugRendering(_widget_id, debug_rendering) => {
                     widget_box

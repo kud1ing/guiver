@@ -36,18 +36,9 @@ On the upside you get simple setup and simple control flow.
 
 ## Backlog
 
-* [ ] `WidgetCommand::AddChild`: use `Option<WidgetPlacement>`
-* [ ] remove `WidgetLocation` and integrate cell coordinates in `SetChild`?
-* [ ] fix the examples?
 * `Grid`:
-  * [ ] implement `Grid::handle_command(SetChild(WidgetLocation, WidgetBox))`
-  * [ ] implement `Grid::handle_command(RemoveAllChildren)`
-    * only remove the children?
-    * also remove the grid cell?
-  * [ ] implement `Grid::handle_event()`
-  * [ ] implement `Grid::paint()`
-  * [ ] `layout_grid.rs`: add widgets
-  * [ ] implement `Grid::layout_children()`
+  * [ ] implement `Grid::layout_child_widgets()`
+  * [ ] `layout_grid.rs`: add widgets via `SetChild`
 * [ ] `test::widgets_layout()`: add remaining layout widgets
 * [ ] `test::widgets()`: also produce layout widgets that have child widgets
 * [ ] add `WidgetCore::is_disabled`?
@@ -57,7 +48,7 @@ On the upside you get simple setup and simple control flow.
     * `Text`
     * `TextInput`
   * does it make sense for layout widgets?
-    * should they pass the command down to its children?
+    * should they pass the command down to its child widgets?
 * [ ] `TextInput`: Meta+C should copy the (selected) text/value
   * [ ] `WidgetManager::handle_event()`: intercept `WidgetEvent::SelectedValueChanged` from the focussed widget
     * [ ] `WidgetManager`: put the value in the clipboard

@@ -65,7 +65,7 @@ impl Button {
     }
 
     ///
-    fn layout_child(&mut self) {
+    fn layout_child_widget(&mut self) {
         // There is a child widget.
         if let Some(child_widget) = &mut self.child_widget {
             let padding_size =
@@ -92,7 +92,7 @@ impl Button {
                         0.5 * (self.core.rectangle.size().height - child_size.height).max(0.0),
                     );
 
-                // Set the child's origin.
+                // Set the child widget's origin.
                 child_widget.borrow_mut().set_origin(child_origin);
             }
         }
@@ -111,18 +111,18 @@ impl Widget for Button {
         self.core.size_constraints = size_constraints;
 
         // Layout the child widget.
-        self.layout_child();
+        self.layout_child_widget();
 
         self.core.rectangle.size()
     }
 
     fn handle_command(&mut self, widget_command: &WidgetCommand) -> Result<(), WidgetError> {
         match widget_command {
-            WidgetCommand::AddChild(child_widget) => {
+            WidgetCommand::AddChild(_widget_placement, child_widget) => {
                 self.child_widget = Some(child_widget.clone());
 
                 // Layout the child widget.
-                self.layout_child();
+                self.layout_child_widget();
 
                 Ok(())
             }
@@ -295,7 +295,7 @@ impl Widget for Button {
         self.core.rectangle = self.core.rectangle.with_origin(origin);
 
         // Layout the child widget.
-        self.layout_child();
+        self.layout_child_widget();
     }
 
     fn widget_id(&self) -> &WidgetId {

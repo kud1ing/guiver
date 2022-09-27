@@ -44,7 +44,7 @@ mod tests {
 
     /// Returns all widgets.
     fn widgets() -> Vec<Box<dyn Widget>> {
-        // TODO: Also add layout widgets with children.
+        // TODO: Also add layout widgets with child widgets.
         let mut widgets = widgets_layout();
         widgets.append(&mut widgets_non_layout());
         widgets

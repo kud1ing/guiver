@@ -1,10 +1,11 @@
 use crate::widget::core::WidgetCore;
-use crate::widget::{WidgetCommand, WidgetError, WidgetLocation};
+use crate::widget::{WidgetCommand, WidgetError};
 use crate::widget_manager::WidgetBox;
 use crate::{Event, Piet, Size, SizeConstraints, Stroke, Widget, WidgetEvent, WidgetId};
 use druid_shell::kurbo::{Point, Rect};
 use druid_shell::piet::{Error, RenderContext};
 use druid_shell::Region;
+use std::cell::RefCell;
 use std::collections::HashMap;
 
 ///
@@ -48,9 +49,13 @@ impl Default for GridRowProperties {
 /// A layout widget that positions its child widgets in a 2-dimensional grid.
 pub struct Grid {
     child_widgets: HashMap<(usize, usize), WidgetBox>,
-    column_properties: GridColumnProperties,
+    column_properties: Vec<GridColumnProperties>,
+    default_column_properties: GridColumnProperties,
+    default_row_properties: GridRowProperties,
     core: WidgetCore,
-    row_properties: GridRowProperties,
+    number_of_columns: usize,
+    number_of_rows: usize,
+    row_properties: Vec<GridRowProperties>,
 }
 
 impl Grid {
@@ -58,20 +63,41 @@ impl Grid {
     pub fn new(
         widget_id: WidgetId,
         debug_rendering_stroke: Stroke,
-        column_properties: GridColumnProperties,
-        row_properties: GridRowProperties,
+        default_column_properties: GridColumnProperties,
+        default_row_properties: GridRowProperties,
     ) -> Self {
         Grid {
             child_widgets: HashMap::new(),
-            column_properties,
+            column_properties: vec![],
             core: WidgetCore::new(widget_id, debug_rendering_stroke),
-            row_properties,
+            default_column_properties,
+            default_row_properties,
+            number_of_columns: 0,
+            number_of_rows: 0,
+            row_properties: vec![],
         }
     }
 
     ///
-    fn layout_children(&mut self) {
+    fn layout_child_widgets(&mut self) {
+        // TODO: Determine the column widths. Use `grid_column_properties()`
+        // TODO: Determine the row heights. Use `grid_row_properties()`
+
         // TODO
+    }
+
+    ///
+    fn grid_column_properties(&self, column_index: usize) -> &GridColumnProperties {
+        self.column_properties
+            .get(column_index)
+            .unwrap_or(&self.default_column_properties)
+    }
+
+    ///
+    fn grid_row_properties(&self, row_index: usize) -> &GridRowProperties {
+        self.row_properties
+            .get(row_index)
+            .unwrap_or(&self.default_row_properties)
     }
 }
 
@@ -79,32 +105,43 @@ impl Widget for Grid {
     fn apply_size_constraints(&mut self, size_constraints: SizeConstraints) -> Size {
         self.core.size_constraints = size_constraints;
 
-        // Layout the children.
-        self.layout_children();
+        // Layout the child widgets.
+        self.layout_child_widgets();
 
         self.core.rectangle.size()
     }
 
     fn handle_command(&mut self, widget_command: &WidgetCommand) -> Result<(), WidgetError> {
         match widget_command {
-            WidgetCommand::SetChild(widget_placement, _) => {
-                match widget_placement {
-                    WidgetLocation::Cell { column: _, row: _ } => {
-                        // TODO
-                        println!("TODO: `Grid::handle_command(SetChild)`");
+            WidgetCommand::SetChild {
+                column,
+                row,
+                child_widget,
+            } => {
+                // Add the given child widget.
+                self.child_widgets
+                    .insert((*column, *row), child_widget.clone());
 
-                        self.layout_children();
-
-                        return Ok(());
+                // Update the number of columns and rows.
+                {
+                    if *column > self.number_of_columns {
+                        self.number_of_columns = *column;
                     }
-                    _ => {}
+                    if *row > self.number_of_rows {
+                        self.number_of_rows = *row;
+                    }
                 }
+
+                self.layout_child_widgets();
+
+                return Ok(());
             }
             WidgetCommand::RemoveAllChildren => {
-                // TODO
-                println!("TODO: `Grid::handle_command(RemoveAllChildren)`");
+                self.child_widgets.clear();
+                self.number_of_columns = 0;
+                self.number_of_rows = 0;
 
-                self.layout_children();
+                self.layout_child_widgets();
 
                 return Ok(());
             }
@@ -112,7 +149,7 @@ impl Widget for Grid {
                 // TODO
                 println!("TODO: `Grid::handle_command(RemoveChild)`");
 
-                self.layout_children();
+                self.layout_child_widgets();
 
                 return Ok(());
             }
@@ -122,18 +159,23 @@ impl Widget for Grid {
         self.core.handle_command(widget_command)
     }
 
-    fn handle_event(&mut self, _event: &Event, _widget_events: &mut Vec<WidgetEvent>) {
-        // TODO: Iterate over the child widgets.
-        println!("TODO: `Grid::handle_event()`");
+    fn handle_event(&mut self, event: &Event, widget_events: &mut Vec<WidgetEvent>) {
+        // Iterate over the child widgets.
+        for child_widget in &mut self.child_widgets.values() {
+            RefCell::borrow_mut(child_widget).handle_event(event, widget_events);
+        }
     }
 
-    fn paint(&self, piet: &mut Piet, _region: &Region) -> Result<(), Error> {
+    fn paint(&self, piet: &mut Piet, region: &Region) -> Result<(), Error> {
+        // The grid widget is hidden.
         if self.core.is_hidden {
             return Ok(());
         }
 
-        // TODO: Iterate over the child widgets.
-        println!("TODO: `Grid::paint()`");
+        // Iterate over the child widgets.
+        for child_widget in self.child_widgets.values() {
+            RefCell::borrow(child_widget).paint(piet, region)?;
+        }
 
         // Render debug hints.
         if self.core.debug_rendering {
@@ -153,8 +195,8 @@ impl Widget for Grid {
     fn set_origin(&mut self, origin: Point) {
         self.core.rectangle = self.core.rectangle.with_origin(origin);
 
-        // Layout the children.
-        self.layout_children();
+        // Layout the child widgets.
+        self.layout_child_widgets();
     }
 
     fn widget_id(&self) -> &WidgetId {

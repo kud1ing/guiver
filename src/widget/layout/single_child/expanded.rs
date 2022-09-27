@@ -25,7 +25,7 @@ impl Expanded {
     }
 
     ///
-    fn layout_child(&mut self) {
+    fn layout_child_widget(&mut self) {
         self.core.rectangle = self
             .core
             .rectangle
@@ -51,7 +51,7 @@ impl Widget for Expanded {
         self.core.size_constraints = size_constraints;
 
         // Layout the child.
-        self.layout_child();
+        self.layout_child_widget();
 
         self.core.rectangle.size()
     }
@@ -62,11 +62,11 @@ impl Widget for Expanded {
 
     fn handle_command(&mut self, widget_command: &WidgetCommand) -> Result<(), WidgetError> {
         match widget_command {
-            WidgetCommand::AddChild(child_widget) => {
+            WidgetCommand::AddChild(_widget_placement, child_widget) => {
                 self.child_widget = Some(child_widget.clone());
 
                 // Layout the child.
-                self.layout_child();
+                self.layout_child_widget();
 
                 return Ok(());
             }
@@ -133,7 +133,7 @@ impl Widget for Expanded {
         self.core.rectangle = self.core.rectangle.with_origin(origin);
 
         // Layout the child.
-        self.layout_child();
+        self.layout_child_widget();
     }
 
     fn widget_id(&self) -> &WidgetId {

@@ -1,6 +1,6 @@
 use crate::stroke::Stroke;
 use crate::widget::core::WidgetCore;
-use crate::widget::{WidgetCommand, WidgetError, WidgetId};
+use crate::widget::{WidgetCommand, WidgetError, WidgetId, WidgetPlacement};
 use crate::widget_manager::WidgetBox;
 use crate::{Event, HorizontalAlignment, SizeConstraints, Widget, WidgetEvent};
 use druid_shell::kurbo::{Point, Rect, Size};
@@ -35,35 +35,35 @@ impl Column {
     }
 
     ///
-    fn layout_children(&mut self) {
+    fn layout_child_widgets(&mut self) {
         // Determine the number of child widgets.
         let number_of_child_widgets = self.child_widgets.len();
 
-        // There are no children.
+        // There are no child widgets.
         if number_of_child_widgets == 0 {
             return;
         }
 
-        // Determine the child size constraints.
+        // Determine the child widget size constraints.
         let child_size_constraints =
             SizeConstraints::new(Size::ZERO, *self.core.size_constraints.maximum());
 
         let mut child_and_spacing_size_sum = Size::ZERO;
         let mut flex_factor_sum: u16 = 0;
 
-        // First pass over the children.
+        // First pass over the child widgets.
         for (i, child_widget) in &mut self.child_widgets.iter().enumerate() {
             // Apply the size constraints to the child widget.
             let child_size = RefCell::borrow_mut(child_widget)
                 .borrow_mut()
                 .apply_size_constraints(child_size_constraints);
 
-            // Update the sum of child and spacing sizes.
+            // Update the sum of child widget and spacing sizes.
             // Include the child widget's width.
             child_and_spacing_size_sum.width =
                 child_and_spacing_size_sum.width.max(child_size.width);
 
-            // Add the spacer to child and spacing sizes.
+            // Add the spacer to child widget and spacing sizes.
             if i > 0 {
                 child_and_spacing_size_sum.height += self.spacing;
             }
@@ -88,7 +88,7 @@ impl Column {
 
         // The child widgets do not have a flex factor.
         if flex_factor_sum == 0 {
-            // Set the parent size to the sum of the child and spacing sizes.
+            // Set the parent size to the sum of the child widget and spacing sizes.
             self.core.rectangle = self.core.rectangle.with_size(child_and_spacing_size_sum);
         }
         // The child widgets do have a flex factor.
@@ -106,9 +106,9 @@ impl Column {
 
         let mut child_y = self.core.rectangle.origin().y;
 
-        // Second pass over the children.
+        // Second pass over the child widgets.
         for child_widget in &mut self.child_widgets {
-            // Get the child's flex factor.
+            // Get the child widget's flex factor.
             let flex_factor = RefCell::borrow(child_widget).borrow().flex_factor();
 
             // The child widget does not have a flex factor.
@@ -133,7 +133,7 @@ impl Column {
                 expanded_child_size
             };
 
-            // Determine the child's horizontal position.
+            // Determine the child widget's horizontal position.
             let child_x = match self.horizontal_alignment {
                 HorizontalAlignment::Center => {
                     self.core.rectangle.origin().x
@@ -146,7 +146,7 @@ impl Column {
                 }
             };
 
-            // Set the children's origins.
+            // Set the child widget's origins.
             RefCell::borrow_mut(child_widget)
                 .borrow_mut()
                 .set_origin((child_x, child_y).into());
@@ -161,27 +161,46 @@ impl Widget for Column {
     fn apply_size_constraints(&mut self, size_constraints: SizeConstraints) -> Size {
         self.core.size_constraints = size_constraints;
 
-        // Layout the children.
-        self.layout_children();
+        // Layout the child widgets.
+        self.layout_child_widgets();
 
         self.core.rectangle.size()
     }
 
     fn handle_command(&mut self, widget_command: &WidgetCommand) -> Result<(), WidgetError> {
         match widget_command {
-            WidgetCommand::AddChild(child_widget) => {
-                self.child_widgets.push(child_widget.clone());
+            WidgetCommand::AddChild(widget_placement, child_widget) => {
+                // A widget placement is given.
+                if let Some(widget_placement) = widget_placement {
+                    match widget_placement {
+                        WidgetPlacement::Above(_widgets_location) => {
+                            // TODO
+                            println!("TODO: `Column::handle_command(WidgetCommand::AddChild(WidgetPlacement::Above(...)))");
+                        }
+                        WidgetPlacement::Below(_widgets_location) => {
+                            // TODO
+                            println!("TODO: `Column::handle_command(WidgetCommand::AddChild(WidgetPlacement::Below(...)))");
+                        }
+                        _ => {
+                            return self.core.handle_command(widget_command);
+                        }
+                    }
+                }
+                // No widget placement is given.
+                else {
+                    self.child_widgets.push(child_widget.clone());
+                }
 
-                // Layout the children.
-                self.layout_children();
+                // Layout the child widgets.
+                self.layout_child_widgets();
 
                 return Ok(());
             }
             WidgetCommand::RemoveAllChildren => {
                 self.child_widgets.clear();
 
-                // Layout the children.
-                self.layout_children();
+                // Layout the child widgets.
+                self.layout_child_widgets();
 
                 return Ok(());
             }
@@ -193,16 +212,16 @@ impl Widget for Column {
                     *RefCell::borrow(child_widget).widget_id() != *child_widget_id
                 });
 
-                // Layout the remaining children.
-                self.layout_children();
+                // Layout the remaining child widgets.
+                self.layout_child_widgets();
 
                 return Ok(());
             }
             WidgetCommand::SetHorizontalAlignment(horizontal_alignment) => {
                 self.horizontal_alignment = horizontal_alignment.clone();
 
-                // Layout the children.
-                self.layout_children();
+                // Layout the child widgets.
+                self.layout_child_widgets();
 
                 return Ok(());
             }
@@ -220,6 +239,7 @@ impl Widget for Column {
     }
 
     fn paint(&self, piet: &mut Piet, region: &Region) -> Result<(), piet::Error> {
+        // The row widget is hidden.
         if self.core.is_hidden {
             return Ok(());
         }
@@ -248,8 +268,8 @@ impl Widget for Column {
     fn set_origin(&mut self, origin: Point) {
         self.core.rectangle = self.core.rectangle.with_origin(origin);
 
-        // Layout the children.
-        self.layout_children();
+        // Layout the child widgets.
+        self.layout_child_widgets();
     }
 
     fn widget_id(&self) -> &WidgetId {

@@ -28,13 +28,17 @@ pub type WidgetId = usize;
 /// A command to a widget.
 pub enum WidgetCommand {
     /// Adds the given child widget.
-    AddChild(WidgetBox),
+    AddChild(Option<WidgetPlacement>, WidgetBox),
     /// Remove all of the widget's child widgets.
     RemoveAllChildren,
     /// Remove the child widget with the given ID.
     RemoveChild(WidgetId),
     /// Sets/replaces the child widget at the given location.
-    SetChild(WidgetLocation, WidgetBox),
+    SetChild {
+        column: usize,
+        row: usize,
+        child_widget: WidgetBox,
+    },
     /// Enables/disables debug rendering mode.
     SetDebugRendering(bool),
     /// Sets/unsets the widget's fill.
@@ -60,10 +64,11 @@ pub enum WidgetCommand {
 impl Debug for WidgetCommand {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match self {
-            WidgetCommand::AddChild(widget_box) => {
+            WidgetCommand::AddChild(widget_placement, widget_box) => {
                 write!(
                     f,
-                    "WidgetCommand::AppendChild({:?})",
+                    "WidgetCommand::AppendChild({:?}, {:?})",
+                    widget_placement,
                     RefCell::borrow(widget_box).widget_id()
                 )
             }
@@ -73,8 +78,8 @@ impl Debug for WidgetCommand {
             WidgetCommand::RemoveChild(_) => {
                 write!(f, "WidgetCommand::RemoveChild(...)")
             }
-            WidgetCommand::SetChild(_, _) => {
-                write!(f, "WidgetCommand::SetChild(...)")
+            WidgetCommand::SetChild { .. } => {
+                write!(f, "WidgetCommand::SetChild {{...}}")
             }
             WidgetCommand::SetDebugRendering(_) => {
                 write!(f, "WidgetCommand::SetDebugRendering(...)")
@@ -137,14 +142,6 @@ pub enum WidgetEvent {
     Submitted(WidgetId),
     /// The widget's value was changed.
     ValueChanged(WidgetId, Box<dyn Any>),
-}
-
-// =================================================================================================
-
-///
-#[derive(Clone, Debug)]
-pub enum WidgetLocation {
-    Cell { column: usize, row: usize },
 }
 
 // =================================================================================================

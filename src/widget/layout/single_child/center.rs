@@ -23,7 +23,7 @@ impl Center {
     }
 
     ///
-    fn layout_child(&mut self) {
+    fn layout_child_widget(&mut self) {
         // There is a child widget.
         if let Some(child_widget) = &mut self.child_widget {
             // Apply the child widget's size constraints.
@@ -36,7 +36,7 @@ impl Center {
                 *self.core.size_constraints.maximum(),
             ));
 
-            // Set the child's origin.
+            // Set the child widget's origin.
             child_widget.borrow_mut().set_origin(
                 self.core.rectangle.origin()
                     + (
@@ -58,19 +58,19 @@ impl Widget for Center {
     fn apply_size_constraints(&mut self, size_constraints: SizeConstraints) -> Size {
         self.core.size_constraints = size_constraints;
 
-        // Layout the child.
-        self.layout_child();
+        // Layout the child widget.
+        self.layout_child_widget();
 
         self.core.rectangle.size()
     }
 
     fn handle_command(&mut self, widget_command: &WidgetCommand) -> Result<(), WidgetError> {
         match widget_command {
-            WidgetCommand::AddChild(child_widget) => {
+            WidgetCommand::AddChild(_widget_placement, child_widget) => {
                 self.child_widget = Some(child_widget.clone());
 
-                // Layout the child.
-                self.layout_child();
+                // Layout the child widget.
+                self.layout_child_widget();
 
                 Ok(())
             }
@@ -127,8 +127,8 @@ impl Widget for Center {
     fn set_origin(&mut self, origin: Point) {
         self.core.rectangle = self.core.rectangle.with_origin(origin);
 
-        // Layout the child.
-        self.layout_child();
+        // Layout the child widget.
+        self.layout_child_widget();
     }
 
     fn widget_id(&self) -> &WidgetId {

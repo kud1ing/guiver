@@ -82,7 +82,7 @@ impl TextInput {
     }
 
     ///
-    fn layout_child(&mut self) {
+    fn layout_child_widget(&mut self) {
         // Add the padding to the border size.
         let mut border_width = 2.0 * self.padding;
         let mut border_height = 2.0 * self.padding;
@@ -173,7 +173,7 @@ impl TextInput {
         // Update the caret index, if necessary.
         self.update_caret_character_index();
 
-        self.layout_child();
+        self.layout_child_widget();
     }
 }
 
@@ -182,7 +182,7 @@ impl Widget for TextInput {
         self.core.size_constraints = size_constraints;
 
         // Layout the child widget.
-        self.layout_child();
+        self.layout_child_widget();
 
         self.core.rectangle.size()
     }
@@ -357,7 +357,7 @@ impl Widget for TextInput {
         self.core.rectangle = self.core.rectangle.with_origin(origin);
 
         // Layout the child widget.
-        self.layout_child();
+        self.layout_child_widget();
     }
 
     fn widget_id(&self) -> &WidgetId {
