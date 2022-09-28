@@ -96,6 +96,9 @@ impl Widget for Padding {
             WidgetCommand::RemoveAllChildren => {
                 self.child_widget = None;
 
+                // Update this widget's size.
+                self.layout_child_widget();
+
                 Ok(())
             }
             WidgetCommand::RemoveChild(_) => {
@@ -103,6 +106,9 @@ impl Widget for Padding {
                 if let Some(_child_widget) = &mut self.child_widget {
                     // TODO
                     println!("`Padding::handle_command(RemoveChild)`: TODO");
+
+                    // Update this widget's size.
+                    self.layout_child_widget();
 
                     Ok(())
                 }

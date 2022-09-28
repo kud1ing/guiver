@@ -35,15 +35,7 @@ impl Row {
 
     ///
     fn layout_child_widgets(&mut self) {
-        // Determine the number of child widgets.
-        let number_of_child_widgets = self.child_widgets.len();
-
-        // There are no child widgets.
-        if number_of_child_widgets == 0 {
-            return;
-        }
-
-        // Determine the child size constraints.
+        // Create the child size constraints.
         let child_size_constraints =
             SizeConstraints::new(Size::ZERO, *self.core.size_constraints.maximum());
 
@@ -52,7 +44,7 @@ impl Row {
 
         // First pass over the child widgets.
         for (i, child_widget) in &mut self.child_widgets.iter().enumerate() {
-            // Apply the size constraints to the child widget.
+            // Apply the size constraints to the current child widget.
             let child_size = RefCell::borrow_mut(child_widget)
                 .borrow_mut()
                 .apply_size_constraints(child_size_constraints);
@@ -124,7 +116,7 @@ impl Row {
                     child_size.height,
                 );
 
-                // Apply the size constraints to the child widget.
+                // Apply the size constraints to the current child widget.
                 RefCell::borrow_mut(child_widget)
                     .borrow_mut()
                     .apply_size_constraints(SizeConstraints::tight(expanded_child_size));
@@ -198,7 +190,7 @@ impl Widget for Row {
             WidgetCommand::RemoveAllChildren => {
                 self.child_widgets.clear();
 
-                // Layout the child widgets.
+                // Update this widget's size.
                 self.layout_child_widgets();
 
                 return Ok(());
@@ -233,6 +225,7 @@ impl Widget for Row {
     fn handle_event(&mut self, event: &Event, widget_events: &mut Vec<WidgetEvent>) {
         // Iterate over the child widgets.
         for child_widget in &mut self.child_widgets {
+            // Let the current child widget handle the given event.
             RefCell::borrow_mut(child_widget).handle_event(event, widget_events);
         }
     }
@@ -245,6 +238,7 @@ impl Widget for Row {
 
         // Iterate over the child widgets.
         for child_widget in &self.child_widgets {
+            // Paint the current child widget.
             RefCell::borrow(child_widget).paint(piet, region)?;
         }
 

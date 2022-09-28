@@ -69,11 +69,18 @@ impl Widget for SizedBox {
             }
             WidgetCommand::RemoveAllChildren => {
                 self.child_widget = None;
+
+                // Update this widget's size.
+                self.layout_child_widget();
+
                 Ok(())
             }
             WidgetCommand::RemoveChild(_) => {
                 // TODO
                 println!("`SizedBox::handle_command(RemoveChild)`: TODO");
+
+                // Update this widget's size.
+                self.layout_child_widget();
 
                 Ok(())
             }

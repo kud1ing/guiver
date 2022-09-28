@@ -73,6 +73,9 @@ impl Widget for Expanded {
             WidgetCommand::RemoveAllChildren => {
                 self.child_widget = None;
 
+                // Update this widget's size.
+                self.layout_child_widget();
+
                 return Ok(());
             }
             WidgetCommand::RemoveChild(child_widget_id) => {
@@ -80,6 +83,9 @@ impl Widget for Expanded {
                 if let Some(_child_widget) = &mut self.child_widget {
                     // TODO
                     println!("`Expanded::handle_command(RemoveChild)`: TODO");
+
+                    // Update this widget's size.
+                    self.layout_child_widget();
 
                     return Ok(());
                 }
