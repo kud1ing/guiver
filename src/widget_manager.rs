@@ -256,7 +256,7 @@ impl WidgetManager {
     }
 
     ///
-    fn next_widget_id(&mut self) -> WidgetId {
+    pub fn next_widget_id(&mut self) -> WidgetId {
         self.next_widget_id_counter += 1;
         self.next_widget_id_counter
     }

@@ -6,6 +6,7 @@ mod placeholder;
 mod text;
 mod text_input;
 
+pub use self::core::WidgetCore;
 use crate::stroke::Stroke;
 use crate::widget_manager::WidgetBox;
 use crate::{Event, Font, HorizontalAlignment, Rect, SizeConstraints, VerticalAlignment};
@@ -168,7 +169,9 @@ pub enum WidgetPlacement {
 
 // =================================================================================================
 
+/// The widget trait
 ///
+/// A widget should try to be as small as possible.
 pub trait Widget {
     ///
     fn apply_size_constraints(&mut self, size_constraints: SizeConstraints) -> Size;

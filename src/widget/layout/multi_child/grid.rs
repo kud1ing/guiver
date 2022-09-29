@@ -1,7 +1,10 @@
 use crate::widget::core::WidgetCore;
 use crate::widget::{WidgetCommand, WidgetError};
 use crate::widget_manager::WidgetBox;
-use crate::{Event, Piet, Size, SizeConstraints, Stroke, Widget, WidgetEvent, WidgetId};
+use crate::{
+    Event, HorizontalAlignment, Piet, Size, SizeConstraints, Stroke, VerticalAlignment, Widget,
+    WidgetEvent, WidgetId,
+};
 use druid_shell::kurbo::{Point, Rect};
 use druid_shell::piet::{Error, RenderContext};
 use druid_shell::Region;
@@ -12,6 +15,7 @@ use std::collections::HashMap;
 ///
 pub struct GridColumnProperties {
     flex_factor: u16,
+    horizontal_alignment: HorizontalAlignment,
     minimum_width: f64,
     spacing: f64,
 }
@@ -20,6 +24,7 @@ impl Default for GridColumnProperties {
     fn default() -> Self {
         GridColumnProperties {
             flex_factor: 0,
+            horizontal_alignment: HorizontalAlignment::Center,
             minimum_width: 0.0,
             spacing: 10.0,
         }
@@ -33,6 +38,7 @@ pub struct GridRowProperties {
     flex_factor: u16,
     minimum_height: f64,
     spacing: f64,
+    vertical_alignment: VerticalAlignment,
 }
 
 impl Default for GridRowProperties {
@@ -41,6 +47,7 @@ impl Default for GridRowProperties {
             flex_factor: 0,
             minimum_height: 0.0,
             spacing: 10.0,
+            vertical_alignment: VerticalAlignment::Middle,
         }
     }
 }

@@ -51,8 +51,8 @@ On the upside you get simple setup and simple control flow.
     * should they pass the command down to its child widgets?
 * [ ] `TextInput`: Meta+C should copy the (selected) text/value
   * [ ] `WidgetManager::handle_event()`: intercept `WidgetEvent::SelectedValueChanged` from the focussed widget
-    * [ ] `WidgetManager`: put the value in the clipboard
-      * [ ] how?
+    * [ ] `WidgetManager`: put the value in the clipboard using
+      [`Clipboard::put_string()`](https://docs.rs/druid/latest/druid/struct.Clipboard.html#method.put_string)
   * [ ] `TextInput`: produce `WidgetEvent::SelectedValueChanged`
 * `TextInput` caret:
   * [ ] add a hash map from caret character indices to x positions
@@ -76,8 +76,7 @@ On the upside you get simple setup and simple control flow.
     * [ ] widgets need to tell the widget manager somehow, that they accept focus
       * `accepts_focus()` (`Button`, `TextInput`)
   * [ ] give the next widget in the tab order the focus when tab key is pressed
-* [ ] publish 0.1.1, once the updated `druid-shell` and `piet` are released
-  * https://github.com/linebender/druid/issues/2236
+* [ ] publish 0.1.1, once the updated `druid-shell` and `piet` are [released](https://github.com/linebender/piet/pull/518)
 * add integration tests:
   * `widgets()`:
     * [ ] add `Column`

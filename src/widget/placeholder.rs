@@ -113,6 +113,15 @@ impl Widget for Placeholder {
             );
         }
 
+        // Render debug hints.
+        if self.core.debug_rendering {
+            piet.stroke(
+                self.core.rectangle,
+                &self.core.debug_rendering_stroke.stroke_brush,
+                self.core.debug_rendering_stroke.stroke_width,
+            );
+        }
+
         Ok(())
     }
 
