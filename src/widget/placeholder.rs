@@ -13,7 +13,6 @@ pub struct Placeholder {
     desired_size: Size,
     fill: Option<PaintBrush>,
     stroke: Option<Stroke>,
-    widget_id: WidgetId,
 }
 
 impl Placeholder {
@@ -34,7 +33,6 @@ impl Placeholder {
                 stroke_style: stroke_style.dash_pattern(&[4.0, 2.0]),
                 stroke_width: 1.0,
             }),
-            widget_id,
         }
     }
 }

@@ -14,8 +14,8 @@ pub use application::{run, Application};
 use druid_shell::kurbo;
 pub use druid_shell::kurbo::{Rect, Size};
 pub use druid_shell::piet::{
-    Color, Error, FontFamily, FontWeight, LinearGradient, PaintBrush, Piet, RenderContext,
-    StrokeDash, StrokeStyle, TextLayout, UnitPoint,
+    Color, Error, FontFamily, FontWeight, LinearGradient, PaintBrush, Piet, PietTextLayout,
+    RenderContext, StrokeDash, StrokeStyle, TextLayout, UnitPoint,
 };
 pub use druid_shell::{Clipboard, Region};
 pub use event::Event;
