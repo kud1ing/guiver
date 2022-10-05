@@ -50,9 +50,8 @@ impl Widget for Hyperlink {
     }
 
     fn handle_command(&mut self, widget_command: &WidgetCommand) -> Result<(), WidgetError> {
-        match widget_command {
-            WidgetCommand::SetStroke(_) => return self.text_widget.handle_command(widget_command),
-            _ => {}
+        if let WidgetCommand::SetStroke(_) = widget_command {
+            return self.text_widget.handle_command(widget_command);
         };
 
         self.text_widget.handle_command(widget_command)

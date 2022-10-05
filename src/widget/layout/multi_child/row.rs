@@ -209,7 +209,7 @@ impl Widget for Row {
                 return Ok(());
             }
             WidgetCommand::SetVerticalAlignment(vertical_alignment) => {
-                self.vertical_alignment = vertical_alignment.clone();
+                self.vertical_alignment = *vertical_alignment;
 
                 // Layout the child widgets.
                 self.layout_child_widgets();

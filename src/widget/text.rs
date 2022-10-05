@@ -106,7 +106,7 @@ impl Widget for Text {
                 Ok(())
             }
             WidgetCommand::SetHorizontalAlignment(horizontal_alignment) => {
-                self.horizontal_alignment = horizontal_alignment.clone();
+                self.horizontal_alignment = *horizontal_alignment;
 
                 // Layout.
                 self.layout_text();
@@ -141,7 +141,7 @@ impl Widget for Text {
                 Ok(())
             }
             WidgetCommand::SetVerticalAlignment(vertical_alignment) => {
-                self.vertical_alignment = vertical_alignment.clone();
+                self.vertical_alignment = *vertical_alignment;
 
                 // Layout.
                 self.layout_text();
@@ -153,16 +153,13 @@ impl Widget for Text {
     }
 
     fn handle_event(&mut self, event: &Event, widget_events: &mut Vec<WidgetEvent>) {
-        match event {
-            Event::MouseDown(mouse_event) => {
-                // The click is outside of the text.
-                if !self.core.rectangle.contains(mouse_event.pos) {
-                    return;
-                }
-
-                widget_events.push(WidgetEvent::Clicked(self.core.widget_id));
+        if let Event::MouseDown(mouse_event) = event {
+            // The click is outside of the text.
+            if !self.core.rectangle.contains(mouse_event.pos) {
+                return;
             }
-            _ => {}
+
+            widget_events.push(WidgetEvent::Clicked(self.core.widget_id));
         }
     }
 

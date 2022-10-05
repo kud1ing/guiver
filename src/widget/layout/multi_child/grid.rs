@@ -105,8 +105,8 @@ impl Grid {
                 .apply_size_constraints(child_size_constraints);
         }
 
-        for column_index in 0..self.number_of_columns {
-            for row_index in 0..self.number_of_rows {
+        for _column_index in 0..self.number_of_columns {
+            for _row_index in 0..self.number_of_rows {
                 // TODO: Determine the column widths. Use `grid_column_properties()`
                 // TODO: Determine the row heights. Use `grid_row_properties()`
             }

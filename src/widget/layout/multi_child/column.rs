@@ -210,7 +210,7 @@ impl Widget for Column {
                 return Ok(());
             }
             WidgetCommand::SetHorizontalAlignment(horizontal_alignment) => {
-                self.horizontal_alignment = horizontal_alignment.clone();
+                self.horizontal_alignment = *horizontal_alignment;
 
                 // Layout the child widgets.
                 self.layout_child_widgets();
