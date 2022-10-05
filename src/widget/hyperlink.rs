@@ -60,9 +60,6 @@ impl Widget for Hyperlink {
 
     fn handle_event(&mut self, event: &Event, widget_events: &mut Vec<WidgetEvent>) {
         match event {
-            Event::ClipboardPaste(_) => {}
-            Event::KeyDown(_) => {}
-            Event::KeyUp(_) => {}
             Event::MouseDown(mouse_event) => {
                 // The click is outside of the text.
                 if !self.text_widget.rectangle().contains(mouse_event.pos) {
@@ -74,7 +71,6 @@ impl Widget for Hyperlink {
 
                 widget_events.push(WidgetEvent::Clicked(*self.text_widget.widget_id()));
             }
-            Event::MouseMove(_) => {}
             Event::MouseUp(mouse_event) => {
                 // The click is outside of the text.
                 if !self.text_widget.rectangle().contains(mouse_event.pos) {
@@ -87,6 +83,7 @@ impl Widget for Hyperlink {
                     self.was_visited = true;
                 }
             }
+            _ => {}
         }
     }
 

@@ -140,7 +140,13 @@ impl WinHandler for WindowEventHandler {
             .invalidate_rect(self.window_size.to_rect());
     }
 
-    fn request_close(&mut self) {}
+    fn request_close(&mut self) {
+        // Handle the close request event.
+        self.application.handle_event(&Event::RequestClose);
+
+        self.window_handle
+            .invalidate_rect(self.window_size.to_rect());
+    }
 
     fn destroy(&mut self) {}
 

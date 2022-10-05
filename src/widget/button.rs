@@ -177,14 +177,12 @@ impl Widget for Button {
 
     fn handle_event(&mut self, event: &Event, widget_events: &mut Vec<WidgetEvent>) {
         match event {
-            Event::ClipboardPaste(_) => {}
             Event::KeyDown(key_event) => {
                 if key_event.key == KbKey::Enter {
                     // Enter on a (focused) button is like a click.
                     widget_events.push(WidgetEvent::Clicked(self.core.widget_id));
                 }
             }
-            Event::KeyUp(_) => {}
             Event::MouseDown(mouse_event) => {
                 // The mouse is down within this button.
                 if self.core.rectangle.contains(mouse_event.pos) {
@@ -231,6 +229,7 @@ impl Widget for Button {
                 self.is_down = false;
                 self.is_hot = false;
             }
+            _ => {}
         }
     }
 

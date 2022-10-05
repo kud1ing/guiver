@@ -273,7 +273,6 @@ impl Widget for TextInput {
                 }
                 _ => {}
             },
-            Event::KeyUp(_key_event) => {}
             Event::MouseDown(mouse_event) => {
                 // The mouse is down within this text input.
                 if self.core.rectangle.contains(mouse_event.pos) {
@@ -298,8 +297,7 @@ impl Widget for TextInput {
                     }
                 }
             }
-            Event::MouseMove(_) => {}
-            Event::MouseUp(_) => {}
+            _ => {}
         }
     }
 

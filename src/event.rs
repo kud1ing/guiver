@@ -9,4 +9,5 @@ pub enum Event {
     MouseDown(MouseEvent),
     MouseMove(MouseEvent),
     MouseUp(MouseEvent),
+    RequestClose,
 }

@@ -154,9 +154,6 @@ impl Widget for Text {
 
     fn handle_event(&mut self, event: &Event, widget_events: &mut Vec<WidgetEvent>) {
         match event {
-            Event::ClipboardPaste(_) => {}
-            Event::KeyDown(_) => {}
-            Event::KeyUp(_) => {}
             Event::MouseDown(mouse_event) => {
                 // The click is outside of the text.
                 if !self.core.rectangle.contains(mouse_event.pos) {
@@ -165,8 +162,7 @@ impl Widget for Text {
 
                 widget_events.push(WidgetEvent::Clicked(self.core.widget_id));
             }
-            Event::MouseMove(_mouse_event) => {}
-            Event::MouseUp(_mouse_event) => {}
+            _ => {}
         }
     }
 
