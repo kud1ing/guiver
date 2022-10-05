@@ -36,8 +36,8 @@ pub enum WidgetCommand {
     RemoveChild(WidgetId),
     /// Sets/replaces the child widget at the given location.
     SetChild {
-        column: usize,
-        row: usize,
+        column_index: usize,
+        row_index: usize,
         child_widget: WidgetBox,
     },
     /// Enables/disables debug rendering mode.

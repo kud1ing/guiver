@@ -8,7 +8,7 @@ use crate::{
 use druid_shell::kurbo::{Point, Rect};
 use druid_shell::piet::{Error, RenderContext};
 use druid_shell::Region;
-use std::borrow::BorrowMut;
+use std::borrow::{Borrow, BorrowMut};
 use std::cell::RefCell;
 use std::collections::HashMap;
 
@@ -105,24 +105,49 @@ impl Grid {
                 .apply_size_constraints(child_size_constraints);
         }
 
-        for _column_index in 0..self.number_of_columns {
-            for _row_index in 0..self.number_of_rows {
-                // TODO: Determine the column widths. Use `grid_column_properties()`
-                // TODO: Determine the row heights. Use `grid_row_properties()`
+        let mut column_widths = Vec::with_capacity(self.number_of_columns);
+        let mut row_heights = Vec::with_capacity(self.number_of_rows);
+
+        // Determine the columns widths and row heights.
+        {
+            // Initialize the widths and heights with zero.
+            {
+                for _ in 0..self.number_of_columns {
+                    column_widths.push(0.0);
+                }
+
+                for _ in 0..self.number_of_rows {
+                    row_heights.push(0.0);
+                }
+            }
+
+            // Iterate over the child widgets in order to determine the column widths and row heights.
+            for ((column_index, row_index), child_widget) in &self.child_widgets {
+                let current_column_width = column_widths.get(*column_index).unwrap();
+                let current_row_height = row_heights.get(*row_index).unwrap();
+
+                // Get the current child widget's size.
+                let widget_size = RefCell::borrow(child_widget).borrow().rectangle().size();
+
+                // The current widget is wider than the current column width.
+                if widget_size.width > *current_column_width {
+                    column_widths[*column_index] = widget_size.width;
+                }
+
+                // The current widget is higher than the current row height.
+                if widget_size.height > *current_row_height {
+                    row_heights[*row_index] = widget_size.height;
+                }
             }
         }
 
+        // TODO
         /*
         let mut child_and_spacing_size_sum = Size::ZERO;
         let mut flex_factor_sum: u16 = 0;
 
         // First pass over the child widgets.
         for (i, child_widget) in &mut self.child_widgets.iter().enumerate() {
-            // Apply the size constraints to the current child widget.
-            let child_size = RefCell::borrow_mut(child_widget)
-                .borrow_mut()
-                .apply_size_constraints(child_size_constraints);
-
             // Update the sum of child and spacing sizes.
             // Include the child widget's height.
             child_and_spacing_size_sum.height =
@@ -170,6 +195,7 @@ impl Grid {
             (self.core.rectangle.width() - child_and_spacing_size_sum.width).max(0.0);
 
         let mut child_x = self.core.rectangle.origin().x;
+        let mut child_y = self.core.rectangle.origin().y;
 
         // Second pass over the child widgets.
         for child_widget in &mut self.child_widgets {
@@ -249,21 +275,29 @@ impl Widget for Grid {
     fn handle_command(&mut self, widget_command: &WidgetCommand) -> Result<(), WidgetError> {
         match widget_command {
             WidgetCommand::SetChild {
-                column,
-                row,
+                column_index: column,
+                row_index: row,
                 child_widget,
             } => {
                 // Add the given child widget.
                 self.child_widgets
                     .insert((*column, *row), child_widget.clone());
 
-                // Update the number of columns and rows.
+                // Update the number of columns.
                 {
-                    if *column > self.number_of_columns {
-                        self.number_of_columns = *column;
+                    let minimum_number_of_column = *column + 1;
+
+                    if minimum_number_of_column > self.number_of_columns {
+                        self.number_of_columns = minimum_number_of_column;
                     }
-                    if *row > self.number_of_rows {
-                        self.number_of_rows = *row;
+                }
+
+                // Update the number of rows.
+                {
+                    let minimum_number_of_rows = *row + 1;
+
+                    if minimum_number_of_rows > self.number_of_rows {
+                        self.number_of_rows = minimum_number_of_rows;
                     }
                 }
 
@@ -278,17 +312,6 @@ impl Widget for Grid {
                 self.number_of_rows = 0;
 
                 // Update this widget's size.
-                self.layout_child_widgets();
-
-                return Ok(());
-            }
-            WidgetCommand::RemoveChild(_) => {
-                // TODO: Remove the child widget.
-                println!("TODO: `Grid::handle_command(RemoveChild)`");
-
-                // TODO: Update the number of columns and rows.
-
-                // Layout the child widgets.
                 self.layout_child_widgets();
 
                 return Ok(());

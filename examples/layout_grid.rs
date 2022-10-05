@@ -25,9 +25,24 @@ impl App {
             .send_commands(vec![
                 Command::SetMainWidget(padding),
                 Command::AddChild(padding, None, grid),
-                Command::AddChild(grid, None, placeholder1),
-                Command::AddChild(grid, None, placeholder2),
-                Command::AddChild(grid, None, placeholder3),
+                Command::SetChild {
+                    widget_id: grid,
+                    column_index: 0,
+                    row_index: 1,
+                    child_widget_id: placeholder1,
+                },
+                Command::SetChild {
+                    widget_id: grid,
+                    column_index: 1,
+                    row_index: 0,
+                    child_widget_id: placeholder2,
+                },
+                Command::SetChild {
+                    widget_id: grid,
+                    column_index: 1,
+                    row_index: 2,
+                    child_widget_id: placeholder3,
+                },
             ])
             .unwrap();
 

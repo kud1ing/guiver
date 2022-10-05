@@ -38,7 +38,7 @@ On the upside you get simple setup and simple control flow.
 
 * `Grid`:
   * [ ] implement `Grid::layout_child_widgets()`
-  * [ ] `layout_grid.rs`: add widgets via `SetChild`
+  * [ ] test `layout_grid.rs`
 * [ ] `test::widgets_layout()`: add remaining layout widgets
 * [ ] `test::widgets()`: also produce layout widgets that have child widgets
 * [ ] add `WidgetCore::is_disabled`?
@@ -148,3 +148,17 @@ On the upside you get simple setup and simple control flow.
 * [ ] consider decoupling from druid-shell/piet 
 
 See also ["So you want to write a GUI framework"](https://www.cmyr.net/blog/gui-framework-ingredients.html)
+
+
+## License
+
+Licensed under either of
+* Apache License, Version 2.0 ([LICENSE-APACHE](LICENSE-APACHE) or http://www.apache.org/licenses/LICENSE-2.0)
+* MIT license ([LICENSE-MIT](LICENSE-MIT) or http://opensource.org/licenses/MIT)
+  at your option.
+
+### Contribution
+
+Unless you explicitly state otherwise, any contribution intentionally submitted
+for inclusion in the work by you shall be dual licensed as above, without any
+additional terms or conditions.

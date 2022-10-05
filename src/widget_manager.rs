@@ -34,8 +34,8 @@ pub enum Command {
     /// Sets the child widget at the given location.
     SetChild {
         widget_id: WidgetId,
-        column: usize,
-        row: usize,
+        column_index: usize,
+        row_index: usize,
         child_widget_id: WidgetId,
     },
     /// Enables/disables debug rendering mode for the widget.
@@ -566,26 +566,27 @@ impl WidgetManager {
                         .handle_command(&WidgetCommand::RemoveChild(widget_specification))?;
                 }
                 Command::SetChild {
-                    widget_id: _,
-                    column,
-                    row,
+                    widget_id,
+                    column_index: column,
+                    row_index: row,
                     child_widget_id,
                 } => {
                     // There is a widget with the given child widget ID.
-                    let widget_box = if let Some(widget_box) = self.widgets.get(&child_widget_id) {
-                        widget_box
-                    }
-                    // There is no widget with the given ID.
-                    else {
-                        return Err(WidgetError::NoSuchWidget(child_widget_id));
-                    };
+                    let child_widget_box =
+                        if let Some(widget_box) = self.widgets.get(&child_widget_id) {
+                            widget_box
+                        }
+                        // There is no widget with the given ID.
+                        else {
+                            return Err(WidgetError::NoSuchWidget(child_widget_id));
+                        };
 
                     widget_box
                         .borrow_mut()
                         .handle_command(&WidgetCommand::SetChild {
-                            column,
-                            row,
-                            child_widget: widget_box.clone(),
+                            column_index: column,
+                            row_index: row,
+                            child_widget: child_widget_box.clone(),
                         })?;
                 }
                 Command::SetDebugRendering(_widget_id, debug_rendering) => {
