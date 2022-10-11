@@ -9,20 +9,22 @@ handling/windowing and [Piet](https://github.com/linebender/piet) for rendering.
 
 There are [retained mode](https://en.wikipedia.org/wiki/Retained_mode) widgets that can be used with the help of an
 optional widget manager.
-The widgets are decoupled from the application data via message passing, that is inspired by
+The widgets are decoupled from the application data via message passing. This is inspired by
 [Tk commands](https://www.tcl.tk/man/tcl/TkCmd/contents.html) and egui.
-Some layout widgets are inspired by [Flutter](https://flutter.dev).
+The widget size constraint system and some layout widgets are influenced by [Flutter](https://flutter.dev).
 
-If you look at the [example code](examples/), it may appear a bit verbose.
+The [example code](examples/) may appear a bit verbose.
 On the upside you get simple setup and simple control flow.
 
-<img width="912" alt="Bildschirmfoto 2022-10-01 um 09 58 25" src="https://user-images.githubusercontent.com/391975/193742442-d305a5d7-e544-4d7c-bc3d-943785186fd6.png">
+<img width="912" alt="Bildschirmfoto 2022-10-11 um 14 53 50" src="https://user-images.githubusercontent.com/391975/195096506-0ec82534-bd92-4879-8174-2e803776fa64.png">
 
-<img width="590" alt="Bildschirmfoto 2022-09-24 um 11 00 52" src="https://user-images.githubusercontent.com/391975/193742421-45b1cddb-e802-4ae3-a097-d5b770b36b31.png">
+<img width="788" alt="Bildschirmfoto 2022-10-11 um 20 51 41" src="https://user-images.githubusercontent.com/391975/195175173-8e016f19-7011-458a-bfc3-b2425ed93e22.png">
+
+<img width="888" alt="Bildschirmfoto 2022-07-05 um 19 43 55" src="https://user-images.githubusercontent.com/391975/177385769-598d0fd0-c15b-4d7e-bb98-5fd46bd9d415.png">
 
 <img width="232" alt="Bildschirmfoto 2022-07-29 um 21 09 16" src="https://user-images.githubusercontent.com/391975/181828207-8c268397-f815-484a-a28f-22501fc04ec4.png">
 
-<img width="334" alt="Bildschirmfoto 2022-07-29 um 21 08 38" src="https://user-images.githubusercontent.com/391975/181828121-526bddbf-8f9a-4e5a-8db8-2ce9ce4ec8c0.png">
+<img width="400" alt="Bildschirmfoto 2022-10-11 um 20 49 10" src="https://user-images.githubusercontent.com/391975/195174762-3daacb5a-5189-4961-8c45-b3746f04bb4d.png">
 
 <img width="293" alt="Bildschirmfoto 2022-07-29 um 21 07 20" src="https://user-images.githubusercontent.com/391975/181827939-ba986efe-b0b7-4a2a-ba09-9eedff8c7846.png">
 
@@ -33,6 +35,7 @@ On the upside you get simple setup and simple control flow.
 <img width="631" alt="Bildschirmfoto 2022-07-29 um 21 04 20" src="https://user-images.githubusercontent.com/391975/181827655-c8945f84-be44-47ab-836c-64a1c41bc945.png">
 
 <img width="315" alt="Bildschirmfoto 2022-07-25 um 21 57 15" src="https://user-images.githubusercontent.com/391975/180863911-98ca0572-d700-426a-be9b-3f96c708f478.png">
+
 
 ## Backlog
 
