@@ -3,13 +3,14 @@ use crate::{Event, Font, Piet, Size, SizeConstraints, Stroke, Widget, WidgetEven
 use druid_shell::kurbo::{Point, Rect};
 use druid_shell::piet::Error;
 use druid_shell::Region;
+use std::borrow::BorrowMut;
 
 ///
 pub struct Hyperlink {
     is_being_clicked: bool,
-    font_being_clicked: Font,
-    font_unvisited: Font,
-    font_visited: Font,
+    font_is_being_clicked: Font,
+    font_normal: Font,
+    font_was_visited: Font,
     text_widget: Text,
     was_visited: bool,
 }
@@ -35,12 +36,51 @@ impl Hyperlink {
 
         Hyperlink {
             is_being_clicked: false,
-            font_being_clicked,
-            font_unvisited: font_unvisited.clone(),
-            font_visited,
+            font_is_being_clicked: font_being_clicked,
+            font_normal: font_unvisited.clone(),
+            font_was_visited: font_visited,
             text_widget: Text::new(widget_id, debug_rendering_stroke, font_unvisited, text),
             was_visited: false,
         }
+    }
+
+    ///
+    fn set_is_being_clicked(&mut self, is_being_clicked: bool) {
+        self.is_being_clicked = is_being_clicked;
+
+        // The hyperlink is being clicked.
+        if is_being_clicked {
+            // Set the "is being clicked" font.
+            self.text_widget
+                .borrow_mut()
+                .set_font(self.font_is_being_clicked.clone());
+        }
+        // The hyperlink is not being clicked anymore.
+        else {
+            // The hyperlink was visited.
+            if self.was_visited {
+                // Set the "was visited" font.
+                self.text_widget
+                    .borrow_mut()
+                    .set_font(self.font_was_visited.clone());
+            } else {
+                // Set the "normal" font.
+                self.text_widget
+                    .borrow_mut()
+                    .set_font(self.font_normal.clone());
+            }
+        }
+    }
+
+    ///
+    fn set_was_visited(&mut self) {
+        self.is_being_clicked = false;
+        self.was_visited = true;
+
+        // Set the "was visited" font.
+        self.text_widget
+            .borrow_mut()
+            .set_font(self.font_was_visited.clone());
     }
 }
 
@@ -62,24 +102,29 @@ impl Widget for Hyperlink {
             Event::MouseDown(mouse_event) => {
                 // The click is outside of the text.
                 if !self.text_widget.rectangle().contains(mouse_event.pos) {
-                    self.is_being_clicked = false;
+                    self.set_is_being_clicked(false);
                     return;
                 }
 
-                self.is_being_clicked = true;
+                // The hyperlink is being clicked.
+                self.set_is_being_clicked(true);
 
                 widget_events.push(WidgetEvent::Clicked(*self.text_widget.widget_id()));
             }
             Event::MouseUp(mouse_event) => {
                 // The click is outside of the text.
                 if !self.text_widget.rectangle().contains(mouse_event.pos) {
-                    // TODO:
+                    // The hyperlink is not being clicked.
+                    self.set_is_being_clicked(false);
+
                     return;
                 }
 
                 if self.is_being_clicked {
-                    self.is_being_clicked = false;
-                    self.was_visited = true;
+                    self.set_was_visited();
+                } else {
+                    // The hyperlink is not being clicked.
+                    self.set_is_being_clicked(false);
                 }
             }
             _ => {}

@@ -13,7 +13,7 @@ mod tests {
     fn test_apply_size_constraints() {
         // Iterate over the widgets.
         for mut widget in widgets() {
-            // Apply a `SizeConstraints` that has a large minimum and the maximum is unbounded.
+            // Apply `SizeConstraints` that have a large minimum and an unbounded maximum.
             {
                 let large_minimum_size = Size::new(1000.0, 800.0);
                 widget.apply_size_constraints(SizeConstraints::new(
@@ -28,7 +28,7 @@ mod tests {
                 );
             }
 
-            // Apply a `SizeConstraints` that has a small maximum and the minimum is unbounded.
+            // Apply `SizeConstraints` that have a small maximum and an unbounded minimum.
             {
                 let small_maximum_size = Size::new(10.0, 10.0);
                 widget.apply_size_constraints(SizeConstraints::loose(small_maximum_size));
@@ -44,7 +44,7 @@ mod tests {
 
     /// Returns all widgets.
     fn widgets() -> Vec<Box<dyn Widget>> {
-        // TODO: Also add layout widgets with child widgets.
+        // TODO: add child widgets to the layout widgets.
         let mut widgets = widgets_layout();
         widgets.append(&mut widgets_non_layout());
         widgets

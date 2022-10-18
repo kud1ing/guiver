@@ -77,6 +77,14 @@ impl Text {
         // Set the text's origin.
         self.text_origin = (text_x, text_y).into();
     }
+
+    ///
+    pub fn set_font(&mut self, font: Font) {
+        self.font = font;
+        self.text_layout = self.font.text_layout(self.text.clone());
+
+        self.layout_text();
+    }
 }
 
 impl Widget for Text {
@@ -98,10 +106,7 @@ impl Widget for Text {
                 Ok(())
             }
             WidgetCommand::SetFont(font) => {
-                self.font = font.clone();
-                self.text_layout = self.font.text_layout(self.text.clone());
-
-                self.layout_text();
+                self.set_font(font.clone());
 
                 Ok(())
             }

@@ -42,16 +42,9 @@ On the upside you get simple setup and simple control flow.
 * `Grid`:
   * [ ] implement `Grid::layout_child_widgets()`
   * [ ] test `layout_grid.rs`
+* [ ] `Hyperlink`: un-/clicking is slow, this is due to `Text::set_font()`, probably caused by `Font::text_layout()`
 * [ ] `test::widgets_layout()`: add remaining layout widgets
-* [ ] `test::widgets()`: also produce layout widgets that have child widgets
-* [ ] add `WidgetCore::is_disabled`?
-  * makes sense for non-layout widgets:
-    * `Button`
-    * `Hyperlink`
-    * `Text`
-    * `TextInput`
-  * does it make sense for layout widgets?
-    * should they pass the command down to its child widgets?
+* [ ] `test::widgets()`: add child widgets to the layout widgets
 * [ ] `TextInput`: Meta+C should copy the (selected) text/value
   * [ ] `WidgetManager::handle_event()`: intercept `WidgetEvent::SelectedValueChanged` from the focussed widget
     * [ ] `WidgetManager`: put the value in the clipboard using
@@ -63,22 +56,28 @@ On the upside you get simple setup and simple control flow.
     * [ ] use it in `paint()` to position the caret
   * [ ] `TextInput::handle_event()`: increase/decrease `self.caret_character_index` on arrow left/right
   * [ ] `TextInput::update_caret_character_index()`: implement
-* [ ] make `Text` selectable:
-  * [ ] via double click
-  * [ ] via click + drag
-* `Hyperlink`:
-  * adjust `handle_event()`:
-    * [ ] set `is_being_clicked`
-    * [ ] set `was_visited`
-    * set the fonts to the underlying `Text`
-      * [ ] if `is_being_clicked`
-      * [ ] if `was_visited`
-      * [ ] if !`was_visited`
 * `WidgetManager`: implement tab order `tab_order: Vec<WidgetId>`:
-  * [ ] tab order is equal to the order of creation
+  * [ ] build tab order, equal to the order of creation
     * [ ] widgets need to tell the widget manager somehow, that they accept focus
       * `accepts_focus()` (`Button`, `TextInput`)
   * [ ] give the next widget in the tab order the focus when tab key is pressed
+* [ ] make `Text` selectable:
+  * [ ] via double click
+    * [ ] how?
+  * [ ] via click + drag
+* [ ] add `WidgetCore::is_disabled`?
+  * makes sense for non-layout widgets:
+    * `Button`
+    * `Hyperlink`
+    * `Text`
+    * `TextInput`
+  * [ ] does it make sense for layout widgets?
+    * [ ] should they pass the command down to its child widgets?
+* [ ] `Widget`: remove `flex_factor()`?
+  * Pro:
+    * for `Grid` it needs to be held externally (`GridColumnProperties`, `GridRowProperties`)
+  * Cons:
+    * does it make usage of `Column`, `Row` less pleasant?
 * [ ] should all container widgets clip the child widget's painting?
   * Pro:
     * restricts misbehaving widgets paint
@@ -129,6 +128,7 @@ On the upside you get simple setup and simple control flow.
 * [ ] `TextInput`: arrow keys should move the caret
 * [ ] `TextInput`: Shift + arrow keys should de/select text
 * [ ] `TextInput`: double click should select the text
+* [ ] `Hyperlink`: make it possible to remember/pass "was visited" status across widget lifetimes
 * support text selection:
   * [ ] Shift + cursor movement
   * [ ] Meta+A
@@ -150,8 +150,8 @@ On the upside you get simple setup and simple control flow.
   * add `Command::ForgetUnusedWidgets` 
   * implement `WidgetManager::collect_garbage()`?
     * remove all widgets that do not have the main widget as ancestor
-* [ ] add Python bindings
-* [ ] provide native widgets?
+* [ ] add Python bindings?
+* [ ] provide wrappers to native widgets?
 * [ ] provide a WebAssembly demo
 * [ ] consider decoupling from druid-shell/piet 
 

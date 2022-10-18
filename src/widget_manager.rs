@@ -101,6 +101,7 @@ pub struct WidgetManager {
     ///
     style: Style,
     /// All widgets per widget ID. This is used:
+    /// * to determine whether a widget with a given ID exists
     /// * to pass commands to a widget
     widgets: HashMap<WidgetId, WidgetBox>,
 }
