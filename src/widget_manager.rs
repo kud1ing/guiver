@@ -566,7 +566,7 @@ impl WidgetManager {
                         .handle_command(&WidgetCommand::RemoveChild(widget_specification))?;
                 }
                 Command::SetChild {
-                    widget_id,
+                    widget_id: _,
                     column_index: column,
                     row_index: row,
                     child_widget_id,

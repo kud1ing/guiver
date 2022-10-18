@@ -88,27 +88,21 @@ impl Grid {
 
     ///
     fn layout_child_widgets(&mut self) {
-        // There are no child widgets.
-        if self.child_widgets.is_empty() {
-            return;
-        }
-
         // Create the child size constraints.
         let child_size_constraints =
             SizeConstraints::new(Size::ZERO, *self.core.size_constraints.maximum());
 
-        // Iterate over the child widgets.
+        // Apply the child size constraints to all child widgets.
         for child_widget in &mut self.child_widgets.values() {
-            // Apply the size constraints to the current child widget.
             RefCell::borrow_mut(child_widget)
                 .borrow_mut()
                 .apply_size_constraints(child_size_constraints);
         }
 
+        // Determine the column widths and row heights.
         let mut column_widths = Vec::with_capacity(self.number_of_columns);
         let mut row_heights = Vec::with_capacity(self.number_of_rows);
 
-        // Determine the columns widths and row heights.
         {
             // Initialize the widths and heights with zero.
             {
@@ -141,23 +135,23 @@ impl Grid {
             }
         }
 
-        // TODO
-        /*
         let mut child_and_spacing_size_sum = Size::ZERO;
         let mut flex_factor_sum: u16 = 0;
 
-        // First pass over the child widgets.
-        for (i, child_widget) in &mut self.child_widgets.iter().enumerate() {
-            // Update the sum of child and spacing sizes.
-            // Include the child widget's height.
-            child_and_spacing_size_sum.height =
-                child_and_spacing_size_sum.height.max(child_size.height);
+        for column_index in 0..self.number_of_columns {
+            // Add the column width.
+            child_and_spacing_size_sum.width = child_and_spacing_size_sum
+                .width
+                .max(*column_widths.get(column_index).unwrap());
 
-            // Add the spacer to child and spacing sizes.
-            if i > 0 {
-                child_and_spacing_size_sum.width += self.spacing;
+            if column_index > 0 {
+                // Add the column spacing.
+                child_and_spacing_size_sum.width +=
+                    self.column_properties.get(column_index).unwrap().spacing;
             }
 
+            // TODO: handle the flex factor from `GridColumnProperties`
+            /*
             // Get the child widget's flex factor.
             let flex_factor = RefCell::borrow(child_widget).borrow().flex_factor();
 
@@ -174,6 +168,40 @@ impl Grid {
                 // Add the child widget's flex factor.
                 flex_factor_sum += flex_factor;
             }
+            */
+        }
+
+        for row_index in 0..self.number_of_rows {
+            // Add the row height.
+            child_and_spacing_size_sum.height = child_and_spacing_size_sum
+                .height
+                .max(*row_heights.get(row_index).unwrap());
+
+            if row_index > 0 {
+                // Add the row spacing.
+                child_and_spacing_size_sum.height +=
+                    self.row_properties.get(row_index).unwrap().spacing;
+            }
+
+            // TODO: handle the flex factor from `GridRowProperties`
+            /*
+            // Get the child widget's flex factor.
+            let flex_factor = RefCell::borrow(child_widget).borrow().flex_factor();
+
+            // The child widget does not have a flex factor.
+            if flex_factor == 0 {
+                // Add the child widget's width.
+                child_and_spacing_size_sum.width += child_size.width;
+            }
+            // The child widget does have a flex factor.
+            else {
+                // Do not add the child widget's width. It will grab the remaining width together
+                // with all other widgets having a flex factor.
+
+                // Add the child widget's flex factor.
+                flex_factor_sum += flex_factor;
+            }
+            */
         }
 
         // The child widgets do not have a flex factor.
@@ -183,13 +211,19 @@ impl Grid {
         }
         // The child widgets do have a flex factor.
         else {
+            // TODO: handle the flex factor
+            self.core.rectangle = self.core.rectangle.with_size(child_and_spacing_size_sum);
+            /*
             // Set the parent size to the child widget's height and the maximum width.
             self.core.rectangle = self.core.rectangle.with_size(Size::new(
                 self.core.size_constraints.maximum().width,
                 child_and_spacing_size_sum.height,
             ));
+            */
         }
 
+        // TODO
+        /*
         // Calculate the remaining width.
         let remaining_width =
             (self.core.rectangle.width() - child_and_spacing_size_sum.width).max(0.0);

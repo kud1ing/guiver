@@ -79,6 +79,11 @@ On the upside you get simple setup and simple control flow.
     * [ ] widgets need to tell the widget manager somehow, that they accept focus
       * `accepts_focus()` (`Button`, `TextInput`)
   * [ ] give the next widget in the tab order the focus when tab key is pressed
+* [ ] should all container widgets clip the child widget's painting?
+  * Pro:
+    * restricts misbehaving widgets paint
+  * Con:
+    * performance impact if clipping is unnecessary?
 * [ ] publish 0.1.1, once the updated `druid-shell` and `piet` are [released](https://github.com/linebender/piet/pull/518)
 * add integration tests:
   * `widgets()`:
