@@ -134,6 +134,7 @@ On the upside you get simple setup and simple control flow.
   * [ ] Meta+A
 * [ ] `TextInput`: Meta+X should cut the text
 * [ ] support a concept of layers/z-order for dropdown boxes, tooltips etc.
+  * [ ] how?
 * [ ] support Drag and drop
   * `druid-shell` has [no support](https://github.com/linebender/druid/issues/1742)
 * [ ] implement [7GUIs](https://eugenkiss.github.io/7guis/tasks)

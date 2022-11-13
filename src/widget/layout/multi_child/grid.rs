@@ -99,22 +99,11 @@ impl Grid {
                 .apply_size_constraints(child_size_constraints);
         }
 
+        let mut column_widths = vec![0.0; self.number_of_columns];
+        let mut row_heights = vec![0.0; self.number_of_rows];
+
         // Determine the column widths and row heights.
-        let mut column_widths = Vec::with_capacity(self.number_of_columns);
-        let mut row_heights = Vec::with_capacity(self.number_of_rows);
-
         {
-            // Initialize the widths and heights with zero.
-            {
-                for _ in 0..self.number_of_columns {
-                    column_widths.push(0.0);
-                }
-
-                for _ in 0..self.number_of_rows {
-                    row_heights.push(0.0);
-                }
-            }
-
             // Iterate over the child widgets in order to determine the column widths and row heights.
             for ((column_index, row_index), child_widget) in &self.child_widgets {
                 let current_column_width = column_widths.get(*column_index).unwrap();
