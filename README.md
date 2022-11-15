@@ -39,7 +39,6 @@ On the upside you get simple setup and simple control flow.
 
 ## Backlog
 
-* [ ] test that Meta+C with a focused `TextInput` should put the value in the clipboard
 * `Grid`:
   * [ ] implement `Grid::layout_child_widgets()`
   * [ ] test `layout_grid.rs`
