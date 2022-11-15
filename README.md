@@ -39,23 +39,19 @@ On the upside you get simple setup and simple control flow.
 
 ## Backlog
 
+* [ ] test that Meta+C with a focused `TextInput` should put the value in the clipboard
 * `Grid`:
   * [ ] implement `Grid::layout_child_widgets()`
   * [ ] test `layout_grid.rs`
-* [ ] `Hyperlink`: un-/clicking is slow, this is due to `Text::set_font()`, probably caused by `Font::text_layout()`
 * [ ] `test::widgets_layout()`: add remaining layout widgets
 * [ ] `test::widgets()`: add child widgets to the layout widgets
-* [ ] `TextInput`: Meta+C should copy the (selected) text/value
-  * [ ] `WidgetManager::handle_event()`: intercept `WidgetEvent::SelectedValueChanged` from the focussed widget
-    * [ ] `WidgetManager`: put the value in the clipboard using
-      [`Clipboard::put_string()`](https://docs.rs/druid/latest/druid/struct.Clipboard.html#method.put_string)
-  * [ ] `TextInput`: produce `WidgetEvent::SelectedValueChanged`
 * `TextInput` caret:
   * [ ] add a hash map from caret character indices to x positions
     * [ ] update it when the text is changed
     * [ ] use it in `paint()` to position the caret
   * [ ] `TextInput::handle_event()`: increase/decrease `self.caret_character_index` on arrow left/right
   * [ ] `TextInput::update_caret_character_index()`: implement
+* [ ] `Hyperlink`: un-/clicking is slow, this is due to `Text::set_font()`, probably caused by `Font::text_layout()`
 * `WidgetManager`: implement tab order `tab_order: Vec<WidgetId>`:
   * [ ] build tab order, equal to the order of creation
     * [ ] widgets need to tell the widget manager somehow, that they accept focus
@@ -139,7 +135,7 @@ On the upside you get simple setup and simple control flow.
   * `druid-shell` has [no support](https://github.com/linebender/druid/issues/1742)
 * [ ] implement [7GUIs](https://eugenkiss.github.io/7guis/tasks)
   * [ ] 7GUIs "Flight Booker"
-    * [ ] implement `DropdownBox`
+    * [ ] implement `DropdownBox` (needs 2 layers)
   * [ ] 7GUIs "Timer"
   * [ ] 7GUIs "CRUD"
   * [ ] 7GUIs "Circle Drawer"

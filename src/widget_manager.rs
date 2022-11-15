@@ -131,7 +131,7 @@ impl WidgetManager {
     pub fn handle_event(
         &mut self,
         event: &Event,
-        clipboard: Option<&Clipboard>,
+        clipboard: Option<&mut Clipboard>,
     ) -> Result<Vec<WidgetEvent>, WidgetError> {
         let mut widget_events = vec![];
 
@@ -142,6 +142,7 @@ impl WidgetManager {
                 if let Some(focused_widget) = &mut self.focused_widget {
                     // The Meta key is pressed.
                     if key_event.mods.contains(Modifiers::META) {
+                        // A clipboard is given.
                         if let Some(clipboard) = clipboard {
                             // Handle paste from clipboard.
                             if key_event.key == KbKey::Character("v".to_string()) {
@@ -156,8 +157,23 @@ impl WidgetManager {
                             }
                             // Handle copy to clipboard.
                             else if key_event.key == KbKey::Character("c".to_string()) {
-                                // TODO
-                                println!("TODO: copy");
+                                // The focused widget's has a value.
+                                if let Some(widget_value) = focused_widget.borrow().selected_value()
+                                {
+                                    // The widget value is a string.
+                                    let string_value = if let Some(string) =
+                                        widget_value.downcast_ref::<String>()
+                                    {
+                                        string.clone()
+                                    }
+                                    // The widget value is not a string.
+                                    else {
+                                        format!("{:?}", widget_value)
+                                    };
+
+                                    // Put the value in the clipboard.
+                                    clipboard.put_string(string_value);
+                                }
                             }
                             // Handle cut to clipboard.
                             else if key_event.key == KbKey::Character("x".to_string()) {

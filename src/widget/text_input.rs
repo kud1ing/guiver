@@ -5,6 +5,7 @@ use crate::{Event, Font, HorizontalAlignment, SizeConstraints, Widget, WidgetEve
 use druid_shell::kurbo::{Line, Point, Rect, RoundedRect, Size};
 use druid_shell::piet::{Color, Error, PaintBrush, Piet, RenderContext};
 use druid_shell::{KbKey, Region};
+use std::any::Any;
 use std::borrow::BorrowMut;
 
 /// A text input widget.
@@ -349,6 +350,10 @@ impl Widget for TextInput {
 
     fn rectangle(&self) -> &Rect {
         &self.core.rectangle
+    }
+
+    fn selected_value(&self) -> Option<Box<dyn Any>> {
+        self.text_widget.selected_value()
     }
 
     fn set_origin(&mut self, origin: Point) {

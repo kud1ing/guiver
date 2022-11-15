@@ -6,6 +6,7 @@ use crate::{Event, HorizontalAlignment, SizeConstraints, VerticalAlignment, Widg
 use druid_shell::kurbo::{Point, Rect, Size};
 use druid_shell::piet::{Piet, PietTextLayout, RenderContext, TextLayout};
 use druid_shell::{piet, Region};
+use std::any::Any;
 
 /// A text widget.
 pub struct Text {
@@ -198,6 +199,11 @@ impl Widget for Text {
 
     fn rectangle(&self) -> &Rect {
         &self.core.rectangle
+    }
+
+    fn selected_value(&self) -> Option<Box<dyn Any>> {
+        // TODO
+        Some(Box::new(self.text.clone()))
     }
 
     fn set_origin(&mut self, origin: Point) {

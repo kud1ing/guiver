@@ -137,8 +137,6 @@ pub enum WidgetEvent {
     GainedFocus(WidgetId),
     /// The widget lost focus.
     LostFocus(WidgetId),
-    /// The widget's selected value was changed.
-    SelectedValueChanged(WidgetId, Box<dyn Any>),
     /// The widget was submitted, e.g. by pressing Enter on a text input.
     Submitted(WidgetId),
     /// The widget's value was changed.
@@ -192,6 +190,11 @@ pub trait Widget {
 
     ///
     fn rectangle(&self) -> &Rect;
+
+    ///
+    fn selected_value(&self) -> Option<Box<dyn Any>> {
+        None
+    }
 
     ///
     fn set_origin(&mut self, origin: Point);
