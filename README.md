@@ -39,9 +39,12 @@ On the upside you get simple setup and simple control flow.
 
 ## Backlog
 
+* [ ] publish 0.1.1, once the updated `druid-shell` is [released](https://github.com/linebender/druid/issues/2236)
 * `Grid`:
   * [ ] implement `Grid::layout_child_widgets()`
   * [ ] test `layout_grid.rs`
+* [ ] `Hyperlink`: un-/clicking is slow, this is due to `Text::set_font()`, probably caused by `Font::text_layout()`
+  * https://xi.zulipchat.com/#narrow/stream/259397-piet/topic/Fastest.20way.20to.20draw.20text.2Fupdating.20a.20.60TextLayout.60.3F
 * [ ] `test::widgets_layout()`: add remaining layout widgets
 * [ ] `test::widgets()`: add child widgets to the layout widgets
 * `TextInput` caret:
@@ -50,7 +53,6 @@ On the upside you get simple setup and simple control flow.
     * [ ] use it in `paint()` to position the caret
   * [ ] `TextInput::handle_event()`: increase/decrease `self.caret_character_index` on arrow left/right
   * [ ] `TextInput::update_caret_character_index()`: implement
-* [ ] `Hyperlink`: un-/clicking is slow, this is due to `Text::set_font()`, probably caused by `Font::text_layout()`
 * `WidgetManager`: implement tab order `tab_order: Vec<WidgetId>`:
   * [ ] build tab order, equal to the order of creation
     * [ ] widgets need to tell the widget manager somehow, that they accept focus
@@ -78,7 +80,6 @@ On the upside you get simple setup and simple control flow.
     * restricts misbehaving widgets paint
   * Con:
     * performance impact if clipping is unnecessary?
-* [ ] publish 0.1.1, once the updated `druid-shell` and `piet` are [released](https://github.com/linebender/piet/pull/518)
 * add integration tests:
   * `widgets()`:
     * [ ] add `Column`

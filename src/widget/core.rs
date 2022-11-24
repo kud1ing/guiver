@@ -2,7 +2,7 @@ use crate::widget::{WidgetCommand, WidgetError};
 use crate::{SizeConstraints, Stroke, WidgetId};
 use druid_shell::kurbo::Rect;
 
-///
+/// Common data and functionality for widgets.
 #[derive(Default)]
 pub struct WidgetCore {
     pub debug_rendering: bool,

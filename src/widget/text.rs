@@ -82,6 +82,8 @@ impl Text {
     ///
     pub fn set_font(&mut self, font: Font) {
         self.font = font;
+
+        // TODO: How to update the font without recreating the text layout?
         self.text_layout = self.font.text_layout(self.text.clone());
 
         self.layout_text();
