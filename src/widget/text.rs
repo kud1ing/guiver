@@ -182,7 +182,7 @@ impl Widget for Text {
         // Draw the text clipped.
         {
             piet.save()?;
-            piet.clip(&self.core.rectangle);
+            piet.clip(self.core.rectangle);
             piet.draw_text(&self.text_layout, self.text_origin);
             piet.restore()?;
         }

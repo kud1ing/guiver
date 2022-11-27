@@ -107,11 +107,11 @@ impl Grid {
                 .insert((column_index, row_index), child_widget_id);
             self.child_widget_ids_per_column
                 .entry(column_index)
-                .or_insert(HashSet::new())
+                .or_default()
                 .insert(child_widget_id);
             self.child_widget_ids_per_row
                 .entry(row_index)
-                .or_insert(HashSet::new())
+                .or_default()
                 .insert(child_widget_id);
         }
 
@@ -254,7 +254,7 @@ impl Grid {
 
         // Adjust the grid's widget size.
         {
-            let mut new_parent_widget_size = child_and_spacing_size_sum;
+            let new_parent_widget_size = child_and_spacing_size_sum;
 
             // The columns do have flex factors.
             if flex_factor_sum_columns > 0 {

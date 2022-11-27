@@ -77,7 +77,7 @@ impl Widget for Placeholder {
 
         // Fill.
         if let Some(fill) = &self.fill {
-            piet.fill(&self.core.rectangle, fill);
+            piet.fill(self.core.rectangle, fill);
         }
 
         // Stroke.
@@ -104,7 +104,7 @@ impl Widget for Placeholder {
 
             // Draw the rectangle.
             piet.stroke_styled(
-                &self.core.rectangle,
+                self.core.rectangle,
                 &stroke.stroke_brush,
                 stroke.stroke_width,
                 &stroke.stroke_style,
