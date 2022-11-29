@@ -42,12 +42,12 @@ On the upside you get simple setup and simple control flow.
 * [ ] publish 0.1.1, once the updated `druid-shell` is [released](https://github.com/linebender/druid/issues/2236)
 * `Grid`:
   * [ ] implement `Grid::layout_child_widgets()`
-  * [ ] test `layout_grid.rs`
-* [ ] `Hyperlink`: un-/clicking is slow, this is due to `Text::set_font()`, probably caused by `Font::text_layout()`
-  * https://xi.zulipchat.com/#narrow/stream/259397-piet/topic/Fastest.20way.20to.20draw.20text.2Fupdating.20a.20.60TextLayout.60.3F
+  * [ ] try `examples/layout_grid.rs` to see how `Grid` looks in action
+* [ ] `Hyperlink`: cache the two main `TextLayout`s to speed up mouse down/up
 * [ ] `test::widgets_layout()`: add remaining layout widgets
 * [ ] `test::widgets()`: add child widgets to the layout widgets
 * `TextInput` caret:
+  * [ ] try to understand how https://github.com/linebender/druid/blob/master/druid/src/widget/textbox.rs does it 
   * [ ] add a hash map from caret character indices to x positions
     * [ ] update it when the text is changed
     * [ ] use it in `paint()` to position the caret
