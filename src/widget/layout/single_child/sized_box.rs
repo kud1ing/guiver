@@ -1,5 +1,5 @@
 use crate::widget::core::WidgetCore;
-use crate::widget::{WidgetCommand, WidgetError};
+use crate::widget::{WidgetCommand, WidgetError, WidgetPlacement};
 use crate::widget_manager::WidgetBox;
 use crate::{Event, Piet, SizeConstraints, Stroke, Widget, WidgetEvent, WidgetId};
 use druid_shell::kurbo::{Point, Rect, Size};
@@ -48,6 +48,21 @@ impl SizedBox {
 }
 
 impl Widget for SizedBox {
+    fn add_child(
+        &mut self,
+        _widget_placement: Option<WidgetPlacement>,
+        child_widget: WidgetBox,
+    ) -> Result<(), WidgetError> {
+        // TODO: use `_widget_placement`?
+
+        self.child_widget = Some(child_widget);
+
+        // Layout the child widget.
+        self.layout_child_widget();
+
+        Ok(())
+    }
+
     fn apply_size_constraints(&mut self, size_constraints: SizeConstraints) -> Size {
         self.core.size_constraints = size_constraints;
 
@@ -59,31 +74,11 @@ impl Widget for SizedBox {
 
     fn handle_command(&mut self, widget_command: &WidgetCommand) -> Result<(), WidgetError> {
         match widget_command {
-            WidgetCommand::AddChild(_widget_placement, child_widget) => {
-                self.child_widget = Some(child_widget.clone());
-
-                // Layout the child widget.
-                self.layout_child_widget();
-
-                Ok(())
+            WidgetCommand::AddChild(widget_placement, child_widget) => {
+                self.add_child(widget_placement.clone(), child_widget.clone())
             }
-            WidgetCommand::RemoveAllChildren => {
-                self.child_widget = None;
-
-                // Update this widget's size.
-                self.layout_child_widget();
-
-                Ok(())
-            }
-            WidgetCommand::RemoveChild(_) => {
-                // TODO
-                println!("`SizedBox::handle_command(RemoveChild)`: TODO");
-
-                // Update this widget's size.
-                self.layout_child_widget();
-
-                Ok(())
-            }
+            WidgetCommand::RemoveAllChildren => self.remove_all_children(),
+            WidgetCommand::RemoveChild(widget_id) => self.remove_child(*widget_id),
             _ => self.core.handle_command(widget_command),
         }
     }
@@ -122,6 +117,38 @@ impl Widget for SizedBox {
 
     fn rectangle(&self) -> &Rect {
         &self.core.rectangle
+    }
+
+    fn remove_all_children(&mut self) -> Result<(), WidgetError> {
+        self.child_widget = None;
+
+        // Update this widget's size.
+        self.layout_child_widget();
+
+        Ok(())
+    }
+
+    fn remove_child(&mut self, _widget_id: WidgetId) -> Result<(), WidgetError> {
+        // TODO
+        println!("`SizedBox::remove_child()`: TODO");
+
+        // Update this widget's size.
+        self.layout_child_widget();
+
+        Ok(())
+    }
+
+    fn set_debug_rendering(&mut self, debug_rendering: bool) {
+        self.core.debug_rendering = debug_rendering;
+    }
+
+    fn set_is_disabled(&mut self, _is_disabled: bool) {
+        // TODO
+        println!("`SizedBox::set_is_disabled()`: TODO");
+    }
+
+    fn set_is_hidden(&mut self, is_hidden: bool) {
+        self.core.is_hidden = is_hidden;
     }
 
     fn set_origin(&mut self, origin: Point) {

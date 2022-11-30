@@ -1,7 +1,10 @@
 use crate::stroke::Stroke;
 use crate::widget::core::WidgetCore;
 use crate::widget::{Text, WidgetCommand, WidgetError};
-use crate::{Event, Font, HorizontalAlignment, SizeConstraints, Widget, WidgetEvent, WidgetId};
+use crate::{
+    Event, Font, HorizontalAlignment, SizeConstraints, VerticalAlignment, Widget, WidgetEvent,
+    WidgetId,
+};
 use druid_shell::kurbo::{Line, Point, Rect, RoundedRect, Size};
 use druid_shell::piet::{Color, Error, PaintBrush, Piet, RenderContext};
 use druid_shell::{KbKey, Region};
@@ -190,53 +193,20 @@ impl Widget for TextInput {
 
     fn handle_command(&mut self, widget_command: &WidgetCommand) -> Result<(), WidgetError> {
         match widget_command {
-            WidgetCommand::SetFill(fill) => {
-                self.fill = fill.clone();
-
-                Ok(())
-            }
-            WidgetCommand::SetFont(_) => {
-                self.text_widget.handle_command(widget_command)?;
-
-                Ok(())
-            }
-            WidgetCommand::SetHasFocus(has_focus) => {
-                self.has_focus = *has_focus;
-
-                Ok(())
-            }
+            WidgetCommand::SetFill(fill) => self.set_fill(fill.clone()),
+            WidgetCommand::SetFont(font) => self.set_font(font.clone()),
+            WidgetCommand::SetHasFocus(has_focus) => self.set_has_focus(*has_focus),
             WidgetCommand::SetHorizontalAlignment(horizontal_alignment) => {
-                self.horizontal_alignment = *horizontal_alignment;
-
-                Ok(())
+                self.set_horizontal_alignment(horizontal_alignment.clone())
             }
             WidgetCommand::SetIsDisabled(is_disabled) => {
-                self.is_disabled = *is_disabled;
-
+                self.set_is_disabled(*is_disabled);
                 Ok(())
             }
-            WidgetCommand::SetStroke(_) => {
-                // TODO
-                println!("`TextInput::handle_command(SetStroke)`: TODO");
-
-                Ok(())
-            }
-            WidgetCommand::SetValue(value) => {
-                // The given value is a string.
-                if let Some(string) = value.downcast_ref::<String>() {
-                    self.text = string.clone();
-
-                    // Apply the text changes.
-                    self.update_text_widget();
-                }
-
-                Ok(())
-            }
-            WidgetCommand::SetVerticalAlignment(_) => {
-                // TODO
-                println!("`TextInput::handle_command(SetVerticalAlignment)`: TODO");
-
-                Ok(())
+            WidgetCommand::SetStroke(stroke) => self.set_stroke(stroke.clone()),
+            WidgetCommand::SetValue(value) => self.set_value(value),
+            WidgetCommand::SetVerticalAlignment(vertical_alignment) => {
+                self.set_vertical_alignment(vertical_alignment.clone())
             }
             _ => self.core.handle_command(widget_command),
         }
@@ -356,11 +326,75 @@ impl Widget for TextInput {
         self.text_widget.selected_value()
     }
 
+    fn set_debug_rendering(&mut self, debug_rendering: bool) {
+        self.core.debug_rendering = debug_rendering;
+    }
+
+    fn set_fill(&mut self, fill: Option<PaintBrush>) -> Result<(), WidgetError> {
+        self.fill = fill;
+        Ok(())
+    }
+
+    fn set_font(&mut self, font: Font) -> Result<(), WidgetError> {
+        self.text_widget.set_font(font)
+    }
+
+    fn set_has_focus(&mut self, has_focus: bool) -> Result<(), WidgetError> {
+        self.has_focus = has_focus;
+        Ok(())
+    }
+
+    fn set_horizontal_alignment(
+        &mut self,
+        horizontal_alignment: HorizontalAlignment,
+    ) -> Result<(), WidgetError> {
+        self.horizontal_alignment = horizontal_alignment;
+
+        Ok(())
+    }
+
+    fn set_is_disabled(&mut self, is_disabled: bool) {
+        self.is_disabled = is_disabled;
+    }
+
+    fn set_is_hidden(&mut self, is_hidden: bool) {
+        self.core.is_hidden = is_hidden;
+    }
+
+    fn set_stroke(&mut self, _stroke: Option<Stroke>) -> Result<(), WidgetError> {
+        // TODO
+        println!("`TextInput::set_stroke()`: TODO");
+
+        Ok(())
+    }
+
+    fn set_value(&mut self, value: &Box<dyn Any>) -> Result<(), WidgetError> {
+        // The given value is a string.
+        if let Some(string) = value.downcast_ref::<String>() {
+            self.text = string.clone();
+
+            // Apply the text changes.
+            self.update_text_widget();
+        }
+
+        Ok(())
+    }
+
     fn set_origin(&mut self, origin: Point) {
         self.core.rectangle = self.core.rectangle.with_origin(origin);
 
         // Layout the child widget.
         self.layout_child_widget();
+    }
+
+    fn set_vertical_alignment(
+        &mut self,
+        _vertical_alignment: VerticalAlignment,
+    ) -> Result<(), WidgetError> {
+        // TODO
+        println!("`TextInput::set_vertical_alignment()`: TODO");
+
+        Ok(())
     }
 
     fn widget_id(&self) -> &WidgetId {

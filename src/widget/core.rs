@@ -38,10 +38,7 @@ impl WidgetCore {
                 self.is_hidden = *is_hidden;
                 Ok(())
             }
-            _ => Err(WidgetError::CommandNotHandled(
-                self.widget_id,
-                format!("{:?}", widget_command),
-            )),
+            _ => Err(WidgetError::NotHandled),
         }
     }
 }

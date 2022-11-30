@@ -1,11 +1,15 @@
 use crate::stroke::Stroke;
 use crate::widget::core::WidgetCore;
-use crate::widget::{WidgetCommand, WidgetError};
+use crate::widget::{WidgetCommand, WidgetError, WidgetPlacement};
 use crate::widget_manager::WidgetBox;
-use crate::{Event, SizeConstraints, Widget, WidgetEvent, WidgetId};
+use crate::{
+    Event, Font, HorizontalAlignment, SizeConstraints, VerticalAlignment, Widget, WidgetEvent,
+    WidgetId,
+};
 use druid_shell::kurbo::{Point, Rect, RoundedRect, Size};
 use druid_shell::piet::{Color, LinearGradient, PaintBrush, Piet, RenderContext, UnitPoint};
 use druid_shell::{piet, KbKey, Region};
+use std::any::Any;
 
 ///
 #[derive(Default)]
@@ -107,6 +111,21 @@ impl Button {
 }
 
 impl Widget for Button {
+    fn add_child(
+        &mut self,
+        _widget_placement: Option<WidgetPlacement>,
+        child_widget: WidgetBox,
+    ) -> Result<(), WidgetError> {
+        // TODO: use `_widget_placement`?
+
+        self.child_widget = Some(child_widget.clone());
+
+        // Layout the child widget.
+        self.layout_child_widget();
+
+        Ok(())
+    }
+
     fn apply_size_constraints(&mut self, size_constraints: SizeConstraints) -> Size {
         self.core.size_constraints = size_constraints;
 
@@ -118,58 +137,24 @@ impl Widget for Button {
 
     fn handle_command(&mut self, widget_command: &WidgetCommand) -> Result<(), WidgetError> {
         match widget_command {
-            WidgetCommand::AddChild(_widget_placement, child_widget) => {
-                self.child_widget = Some(child_widget.clone());
-
-                // Layout the child widget.
-                self.layout_child_widget();
-
-                Ok(())
+            WidgetCommand::AddChild(widget_placement, child_widget) => {
+                self.add_child(widget_placement.clone(), child_widget.clone())
             }
-            WidgetCommand::RemoveAllChildren => {
-                self.child_widget = None;
-                Ok(())
-            }
-            WidgetCommand::SetFill(fill) => {
-                self.fill_brush_up = fill.clone();
-                Ok(())
-            }
-            WidgetCommand::SetFont(_) => {
-                if let Some(child_widget) = &mut self.child_widget {
-                    child_widget.borrow_mut().handle_command(widget_command)?;
-                }
-
-                Ok(())
-            }
-            WidgetCommand::SetHasFocus(has_focus) => {
-                self.has_focus = *has_focus;
-                Ok(())
-            }
-            WidgetCommand::SetHorizontalAlignment(_) => {
-                // TODO
-                println!("`Button::handle_command(SetHorizontalAlignment)`: TODO");
-
-                Ok(())
+            WidgetCommand::RemoveAllChildren => self.remove_all_children(),
+            WidgetCommand::SetFill(fill) => self.set_fill(fill.clone()),
+            WidgetCommand::SetFont(font) => self.set_font(font.clone()),
+            WidgetCommand::SetHasFocus(has_focus) => self.set_has_focus(*has_focus),
+            WidgetCommand::SetHorizontalAlignment(horizontal_alignment) => {
+                self.set_horizontal_alignment(horizontal_alignment.clone())
             }
             WidgetCommand::SetIsDisabled(is_disabled) => {
-                self.is_disabled = *is_disabled;
+                self.set_is_disabled(*is_disabled);
                 Ok(())
             }
-            WidgetCommand::SetStroke(stroke) => {
-                self.stroke = stroke.clone();
-                Ok(())
-            }
-            WidgetCommand::SetValue(_) => {
-                // TODO
-                println!("`Button::handle_command(SetValue)`: TODO");
-
-                Ok(())
-            }
-            WidgetCommand::SetVerticalAlignment(_) => {
-                // TODO
-                println!("`Button::handle_command(SetVerticalAlignment)`: TODO");
-
-                Ok(())
+            WidgetCommand::SetStroke(stroke) => self.set_stroke(stroke.clone()),
+            WidgetCommand::SetValue(value) => self.set_value(value),
+            WidgetCommand::SetVerticalAlignment(vertical_alignment) => {
+                self.set_vertical_alignment(vertical_alignment.clone())
             }
             _ => self.core.handle_command(widget_command),
         }
@@ -290,11 +275,78 @@ impl Widget for Button {
         &self.core.rectangle
     }
 
+    fn remove_all_children(&mut self) -> Result<(), WidgetError> {
+        self.child_widget = None;
+        Ok(())
+    }
+
+    fn set_debug_rendering(&mut self, debug_rendering: bool) {
+        self.core.debug_rendering = debug_rendering;
+    }
+
+    fn set_fill(&mut self, fill: Option<PaintBrush>) -> Result<(), WidgetError> {
+        self.fill_brush_up = fill;
+        Ok(())
+    }
+
+    fn set_font(&mut self, font: Font) -> Result<(), WidgetError> {
+        if let Some(child_widget) = &mut self.child_widget {
+            child_widget.borrow_mut().set_font(font)?;
+        }
+
+        Ok(())
+    }
+
+    fn set_has_focus(&mut self, has_focus: bool) -> Result<(), WidgetError> {
+        self.has_focus = has_focus;
+        Ok(())
+    }
+
+    fn set_horizontal_alignment(
+        &mut self,
+        _horizontal_alignment: HorizontalAlignment,
+    ) -> Result<(), WidgetError> {
+        // TODO
+        println!("`Button::set_horizontal_alignment()`: TODO");
+
+        Ok(())
+    }
+
+    fn set_is_disabled(&mut self, is_disabled: bool) {
+        self.is_disabled = is_disabled;
+    }
+
+    fn set_is_hidden(&mut self, is_hidden: bool) {
+        self.core.is_hidden = is_hidden;
+    }
+
     fn set_origin(&mut self, origin: Point) {
         self.core.rectangle = self.core.rectangle.with_origin(origin);
 
         // Layout the child widget.
         self.layout_child_widget();
+    }
+
+    fn set_stroke(&mut self, stroke: Option<Stroke>) -> Result<(), WidgetError> {
+        self.stroke = stroke;
+        Ok(())
+    }
+
+    fn set_value(&mut self, _value: &Box<dyn Any>) -> Result<(), WidgetError> {
+        // TODO
+        println!("`Button::set_value()`: TODO");
+
+        Ok(())
+    }
+
+    fn set_vertical_alignment(
+        &mut self,
+        _vertical_alignment: VerticalAlignment,
+    ) -> Result<(), WidgetError> {
+        // TODO
+        println!("`Button::set_vertical_alignment()`: TODO");
+
+        Ok(())
     }
 
     fn widget_id(&self) -> &WidgetId {

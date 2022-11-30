@@ -121,9 +121,8 @@ impl Debug for WidgetCommand {
 ///
 #[derive(Debug)]
 pub enum WidgetError {
-    // TODO: Second argument should be `WidgetCommand` but it is not cloneable due to `Any`
-    CommandNotHandled(WidgetId, String),
     NoSuchWidget(WidgetId),
+    NotHandled,
 }
 
 // =================================================================================================
@@ -172,9 +171,18 @@ pub enum WidgetPlacement {
 /// A widget should try to be as small as possible.
 pub trait Widget {
     ///
-    fn apply_size_constraints(&mut self, size_constraints: SizeConstraints) -> Size;
+    fn add_child(
+        &mut self,
+        _widget_placement: Option<WidgetPlacement>,
+        _child_widget: WidgetBox,
+    ) -> Result<(), WidgetError> {
+        Err(WidgetError::NotHandled)
+    }
 
     ///
+    fn apply_size_constraints(&mut self, size_constraints: SizeConstraints) -> Size;
+
+    /// Returns the widget's flex factor.
     fn flex_factor(&self) -> u16 {
         0
     }
@@ -182,23 +190,93 @@ pub trait Widget {
     ///
     fn handle_command(&mut self, widget_command: &WidgetCommand) -> Result<(), WidgetError>;
 
-    ///
+    /// Let the widget handle the given event.
     fn handle_event(&mut self, event: &Event, widget_events: &mut Vec<WidgetEvent>);
 
-    ///
+    /// Paints the widget.
     fn paint(&self, piet: &mut piet::Piet, region: &Region) -> Result<(), piet::Error>;
 
     ///
     fn rectangle(&self) -> &Rect;
 
+    /// Removes all of the widget's child widgets.
+    fn remove_all_children(&mut self) -> Result<(), WidgetError> {
+        Err(WidgetError::NotHandled)
+    }
+
     ///
+    fn remove_child(&mut self, _widget_id: WidgetId) -> Result<(), WidgetError> {
+        Err(WidgetError::NotHandled)
+    }
+
+    /// Returns the widget's selected value.
     fn selected_value(&self) -> Option<Box<dyn Any>> {
         None
     }
 
     ///
-    fn set_origin(&mut self, origin: Point);
+    fn set_child(
+        &mut self,
+        _column_index: usize,
+        _row_index: usize,
+        _child_widget: WidgetBox,
+    ) -> Result<(), WidgetError> {
+        Err(WidgetError::NotHandled)
+    }
 
     ///
+    fn set_debug_rendering(&mut self, debug_rendering: bool);
+
+    /// Sets the widget's fill.
+    fn set_fill(&mut self, _fill: Option<PaintBrush>) -> Result<(), WidgetError> {
+        Err(WidgetError::NotHandled)
+    }
+
+    /// Sets the widget's font.
+    fn set_font(&mut self, _font: Font) -> Result<(), WidgetError> {
+        Err(WidgetError::NotHandled)
+    }
+
+    ///
+    fn set_has_focus(&mut self, _has_focus: bool) -> Result<(), WidgetError> {
+        Err(WidgetError::NotHandled)
+    }
+
+    /// Sets the widget's horizontal alignment.
+    fn set_horizontal_alignment(
+        &mut self,
+        _horizontal_alignment: HorizontalAlignment,
+    ) -> Result<(), WidgetError> {
+        Err(WidgetError::NotHandled)
+    }
+
+    ///
+    fn set_is_disabled(&mut self, is_disabled: bool);
+
+    ///
+    fn set_is_hidden(&mut self, is_hidden: bool);
+
+    ///
+    fn set_value(&mut self, _value: &Box<dyn Any>) -> Result<(), WidgetError> {
+        Err(WidgetError::NotHandled)
+    }
+
+    /// Sets the widget's origin.
+    fn set_origin(&mut self, origin: Point);
+
+    /// Sets the widget's stroke.
+    fn set_stroke(&mut self, _stroke: Option<Stroke>) -> Result<(), WidgetError> {
+        Err(WidgetError::NotHandled)
+    }
+
+    /// Sets the widget's vertical alignment.
+    fn set_vertical_alignment(
+        &mut self,
+        _vertical_alignment: VerticalAlignment,
+    ) -> Result<(), WidgetError> {
+        Err(WidgetError::NotHandled)
+    }
+
+    /// Returns the widget's ID.
     fn widget_id(&self) -> &WidgetId;
 }

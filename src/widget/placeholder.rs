@@ -49,16 +49,8 @@ impl Widget for Placeholder {
 
     fn handle_command(&mut self, widget_command: &WidgetCommand) -> Result<(), WidgetError> {
         match widget_command {
-            WidgetCommand::SetFill(fill) => {
-                self.fill = fill.clone();
-                Ok(())
-            }
-            WidgetCommand::SetStroke(_) => {
-                // TODO
-                println!("`Placeholder::handle_command(SetStroke)`: TODO");
-
-                Ok(())
-            }
+            WidgetCommand::SetFill(fill) => self.set_fill(fill.clone()),
+            WidgetCommand::SetStroke(stroke) => self.set_stroke(stroke.clone()),
             _ => self.core.handle_command(widget_command),
         }
     }
@@ -127,8 +119,33 @@ impl Widget for Placeholder {
         &self.core.rectangle
     }
 
+    fn set_debug_rendering(&mut self, debug_rendering: bool) {
+        self.core.debug_rendering = debug_rendering;
+    }
+
+    fn set_fill(&mut self, fill: Option<PaintBrush>) -> Result<(), WidgetError> {
+        self.fill = fill.clone();
+        Ok(())
+    }
+
+    fn set_is_disabled(&mut self, _is_disabled: bool) {
+        // TODO
+        println!("`Placeholder::set_is_disabled()`: TODO");
+    }
+
+    fn set_is_hidden(&mut self, is_hidden: bool) {
+        self.core.is_hidden = is_hidden;
+    }
+
     fn set_origin(&mut self, origin: Point) {
         self.core.rectangle = self.core.rectangle.with_origin(origin)
+    }
+
+    fn set_stroke(&mut self, stroke: Option<Stroke>) -> Result<(), WidgetError> {
+        // TODO
+        println!("`Placeholder::handle_command(SetStroke)`: TODO");
+
+        Ok(())
     }
 
     fn widget_id(&self) -> &WidgetId {

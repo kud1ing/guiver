@@ -90,8 +90,8 @@ impl Widget for Hyperlink {
     }
 
     fn handle_command(&mut self, widget_command: &WidgetCommand) -> Result<(), WidgetError> {
-        if let WidgetCommand::SetStroke(_) = widget_command {
-            return self.text_widget.handle_command(widget_command);
+        if let WidgetCommand::SetStroke(stroke) = widget_command {
+            return self.set_stroke(stroke.clone());
         };
 
         self.text_widget.handle_command(widget_command)
@@ -139,8 +139,25 @@ impl Widget for Hyperlink {
         self.text_widget.rectangle()
     }
 
+    fn set_debug_rendering(&mut self, debug_rendering: bool) {
+        self.text_widget.set_debug_rendering(debug_rendering);
+    }
+
+    fn set_is_disabled(&mut self, _is_disabled: bool) {
+        // TODO
+        println!("`Hyperlink::set_is_disabled()`: TODO");
+    }
+
+    fn set_is_hidden(&mut self, is_hidden: bool) {
+        self.text_widget.set_is_hidden(is_hidden);
+    }
+
     fn set_origin(&mut self, origin: Point) {
         self.text_widget.set_origin(origin)
+    }
+
+    fn set_stroke(&mut self, stroke: Option<Stroke>) -> Result<(), WidgetError> {
+        self.text_widget.set_stroke(stroke)
     }
 
     fn widget_id(&self) -> &WidgetId {

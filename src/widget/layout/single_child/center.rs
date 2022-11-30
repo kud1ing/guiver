@@ -67,6 +67,8 @@ impl Widget for Center {
     fn handle_command(&mut self, widget_command: &WidgetCommand) -> Result<(), WidgetError> {
         match widget_command {
             WidgetCommand::AddChild(_widget_placement, child_widget) => {
+                // TODO: move to method
+
                 self.child_widget = Some(child_widget.clone());
 
                 // Layout the child widget.
@@ -75,6 +77,8 @@ impl Widget for Center {
                 Ok(())
             }
             WidgetCommand::RemoveAllChildren => {
+                // TODO: move to method
+
                 self.child_widget = None;
 
                 // Update this widget's size.
@@ -83,6 +87,8 @@ impl Widget for Center {
                 Ok(())
             }
             WidgetCommand::RemoveChild(_) => {
+                // TODO: move to method
+
                 // TODO
                 println!("`Center::handle_command(RemoveChild)`: TODO");
 
@@ -129,6 +135,19 @@ impl Widget for Center {
 
     fn rectangle(&self) -> &Rect {
         &self.core.rectangle
+    }
+
+    fn set_debug_rendering(&mut self, debug_rendering: bool) {
+        self.core.debug_rendering = debug_rendering;
+    }
+
+    fn set_is_disabled(&mut self, _is_disabled: bool) {
+        // TODO
+        println!("`Center::set_is_disabled()`: TODO");
+    }
+
+    fn set_is_hidden(&mut self, is_hidden: bool) {
+        self.core.is_hidden = is_hidden;
     }
 
     fn set_origin(&mut self, origin: Point) {

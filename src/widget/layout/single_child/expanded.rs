@@ -63,6 +63,8 @@ impl Widget for Expanded {
     fn handle_command(&mut self, widget_command: &WidgetCommand) -> Result<(), WidgetError> {
         match widget_command {
             WidgetCommand::AddChild(_widget_placement, child_widget) => {
+                // TODO: move to method
+
                 self.child_widget = Some(child_widget.clone());
 
                 // Layout the child.
@@ -71,6 +73,8 @@ impl Widget for Expanded {
                 return Ok(());
             }
             WidgetCommand::RemoveAllChildren => {
+                // TODO: move to method
+
                 self.child_widget = None;
 
                 // Update this widget's size.
@@ -79,6 +83,8 @@ impl Widget for Expanded {
                 return Ok(());
             }
             WidgetCommand::RemoveChild(child_widget_id) => {
+                // TODO: move to method
+
                 // There is a child widget.
                 if let Some(_child_widget) = &mut self.child_widget {
                     // TODO
@@ -133,6 +139,19 @@ impl Widget for Expanded {
 
     fn rectangle(&self) -> &Rect {
         &self.core.rectangle
+    }
+
+    fn set_debug_rendering(&mut self, debug_rendering: bool) {
+        self.core.debug_rendering = debug_rendering;
+    }
+
+    fn set_is_disabled(&mut self, _is_disabled: bool) {
+        // TODO
+        println!("`Expanded::set_is_disabled()`: TODO");
+    }
+
+    fn set_is_hidden(&mut self, is_hidden: bool) {
+        self.core.is_hidden = is_hidden;
     }
 
     fn set_origin(&mut self, origin: Point) {

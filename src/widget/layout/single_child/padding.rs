@@ -86,6 +86,8 @@ impl Widget for Padding {
     fn handle_command(&mut self, widget_command: &WidgetCommand) -> Result<(), WidgetError> {
         match widget_command {
             WidgetCommand::AddChild(_widget_placement, child_widget) => {
+                // TODO: move to method
+
                 self.child_widget = Some(child_widget.clone());
 
                 // Layout the child widget.
@@ -94,6 +96,8 @@ impl Widget for Padding {
                 Ok(())
             }
             WidgetCommand::RemoveAllChildren => {
+                // TODO: move to method
+
                 self.child_widget = None;
 
                 // Update this widget's size.
@@ -102,6 +106,8 @@ impl Widget for Padding {
                 Ok(())
             }
             WidgetCommand::RemoveChild(_) => {
+                // TODO: move to method
+
                 // There is a child widget.
                 if let Some(_child_widget) = &mut self.child_widget {
                     // TODO
@@ -114,10 +120,7 @@ impl Widget for Padding {
                 }
                 // There is no child widget.
                 else {
-                    Err(WidgetError::CommandNotHandled(
-                        self.core.widget_id,
-                        format!("{:?}", widget_command),
-                    ))
+                    Err(WidgetError::NoSuchWidget(self.core.widget_id))
                 }
             }
             _ => self.core.handle_command(widget_command),
@@ -157,6 +160,19 @@ impl Widget for Padding {
 
     fn rectangle(&self) -> &Rect {
         &self.core.rectangle
+    }
+
+    fn set_debug_rendering(&mut self, debug_rendering: bool) {
+        self.core.debug_rendering = debug_rendering;
+    }
+
+    fn set_is_disabled(&mut self, _is_disabled: bool) {
+        // TODO
+        println!("`Padding::set_is_disabled()`: TODO");
+    }
+
+    fn set_is_hidden(&mut self, is_hidden: bool) {
+        self.core.is_hidden = is_hidden;
     }
 
     fn set_origin(&mut self, origin: Point) {

@@ -2,7 +2,9 @@ use crate::font::Font;
 use crate::stroke::Stroke;
 use crate::widget::core::WidgetCore;
 use crate::widget::{WidgetCommand, WidgetError, WidgetId};
-use crate::{Event, HorizontalAlignment, SizeConstraints, VerticalAlignment, Widget, WidgetEvent};
+use crate::{
+    Event, HorizontalAlignment, PaintBrush, SizeConstraints, VerticalAlignment, Widget, WidgetEvent,
+};
 use druid_shell::kurbo::{Point, Rect, Size};
 use druid_shell::piet::{Piet, PietTextLayout, RenderContext, TextLayout};
 use druid_shell::{piet, Region};
@@ -78,16 +80,6 @@ impl Text {
         // Set the text's origin.
         self.text_origin = (text_x, text_y).into();
     }
-
-    ///
-    pub fn set_font(&mut self, font: Font) {
-        self.font = font;
-
-        // TODO: How to update the font without recreating the text layout?
-        self.text_layout = self.font.text_layout(self.text.clone());
-
-        self.layout_text();
-    }
 }
 
 impl Widget for Text {
@@ -102,59 +94,19 @@ impl Widget for Text {
 
     fn handle_command(&mut self, widget_command: &WidgetCommand) -> Result<(), WidgetError> {
         match widget_command {
-            WidgetCommand::SetFill(_) => {
-                // TODO
-                println!("`Text::handle_command(SetFill)`: TODO");
-
-                Ok(())
-            }
-            WidgetCommand::SetFont(font) => {
-                self.set_font(font.clone());
-
-                Ok(())
-            }
+            WidgetCommand::SetFill(fill) => self.set_fill(fill.clone()),
+            WidgetCommand::SetFont(font) => self.set_font(font.clone()),
             WidgetCommand::SetHorizontalAlignment(horizontal_alignment) => {
-                self.horizontal_alignment = *horizontal_alignment;
-
-                // Layout.
-                self.layout_text();
-
+                self.set_horizontal_alignment(horizontal_alignment.clone())
+            }
+            WidgetCommand::SetIsDisabled(is_disabled) => {
+                self.set_is_disabled(*is_disabled);
                 Ok(())
             }
-            WidgetCommand::SetIsDisabled(_) => {
-                // TODO
-                println!("`Text::handle_command(SetIsDisabled)`: TODO");
-
-                Ok(())
-            }
-            WidgetCommand::SetStroke(_) => {
-                // TODO
-                println!("`Text::handle_command(SetStroke)`: TODO");
-
-                Ok(())
-            }
-            WidgetCommand::SetValue(value) => {
-                // The given value is a string.
-                if let Some(string) = value.downcast_ref::<String>() {
-                    self.text = string.clone();
-                }
-                // The given value is something else.
-                else {
-                    self.text = format!("{:?}", value);
-                }
-
-                self.text_layout = self.font.text_layout(self.text.clone());
-                self.layout_text();
-
-                Ok(())
-            }
+            WidgetCommand::SetStroke(stroke) => self.set_stroke(stroke.clone()),
+            WidgetCommand::SetValue(value) => self.set_value(value),
             WidgetCommand::SetVerticalAlignment(vertical_alignment) => {
-                self.vertical_alignment = *vertical_alignment;
-
-                // Layout.
-                self.layout_text();
-
-                Ok(())
+                self.set_vertical_alignment(vertical_alignment.clone())
             }
             _ => self.core.handle_command(widget_command),
         }
@@ -208,12 +160,90 @@ impl Widget for Text {
         Some(Box::new(self.text.clone()))
     }
 
+    fn set_debug_rendering(&mut self, debug_rendering: bool) {
+        self.core.debug_rendering = debug_rendering;
+    }
+
+    fn set_fill(&mut self, _fill: Option<PaintBrush>) -> Result<(), WidgetError> {
+        // TODO
+        println!("`Text::set_fill()`: TODO");
+
+        Ok(())
+    }
+
+    fn set_font(&mut self, font: Font) -> Result<(), WidgetError> {
+        self.font = font;
+
+        // TODO: How to update the font without recreating the text layout?
+        self.text_layout = self.font.text_layout(self.text.clone());
+
+        self.layout_text();
+
+        Ok(())
+    }
+
+    fn set_horizontal_alignment(
+        &mut self,
+        horizontal_alignment: HorizontalAlignment,
+    ) -> Result<(), WidgetError> {
+        self.horizontal_alignment = horizontal_alignment;
+
+        // Layout.
+        self.layout_text();
+
+        Ok(())
+    }
+
+    fn set_is_disabled(&mut self, _is_disabled: bool) {
+        // TODO
+        println!("`Text::set_is_disabled()`: TODO");
+    }
+
+    fn set_is_hidden(&mut self, is_hidden: bool) {
+        self.core.is_hidden = is_hidden;
+    }
+
+    fn set_stroke(&mut self, _stroke: Option<Stroke>) -> Result<(), WidgetError> {
+        // TODO
+        println!("`Text::handle_command(SetStroke)`: TODO");
+
+        Ok(())
+    }
+
+    fn set_value(&mut self, value: &Box<dyn Any>) -> Result<(), WidgetError> {
+        // The given value is a string.
+        if let Some(string) = value.downcast_ref::<String>() {
+            self.text = string.clone();
+        }
+        // The given value is something else.
+        else {
+            self.text = format!("{:?}", value);
+        }
+
+        self.text_layout = self.font.text_layout(self.text.clone());
+        self.layout_text();
+
+        Ok(())
+    }
+
     fn set_origin(&mut self, origin: Point) {
         let delta = origin - self.core.rectangle.origin();
 
         self.core.rectangle = self.core.rectangle.with_origin(origin);
 
         self.text_origin += delta;
+    }
+
+    fn set_vertical_alignment(
+        &mut self,
+        vertical_alignment: VerticalAlignment,
+    ) -> Result<(), WidgetError> {
+        self.vertical_alignment = vertical_alignment;
+
+        // Layout.
+        self.layout_text();
+
+        Ok(())
     }
 
     fn widget_id(&self) -> &WidgetId {

@@ -162,33 +162,10 @@ impl Widget for Column {
     fn handle_command(&mut self, widget_command: &WidgetCommand) -> Result<(), WidgetError> {
         match widget_command {
             WidgetCommand::AddChild(widget_placement, child_widget) => {
-                // A widget placement is given.
-                if let Some(widget_placement) = widget_placement {
-                    match widget_placement {
-                        WidgetPlacement::Above(_widgets_location) => {
-                            // TODO
-                            println!("TODO: `Column::handle_command(WidgetCommand::AddChild(WidgetPlacement::Above(...)))");
-                        }
-                        WidgetPlacement::Below(_widgets_location) => {
-                            // TODO
-                            println!("TODO: `Column::handle_command(WidgetCommand::AddChild(WidgetPlacement::Below(...)))");
-                        }
-                        _ => {
-                            return self.core.handle_command(widget_command);
-                        }
-                    }
-                }
-                // No widget placement is given.
-                else {
-                    self.child_widgets.push(child_widget.clone());
-                }
-
-                // Layout the child widgets.
-                self.layout_child_widgets();
-
-                return Ok(());
+                return self.add_child(widget_placement.clone(), child_widget.clone());
             }
             WidgetCommand::RemoveAllChildren => {
+                // TODO: move to method
                 self.child_widgets.clear();
 
                 // Update this widget's size.
@@ -197,6 +174,7 @@ impl Widget for Column {
                 return Ok(());
             }
             WidgetCommand::RemoveChild(child_widget_id) => {
+                // TODO: move to method
                 // TODO: Error handling, if the widget does not exist.
 
                 // Remove the widget with the given ID.
@@ -210,6 +188,7 @@ impl Widget for Column {
                 return Ok(());
             }
             WidgetCommand::SetHorizontalAlignment(horizontal_alignment) => {
+                // TODO: move to method
                 self.horizontal_alignment = *horizontal_alignment;
 
                 // Layout the child widgets.
@@ -266,7 +245,85 @@ impl Widget for Column {
         self.layout_child_widgets();
     }
 
+    fn set_debug_rendering(&mut self, debug_rendering: bool) {
+        self.core.debug_rendering = debug_rendering;
+    }
+
+    fn set_is_disabled(&mut self, _is_disabled: bool) {
+        // TODO
+        println!("`Column::set_is_disabled()`: TODO");
+    }
+
+    fn set_is_hidden(&mut self, is_hidden: bool) {
+        self.core.is_hidden = is_hidden;
+    }
+
     fn widget_id(&self) -> &WidgetId {
         &self.core.widget_id
     }
+
+    fn add_child(
+        &mut self,
+        widget_placement: Option<WidgetPlacement>,
+        child_widget: WidgetBox,
+    ) -> Result<(), WidgetError> {
+        // A widget placement is given.
+        if let Some(widget_placement) = widget_placement {
+            match widget_placement {
+                WidgetPlacement::Above(_widgets_location) => {
+                    // TODO
+                    println!("TODO: `Column::handle_command(WidgetCommand::AddChild(WidgetPlacement::Above(...)))");
+                }
+                WidgetPlacement::Below(_widgets_location) => {
+                    // TODO
+                    println!("TODO: `Column::handle_command(WidgetCommand::AddChild(WidgetPlacement::Below(...)))");
+                }
+                _ => return Err(WidgetError::NotHandled),
+            }
+        }
+        // No widget placement is given.
+        else {
+            self.child_widgets.push(child_widget.clone());
+        }
+
+        // Layout the child widgets.
+        self.layout_child_widgets();
+
+        Ok(())
+    }
+
+    // TODO
+    /*
+               WidgetCommand::AddChild(widget_placement, child_widget) => {
+           }
+           WidgetCommand::RemoveAllChildren => {
+               self.child_widgets.clear();
+
+               // Update this widget's size.
+               self.layout_child_widgets();
+
+               return Ok(());
+           }
+           WidgetCommand::RemoveChild(child_widget_id) => {
+               // TODO: Error handling, if the widget does not exist.
+
+               // Remove the widget with the given ID.
+               self.child_widgets.retain(|child_widget| {
+                   *RefCell::borrow(child_widget).widget_id() != *child_widget_id
+               });
+
+               // Layout the remaining child widgets.
+               self.layout_child_widgets();
+
+               return Ok(());
+           }
+           WidgetCommand::SetHorizontalAlignment(horizontal_alignment) => {
+               self.horizontal_alignment = *horizontal_alignment;
+
+               // Layout the child widgets.
+               self.layout_child_widgets();
+
+               return Ok(());
+           }
+    */
 }
