@@ -1,5 +1,5 @@
 use crate::widget::core::WidgetCore;
-use crate::widget::{WidgetCommand, WidgetError};
+use crate::widget::{WidgetCommand, WidgetError, WidgetPlacement};
 use crate::widget_manager::WidgetBox;
 use crate::{Event, Piet, Size, SizeConstraints, Stroke, Widget, WidgetEvent, WidgetId};
 use druid_shell::kurbo::{Point, Rect};
@@ -47,6 +47,19 @@ impl Expanded {
 }
 
 impl Widget for Expanded {
+    fn add_child(
+        &mut self,
+        _widget_placement: Option<WidgetPlacement>,
+        child_widget: WidgetBox,
+    ) -> Result<(), WidgetError> {
+        self.child_widget = Some(child_widget.clone());
+
+        // Layout the child.
+        self.layout_child_widget();
+
+        return Ok(());
+    }
+
     fn apply_size_constraints(&mut self, size_constraints: SizeConstraints) -> Size {
         self.core.size_constraints = size_constraints;
 
@@ -62,43 +75,14 @@ impl Widget for Expanded {
 
     fn handle_command(&mut self, widget_command: &WidgetCommand) -> Result<(), WidgetError> {
         match widget_command {
-            WidgetCommand::AddChild(_widget_placement, child_widget) => {
-                // TODO: move to method
-
-                self.child_widget = Some(child_widget.clone());
-
-                // Layout the child.
-                self.layout_child_widget();
-
-                return Ok(());
+            WidgetCommand::AddChild(widget_placement, child_widget) => {
+                return self.add_child(widget_placement.clone(), child_widget.clone())
             }
             WidgetCommand::RemoveAllChildren => {
-                // TODO: move to method
-
-                self.child_widget = None;
-
-                // Update this widget's size.
-                self.layout_child_widget();
-
-                return Ok(());
+                return self.remove_all_children();
             }
             WidgetCommand::RemoveChild(child_widget_id) => {
-                // TODO: move to method
-
-                // There is a child widget.
-                if let Some(_child_widget) = &mut self.child_widget {
-                    // TODO
-                    println!("`Expanded::handle_command(RemoveChild)`: TODO");
-
-                    // Update this widget's size.
-                    self.layout_child_widget();
-
-                    return Ok(());
-                }
-                // There is no child widget.
-                else {
-                    return Err(WidgetError::NoSuchWidget(*child_widget_id));
-                }
+                return self.remove_child(*child_widget_id);
             }
             _ => {}
         }
@@ -139,6 +123,32 @@ impl Widget for Expanded {
 
     fn rectangle(&self) -> &Rect {
         &self.core.rectangle
+    }
+
+    fn remove_all_children(&mut self) -> Result<(), WidgetError> {
+        self.child_widget = None;
+
+        // Update this widget's size.
+        self.layout_child_widget();
+
+        return Ok(());
+    }
+
+    fn remove_child(&mut self, widget_id: WidgetId) -> Result<(), WidgetError> {
+        // There is a child widget.
+        if let Some(_child_widget) = &mut self.child_widget {
+            // TODO
+            println!("`Expanded::handle_command(RemoveChild)`: TODO");
+
+            // Update this widget's size.
+            self.layout_child_widget();
+
+            return Ok(());
+        }
+        // There is no child widget.
+        else {
+            return Err(WidgetError::NoSuchWidget(widget_id));
+        }
     }
 
     fn set_debug_rendering(&mut self, debug_rendering: bool) {

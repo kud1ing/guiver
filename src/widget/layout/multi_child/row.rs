@@ -148,7 +148,38 @@ impl Row {
 }
 
 impl Widget for Row {
-    ///
+    fn add_child(
+        &mut self,
+        widget_placement: Option<WidgetPlacement>,
+        child_widget: WidgetBox,
+    ) -> Result<(), WidgetError> {
+        // A widget placement is given.
+        if let Some(widget_placement) = widget_placement {
+            match widget_placement {
+                WidgetPlacement::LeftOf(_widgets_location) => {
+                    // TODO
+                    println!("TODO: `Row::add_child(WidgetPlacement::LeftOf(...))");
+                }
+                WidgetPlacement::RightOf(_widgets_location) => {
+                    // TODO
+                    println!("TODO: `Row::add_child(WidgetPlacement::RightOf(...))");
+                }
+                _ => {
+                    return Err(WidgetError::NotHandled);
+                }
+            }
+        }
+        // No widget placement is given.
+        else {
+            self.child_widgets.push(child_widget);
+        }
+
+        // Layout the child widgets.
+        self.layout_child_widgets();
+
+        Ok(())
+    }
+
     fn apply_size_constraints(&mut self, size_constraints: SizeConstraints) -> Size {
         self.core.size_constraints = size_constraints;
 
@@ -161,60 +192,16 @@ impl Widget for Row {
     fn handle_command(&mut self, widget_command: &WidgetCommand) -> Result<(), WidgetError> {
         match widget_command {
             WidgetCommand::AddChild(widget_placement, child_widget) => {
-                // A widget placement is given.
-                if let Some(widget_placement) = widget_placement {
-                    match widget_placement {
-                        WidgetPlacement::LeftOf(_widgets_location) => {
-                            // TODO
-                            println!("TODO: `Column::handle_command(WidgetCommand::AddChild(WidgetPlacement::LeftOf(...)))");
-                        }
-                        WidgetPlacement::RightOf(_widgets_location) => {
-                            // TODO
-                            println!("TODO: `Column::handle_command(WidgetCommand::AddChild(WidgetPlacement::RightOf(...)))");
-                        }
-                        _ => {
-                            return self.core.handle_command(widget_command);
-                        }
-                    }
-                }
-                // No widget placement is given.
-                else {
-                    self.child_widgets.push(child_widget.clone());
-                }
-
-                // Layout the child widgets.
-                self.layout_child_widgets();
-
-                return Ok(());
+                return self.add_child(widget_placement.clone(), child_widget.clone());
             }
             WidgetCommand::RemoveAllChildren => {
-                self.child_widgets.clear();
-
-                // Update this widget's size.
-                self.layout_child_widgets();
-
-                return Ok(());
+                return self.remove_all_children();
             }
             WidgetCommand::RemoveChild(child_widget_id) => {
-                // TODO: Error handling, if the widget does not exist.
-
-                // Remove the widget with the given ID.
-                self.child_widgets.retain(|child_widget| {
-                    *RefCell::borrow(child_widget).widget_id() != *child_widget_id
-                });
-
-                // Layout the remaining child widgets.
-                self.layout_child_widgets();
-
-                return Ok(());
+                return self.remove_child(*child_widget_id);
             }
             WidgetCommand::SetVerticalAlignment(vertical_alignment) => {
-                self.vertical_alignment = *vertical_alignment;
-
-                // Layout the child widgets.
-                self.layout_child_widgets();
-
-                return Ok(());
+                return self.set_vertical_alignment(vertical_alignment.clone());
             }
             _ => {}
         }
@@ -258,6 +245,26 @@ impl Widget for Row {
         &self.core.rectangle
     }
 
+    fn remove_all_children(&mut self) -> Result<(), WidgetError> {
+        self.child_widgets.clear();
+
+        // Update this widget's size.
+        self.layout_child_widgets();
+
+        return Ok(());
+    }
+
+    fn remove_child(&mut self, widget_id: WidgetId) -> Result<(), WidgetError> {
+        // Remove the widget with the given ID.
+        self.child_widgets
+            .retain(|child_widget| *RefCell::borrow(child_widget).widget_id() != widget_id);
+
+        // Layout the remaining child widgets.
+        self.layout_child_widgets();
+
+        Ok(())
+    }
+
     fn set_debug_rendering(&mut self, debug_rendering: bool) {
         self.core.debug_rendering = debug_rendering;
     }
@@ -276,6 +283,18 @@ impl Widget for Row {
 
         // Layout the child widgets.
         self.layout_child_widgets();
+    }
+
+    fn set_vertical_alignment(
+        &mut self,
+        vertical_alignment: VerticalAlignment,
+    ) -> Result<(), WidgetError> {
+        self.vertical_alignment = vertical_alignment;
+
+        // Layout the child widgets.
+        self.layout_child_widgets();
+
+        return Ok(());
     }
 
     fn widget_id(&self) -> &WidgetId {

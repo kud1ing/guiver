@@ -149,7 +149,36 @@ impl Column {
 }
 
 impl Widget for Column {
-    ///
+    fn add_child(
+        &mut self,
+        widget_placement: Option<WidgetPlacement>,
+        child_widget: WidgetBox,
+    ) -> Result<(), WidgetError> {
+        // A widget placement is given.
+        if let Some(widget_placement) = widget_placement {
+            match widget_placement {
+                WidgetPlacement::Above(_widgets_location) => {
+                    // TODO
+                    println!("TODO: `Column::handle_command(WidgetCommand::AddChild(WidgetPlacement::Above(...)))");
+                }
+                WidgetPlacement::Below(_widgets_location) => {
+                    // TODO
+                    println!("TODO: `Column::handle_command(WidgetCommand::AddChild(WidgetPlacement::Below(...)))");
+                }
+                _ => return Err(WidgetError::NotHandled),
+            }
+        }
+        // No widget placement is given.
+        else {
+            self.child_widgets.push(child_widget.clone());
+        }
+
+        // Layout the child widgets.
+        self.layout_child_widgets();
+
+        Ok(())
+    }
+
     fn apply_size_constraints(&mut self, size_constraints: SizeConstraints) -> Size {
         self.core.size_constraints = size_constraints;
 
@@ -165,36 +194,13 @@ impl Widget for Column {
                 return self.add_child(widget_placement.clone(), child_widget.clone());
             }
             WidgetCommand::RemoveAllChildren => {
-                // TODO: move to method
-                self.child_widgets.clear();
-
-                // Update this widget's size.
-                self.layout_child_widgets();
-
-                return Ok(());
+                return self.remove_all_children();
             }
             WidgetCommand::RemoveChild(child_widget_id) => {
-                // TODO: move to method
-                // TODO: Error handling, if the widget does not exist.
-
-                // Remove the widget with the given ID.
-                self.child_widgets.retain(|child_widget| {
-                    *RefCell::borrow(child_widget).widget_id() != *child_widget_id
-                });
-
-                // Layout the remaining child widgets.
-                self.layout_child_widgets();
-
-                return Ok(());
+                return self.remove_child(*child_widget_id);
             }
             WidgetCommand::SetHorizontalAlignment(horizontal_alignment) => {
-                // TODO: move to method
-                self.horizontal_alignment = *horizontal_alignment;
-
-                // Layout the child widgets.
-                self.layout_child_widgets();
-
-                return Ok(());
+                return self.set_horizontal_alignment(*horizontal_alignment);
             }
             _ => {}
         }
@@ -238,15 +244,42 @@ impl Widget for Column {
         &self.core.rectangle
     }
 
-    fn set_origin(&mut self, origin: Point) {
-        self.core.rectangle = self.core.rectangle.with_origin(origin);
+    fn remove_all_children(&mut self) -> Result<(), WidgetError> {
+        self.child_widgets.clear();
 
-        // Layout the child widgets.
+        // Update this widget's size.
         self.layout_child_widgets();
+
+        return Ok(());
+    }
+
+    fn remove_child(&mut self, widget_id: WidgetId) -> Result<(), WidgetError> {
+        // TODO: Error handling, if the widget does not exist.
+
+        // Remove the widget with the given ID.
+        self.child_widgets
+            .retain(|child_widget| *RefCell::borrow(child_widget).widget_id() != widget_id);
+
+        // Layout the remaining child widgets.
+        self.layout_child_widgets();
+
+        return Ok(());
     }
 
     fn set_debug_rendering(&mut self, debug_rendering: bool) {
         self.core.debug_rendering = debug_rendering;
+    }
+
+    fn set_horizontal_alignment(
+        &mut self,
+        horizontal_alignment: HorizontalAlignment,
+    ) -> Result<(), WidgetError> {
+        self.horizontal_alignment = horizontal_alignment;
+
+        // Layout the child widgets.
+        self.layout_child_widgets();
+
+        Ok(())
     }
 
     fn set_is_disabled(&mut self, _is_disabled: bool) {
@@ -258,72 +291,14 @@ impl Widget for Column {
         self.core.is_hidden = is_hidden;
     }
 
-    fn widget_id(&self) -> &WidgetId {
-        &self.core.widget_id
-    }
-
-    fn add_child(
-        &mut self,
-        widget_placement: Option<WidgetPlacement>,
-        child_widget: WidgetBox,
-    ) -> Result<(), WidgetError> {
-        // A widget placement is given.
-        if let Some(widget_placement) = widget_placement {
-            match widget_placement {
-                WidgetPlacement::Above(_widgets_location) => {
-                    // TODO
-                    println!("TODO: `Column::handle_command(WidgetCommand::AddChild(WidgetPlacement::Above(...)))");
-                }
-                WidgetPlacement::Below(_widgets_location) => {
-                    // TODO
-                    println!("TODO: `Column::handle_command(WidgetCommand::AddChild(WidgetPlacement::Below(...)))");
-                }
-                _ => return Err(WidgetError::NotHandled),
-            }
-        }
-        // No widget placement is given.
-        else {
-            self.child_widgets.push(child_widget.clone());
-        }
+    fn set_origin(&mut self, origin: Point) {
+        self.core.rectangle = self.core.rectangle.with_origin(origin);
 
         // Layout the child widgets.
         self.layout_child_widgets();
-
-        Ok(())
     }
 
-    // TODO
-    /*
-               WidgetCommand::AddChild(widget_placement, child_widget) => {
-           }
-           WidgetCommand::RemoveAllChildren => {
-               self.child_widgets.clear();
-
-               // Update this widget's size.
-               self.layout_child_widgets();
-
-               return Ok(());
-           }
-           WidgetCommand::RemoveChild(child_widget_id) => {
-               // TODO: Error handling, if the widget does not exist.
-
-               // Remove the widget with the given ID.
-               self.child_widgets.retain(|child_widget| {
-                   *RefCell::borrow(child_widget).widget_id() != *child_widget_id
-               });
-
-               // Layout the remaining child widgets.
-               self.layout_child_widgets();
-
-               return Ok(());
-           }
-           WidgetCommand::SetHorizontalAlignment(horizontal_alignment) => {
-               self.horizontal_alignment = *horizontal_alignment;
-
-               // Layout the child widgets.
-               self.layout_child_widgets();
-
-               return Ok(());
-           }
-    */
+    fn widget_id(&self) -> &WidgetId {
+        &self.core.widget_id
+    }
 }

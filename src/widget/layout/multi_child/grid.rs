@@ -414,23 +414,10 @@ impl Widget for Grid {
                 row_index,
                 child_widget,
             } => {
-                self.add_child_widget(child_widget.clone(), *column_index, *row_index);
-
-                return Ok(());
+                return self.set_child(*column_index, *row_index, child_widget.clone());
             }
             WidgetCommand::RemoveAllChildren => {
-                self.child_widget_id_per_cell.clear();
-                self.child_widget_ids_per_column.clear();
-                self.child_widget_ids_per_row.clear();
-                self.child_widget_per_id.clear();
-
-                self.number_of_columns = 0;
-                self.number_of_rows = 0;
-
-                // Update this widget's size.
-                self.layout_child_widgets();
-
-                return Ok(());
+                return self.remove_all_children();
             }
             _ => {}
         }
@@ -472,6 +459,32 @@ impl Widget for Grid {
 
     fn rectangle(&self) -> &Rect {
         &self.core.rectangle
+    }
+
+    fn remove_all_children(&mut self) -> Result<(), WidgetError> {
+        self.child_widget_id_per_cell.clear();
+        self.child_widget_ids_per_column.clear();
+        self.child_widget_ids_per_row.clear();
+        self.child_widget_per_id.clear();
+
+        self.number_of_columns = 0;
+        self.number_of_rows = 0;
+
+        // Update this widget's size.
+        self.layout_child_widgets();
+
+        Ok(())
+    }
+
+    fn set_child(
+        &mut self,
+        column_index: usize,
+        row_index: usize,
+        child_widget: WidgetBox,
+    ) -> Result<(), WidgetError> {
+        self.add_child_widget(child_widget.clone(), column_index, row_index);
+
+        Ok(())
     }
 
     fn set_debug_rendering(&mut self, debug_rendering: bool) {

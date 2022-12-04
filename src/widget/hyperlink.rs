@@ -53,7 +53,8 @@ impl Hyperlink {
             // Set the "is being clicked" font.
             self.text_widget
                 .borrow_mut()
-                .set_font(self.font_is_being_clicked.clone());
+                .set_font(self.font_is_being_clicked.clone())
+                .unwrap();
         }
         // The hyperlink is not being clicked anymore.
         else {
@@ -62,12 +63,14 @@ impl Hyperlink {
                 // Set the "was visited" font.
                 self.text_widget
                     .borrow_mut()
-                    .set_font(self.font_was_visited.clone());
+                    .set_font(self.font_was_visited.clone())
+                    .unwrap();
             } else {
                 // Set the "normal" font.
                 self.text_widget
                     .borrow_mut()
-                    .set_font(self.font_normal.clone());
+                    .set_font(self.font_normal.clone())
+                    .unwrap();
             }
         }
     }
