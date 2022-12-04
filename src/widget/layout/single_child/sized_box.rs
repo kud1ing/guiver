@@ -1,5 +1,5 @@
 use crate::widget::core::WidgetCore;
-use crate::widget::{WidgetCommand, WidgetError, WidgetPlacement};
+use crate::widget::{WidgetError, WidgetPlacement};
 use crate::widget_manager::WidgetBox;
 use crate::{Event, Piet, SizeConstraints, Stroke, Widget, WidgetEvent, WidgetId};
 use druid_shell::kurbo::{Point, Rect, Size};
@@ -70,17 +70,6 @@ impl Widget for SizedBox {
         self.layout_child_widget();
 
         self.core.rectangle.size()
-    }
-
-    fn handle_command(&mut self, widget_command: &WidgetCommand) -> Result<(), WidgetError> {
-        match widget_command {
-            WidgetCommand::AddChild(widget_placement, child_widget) => {
-                self.add_child(widget_placement.clone(), child_widget.clone())
-            }
-            WidgetCommand::RemoveAllChildren => self.remove_all_children(),
-            WidgetCommand::RemoveChild(widget_id) => self.remove_child(*widget_id),
-            _ => self.core.handle_command(widget_command),
-        }
     }
 
     fn handle_event(&mut self, event: &Event, widget_events: &mut Vec<WidgetEvent>) {

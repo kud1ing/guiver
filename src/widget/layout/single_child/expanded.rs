@@ -1,5 +1,5 @@
 use crate::widget::core::WidgetCore;
-use crate::widget::{WidgetCommand, WidgetError, WidgetPlacement};
+use crate::widget::{WidgetError, WidgetPlacement};
 use crate::widget_manager::WidgetBox;
 use crate::{Event, Piet, Size, SizeConstraints, Stroke, Widget, WidgetEvent, WidgetId};
 use druid_shell::kurbo::{Point, Rect};
@@ -73,23 +73,6 @@ impl Widget for Expanded {
         self.flex_factor
     }
 
-    fn handle_command(&mut self, widget_command: &WidgetCommand) -> Result<(), WidgetError> {
-        match widget_command {
-            WidgetCommand::AddChild(widget_placement, child_widget) => {
-                return self.add_child(widget_placement.clone(), child_widget.clone())
-            }
-            WidgetCommand::RemoveAllChildren => {
-                return self.remove_all_children();
-            }
-            WidgetCommand::RemoveChild(child_widget_id) => {
-                return self.remove_child(*child_widget_id);
-            }
-            _ => {}
-        }
-
-        self.core.handle_command(widget_command)
-    }
-
     fn handle_event(&mut self, event: &Event, widget_events: &mut Vec<WidgetEvent>) {
         // There is a child widget.
         if let Some(child_widget) = &mut self.child_widget {
@@ -138,7 +121,7 @@ impl Widget for Expanded {
         // There is a child widget.
         if let Some(_child_widget) = &mut self.child_widget {
             // TODO
-            println!("`Expanded::handle_command(RemoveChild)`: TODO");
+            println!("`Expanded::remove_child()`: TODO");
 
             // Update this widget's size.
             self.layout_child_widget();

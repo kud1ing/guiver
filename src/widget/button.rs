@@ -1,6 +1,6 @@
 use crate::stroke::Stroke;
 use crate::widget::core::WidgetCore;
-use crate::widget::{WidgetCommand, WidgetError, WidgetPlacement};
+use crate::widget::{WidgetError, WidgetPlacement};
 use crate::widget_manager::WidgetBox;
 use crate::{
     Event, Font, HorizontalAlignment, SizeConstraints, VerticalAlignment, Widget, WidgetEvent,
@@ -133,31 +133,6 @@ impl Widget for Button {
         self.layout_child_widget();
 
         self.core.rectangle.size()
-    }
-
-    fn handle_command(&mut self, widget_command: &WidgetCommand) -> Result<(), WidgetError> {
-        match widget_command {
-            WidgetCommand::AddChild(widget_placement, child_widget) => {
-                self.add_child(widget_placement.clone(), child_widget.clone())
-            }
-            WidgetCommand::RemoveAllChildren => self.remove_all_children(),
-            WidgetCommand::SetFill(fill) => self.set_fill(fill.clone()),
-            WidgetCommand::SetFont(font) => self.set_font(font.clone()),
-            WidgetCommand::SetHasFocus(has_focus) => self.set_has_focus(*has_focus),
-            WidgetCommand::SetHorizontalAlignment(horizontal_alignment) => {
-                self.set_horizontal_alignment(horizontal_alignment.clone())
-            }
-            WidgetCommand::SetIsDisabled(is_disabled) => {
-                self.set_is_disabled(*is_disabled);
-                Ok(())
-            }
-            WidgetCommand::SetStroke(stroke) => self.set_stroke(stroke.clone()),
-            WidgetCommand::SetValue(value) => self.set_value(value),
-            WidgetCommand::SetVerticalAlignment(vertical_alignment) => {
-                self.set_vertical_alignment(vertical_alignment.clone())
-            }
-            _ => self.core.handle_command(widget_command),
-        }
     }
 
     fn handle_event(&mut self, event: &Event, widget_events: &mut Vec<WidgetEvent>) {
@@ -332,7 +307,7 @@ impl Widget for Button {
         Ok(())
     }
 
-    fn set_value(&mut self, _value: &Box<dyn Any>) -> Result<(), WidgetError> {
+    fn set_value(&mut self, _value: Box<dyn Any>) -> Result<(), WidgetError> {
         // TODO
         println!("`Button::set_value()`: TODO");
 

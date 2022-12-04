@@ -1,5 +1,5 @@
 use crate::widget::core::WidgetCore;
-use crate::widget::{WidgetCommand, WidgetError};
+use crate::widget::WidgetError;
 use crate::widget_manager::WidgetBox;
 use crate::{
     Event, HorizontalAlignment, Piet, Size, SizeConstraints, Stroke, VerticalAlignment, Widget,
@@ -405,24 +405,6 @@ impl Widget for Grid {
         self.layout_child_widgets();
 
         self.core.rectangle.size()
-    }
-
-    fn handle_command(&mut self, widget_command: &WidgetCommand) -> Result<(), WidgetError> {
-        match widget_command {
-            WidgetCommand::SetChild {
-                column_index,
-                row_index,
-                child_widget,
-            } => {
-                return self.set_child(*column_index, *row_index, child_widget.clone());
-            }
-            WidgetCommand::RemoveAllChildren => {
-                return self.remove_all_children();
-            }
-            _ => {}
-        }
-
-        self.core.handle_command(widget_command)
     }
 
     fn handle_event(&mut self, event: &Event, widget_events: &mut Vec<WidgetEvent>) {

@@ -187,9 +187,6 @@ pub trait Widget {
         0
     }
 
-    ///
-    fn handle_command(&mut self, widget_command: &WidgetCommand) -> Result<(), WidgetError>;
-
     /// Let the widget handle the given event.
     fn handle_event(&mut self, event: &Event, widget_events: &mut Vec<WidgetEvent>);
 
@@ -257,7 +254,7 @@ pub trait Widget {
     fn set_is_hidden(&mut self, is_hidden: bool);
 
     ///
-    fn set_value(&mut self, _value: &Box<dyn Any>) -> Result<(), WidgetError> {
+    fn set_value(&mut self, _value: Box<dyn Any>) -> Result<(), WidgetError> {
         Err(WidgetError::NotHandled)
     }
 

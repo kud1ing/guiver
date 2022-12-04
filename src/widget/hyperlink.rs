@@ -1,4 +1,4 @@
-use crate::widget::{Text, WidgetCommand, WidgetError};
+use crate::widget::{Text, WidgetError};
 use crate::{Event, Font, Piet, Size, SizeConstraints, Stroke, Widget, WidgetEvent, WidgetId};
 use druid_shell::kurbo::{Point, Rect};
 use druid_shell::piet::Error;
@@ -90,14 +90,6 @@ impl Hyperlink {
 impl Widget for Hyperlink {
     fn apply_size_constraints(&mut self, size_constraints: SizeConstraints) -> Size {
         self.text_widget.apply_size_constraints(size_constraints)
-    }
-
-    fn handle_command(&mut self, widget_command: &WidgetCommand) -> Result<(), WidgetError> {
-        if let WidgetCommand::SetStroke(stroke) = widget_command {
-            return self.set_stroke(stroke.clone());
-        };
-
-        self.text_widget.handle_command(widget_command)
     }
 
     fn handle_event(&mut self, event: &Event, widget_events: &mut Vec<WidgetEvent>) {

@@ -1,6 +1,6 @@
 use crate::stroke::Stroke;
 use crate::widget::core::WidgetCore;
-use crate::widget::{WidgetCommand, WidgetError, WidgetId, WidgetPlacement};
+use crate::widget::{WidgetError, WidgetId, WidgetPlacement};
 use crate::widget_manager::WidgetBox;
 use crate::{Event, SizeConstraints, VerticalAlignment, Widget, WidgetEvent};
 use druid_shell::kurbo::{Point, Rect, Size};
@@ -187,26 +187,6 @@ impl Widget for Row {
         self.layout_child_widgets();
 
         self.core.rectangle.size()
-    }
-
-    fn handle_command(&mut self, widget_command: &WidgetCommand) -> Result<(), WidgetError> {
-        match widget_command {
-            WidgetCommand::AddChild(widget_placement, child_widget) => {
-                return self.add_child(widget_placement.clone(), child_widget.clone());
-            }
-            WidgetCommand::RemoveAllChildren => {
-                return self.remove_all_children();
-            }
-            WidgetCommand::RemoveChild(child_widget_id) => {
-                return self.remove_child(*child_widget_id);
-            }
-            WidgetCommand::SetVerticalAlignment(vertical_alignment) => {
-                return self.set_vertical_alignment(vertical_alignment.clone());
-            }
-            _ => {}
-        }
-
-        self.core.handle_command(widget_command)
     }
 
     fn handle_event(&mut self, event: &Event, widget_events: &mut Vec<WidgetEvent>) {

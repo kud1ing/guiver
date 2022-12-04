@@ -1,7 +1,7 @@
 use crate::font::Font;
 use crate::stroke::Stroke;
 use crate::widget::core::WidgetCore;
-use crate::widget::{WidgetCommand, WidgetError, WidgetId};
+use crate::widget::{WidgetError, WidgetId};
 use crate::{
     Event, HorizontalAlignment, PaintBrush, SizeConstraints, VerticalAlignment, Widget, WidgetEvent,
 };
@@ -90,26 +90,6 @@ impl Widget for Text {
         self.layout_text();
 
         self.core.rectangle.size()
-    }
-
-    fn handle_command(&mut self, widget_command: &WidgetCommand) -> Result<(), WidgetError> {
-        match widget_command {
-            WidgetCommand::SetFill(fill) => self.set_fill(fill.clone()),
-            WidgetCommand::SetFont(font) => self.set_font(font.clone()),
-            WidgetCommand::SetHorizontalAlignment(horizontal_alignment) => {
-                self.set_horizontal_alignment(horizontal_alignment.clone())
-            }
-            WidgetCommand::SetIsDisabled(is_disabled) => {
-                self.set_is_disabled(*is_disabled);
-                Ok(())
-            }
-            WidgetCommand::SetStroke(stroke) => self.set_stroke(stroke.clone()),
-            WidgetCommand::SetValue(value) => self.set_value(value),
-            WidgetCommand::SetVerticalAlignment(vertical_alignment) => {
-                self.set_vertical_alignment(vertical_alignment.clone())
-            }
-            _ => self.core.handle_command(widget_command),
-        }
     }
 
     fn handle_event(&mut self, event: &Event, widget_events: &mut Vec<WidgetEvent>) {
@@ -205,12 +185,12 @@ impl Widget for Text {
 
     fn set_stroke(&mut self, _stroke: Option<Stroke>) -> Result<(), WidgetError> {
         // TODO
-        println!("`Text::handle_command(SetStroke)`: TODO");
+        println!("`Text::set_stroke()`: TODO");
 
         Ok(())
     }
 
-    fn set_value(&mut self, value: &Box<dyn Any>) -> Result<(), WidgetError> {
+    fn set_value(&mut self, value: Box<dyn Any>) -> Result<(), WidgetError> {
         // The given value is a string.
         if let Some(string) = value.downcast_ref::<String>() {
             self.text = string.clone();

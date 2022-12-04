@@ -39,10 +39,6 @@ On the upside you get simple setup and simple control flow.
 
 ## Backlog
 
-* `WidgetCommand` => methods:
-  * implement the methods with the functionality from `handle_command()`:
-    * [ ] `core.rs`
-  * [ ] remove `WidgetCommand` and `Widget::handle_command()`
 * [ ] publish 0.1.1, once the updated `druid-shell` is [released](https://github.com/linebender/druid/issues/2236)
 * `Grid`:
   * [ ] implement `Grid::layout_child_widgets()`

@@ -1,6 +1,6 @@
 use crate::stroke::Stroke;
 use crate::widget::core::WidgetCore;
-use crate::widget::{WidgetCommand, WidgetError, WidgetId, WidgetPlacement};
+use crate::widget::{WidgetError, WidgetId, WidgetPlacement};
 use crate::widget_manager::WidgetBox;
 use crate::{Event, HorizontalAlignment, SizeConstraints, Widget, WidgetEvent};
 use druid_shell::kurbo::{Point, Rect, Size};
@@ -159,11 +159,11 @@ impl Widget for Column {
             match widget_placement {
                 WidgetPlacement::Above(_widgets_location) => {
                     // TODO
-                    println!("TODO: `Column::handle_command(WidgetCommand::AddChild(WidgetPlacement::Above(...)))");
+                    println!("TODO: `Column::add_child(WidgetPlacement::Above(...))");
                 }
                 WidgetPlacement::Below(_widgets_location) => {
                     // TODO
-                    println!("TODO: `Column::handle_command(WidgetCommand::AddChild(WidgetPlacement::Below(...)))");
+                    println!("TODO: `Column::add_child(WidgetPlacement::Below(...))");
                 }
                 _ => return Err(WidgetError::NotHandled),
             }
@@ -186,26 +186,6 @@ impl Widget for Column {
         self.layout_child_widgets();
 
         self.core.rectangle.size()
-    }
-
-    fn handle_command(&mut self, widget_command: &WidgetCommand) -> Result<(), WidgetError> {
-        match widget_command {
-            WidgetCommand::AddChild(widget_placement, child_widget) => {
-                return self.add_child(widget_placement.clone(), child_widget.clone());
-            }
-            WidgetCommand::RemoveAllChildren => {
-                return self.remove_all_children();
-            }
-            WidgetCommand::RemoveChild(child_widget_id) => {
-                return self.remove_child(*child_widget_id);
-            }
-            WidgetCommand::SetHorizontalAlignment(horizontal_alignment) => {
-                return self.set_horizontal_alignment(*horizontal_alignment);
-            }
-            _ => {}
-        }
-
-        self.core.handle_command(widget_command)
     }
 
     fn handle_event(&mut self, event: &Event, widget_events: &mut Vec<WidgetEvent>) {

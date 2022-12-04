@@ -1,6 +1,6 @@
 use crate::stroke::Stroke;
 use crate::widget::core::WidgetCore;
-use crate::widget::{Text, WidgetCommand, WidgetError};
+use crate::widget::{Text, WidgetError};
 use crate::{
     Event, Font, HorizontalAlignment, SizeConstraints, VerticalAlignment, Widget, WidgetEvent,
     WidgetId,
@@ -171,7 +171,7 @@ impl TextInput {
         // Pass the updated text to the child text widget.
         self.text_widget
             .borrow_mut()
-            .handle_command(&WidgetCommand::SetValue(Box::new(self.text.clone())))
+            .set_value(Box::new(self.text.clone()))
             .unwrap();
 
         // Update the caret index, if necessary.
@@ -189,27 +189,6 @@ impl Widget for TextInput {
         self.layout_child_widget();
 
         self.core.rectangle.size()
-    }
-
-    fn handle_command(&mut self, widget_command: &WidgetCommand) -> Result<(), WidgetError> {
-        match widget_command {
-            WidgetCommand::SetFill(fill) => self.set_fill(fill.clone()),
-            WidgetCommand::SetFont(font) => self.set_font(font.clone()),
-            WidgetCommand::SetHasFocus(has_focus) => self.set_has_focus(*has_focus),
-            WidgetCommand::SetHorizontalAlignment(horizontal_alignment) => {
-                self.set_horizontal_alignment(horizontal_alignment.clone())
-            }
-            WidgetCommand::SetIsDisabled(is_disabled) => {
-                self.set_is_disabled(*is_disabled);
-                Ok(())
-            }
-            WidgetCommand::SetStroke(stroke) => self.set_stroke(stroke.clone()),
-            WidgetCommand::SetValue(value) => self.set_value(value),
-            WidgetCommand::SetVerticalAlignment(vertical_alignment) => {
-                self.set_vertical_alignment(vertical_alignment.clone())
-            }
-            _ => self.core.handle_command(widget_command),
-        }
     }
 
     fn handle_event(&mut self, event: &Event, widget_events: &mut Vec<WidgetEvent>) {
@@ -368,7 +347,7 @@ impl Widget for TextInput {
         Ok(())
     }
 
-    fn set_value(&mut self, value: &Box<dyn Any>) -> Result<(), WidgetError> {
+    fn set_value(&mut self, value: Box<dyn Any>) -> Result<(), WidgetError> {
         // The given value is a string.
         if let Some(string) = value.downcast_ref::<String>() {
             self.text = string.clone();

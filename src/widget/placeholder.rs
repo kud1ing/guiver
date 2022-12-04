@@ -1,6 +1,6 @@
 use crate::stroke::Stroke;
 use crate::widget::core::WidgetCore;
-use crate::widget::{WidgetCommand, WidgetError, WidgetId};
+use crate::widget::{WidgetError, WidgetId};
 use crate::{Event, SizeConstraints, Widget, WidgetEvent};
 use druid_shell::kurbo::{Line, Point, Rect, Size};
 use druid_shell::piet::{Color, Piet, RenderContext};
@@ -45,14 +45,6 @@ impl Widget for Placeholder {
                 .clamp(*size_constraints.minimum(), *size_constraints.maximum()),
         );
         self.core.rectangle.size()
-    }
-
-    fn handle_command(&mut self, widget_command: &WidgetCommand) -> Result<(), WidgetError> {
-        match widget_command {
-            WidgetCommand::SetFill(fill) => self.set_fill(fill.clone()),
-            WidgetCommand::SetStroke(stroke) => self.set_stroke(stroke.clone()),
-            _ => self.core.handle_command(widget_command),
-        }
     }
 
     fn handle_event(&mut self, _event: &Event, _widget_events: &mut Vec<WidgetEvent>) {
@@ -141,9 +133,9 @@ impl Widget for Placeholder {
         self.core.rectangle = self.core.rectangle.with_origin(origin)
     }
 
-    fn set_stroke(&mut self, stroke: Option<Stroke>) -> Result<(), WidgetError> {
+    fn set_stroke(&mut self, _stroke: Option<Stroke>) -> Result<(), WidgetError> {
         // TODO
-        println!("`Placeholder::handle_command(SetStroke)`: TODO");
+        println!("`Placeholder::set_stroke()`: TODO");
 
         Ok(())
     }
