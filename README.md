@@ -39,7 +39,7 @@ On the upside you get simple setup and simple control flow.
 
 ## Backlog
 
-* [ ] publish 0.1.1, once the updated `druid-shell` is [released](https://github.com/linebender/druid/issues/2236)
+* [ ] publish 0.1.1, once the updated `druid-shell` >0.7.0 is [released](https://github.com/linebender/druid/issues/2236)
 * `Grid`:
   * [ ] implement `Grid::layout_child_widgets()`
   * [ ] try `examples/layout_grid.rs` to see how `Grid` looks in action
