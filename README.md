@@ -39,11 +39,14 @@ On the upside you get simple setup and simple control flow.
 
 ## Backlog
 
-* [ ] publish 0.1.1, once the updated `druid-shell` >0.7.0 is [released](https://github.com/linebender/druid/issues/2236)
+* [ ] `Widget`: add `destroy_child()`, `destroy_all_children()`
 * `Grid`:
   * [ ] implement `Grid::layout_child_widgets()`
   * [ ] try `examples/layout_grid.rs` to see how `Grid` looks in action
 * [ ] `Hyperlink`: cache the two main `TextLayout`s to speed up mouse down/up
+* [ ] use `WidgetId`s that are independent of a `WidgetManager` for ease of use
+  * UUID? Positional Memoization(Egui?)? https://docs.rs/egui/latest/egui/struct.Id.html
+* [ ] publish 0.1.1, once the updated `druid-shell` >0.7.0 is [released](https://github.com/linebender/druid/issues/2236)
 * [ ] `test::widgets_layout()`: add remaining layout widgets
 * [ ] `test::widgets()`: add child widgets to the layout widgets
 * `TextInput` caret:
