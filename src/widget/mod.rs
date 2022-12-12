@@ -18,8 +18,7 @@ pub use hyperlink::Hyperlink;
 use piet::PaintBrush;
 pub use placeholder::Placeholder;
 use std::any::Any;
-use std::cell::RefCell;
-use std::fmt::{Debug, Formatter};
+use std::fmt::Debug;
 pub use text::Text;
 pub use text_input::TextInput;
 
@@ -87,7 +86,7 @@ pub trait Widget {
         Err(WidgetError::NotHandled)
     }
 
-    ///
+    /// Applies the given size constraints to the widget and returns the its size.
     fn apply_size_constraints(&mut self, size_constraints: SizeConstraints) -> Size;
 
     /// Returns the widget's flex factor.
@@ -95,21 +94,21 @@ pub trait Widget {
         0
     }
 
-    /// Let the widget handle the given event.
+    /// Ask the widget to handle the given event.
     fn handle_event(&mut self, event: &Event, widget_events: &mut Vec<WidgetEvent>);
 
     /// Paints the widget.
     fn paint(&self, piet: &mut piet::Piet, region: &Region) -> Result<(), piet::Error>;
 
-    ///
+    /// Returns the widget's rectangle.
     fn rectangle(&self) -> &Rect;
 
-    /// Removes the widget's child with the given ID.
+    /// Removes the child widget with the given ID.
     fn remove_child(&mut self, _widget_id: WidgetId) -> Result<(), WidgetError> {
         Err(WidgetError::NotHandled)
     }
 
-    /// Removes all of the widget's child widgets.
+    /// Removes all child widgets.
     fn remove_children(&mut self) -> Result<(), WidgetError> {
         Err(WidgetError::NotHandled)
     }
@@ -129,7 +128,7 @@ pub trait Widget {
         Err(WidgetError::NotHandled)
     }
 
-    ///
+    /// Enables or disables debug rendering.
     fn set_debug_rendering(&mut self, debug_rendering: bool);
 
     /// Sets the widget's fill.
@@ -161,7 +160,7 @@ pub trait Widget {
     ///
     fn set_is_hidden(&mut self, is_hidden: bool);
 
-    ///
+    /// Sets the given value.
     fn set_value(&mut self, _value: Box<dyn Any>) -> Result<(), WidgetError> {
         Err(WidgetError::NotHandled)
     }

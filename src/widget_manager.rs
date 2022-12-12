@@ -16,7 +16,7 @@ use druid_shell::{piet, Clipboard, KbKey, Modifiers, Region};
 use piet::PaintBrush;
 use std::any::Any;
 use std::cell::RefCell;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::rc::Rc;
 
 ///
@@ -27,10 +27,14 @@ pub type WidgetBox = Rc<RefCell<Box<dyn Widget>>>;
 pub enum Command {
     /// Adds the child widget.
     AddChild(WidgetId, Option<WidgetPlacement>, WidgetId),
-    /// Removes the child widget.
-    RemoveChild(WidgetId, WidgetId),
-    /// Removes the widget's child widgets.
-    RemoveChildren(WidgetId),
+    /// Destroys the widget.
+    Destroy(WidgetId),
+    /// Removes the child widget from the widget. If the boolean argument is `true`, the child
+    /// widget tree is destroyed.
+    RemoveChild(WidgetId, WidgetId, bool),
+    /// Removes the widget's child widgets. If the boolean argument is `true`, the child widget tree
+    /// is destroyed.
+    RemoveChildren(WidgetId, bool),
     /// Sets the child widget at the given location.
     SetChild {
         widget_id: WidgetId,
@@ -67,8 +71,9 @@ impl Command {
     pub fn widget_id(&self) -> &WidgetId {
         match self {
             Command::AddChild(widget_id, _, _) => widget_id,
-            Command::RemoveChild(widget_id, _) => widget_id,
-            Command::RemoveChildren(widget_id) => widget_id,
+            Command::Destroy(widget_id) => widget_id,
+            Command::RemoveChild(widget_id, _, _) => widget_id,
+            Command::RemoveChildren(widget_id, _) => widget_id,
             Command::SetChild { widget_id, .. } => widget_id,
             Command::SetDebugRendering(widget_id, _) => widget_id,
             Command::SetFill(widget_id, _) => widget_id,
@@ -89,12 +94,16 @@ impl Command {
 
 ///
 pub struct WidgetManager {
+    /// The IDs of each widget's child widgets.
+    child_widget_ids_per_widget_id: HashMap<WidgetId, HashSet<WidgetId>>,
     /// The widget that has the focus.
     focused_widget: Option<WidgetBox>,
     /// The main widget that fills the whole window.
     main_widget: Option<WidgetBox>,
     /// The counter for the next widget ID.
     next_widget_id_counter: WidgetId,
+    /// The IDs of each widget's parent widgets.
+    parent_widget_ids_per_widget_id: HashMap<WidgetId, HashSet<WidgetId>>,
     /// The size constraints. It is set in `resize()`, called by the window event handler for every
     /// window resize event so that the main widget fills the whole window.
     size_constraints: SizeConstraints,
@@ -110,9 +119,11 @@ impl WidgetManager {
     ///
     pub fn new() -> Self {
         WidgetManager {
+            child_widget_ids_per_widget_id: HashMap::new(),
             focused_widget: None,
             main_widget: None,
             next_widget_id_counter: 0,
+            parent_widget_ids_per_widget_id: HashMap::new(),
             size_constraints: SizeConstraints::default(),
             style: Style::default(),
             widgets: HashMap::new(),
@@ -120,11 +131,44 @@ impl WidgetManager {
     }
 
     ///
+    fn add_parent_child_widget_connection(
+        &mut self,
+        parent_widget_id: WidgetId,
+        child_widget_id: WidgetId,
+    ) {
+        self.child_widget_ids_per_widget_id
+            .entry(parent_widget_id)
+            .or_default()
+            .insert(child_widget_id);
+
+        self.parent_widget_ids_per_widget_id
+            .entry(child_widget_id)
+            .or_default()
+            .insert(parent_widget_id);
+    }
+
+    /// Puts the given widget under widget management.
     pub fn add_widget(&mut self, widget: Box<dyn Widget>) {
         // TODO: Append the widget to the tab order if it accepts focus.
 
         self.widgets
             .insert(*widget.widget_id(), Rc::new(RefCell::new(widget)));
+    }
+
+    /// Destroys the widget with the given ID and its child widget tree.
+    fn destroy_widget(&mut self, _widget_id: WidgetId) {
+        let mut ids_of_widgets_to_destroy: HashSet<WidgetId> = HashSet::new();
+
+        // TODO: Recursively collect the child widget IDs.
+
+        // Iterate over the IDs of the widgets to destroy.
+        for id_of_widget_to_destroy in ids_of_widgets_to_destroy {
+            // TODO: Remove the widget from `child_widget_ids_per_widget_id`.
+            // TODO: Remove the widget from `focused_widget`.
+            // TODO: Remove the widget from `main_widget`.
+            // TODO: Remove the widget from `parent_widget_ids_per_widget_id`.
+            self.widgets.remove(&id_of_widget_to_destroy);
+        }
     }
 
     ///
@@ -514,6 +558,40 @@ impl WidgetManager {
     }
 
     ///
+    fn remove_parent_child_widget_connection(
+        &mut self,
+        parent_widget_id: WidgetId,
+        child_widget_id: WidgetId,
+    ) {
+        self.child_widget_ids_per_widget_id
+            .entry(parent_widget_id)
+            .or_default()
+            .remove(&child_widget_id);
+
+        self.parent_widget_ids_per_widget_id
+            .entry(child_widget_id)
+            .or_default()
+            .remove(&parent_widget_id);
+    }
+
+    ///
+    fn remove_parent_child_widget_connections(&mut self, parent_widget_id: WidgetId) {
+        // Iterate over and remove the child widget IDs for the given parent widget ID.
+        for child_widget_id in self
+            .child_widget_ids_per_widget_id
+            .entry(parent_widget_id)
+            .or_default()
+            .drain()
+        {
+            // Remove the parent widget ID for the current child widget ID.
+            self.parent_widget_ids_per_widget_id
+                .entry(child_widget_id)
+                .or_default()
+                .remove(&parent_widget_id);
+        }
+    }
+
+    ///
     pub fn resize(&mut self, size: Size) {
         // Create a new size constraint from the given window size.
         let size_constraints = SizeConstraints::tight(size - Size::new(2.0, 2.0));
@@ -540,38 +618,70 @@ impl WidgetManager {
         // Iterate over the given commands.
         for command in commands {
             // Get the ID of the widget from the command.
-            let widget_id = command.widget_id();
+            let widget_id = *command.widget_id();
 
             // There is a widget with the given ID.
-            let widget_box = if let Some(widget_box) = self.widgets.get(widget_id) {
+            let widget_box = if let Some(widget_box) = self.widgets.get(&widget_id) {
                 widget_box
             }
             // There is no widget with the given ID.
             else {
-                return Err(WidgetError::NoSuchWidget(*widget_id));
+                return Err(WidgetError::NoSuchWidget(widget_id));
             };
 
             match command {
-                Command::AddChild(_widget_id, widget_placement, child_id) => {
-                    // There is a widget with the child ID from the command.
+                Command::AddChild(_widget_id, widget_placement, child_widget_id) => {
+                    // There is a widget with the child widget ID from the command.
                     let child_widget_box =
-                        if let Some(child_widget_box) = self.widgets.get(&child_id) {
+                        if let Some(child_widget_box) = self.widgets.get(&child_widget_id) {
                             child_widget_box
                         }
                         // There is no widget with the given child ID.
                         else {
-                            return Err(WidgetError::NoSuchWidget(child_id));
+                            return Err(WidgetError::NoSuchWidget(child_widget_id));
                         };
 
                     widget_box
                         .borrow_mut()
                         .add_child(widget_placement, child_widget_box.clone())?;
+
+                    self.add_parent_child_widget_connection(widget_id, child_widget_id);
                 }
-                Command::RemoveChild(_widget_id, widget_specification) => {
-                    widget_box.borrow_mut().remove_child(widget_specification)?;
+                Command::Destroy(_widget_id) => self.destroy_widget(widget_id),
+                Command::RemoveChild(_widget_id, child_widget_id, destroy) => {
+                    widget_box.borrow_mut().remove_child(child_widget_id)?;
+
+                    // Destroy the child widget.
+                    if destroy {
+                        self.destroy_widget(widget_id);
+                    }
+                    // Remove the child widget.
+                    else {
+                        self.remove_parent_child_widget_connection(widget_id, child_widget_id);
+                    }
                 }
-                Command::RemoveChildren(_widget_id) => {
+                Command::RemoveChildren(_widget_id, destroy) => {
                     widget_box.borrow_mut().remove_children()?;
+
+                    // Destroy the child widgets.
+                    if destroy {
+                        // Get the widget's the child widget IDs.
+                        let child_widget_ids = self
+                            .child_widget_ids_per_widget_id
+                            .entry(widget_id)
+                            .or_default()
+                            .clone();
+
+                        // Iterate over the child widget IDs.
+                        for child_widget_id in child_widget_ids {
+                            // Destroy the child widget.
+                            self.destroy_widget(child_widget_id);
+                        }
+                    }
+                    // Remove the child widgets.
+                    else {
+                        self.remove_parent_child_widget_connections(widget_id);
+                    }
                 }
                 Command::SetChild {
                     widget_id: _,
@@ -592,6 +702,8 @@ impl WidgetManager {
                     widget_box
                         .borrow_mut()
                         .set_child(column, row, child_widget_box.clone())?;
+
+                    self.add_parent_child_widget_connection(widget_id, child_widget_id);
                 }
                 Command::SetDebugRendering(_widget_id, debug_rendering) => {
                     widget_box.borrow_mut().set_debug_rendering(debug_rendering);
@@ -608,7 +720,7 @@ impl WidgetManager {
                     // A widget had focus.
                     if let Some(focused_widget) = &mut self.focused_widget {
                         // The widgets are different.
-                        if focused_widget.borrow().widget_id() != widget_id {
+                        if *focused_widget.borrow().widget_id() != widget_id {
                             // Unfocus that widget.
                             focused_widget.borrow_mut().set_has_focus(false)?;
                         }

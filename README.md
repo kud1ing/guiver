@@ -39,14 +39,7 @@ On the upside you get simple setup and simple control flow.
 
 ## Backlog
 
-* Lifecycle management:
-  * [ ] add to `Widget`:
-    * `destroy_child(widget_id: WidgetId, parent_widget_ids: &mut HashSet<WidgetId>)`
-    * `destroy_all_children(parent_widget_ids: &mut HashSet<WidgetId>)`
-  * [ ] add to `Command`:
-    * `DESTROY_CHILD` or `REMOVE_CHILD` with a parameter `destroy`?
-    * `DESTROY_ALL_CHILDREN` or `REMOVE_ALL_CHILDREN` with a parameter `destroy`?
-    * `DESTROY_WIDGET`
+* [ ] finish `WidgetManager::destroy_widget()` 
 * `Grid`:
   * [ ] implement `Grid::layout_child_widgets()`
   * [ ] try `examples/layout_grid.rs` to see how `Grid` looks in action
