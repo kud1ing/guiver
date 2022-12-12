@@ -27,10 +27,10 @@ pub type WidgetBox = Rc<RefCell<Box<dyn Widget>>>;
 pub enum Command {
     /// Adds the child widget.
     AddChild(WidgetId, Option<WidgetPlacement>, WidgetId),
-    /// Removes the widget's child widgets.
-    RemoveAllChildren(WidgetId),
     /// Removes the child widget.
     RemoveChild(WidgetId, WidgetId),
+    /// Removes the widget's child widgets.
+    RemoveChildren(WidgetId),
     /// Sets the child widget at the given location.
     SetChild {
         widget_id: WidgetId,
@@ -67,8 +67,8 @@ impl Command {
     pub fn widget_id(&self) -> &WidgetId {
         match self {
             Command::AddChild(widget_id, _, _) => widget_id,
-            Command::RemoveAllChildren(widget_id) => widget_id,
             Command::RemoveChild(widget_id, _) => widget_id,
+            Command::RemoveChildren(widget_id) => widget_id,
             Command::SetChild { widget_id, .. } => widget_id,
             Command::SetDebugRendering(widget_id, _) => widget_id,
             Command::SetFill(widget_id, _) => widget_id,
@@ -567,11 +567,11 @@ impl WidgetManager {
                         .borrow_mut()
                         .add_child(widget_placement, child_widget_box.clone())?;
                 }
-                Command::RemoveAllChildren(_widget_id) => {
-                    widget_box.borrow_mut().remove_all_children()?;
-                }
                 Command::RemoveChild(_widget_id, widget_specification) => {
                     widget_box.borrow_mut().remove_child(widget_specification)?;
+                }
+                Command::RemoveChildren(_widget_id) => {
+                    widget_box.borrow_mut().remove_children()?;
                 }
                 Command::SetChild {
                     widget_id: _,

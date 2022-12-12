@@ -112,7 +112,7 @@ impl Widget for Center {
         &self.core.rectangle
     }
 
-    fn remove_all_children(&mut self) -> Result<(), WidgetError> {
+    fn remove_children(&mut self) -> Result<(), WidgetError> {
         self.child_widget = None;
 
         // Update this widget's size.

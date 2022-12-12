@@ -104,13 +104,13 @@ pub trait Widget {
     ///
     fn rectangle(&self) -> &Rect;
 
-    /// Removes all of the widget's child widgets.
-    fn remove_all_children(&mut self) -> Result<(), WidgetError> {
+    /// Removes the widget's child with the given ID.
+    fn remove_child(&mut self, _widget_id: WidgetId) -> Result<(), WidgetError> {
         Err(WidgetError::NotHandled)
     }
 
-    ///
-    fn remove_child(&mut self, _widget_id: WidgetId) -> Result<(), WidgetError> {
+    /// Removes all of the widget's child widgets.
+    fn remove_children(&mut self) -> Result<(), WidgetError> {
         Err(WidgetError::NotHandled)
     }
 

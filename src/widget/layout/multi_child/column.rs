@@ -224,7 +224,7 @@ impl Widget for Column {
         &self.core.rectangle
     }
 
-    fn remove_all_children(&mut self) -> Result<(), WidgetError> {
+    fn remove_children(&mut self) -> Result<(), WidgetError> {
         self.child_widgets.clear();
 
         // Update this widget's size.

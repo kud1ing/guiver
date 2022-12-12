@@ -443,7 +443,7 @@ impl Widget for Grid {
         &self.core.rectangle
     }
 
-    fn remove_all_children(&mut self) -> Result<(), WidgetError> {
+    fn remove_children(&mut self) -> Result<(), WidgetError> {
         self.child_widget_id_per_cell.clear();
         self.child_widget_ids_per_column.clear();
         self.child_widget_ids_per_row.clear();

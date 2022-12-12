@@ -39,7 +39,14 @@ On the upside you get simple setup and simple control flow.
 
 ## Backlog
 
-* [ ] `Widget`: add `destroy_child()`, `destroy_all_children()`
+* Lifecycle management:
+  * [ ] add to `Widget`:
+    * `destroy_child(widget_id: WidgetId, parent_widget_ids: &mut HashSet<WidgetId>)`
+    * `destroy_all_children(parent_widget_ids: &mut HashSet<WidgetId>)`
+  * [ ] add to `Command`:
+    * `DESTROY_CHILD` or `REMOVE_CHILD` with a parameter `destroy`?
+    * `DESTROY_ALL_CHILDREN` or `REMOVE_ALL_CHILDREN` with a parameter `destroy`?
+    * `DESTROY_WIDGET`
 * `Grid`:
   * [ ] implement `Grid::layout_child_widgets()`
   * [ ] try `examples/layout_grid.rs` to see how `Grid` looks in action
@@ -145,11 +152,6 @@ On the upside you get simple setup and simple control flow.
   * [ ] 7GUIs "Cells"
 * [ ] optimize: do not paint on every event. Make the widgets request the repaint in a region/Rect
 * [ ] add Redmond 31 widgets?
-* [ ] add widget garbage collection:
-  * add `Command::ForgetWidget(WidgetId)`
-  * add `Command::ForgetUnusedWidgets` 
-  * implement `WidgetManager::collect_garbage()`?
-    * remove all widgets that do not have the main widget as ancestor
 * [ ] add Python bindings?
 * [ ] provide wrappers to native widgets?
 * [ ] provide a WebAssembly demo

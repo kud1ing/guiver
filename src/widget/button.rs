@@ -250,7 +250,7 @@ impl Widget for Button {
         &self.core.rectangle
     }
 
-    fn remove_all_children(&mut self) -> Result<(), WidgetError> {
+    fn remove_children(&mut self) -> Result<(), WidgetError> {
         self.child_widget = None;
         Ok(())
     }
