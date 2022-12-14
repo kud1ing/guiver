@@ -16,7 +16,11 @@ impl App {
         widget_manager
             .send_commands(vec![
                 Command::SetMainWidget(padding),
-                Command::AddChild(padding, None, placeholder),
+                Command::AddChild {
+                    parent_widget_id: padding,
+                    widget_placement: None,
+                    child_widget_id: placeholder,
+                },
             ])
             .unwrap();
 

@@ -39,10 +39,10 @@ On the upside you get simple setup and simple control flow.
 
 ## Backlog
 
-* [ ] finish `WidgetManager::destroy_widget()` 
 * `Grid`:
   * [ ] implement `Grid::layout_child_widgets()`
   * [ ] try `examples/layout_grid.rs` to see how `Grid` looks in action
+* [ ] `WidgetManager::add_parent_child_widget_connection()`: handle case when the child widget has a parent already
 * [ ] `Hyperlink`: cache the two main `TextLayout`s to speed up mouse down/up
 * [ ] use `WidgetId`s that are independent of a `WidgetManager` for ease of use
   * UUID? Positional Memoization(Egui?)? https://docs.rs/egui/latest/egui/struct.Id.html

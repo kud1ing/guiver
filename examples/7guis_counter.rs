@@ -28,9 +28,21 @@ impl App {
         widget_manager
             .send_commands(vec![
                 Command::SetMainWidget(padding),
-                Command::AddChild(padding, None, row),
-                Command::AddChild(row, None, counter_text),
-                Command::AddChild(row, None, counter_button),
+                Command::AddChild {
+                    parent_widget_id: padding,
+                    widget_placement: None,
+                    child_widget_id: row,
+                },
+                Command::AddChild {
+                    parent_widget_id: row,
+                    widget_placement: None,
+                    child_widget_id: counter_text,
+                },
+                Command::AddChild {
+                    parent_widget_id: row,
+                    widget_placement: None,
+                    child_widget_id: counter_button,
+                },
             ])
             .unwrap();
 

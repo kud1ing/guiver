@@ -27,15 +27,51 @@ impl App {
         widget_manager
             .send_commands(vec![
                 Command::SetMainWidget(padding),
-                Command::AddChild(padding, None, row),
-                Command::AddChild(row, None, column1),
-                Command::AddChild(column1, None, text1),
-                Command::AddChild(column1, None, text2),
-                Command::AddChild(column1, None, placeholder3),
-                Command::AddChild(row, None, column2),
-                Command::AddChild(column2, None, placeholder1),
-                Command::AddChild(column2, None, text3),
-                Command::AddChild(row, None, placeholder2),
+                Command::AddChild {
+                    parent_widget_id: padding,
+                    widget_placement: None,
+                    child_widget_id: row,
+                },
+                Command::AddChild {
+                    parent_widget_id: row,
+                    widget_placement: None,
+                    child_widget_id: column1,
+                },
+                Command::AddChild {
+                    parent_widget_id: column1,
+                    widget_placement: None,
+                    child_widget_id: text1,
+                },
+                Command::AddChild {
+                    parent_widget_id: column1,
+                    widget_placement: None,
+                    child_widget_id: text2,
+                },
+                Command::AddChild {
+                    parent_widget_id: column1,
+                    widget_placement: None,
+                    child_widget_id: placeholder3,
+                },
+                Command::AddChild {
+                    parent_widget_id: row,
+                    widget_placement: None,
+                    child_widget_id: column2,
+                },
+                Command::AddChild {
+                    parent_widget_id: column2,
+                    widget_placement: None,
+                    child_widget_id: placeholder1,
+                },
+                Command::AddChild {
+                    parent_widget_id: column2,
+                    widget_placement: None,
+                    child_widget_id: text3,
+                },
+                Command::AddChild {
+                    parent_widget_id: row,
+                    widget_placement: None,
+                    child_widget_id: placeholder2,
+                },
                 //
                 Command::SetVerticalAlignment(row, VerticalAlignment::Top),
                 Command::SetHorizontalAlignment(column1, HorizontalAlignment::Left),

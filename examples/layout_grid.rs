@@ -24,21 +24,25 @@ impl App {
         widget_manager
             .send_commands(vec![
                 Command::SetMainWidget(padding),
-                Command::AddChild(padding, None, grid),
+                Command::AddChild {
+                    parent_widget_id: padding,
+                    widget_placement: None,
+                    child_widget_id: grid,
+                },
                 Command::SetChild {
-                    widget_id: grid,
+                    parent_widget_id: grid,
                     column_index: 0,
                     row_index: 1,
                     child_widget_id: placeholder1,
                 },
                 Command::SetChild {
-                    widget_id: grid,
+                    parent_widget_id: grid,
                     column_index: 1,
                     row_index: 0,
                     child_widget_id: placeholder2,
                 },
                 Command::SetChild {
-                    widget_id: grid,
+                    parent_widget_id: grid,
                     column_index: 1,
                     row_index: 2,
                     child_widget_id: placeholder3,

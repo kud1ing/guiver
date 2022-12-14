@@ -16,7 +16,11 @@ impl App {
         widget_manager
             .send_commands(vec![
                 Command::SetMainWidget(center),
-                Command::AddChild(center, None, text),
+                Command::AddChild {
+                    parent_widget_id: center,
+                    widget_placement: None,
+                    child_widget_id: text,
+                },
             ])
             .unwrap();
 

@@ -25,19 +25,28 @@ pub type WidgetBox = Rc<RefCell<Box<dyn Widget>>>;
 /// A command to the widget manager or widgets.
 #[derive(Debug)]
 pub enum Command {
-    /// Adds the child widget.
-    AddChild(WidgetId, Option<WidgetPlacement>, WidgetId),
-    /// Destroys the widget.
+    /// Adds the child widget with the given ID to the parent widget.
+    AddChild {
+        parent_widget_id: WidgetId,
+        widget_placement: Option<WidgetPlacement>,
+        child_widget_id: WidgetId,
+    },
+    /// Destroys the widget with the given ID.
     Destroy(WidgetId),
-    /// Removes the child widget from the widget. If the boolean argument is `true`, the child
-    /// widget tree is destroyed.
-    RemoveChild(WidgetId, WidgetId, bool),
-    /// Removes the widget's child widgets. If the boolean argument is `true`, the child widget tree
-    /// is destroyed.
-    RemoveChildren(WidgetId, bool),
+    /// Removes the child widget with the given ID from the parent widget.
+    RemoveChild {
+        parent_widget_id: WidgetId,
+        child_widget_id: WidgetId,
+        destroy_child_widget: bool,
+    },
+    /// Removes the widget's child widgets.
+    RemoveChildren {
+        parent_widget_id: WidgetId,
+        destroy_child_widgets: bool,
+    },
     /// Sets the child widget at the given location.
     SetChild {
-        widget_id: WidgetId,
+        parent_widget_id: WidgetId,
         column_index: usize,
         row_index: usize,
         child_widget_id: WidgetId,
@@ -70,11 +79,19 @@ impl Command {
     /// Returns the ID of the receiver widget.
     pub fn widget_id(&self) -> &WidgetId {
         match self {
-            Command::AddChild(widget_id, _, _) => widget_id,
+            Command::AddChild {
+                parent_widget_id, ..
+            } => parent_widget_id,
             Command::Destroy(widget_id) => widget_id,
-            Command::RemoveChild(widget_id, _, _) => widget_id,
-            Command::RemoveChildren(widget_id, _) => widget_id,
-            Command::SetChild { widget_id, .. } => widget_id,
+            Command::RemoveChild {
+                parent_widget_id, ..
+            } => parent_widget_id,
+            Command::RemoveChildren {
+                parent_widget_id, ..
+            } => parent_widget_id,
+            Command::SetChild {
+                parent_widget_id, ..
+            } => parent_widget_id,
             Command::SetDebugRendering(widget_id, _) => widget_id,
             Command::SetFill(widget_id, _) => widget_id,
             Command::SetFont(widget_id, _) => widget_id,
@@ -102,8 +119,8 @@ pub struct WidgetManager {
     main_widget: Option<WidgetBox>,
     /// The counter for the next widget ID.
     next_widget_id_counter: WidgetId,
-    /// The IDs of each widget's parent widgets.
-    parent_widget_ids_per_widget_id: HashMap<WidgetId, HashSet<WidgetId>>,
+    /// The IDs of each widget's parent widget.
+    parent_widget_id_per_widget_id: HashMap<WidgetId, WidgetId>,
     /// The size constraints. It is set in `resize()`, called by the window event handler for every
     /// window resize event so that the main widget fills the whole window.
     size_constraints: SizeConstraints,
@@ -123,7 +140,7 @@ impl WidgetManager {
             focused_widget: None,
             main_widget: None,
             next_widget_id_counter: 0,
-            parent_widget_ids_per_widget_id: HashMap::new(),
+            parent_widget_id_per_widget_id: HashMap::new(),
             size_constraints: SizeConstraints::default(),
             style: Style::default(),
             widgets: HashMap::new(),
@@ -141,10 +158,10 @@ impl WidgetManager {
             .or_default()
             .insert(child_widget_id);
 
-        self.parent_widget_ids_per_widget_id
-            .entry(child_widget_id)
-            .or_default()
-            .insert(parent_widget_id);
+        // TODO: handle case when the child widget has a parent already
+
+        self.parent_widget_id_per_widget_id
+            .insert(child_widget_id, parent_widget_id);
     }
 
     /// Puts the given widget under widget management.
@@ -204,8 +221,43 @@ impl WidgetManager {
 
         // Iterate over the IDs of the widgets to destroy.
         for id_of_widget_to_destroy in ids_of_widgets_to_destroy {
-            // TODO: Remove the widget from `child_widget_ids_per_widget_id`.
-            // TODO: Remove the widget from `parent_widget_ids_per_widget_id`.
+            let child_widget_ids = self
+                .child_widget_ids_per_widget_id
+                .get(&id_of_widget_to_destroy)
+                .cloned()
+                .unwrap_or(HashSet::new());
+            let parent_widget_id = self
+                .parent_widget_id_per_widget_id
+                .get(&id_of_widget_to_destroy)
+                .cloned();
+
+            // Remove the current widget to destroy from `child_widget_ids_per_widget_id`.
+            {
+                self.child_widget_ids_per_widget_id
+                    .remove(&id_of_widget_to_destroy);
+
+                // Remove the widget from its parents' children.
+                if let Some(parent_widget_id) = parent_widget_id {
+                    for parents_child_widget_ids in self
+                        .child_widget_ids_per_widget_id
+                        .get_mut(&parent_widget_id)
+                    {
+                        parents_child_widget_ids.remove(&id_of_widget_to_destroy);
+                    }
+                }
+            }
+
+            // Remove the current widget to destroy from `parent_widget_ids_per_widget_id`.
+            {
+                self.parent_widget_id_per_widget_id
+                    .remove(&id_of_widget_to_destroy);
+
+                // Remove the widget from its children's parents.
+                for child_widget_id in child_widget_ids {
+                    self.parent_widget_id_per_widget_id.remove(&child_widget_id);
+                }
+            }
+
             self.widgets.remove(&id_of_widget_to_destroy);
         }
     }
@@ -607,10 +659,7 @@ impl WidgetManager {
             .or_default()
             .remove(&child_widget_id);
 
-        self.parent_widget_ids_per_widget_id
-            .entry(child_widget_id)
-            .or_default()
-            .remove(&parent_widget_id);
+        self.parent_widget_id_per_widget_id.remove(&child_widget_id);
     }
 
     ///
@@ -623,10 +672,7 @@ impl WidgetManager {
             .drain()
         {
             // Remove the parent widget ID for the current child widget ID.
-            self.parent_widget_ids_per_widget_id
-                .entry(child_widget_id)
-                .or_default()
-                .remove(&parent_widget_id);
+            self.parent_widget_id_per_widget_id.remove(&child_widget_id);
         }
     }
 
@@ -669,7 +715,11 @@ impl WidgetManager {
             };
 
             match command {
-                Command::AddChild(_widget_id, widget_placement, child_widget_id) => {
+                Command::AddChild {
+                    widget_placement,
+                    child_widget_id,
+                    ..
+                } => {
                     // There is a widget with the child widget ID from the command.
                     let child_widget_box =
                         if let Some(child_widget_box) = self.widgets.get(&child_widget_id) {
@@ -687,23 +737,33 @@ impl WidgetManager {
                     self.add_parent_child_widget_connection(widget_id, child_widget_id);
                 }
                 Command::Destroy(_widget_id) => self.destroy_widget(widget_id),
-                Command::RemoveChild(_widget_id, child_widget_id, destroy) => {
+                Command::RemoveChild {
+                    parent_widget_id,
+                    child_widget_id,
+                    destroy_child_widget: destroy,
+                } => {
                     widget_box.borrow_mut().remove_child(child_widget_id)?;
 
                     // Destroy the child widget.
                     if destroy {
-                        self.destroy_widget(widget_id);
+                        self.destroy_widget(parent_widget_id);
                     }
                     // Remove the child widget.
                     else {
-                        self.remove_parent_child_widget_connection(widget_id, child_widget_id);
+                        self.remove_parent_child_widget_connection(
+                            parent_widget_id,
+                            child_widget_id,
+                        );
                     }
                 }
-                Command::RemoveChildren(_widget_id, destroy) => {
+                Command::RemoveChildren {
+                    destroy_child_widgets,
+                    ..
+                } => {
                     widget_box.borrow_mut().remove_children()?;
 
                     // Destroy the child widgets.
-                    if destroy {
+                    if destroy_child_widgets {
                         // Get the widget's the child widget IDs.
                         let child_widget_ids = self
                             .child_widget_ids_per_widget_id
@@ -723,7 +783,7 @@ impl WidgetManager {
                     }
                 }
                 Command::SetChild {
-                    widget_id: _,
+                    parent_widget_id: _,
                     column_index: column,
                     row_index: row,
                     child_widget_id,
