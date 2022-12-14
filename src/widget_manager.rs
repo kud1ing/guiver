@@ -156,16 +156,55 @@ impl WidgetManager {
     }
 
     /// Destroys the widget with the given ID and its child widget tree.
-    fn destroy_widget(&mut self, _widget_id: WidgetId) {
+    fn destroy_widget(&mut self, widget_id: WidgetId) {
         let mut ids_of_widgets_to_destroy: HashSet<WidgetId> = HashSet::new();
 
-        // TODO: Recursively collect the child widget IDs.
+        // Collect the IDs of the widget and its child widget tree.
+        {
+            let mut current_widget_ids: HashSet<WidgetId> = HashSet::new();
+            current_widget_ids.insert(widget_id);
+
+            while !current_widget_ids.is_empty() {
+                ids_of_widgets_to_destroy.extend(&current_widget_ids);
+
+                let mut current_child_widget_ids: HashSet<WidgetId> = HashSet::new();
+
+                // Iterate over the current widgets.
+                for current_widget_id in current_widget_ids {
+                    // The current widget has child widgets.
+                    if let Some(x) = self.child_widget_ids_per_widget_id.get(&current_widget_id) {
+                        current_child_widget_ids.extend(x);
+                    }
+                }
+
+                // Make the current widget IDs the current child widget IDs minus the already known
+                // widget IDs.
+                current_widget_ids = current_child_widget_ids
+                    .difference(&ids_of_widgets_to_destroy)
+                    .cloned()
+                    .collect();
+            }
+        }
+
+        // There is a focused widget.
+        if let Some(focused_widget) = &self.focused_widget {
+            // The focused widget is to be destroyed.
+            if ids_of_widgets_to_destroy.contains(focused_widget.borrow().widget_id()) {
+                self.focused_widget = None;
+            }
+        }
+
+        // There is a main widget.
+        if let Some(main_widget) = &self.main_widget {
+            // The main widget is to be destroyed.
+            if ids_of_widgets_to_destroy.contains(main_widget.borrow().widget_id()) {
+                self.main_widget = None;
+            }
+        }
 
         // Iterate over the IDs of the widgets to destroy.
         for id_of_widget_to_destroy in ids_of_widgets_to_destroy {
             // TODO: Remove the widget from `child_widget_ids_per_widget_id`.
-            // TODO: Remove the widget from `focused_widget`.
-            // TODO: Remove the widget from `main_widget`.
             // TODO: Remove the widget from `parent_widget_ids_per_widget_id`.
             self.widgets.remove(&id_of_widget_to_destroy);
         }
