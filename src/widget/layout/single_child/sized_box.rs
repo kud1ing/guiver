@@ -117,7 +117,7 @@ impl Widget for SizedBox {
         Ok(())
     }
 
-    fn remove_child(&mut self, _widget_id: WidgetId) -> Result<(), WidgetError> {
+    fn remove_child(&mut self, _child_widget_id: WidgetId) -> Result<(), WidgetError> {
         // TODO
         println!("`SizedBox::remove_child()`: TODO");
 

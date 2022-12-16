@@ -141,9 +141,9 @@ impl Widget for Padding {
         Ok(())
     }
 
-    fn remove_child(&mut self, _widget_id: WidgetId) -> Result<(), WidgetError> {
+    fn remove_child(&mut self, child_widget_id: WidgetId) -> Result<(), WidgetError> {
         // There is a child widget.
-        if let Some(_child_widget) = &mut self.child_widget {
+        if let Some(_current_child_widget_id) = &mut self.child_widget {
             // TODO
             println!("`Padding::remove_child()`: TODO");
 
@@ -154,7 +154,10 @@ impl Widget for Padding {
         }
         // There is no child widget.
         else {
-            Err(WidgetError::NoSuchWidget(self.core.widget_id))
+            Err(WidgetError::NoSuchChildWidget {
+                parent_widget_id: self.widget_id().clone(),
+                child_widget_id,
+            })
         }
     }
 

@@ -1,6 +1,9 @@
 use guiver::widget::layout::GridColumnProperties;
 use guiver::widget::layout::GridRowProperties;
-use guiver::{run, Application, Clipboard, Command, Event, Piet, Region, Size, WidgetManager};
+use guiver::{
+    run, Application, Clipboard, Command, Event, HorizontalAlignment, Piet, Region, Size,
+    WidgetManager,
+};
 
 pub(crate) struct App {
     widget_manager: WidgetManager,
@@ -13,12 +16,18 @@ impl App {
         // Create the widgets.
         let padding = widget_manager.new_padding();
         let grid = widget_manager.new_grid(
-            GridColumnProperties::default(),
+            GridColumnProperties {
+                flex_factor: 1,
+                horizontal_alignment: HorizontalAlignment::Center,
+                minimum_width: 0.0,
+                spacing: 30.0,
+            },
             GridRowProperties::default(),
         );
         let placeholder1 = widget_manager.new_placeholder(Size::new(100.0, 50.0));
         let placeholder2 = widget_manager.new_placeholder(Size::new(100.0, 50.0));
         let placeholder3 = widget_manager.new_placeholder(Size::new(100.0, 50.0));
+        let placeholder4 = widget_manager.new_placeholder(Size::new(100.0, 50.0));
 
         // Compose the widgets.
         widget_manager
@@ -44,8 +53,14 @@ impl App {
                 Command::SetChild {
                     parent_widget_id: grid,
                     column_index: 1,
-                    row_index: 2,
+                    row_index: 1,
                     child_widget_id: placeholder3,
+                },
+                Command::SetChild {
+                    parent_widget_id: grid,
+                    column_index: 1,
+                    row_index: 2,
+                    child_widget_id: placeholder4,
                 },
             ])
             .unwrap();

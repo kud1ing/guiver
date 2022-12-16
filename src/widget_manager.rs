@@ -148,18 +148,39 @@ impl WidgetManager {
     }
 
     ///
+    /// The caller must verify that both widgets exist.
     fn add_parent_child_widget_connection(
         &mut self,
         parent_widget_id: WidgetId,
         child_widget_id: WidgetId,
     ) {
+        // The child widget has a parent already already.
+        if let Some(previous_parent_widget_id) =
+            self.parent_widget_id_per_widget_id.get(&child_widget_id)
+        {
+            // Get the previous parent widget.
+            let previous_parent_widget = self.widgets.get(previous_parent_widget_id).unwrap();
+
+            // Tell the previous parent widget to remove the child widget.
+            previous_parent_widget
+                .borrow_mut()
+                .remove_child(child_widget_id)
+                .unwrap();
+
+            // Remove the previous parent child widget connection.
+            self.remove_parent_child_widget_connection(
+                previous_parent_widget_id.clone(),
+                child_widget_id,
+            );
+        }
+
+        // Add the child to the parent.
         self.child_widget_ids_per_widget_id
             .entry(parent_widget_id)
             .or_default()
             .insert(child_widget_id);
 
-        // TODO: handle case when the child widget has a parent already
-
+        // Add the parent to the child.
         self.parent_widget_id_per_widget_id
             .insert(child_widget_id, parent_widget_id);
     }

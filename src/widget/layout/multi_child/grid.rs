@@ -14,10 +14,10 @@ use std::collections::{HashMap, HashSet};
 
 ///
 pub struct GridColumnProperties {
-    flex_factor: u16,
-    horizontal_alignment: HorizontalAlignment,
-    minimum_width: f64,
-    spacing: f64,
+    pub flex_factor: u16,
+    pub horizontal_alignment: HorizontalAlignment,
+    pub minimum_width: f64,
+    pub spacing: f64,
 }
 
 impl Default for GridColumnProperties {
@@ -35,10 +35,10 @@ impl Default for GridColumnProperties {
 
 ///
 pub struct GridRowProperties {
-    flex_factor: u16,
-    minimum_height: f64,
-    spacing: f64,
-    vertical_alignment: VerticalAlignment,
+    pub flex_factor: u16,
+    pub minimum_height: f64,
+    pub spacing: f64,
+    pub vertical_alignment: VerticalAlignment,
 }
 
 impl Default for GridRowProperties {
@@ -275,19 +275,84 @@ impl Grid {
         let _remaining_height =
             (self.core.rectangle.height() - child_and_spacing_size_sum.height).max(0.0);
 
+        // Set the child widget positions.
         {
             // Iterate over the grid columns.
             {
-                let mut _child_x = self.core.rectangle.origin().x;
+                let mut child_x = self.core.rectangle.origin().x;
 
-                // TODO
+                // Iterate over the grid's column indices.
+                for column_index in 0..self.number_of_columns {
+                    // Add the column spacing.
+                    if column_index > 0 {
+                        child_x += self.grid_column_properties(column_index).spacing;
+                    }
+
+                    // Iterate over the child widgets in the current column.
+                    for child_widget_id_in_column in self
+                        .child_widget_ids_per_column
+                        .get(&column_index)
+                        .unwrap_or(&HashSet::new())
+                    {
+                        // Get the current child widget in the current column.
+                        let child_widget_in_column = self
+                            .child_widget_per_id
+                            .get(&child_widget_id_in_column)
+                            .unwrap();
+
+                        // Set the child widget's x position.
+                        {
+                            let new_child_origin =
+                                (child_x, child_widget_in_column.borrow().rectangle().y0);
+
+                            RefCell::borrow_mut(child_widget_in_column)
+                                .borrow_mut()
+                                .set_origin(new_child_origin.into());
+                        }
+                    }
+
+                    // Add the column width.
+                    child_x += column_widths.get(column_index).unwrap();
+                }
             }
 
             // Iterate over the grid rows.
             {
-                let mut _child_y = self.core.rectangle.origin().y;
+                let mut child_y = self.core.rectangle.origin().y;
 
-                // TODO
+                // Iterate over the grid's row indices.
+                for row_index in 0..self.number_of_rows {
+                    // Add the row spacing.
+                    if row_index > 0 {
+                        child_y += self.grid_row_properties(row_index).spacing;
+                    }
+
+                    // Iterate the child widgets in the current row.
+                    for child_widget_id_in_row in self
+                        .child_widget_ids_per_row
+                        .get(&row_index)
+                        .unwrap_or(&HashSet::new())
+                    {
+                        // Get the current child widget in the current row.
+                        let child_widget_in_row = self
+                            .child_widget_per_id
+                            .get(&child_widget_id_in_row)
+                            .unwrap();
+
+                        // Set the child widget's y position.
+                        {
+                            let new_child_origin =
+                                (child_widget_in_row.borrow().rectangle().x0, child_y);
+
+                            RefCell::borrow_mut(child_widget_in_row)
+                                .borrow_mut()
+                                .set_origin(new_child_origin.into());
+                        }
+                    }
+
+                    // Add the row height.
+                    child_y += row_heights.get(row_index).unwrap();
+                }
             }
         }
 

@@ -28,6 +28,10 @@ pub type WidgetId = usize;
 ///
 #[derive(Debug)]
 pub enum WidgetError {
+    NoSuchChildWidget {
+        parent_widget_id: WidgetId,
+        child_widget_id: WidgetId,
+    },
     NoSuchWidget(WidgetId),
     NotHandled,
 }
@@ -104,7 +108,7 @@ pub trait Widget {
     fn rectangle(&self) -> &Rect;
 
     /// Removes the child widget with the given ID.
-    fn remove_child(&mut self, _widget_id: WidgetId) -> Result<(), WidgetError> {
+    fn remove_child(&mut self, _child_widget_id: WidgetId) -> Result<(), WidgetError> {
         Err(WidgetError::NotHandled)
     }
 

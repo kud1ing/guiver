@@ -121,7 +121,7 @@ impl Widget for Center {
         Ok(())
     }
 
-    fn remove_child(&mut self, _widget_id: WidgetId) -> Result<(), WidgetError> {
+    fn remove_child(&mut self, _child_widget_id: WidgetId) -> Result<(), WidgetError> {
         // TODO
         println!("`Center::remove_child()`: TODO");
 

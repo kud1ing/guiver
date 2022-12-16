@@ -234,10 +234,10 @@ impl Widget for Row {
         return Ok(());
     }
 
-    fn remove_child(&mut self, widget_id: WidgetId) -> Result<(), WidgetError> {
+    fn remove_child(&mut self, child_widget_id: WidgetId) -> Result<(), WidgetError> {
         // Remove the widget with the given ID.
         self.child_widgets
-            .retain(|child_widget| *RefCell::borrow(child_widget).widget_id() != widget_id);
+            .retain(|child_widget| *RefCell::borrow(child_widget).widget_id() != child_widget_id);
 
         // Layout the remaining child widgets.
         self.layout_child_widgets();

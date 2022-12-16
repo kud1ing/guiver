@@ -117,9 +117,9 @@ impl Widget for Expanded {
         return Ok(());
     }
 
-    fn remove_child(&mut self, widget_id: WidgetId) -> Result<(), WidgetError> {
+    fn remove_child(&mut self, child_widget_id: WidgetId) -> Result<(), WidgetError> {
         // There is a child widget.
-        if let Some(_child_widget) = &mut self.child_widget {
+        if let Some(_current_child_widget) = &mut self.child_widget {
             // TODO
             println!("`Expanded::remove_child()`: TODO");
 
@@ -130,7 +130,10 @@ impl Widget for Expanded {
         }
         // There is no child widget.
         else {
-            return Err(WidgetError::NoSuchWidget(widget_id));
+            return Err(WidgetError::NoSuchChildWidget {
+                parent_widget_id: self.widget_id().clone(),
+                child_widget_id,
+            });
         }
     }
 

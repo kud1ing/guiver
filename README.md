@@ -16,37 +16,43 @@ The widget size constraint system and some layout widgets are influenced by [Flu
 The [example code](examples/) may appear a bit verbose.
 On the upside you get simple setup and simple control flow.
 
+<!-- center -->
+<img width="313" alt="Bildschirm­foto 2022-12-16 um 09 19 34" src="https://user-images.githubusercontent.com/391975/208054566-4774326f-9953-4537-b08b-ad82f59c2ab8.png">
+
+<!-- counter -->
+<img width="193" alt="Bildschirm­foto 2022-12-16 um 09 21 12" src="https://user-images.githubusercontent.com/391975/208054852-b143b584-ec87-4bc7-a7bd-4c8fa38658ae.png">
+
+<!-- temperature converter-->
+<img width="303" alt="Bildschirm­foto 2022-12-16 um 09 26 50" src="https://user-images.githubusercontent.com/391975/208056001-2335f536-0a39-4a07-8f8e-436a59a81e26.png">
+
+<!-- placeholder -->
+<img width="183" alt="Bildschirm­foto 2022-12-16 um 09 22 23" src="https://user-images.githubusercontent.com/391975/208055118-18cc28fa-bf42-4980-acb9-713cc94c9697.png">
+
+<!-- padding -->
+<img width="195" alt="Bildschirm­foto 2022-12-16 um 09 25 50" src="https://user-images.githubusercontent.com/391975/208055749-705cc320-0520-47a8-b82c-1136d29bb8aa.png">
+
+<!-- row -->
+<img width="346" alt="Bildschirm­foto 2022-12-16 um 09 27 34" src="https://user-images.githubusercontent.com/391975/208056135-a3767c96-ec39-4309-8e6c-04ba81865b78.png">
+
+<!-- column -->
+<img width="457" alt="Bildschirm­foto 2022-12-16 um 09 28 14" src="https://user-images.githubusercontent.com/391975/208056264-7011bb0f-1b89-4eb0-873b-103ebfc16f55.png">
+
+<!-- grid -->
+<img width="278" alt="Bildschirm­foto 2022-12-16 um 09 18 37" src="https://user-images.githubusercontent.com/391975/208054426-cf546c7b-1f20-4ff3-a8d6-e1aff292a8d9.png">
+
+<!-- freundchen -->
 <img width="912" alt="Bildschirmfoto 2022-10-11 um 14 53 50" src="https://user-images.githubusercontent.com/391975/195096506-0ec82534-bd92-4879-8174-2e803776fa64.png">
 
+<!-- makamau -->
 <img width="788" alt="Bildschirmfoto 2022-10-11 um 20 51 41" src="https://user-images.githubusercontent.com/391975/195175173-8e016f19-7011-458a-bfc3-b2425ed93e22.png">
 
+<!-- abermals -->
 <img width="888" alt="Bildschirmfoto 2022-07-05 um 19 43 55" src="https://user-images.githubusercontent.com/391975/177385769-598d0fd0-c15b-4d7e-bb98-5fd46bd9d415.png">
-
-<img width="232" alt="Bildschirmfoto 2022-07-29 um 21 09 16" src="https://user-images.githubusercontent.com/391975/181828207-8c268397-f815-484a-a28f-22501fc04ec4.png">
-
-<img width="400" alt="Bildschirmfoto 2022-10-11 um 20 49 10" src="https://user-images.githubusercontent.com/391975/195174762-3daacb5a-5189-4961-8c45-b3746f04bb4d.png">
-
-<img width="293" alt="Bildschirmfoto 2022-07-29 um 21 07 20" src="https://user-images.githubusercontent.com/391975/181827939-ba986efe-b0b7-4a2a-ba09-9eedff8c7846.png">
-
-<img width="357" alt="Bildschirmfoto 2022-07-29 um 21 06 35" src="https://user-images.githubusercontent.com/391975/181827857-42b6ffb0-9837-4bfa-9552-e4e68f68d639.png">
-
-<img width="399" alt="Bildschirmfoto 2022-07-29 um 21 05 50" src="https://user-images.githubusercontent.com/391975/181827755-3e8e9e82-155c-4c0e-aa37-4963f1db49b0.png">
-
-<img width="631" alt="Bildschirmfoto 2022-07-29 um 21 04 20" src="https://user-images.githubusercontent.com/391975/181827655-c8945f84-be44-47ab-836c-64a1c41bc945.png">
-
-<img width="315" alt="Bildschirmfoto 2022-07-25 um 21 57 15" src="https://user-images.githubusercontent.com/391975/180863911-98ca0572-d700-426a-be9b-3f96c708f478.png">
 
 
 ## Backlog
 
-* `Grid`:
-  * [ ] implement `Grid::layout_child_widgets()`
-  * [ ] try `examples/layout_grid.rs` to see how `Grid` looks in action
-* [ ] `WidgetManager::add_parent_child_widget_connection()`: handle case when the child widget has a parent already
 * [ ] `Hyperlink`: cache the two main `TextLayout`s to speed up mouse down/up
-* [ ] use `WidgetId`s that are independent of a `WidgetManager` for ease of use
-  * UUID? Positional Memoization(Egui?)? https://docs.rs/egui/latest/egui/struct.Id.html
-* [ ] publish 0.1.1, once the updated `druid-shell` >0.7.0 is [released](https://github.com/linebender/druid/issues/2236)
 * [ ] `test::widgets_layout()`: add remaining layout widgets
 * [ ] `test::widgets()`: add child widgets to the layout widgets
 * `TextInput` caret:
@@ -56,6 +62,7 @@ On the upside you get simple setup and simple control flow.
     * [ ] use it in `paint()` to position the caret
   * [ ] `TextInput::handle_event()`: increase/decrease `self.caret_character_index` on arrow left/right
   * [ ] `TextInput::update_caret_character_index()`: implement
+* [ ] publish 0.1.1, once the updated `druid-shell` >0.7.0 is [released](https://github.com/linebender/druid/issues/2236)
 * `WidgetManager`: implement tab order `tab_order: Vec<WidgetId>`:
   * [ ] build tab order, equal to the order of creation
     * [ ] widgets need to tell the widget manager somehow, that they accept focus
@@ -78,6 +85,8 @@ On the upside you get simple setup and simple control flow.
     * for `Grid` it needs to be held externally (`GridColumnProperties`, `GridRowProperties`)
   * Cons:
     * does it make usage of `Column`, `Row` less pleasant?
+* [ ] use `WidgetId`s that are independent of a `WidgetManager` for ease of use
+  * UUID? Positional (egui: https://docs.rs/egui/latest/egui/struct.Id.html)
 * [ ] should all container widgets clip the child widget's painting?
   * Pro:
     * restricts misbehaving widgets paint
