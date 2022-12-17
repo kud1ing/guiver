@@ -7,7 +7,7 @@ use guiver::{
 };
 
 pub(crate) struct App {
-    widget_manager: WidgetManager,
+    widget_manager: WidgetManager<()>,
 }
 
 impl App {

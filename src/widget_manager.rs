@@ -4,7 +4,7 @@ use crate::widget::layout::{
     Center, Column, Expanded, Grid, GridColumnProperties, GridRowProperties, Padding, Row, SizedBox,
 };
 use crate::widget::{
-    Button, Hyperlink, Placeholder, Text, TextInput, WidgetError, WidgetPlacement,
+    Button, Hyperlink, Placeholder, Text, TextInput, WidgetError, WidgetEventType, WidgetPlacement,
 };
 use crate::{
     Color, Event, Font, HorizontalAlignment, SizeConstraints, VerticalAlignment, Widget,
@@ -24,7 +24,7 @@ pub type WidgetBox = Rc<RefCell<Box<dyn Widget>>>;
 
 /// A command to the widget manager or widgets.
 #[derive(Debug)]
-pub enum Command {
+pub enum Command<T> {
     /// Adds the child widget with the given ID to the parent widget.
     AddChild {
         parent_widget_id: WidgetId,
@@ -73,9 +73,11 @@ pub enum Command {
     SetValue(WidgetId, Box<dyn Any>),
     /// Sets the widget's vertical alignment.
     SetVerticalAlignment(WidgetId, VerticalAlignment),
+    ///
+    SubscribeEvent(WidgetId, WidgetEventType, T),
 }
 
-impl Command {
+impl<T> Command<T> {
     /// Returns the ID of the receiver widget.
     pub fn widget_id(&self) -> &WidgetId {
         match self {
@@ -103,6 +105,7 @@ impl Command {
             Command::SetStroke(widget_id, _) => widget_id,
             Command::SetValue(widget_id, _) => widget_id,
             Command::SetVerticalAlignment(widget_id, _) => widget_id,
+            Command::SubscribeEvent(widget_id, _, _) => widget_id,
         }
     }
 }
@@ -110,7 +113,7 @@ impl Command {
 // =================================================================================================
 
 ///
-pub struct WidgetManager {
+pub struct WidgetManager<T> {
     /// The IDs of each widget's child widgets.
     child_widget_ids_per_widget_id: HashMap<WidgetId, HashSet<WidgetId>>,
     /// The widget that has the focus.
@@ -126,13 +129,15 @@ pub struct WidgetManager {
     size_constraints: SizeConstraints,
     ///
     style: Style,
+    ///
+    widget_event_subscriptions_per_widget_id: HashMap<WidgetId, HashMap<WidgetEventType, T>>,
     /// All widgets per widget ID. This is used:
     /// * to determine whether a widget with a given ID exists
     /// * to pass commands to a widget
     widgets: HashMap<WidgetId, WidgetBox>,
 }
 
-impl WidgetManager {
+impl<T: Clone> WidgetManager<T> {
     ///
     pub fn new() -> Self {
         WidgetManager {
@@ -143,6 +148,7 @@ impl WidgetManager {
             parent_widget_id_per_widget_id: HashMap::new(),
             size_constraints: SizeConstraints::default(),
             style: Style::default(),
+            widget_event_subscriptions_per_widget_id: HashMap::new(),
             widgets: HashMap::new(),
         }
     }
@@ -252,7 +258,11 @@ impl WidgetManager {
                 .get(&id_of_widget_to_destroy)
                 .cloned();
 
-            // Remove the current widget to destroy from `child_widget_ids_per_widget_id`.
+            // Remove the event subscriptions.
+            self.widget_event_subscriptions_per_widget_id
+                .remove(&id_of_widget_to_destroy);
+
+            // Remove the widget from child/parent connections.
             {
                 self.child_widget_ids_per_widget_id
                     .remove(&id_of_widget_to_destroy);
@@ -268,7 +278,7 @@ impl WidgetManager {
                 }
             }
 
-            // Remove the current widget to destroy from `parent_widget_ids_per_widget_id`.
+            // Remove the widget from parent/child connections.
             {
                 self.parent_widget_id_per_widget_id
                     .remove(&id_of_widget_to_destroy);
@@ -424,6 +434,46 @@ impl WidgetManager {
         }
 
         Ok(widget_events)
+    }
+
+    ///
+    pub fn handle_subscribed_event(
+        &mut self,
+        event: &Event,
+        clipboard: Option<&mut Clipboard>,
+    ) -> Result<Vec<T>, WidgetError> {
+        let mut custom_widget_events = vec![];
+
+        // Let the widgets handle the event.
+        let widget_events = self.handle_event(event, clipboard)?;
+
+        // Iterate over the widget events.
+        for widget_event in widget_events {
+            // The current widget has event subscriptions.
+            if let Some(custom_events) = self
+                .widget_event_subscriptions_per_widget_id
+                .get(widget_event.widget_id())
+            {
+                // Try to get custom events for the current widget and event.
+                let maybe_custom_event = match widget_event {
+                    WidgetEvent::Clicked(_) => custom_events.get(&WidgetEventType::Clicked),
+                    WidgetEvent::GainedFocus(_) => custom_events.get(&WidgetEventType::GainedFocus),
+                    WidgetEvent::LostFocus(_) => custom_events.get(&WidgetEventType::LostFocus),
+                    WidgetEvent::Submitted(_) => custom_events.get(&WidgetEventType::Submitted),
+                    WidgetEvent::ValueChanged(_, _) => {
+                        // TODO: capture the value?
+                        custom_events.get(&WidgetEventType::ValueChanged)
+                    }
+                };
+
+                // There is a custom event for the current event.
+                if let Some(custom_event) = maybe_custom_event {
+                    custom_widget_events.push(custom_event.clone());
+                }
+            }
+        }
+
+        Ok(custom_widget_events)
     }
 
     ///
@@ -715,12 +765,12 @@ impl WidgetManager {
     }
 
     ///
-    pub fn send_command(&mut self, command: Command) -> Result<(), WidgetError> {
+    pub fn send_command(&mut self, command: Command<T>) -> Result<(), WidgetError> {
         self.send_commands(vec![command])
     }
 
     ///
-    pub fn send_commands(&mut self, commands: Vec<Command>) -> Result<(), WidgetError> {
+    pub fn send_commands(&mut self, commands: Vec<Command<T>>) -> Result<(), WidgetError> {
         // Iterate over the given commands.
         for command in commands {
             // Get the ID of the widget from the command.
@@ -884,6 +934,12 @@ impl WidgetManager {
                         .borrow_mut()
                         .set_vertical_alignment(vertical_alignment)?;
                 }
+                Command::SubscribeEvent(_widget_id, widget_event_type, custom_event) => {
+                    self.widget_event_subscriptions_per_widget_id
+                        .entry(widget_id)
+                        .or_default()
+                        .insert(widget_event_type, custom_event);
+                }
             };
         }
 
@@ -897,11 +953,5 @@ impl WidgetManager {
         }
 
         Ok(())
-    }
-}
-
-impl Default for WidgetManager {
-    fn default() -> Self {
-        Self::new()
     }
 }

@@ -11,7 +11,7 @@ pub(crate) struct App {
     counter: u32,
     counter_button: WidgetId,
     counter_text: WidgetId,
-    widget_manager: WidgetManager,
+    widget_manager: WidgetManager<()>,
 }
 
 impl App {

@@ -10,7 +10,7 @@ pub(crate) struct App {
     clipboard: Option<Clipboard>,
     text_input_celsius: WidgetId,
     text_input_fahrenheit: WidgetId,
-    widget_manager: WidgetManager,
+    widget_manager: WidgetManager<()>,
 }
 
 impl App {
