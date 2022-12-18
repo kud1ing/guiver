@@ -64,7 +64,7 @@ On the upside you get simple setup and simple control flow.
   * Hyperlink
   * Placeholder
   * Text
-  * Text input
+  * TextInput
 * Layout widgets:
   * Center
   * Column
@@ -77,18 +77,27 @@ On the upside you get simple setup and simple control flow.
 
 ## Backlog
 
-* `TextInput` caret:
-  * [ ] try to understand how https://github.com/linebender/druid/blob/master/druid/src/widget/textbox.rs does it
-  * [ ] add a hash map from caret character indices to x positions
-    * [ ] update it when the text is changed
-    * [ ] use it in `paint()` to position the caret
-  * [ ] `TextInput::handle_event()`: increase/decrease `self.caret_character_index` on arrow left/right
+* Text:
+  * [ ] implement `selected_text()`
+  * [ ] implement `selected_text_removed()`
+  * [ ] implement `selected_text_replaced()`
+  * [ ] implement `left_character_removed()`
+  * [ ] implement `right_character_removed()`
+  * [ ] implement `text_inserted()`
+  * determine the graphical positions:
+    * [TextLayout::hit_test_text_position(())](https://docs.rs/druid/latest/druid/piet/trait.TextLayout.html#tymethod.hit_test_text_position)
+      * [HitTestPosition](https://docs.rs/druid/latest/druid/piet/struct.HitTestPosition.html)
+      * https://doc.rust-lang.org/std/primitive.str.html#method.is_char_boundary
+    * [ ] text cursor
+    * [ ] text selection
+  * [ ] `paint()`: paint the cursor
+  * [ ] `paint()`: paint the text selection
+  * [ ] `TextInput::handle_event()`: adjust the text cursor on arrow left/right
+  * [ ] `TextInput::handle_event()`: adjust the text selection on Shift + arrow left/right
   * [ ] `TextInput::update_caret_character_index()`: implement
-* [ ] `TextInput`: if a text is too large to fit in, the size of the text input should not increase but truncate
-* [ ] `TextInput`: arrow keys should move the caret
-* [ ] `TextInput`: Shift + arrow keys should de/select text
-* [ ] `TextInput`: double click should select the text
-* [ ] `TextInput`: Meta+X should cut the text
+  * [ ] `TextInput`: Meta+X should cut the selected text
+  * [ ] `TextInput`: if a text is too large to fit in, the size of the text input should not increase but truncate
+  * [ ] `TextInput::handle_event()`: select the whole text on double click
 * [ ] `test::widgets_layout()`: add remaining layout widgets
 * [ ] `test::widgets()`: add child widgets to the layout widgets
 * [ ] use `WidgetId`s that are independent of a `WidgetManager`

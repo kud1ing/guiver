@@ -76,8 +76,8 @@ pub enum Command<T> {
     SetValue(WidgetId, Box<dyn Any>),
     /// Sets the widget's vertical alignment.
     SetVerticalAlignment(WidgetId, VerticalAlignment),
-    /// Subscribes to the given widget and  widget event type so that it can be handled as  `T`
-    /// using `handle_subscribed_event()`.
+    /// Subscribes to the given widget and widget event type so that it can be handled as `T` using
+    /// `handle_subscribed_event()`.
     SubscribeEvent(WidgetId, WidgetEventType, T),
 }
 

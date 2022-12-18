@@ -5,6 +5,7 @@ mod font;
 pub mod size_constraints;
 mod stroke;
 mod style;
+mod text;
 pub mod widget;
 mod widget_manager;
 mod window_event_handler;
