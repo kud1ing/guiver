@@ -52,6 +52,14 @@ On the upside you get simple setup and simple control flow.
 
 ## Backlog
 
+* [ ] `TextInput::handle_event()`: fix Crash when Backspace is pressed on a non-ASCII character e.g. an Umlaut
+* `TextInput` caret:
+  * [ ] try to understand how https://github.com/linebender/druid/blob/master/druid/src/widget/textbox.rs does it
+  * [ ] add a hash map from caret character indices to x positions
+    * [ ] update it when the text is changed
+    * [ ] use it in `paint()` to position the caret
+  * [ ] `TextInput::handle_event()`: increase/decrease `self.caret_character_index` on arrow left/right
+  * [ ] `TextInput::update_caret_character_index()`: implement
 * [ ] `test::widgets_layout()`: add remaining layout widgets
 * [ ] `test::widgets()`: add child widgets to the layout widgets
 * [ ] use `WidgetId`s that are independent of a `WidgetManager`
@@ -67,13 +75,6 @@ On the upside you get simple setup and simple control flow.
     * String? (>= 24 bytes)
 * [ ] `Hyperlink`: cache the two main `TextLayout`s to speed up mouse down/up
 * [ ] move `WidgetManager::focused_widget` to `WidgetFocusOrder`?
-* `TextInput` caret:
-  * [ ] try to understand how https://github.com/linebender/druid/blob/master/druid/src/widget/textbox.rs does it 
-  * [ ] add a hash map from caret character indices to x positions
-    * [ ] update it when the text is changed
-    * [ ] use it in `paint()` to position the caret
-  * [ ] `TextInput::handle_event()`: increase/decrease `self.caret_character_index` on arrow left/right
-  * [ ] `TextInput::update_caret_character_index()`: implement
 * [ ] publish 0.1.1, once the updated `druid-shell` >0.7.0 is [released](https://github.com/linebender/druid/issues/2236)
 * [ ] make `Text` selectable:
   * [ ] via double click

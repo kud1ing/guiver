@@ -216,6 +216,7 @@ impl Widget for TextInput {
                 KbKey::Backspace => {
                     if !self.text.is_empty() {
                         // Drop the last character from the text.
+                        // TODO: This will crash for multibyte characters.
                         self.text.remove(self.text.len() - 1);
                     }
 
