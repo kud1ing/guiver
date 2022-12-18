@@ -49,6 +49,31 @@ On the upside you get simple setup and simple control flow.
 <!-- abermals -->
 <img width="888" alt="Bildschirmfoto 2022-07-05 um 19 43 55" src="https://user-images.githubusercontent.com/391975/177385769-598d0fd0-c15b-4d7e-bb98-5fd46bd9d415.png">
 
+## Status
+
+* Operating systems:
+  * macOS: tested intensively
+  * Windows: works in general, probably has rough edges
+  * other: testers are welcome
+* Widget manager:
+  * handles widget focussing, including tab/focus order
+  * handle widget lifetimes
+  * handles copy/paste
+* Widgets:
+  * Button
+  * Hyperlink
+  * Placeholder
+  * Text
+  * Text input
+* Layout widgets:
+  * Center
+  * Column
+  * Expanded
+  * Grid
+  * Padding
+  * Row
+  * SizedBox
+
 
 ## Backlog
 
