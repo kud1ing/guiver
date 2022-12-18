@@ -1,3 +1,5 @@
+mod widget_focus_order;
+
 use crate::stroke::Stroke;
 use crate::style::Style;
 use crate::widget::layout::{
@@ -6,6 +8,7 @@ use crate::widget::layout::{
 use crate::widget::{
     Button, Hyperlink, Placeholder, Text, TextInput, WidgetError, WidgetEventType, WidgetPlacement,
 };
+use crate::widget_manager::widget_focus_order::WidgetFocusOrder;
 use crate::{
     Color, Event, Font, HorizontalAlignment, SizeConstraints, VerticalAlignment, Widget,
     WidgetEvent, WidgetId,
@@ -131,6 +134,8 @@ pub struct WidgetManager<T> {
     style: Style,
     ///
     widget_event_subscriptions_per_widget_id: HashMap<WidgetId, HashMap<WidgetEventType, T>>,
+    ///
+    widget_focus_order: WidgetFocusOrder,
     /// All widgets per widget ID. This is used:
     /// * to determine whether a widget with a given ID exists
     /// * to pass commands to a widget
@@ -149,6 +154,7 @@ impl<T: Clone> WidgetManager<T> {
             size_constraints: SizeConstraints::default(),
             style: Style::default(),
             widget_event_subscriptions_per_widget_id: HashMap::new(),
+            widget_focus_order: WidgetFocusOrder::new(),
             widgets: HashMap::new(),
         }
     }
@@ -193,7 +199,12 @@ impl<T: Clone> WidgetManager<T> {
 
     /// Puts the given widget under widget management.
     pub fn add_widget(&mut self, widget: Box<dyn Widget>) {
-        // TODO: Append the widget to the tab order if it accepts focus.
+        // The widget accepts focus.
+        if widget.accepts_focus() {
+            // Append it to the focus order.
+            self.widget_focus_order
+                .add_widget(widget.widget_id().clone());
+        }
 
         self.widgets
             .insert(*widget.widget_id(), Rc::new(RefCell::new(widget)));
@@ -258,6 +269,10 @@ impl<T: Clone> WidgetManager<T> {
                 .get(&id_of_widget_to_destroy)
                 .cloned();
 
+            // Remove the widget from the focus order.
+            self.widget_focus_order
+                .remove_widget(id_of_widget_to_destroy);
+
             // Remove the event subscriptions.
             self.widget_event_subscriptions_per_widget_id
                 .remove(&id_of_widget_to_destroy);
@@ -291,6 +306,31 @@ impl<T: Clone> WidgetManager<T> {
 
             self.widgets.remove(&id_of_widget_to_destroy);
         }
+    }
+
+    ///
+    fn give_next_widget_focus(&mut self) -> Result<(), WidgetError> {
+        // There is a next widget in the focus order.
+        if let Some(widget_id_to_give_focus) = self.widget_focus_order.focus_next_widget() {
+            let widget_to_give_focus = self.widgets.get(&widget_id_to_give_focus).unwrap();
+
+            // A widget has focus already.
+            if let Some(focused_widget) = &self.focused_widget {
+                // The focused widget is already the next widget in the focus order.
+                if focused_widget.borrow().widget_id() == &widget_id_to_give_focus {
+                    return Ok(());
+                }
+
+                // Remove the focus from the previously focused widget.
+                focused_widget.borrow_mut().set_has_focus(false)?;
+            }
+
+            // Give the widget focus.
+            widget_to_give_focus.borrow_mut().set_has_focus(true)?;
+            self.focused_widget = Some(widget_to_give_focus.clone());
+        }
+
+        Ok(())
     }
 
     ///
@@ -350,10 +390,18 @@ impl<T: Clone> WidgetManager<T> {
                     }
                     // The Meta key is not pressed.
                     else {
-                        // Let the focused widget handle the key event.
-                        focused_widget
-                            .borrow_mut()
-                            .handle_event(event, &mut widget_events);
+                        // Tab was pressed.
+                        if key_event.key == KbKey::Tab {
+                            // Give the next widget focus.
+                            self.give_next_widget_focus()?;
+                        }
+                        // Tab was not pressed.
+                        else {
+                            // Let the focused widget handle the key event.
+                            focused_widget
+                                .borrow_mut()
+                                .handle_event(event, &mut widget_events);
+                        }
                     }
                 }
 
@@ -725,6 +773,9 @@ impl<T: Clone> WidgetManager<T> {
         parent_widget_id: WidgetId,
         child_widget_id: WidgetId,
     ) {
+        // Remove the child widget from the focus order.
+        self.widget_focus_order.remove_widget(child_widget_id);
+
         self.child_widget_ids_per_widget_id
             .entry(parent_widget_id)
             .or_default()
@@ -742,6 +793,9 @@ impl<T: Clone> WidgetManager<T> {
             .or_default()
             .drain()
         {
+            // Remove the child widget from the focus order.
+            self.widget_focus_order.remove_widget(child_widget_id);
+
             // Remove the parent widget ID for the current child widget ID.
             self.parent_widget_id_per_widget_id.remove(&child_widget_id);
         }
@@ -901,11 +955,14 @@ impl<T: Clone> WidgetManager<T> {
                     }
 
                     if !widget_had_focus_already {
+                        // Tell the widget it has focus.
+                        widget_box.borrow_mut().set_has_focus(has_focus)?;
+
+                        // Select the widget in the focus order.
+                        self.widget_focus_order.focus_widget(widget_id);
+
                         // Remember the current widget as focused.
                         self.focused_widget = Some(widget_box.clone());
-
-                        // Tell the widget it has focus now.
-                        widget_box.borrow_mut().set_has_focus(has_focus)?;
                     }
                 }
                 Command::SetHorizontalAlignment(_widget_id, horizontal_alignment) => {

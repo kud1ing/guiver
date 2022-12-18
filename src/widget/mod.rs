@@ -112,6 +112,11 @@ pub enum WidgetPlacement {
 /// A widget should try to be as small as possible.
 pub trait Widget {
     ///
+    fn accepts_focus(&self) -> bool {
+        false
+    }
+
+    ///
     fn add_child(
         &mut self,
         _widget_placement: Option<WidgetPlacement>,

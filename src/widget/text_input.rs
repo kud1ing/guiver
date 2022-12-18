@@ -182,6 +182,11 @@ impl TextInput {
 }
 
 impl Widget for TextInput {
+    ///
+    fn accepts_focus(&self) -> bool {
+        true
+    }
+
     fn apply_size_constraints(&mut self, size_constraints: SizeConstraints) -> Size {
         self.core.size_constraints = size_constraints;
 

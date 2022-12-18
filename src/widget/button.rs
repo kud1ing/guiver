@@ -111,6 +111,11 @@ impl Button {
 }
 
 impl Widget for Button {
+    ///
+    fn accepts_focus(&self) -> bool {
+        true
+    }
+
     fn add_child(
         &mut self,
         _widget_placement: Option<WidgetPlacement>,

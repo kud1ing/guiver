@@ -52,9 +52,21 @@ On the upside you get simple setup and simple control flow.
 
 ## Backlog
 
-* [ ] `Hyperlink`: cache the two main `TextLayout`s to speed up mouse down/up
 * [ ] `test::widgets_layout()`: add remaining layout widgets
 * [ ] `test::widgets()`: add child widgets to the layout widgets
+* [ ] use `WidgetId`s that are independent of a `WidgetManager`
+  * Discussion:
+    * Chances:
+      * widget creation and composition can happen at the same time with the same means (`Command`)
+        * GUI construction can deserialized from a serialization format 
+    * Risks:
+  * Options:
+    * Positional ID (egui: https://docs.rs/egui/latest/egui/struct.Id.html) (8 bytes)
+    * `usize`? (8 bytes)
+    * UUID? (16 bytes)
+    * String? (>= 24 bytes)
+* [ ] `Hyperlink`: cache the two main `TextLayout`s to speed up mouse down/up
+* [ ] move `WidgetManager::focused_widget` to `WidgetFocusOrder`?
 * `TextInput` caret:
   * [ ] try to understand how https://github.com/linebender/druid/blob/master/druid/src/widget/textbox.rs does it 
   * [ ] add a hash map from caret character indices to x positions
@@ -63,11 +75,6 @@ On the upside you get simple setup and simple control flow.
   * [ ] `TextInput::handle_event()`: increase/decrease `self.caret_character_index` on arrow left/right
   * [ ] `TextInput::update_caret_character_index()`: implement
 * [ ] publish 0.1.1, once the updated `druid-shell` >0.7.0 is [released](https://github.com/linebender/druid/issues/2236)
-* `WidgetManager`: implement tab order `tab_order: Vec<WidgetId>`:
-  * [ ] build tab order, equal to the order of creation
-    * [ ] widgets need to tell the widget manager somehow, that they accept focus
-      * `accepts_focus()` (`Button`, `TextInput`)
-  * [ ] give the next widget in the tab order the focus when tab key is pressed
 * [ ] make `Text` selectable:
   * [ ] via double click
     * [ ] how?
@@ -85,8 +92,6 @@ On the upside you get simple setup and simple control flow.
     * for `Grid` it needs to be held externally (`GridColumnProperties`, `GridRowProperties`)
   * Cons:
     * does it make usage of `Column`, `Row` less pleasant?
-* [ ] use `WidgetId`s that are independent of a `WidgetManager` for ease of use
-  * UUID? Positional (egui: https://docs.rs/egui/latest/egui/struct.Id.html)
 * [ ] should all container widgets clip the child widget's painting?
   * Pro:
     * restricts misbehaving widgets paint
