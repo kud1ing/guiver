@@ -16,18 +16,15 @@ impl App {
         // Create the widgets.
         let padding = widget_manager.new_padding();
         let grid = widget_manager.new_grid(
-            GridColumnProperties {
-                flex_factor: 1,
-                horizontal_alignment: HorizontalAlignment::Center,
-                minimum_width: 0.0,
-                spacing: 30.0,
-            },
+            GridColumnProperties::default(),
             GridRowProperties::default(),
         );
-        let placeholder1 = widget_manager.new_placeholder(Size::new(100.0, 50.0));
-        let placeholder2 = widget_manager.new_placeholder(Size::new(100.0, 50.0));
-        let placeholder3 = widget_manager.new_placeholder(Size::new(100.0, 50.0));
-        let placeholder4 = widget_manager.new_placeholder(Size::new(100.0, 50.0));
+        let placeholder1 = widget_manager.new_placeholder(Size::new(70.0, 30.0));
+        let placeholder2 = widget_manager.new_placeholder(Size::new(70.0, 30.0));
+        let placeholder3 = widget_manager.new_placeholder(Size::new(70.0, 30.0));
+        let placeholder4 = widget_manager.new_placeholder(Size::new(70.0, 30.0));
+        let placeholder5 = widget_manager.new_placeholder(Size::new(70.0, 30.0));
+        let placeholder6 = widget_manager.new_placeholder(Size::new(70.0, 30.0));
 
         // Compose the widgets.
         widget_manager
@@ -38,12 +35,14 @@ impl App {
                     widget_placement: None,
                     child_widget_id: grid,
                 },
+                //
                 Command::SetChild {
                     parent_widget_id: grid,
                     column_index: 0,
                     row_index: 1,
                     child_widget_id: placeholder1,
                 },
+                //
                 Command::SetChild {
                     parent_widget_id: grid,
                     column_index: 1,
@@ -61,6 +60,19 @@ impl App {
                     column_index: 1,
                     row_index: 2,
                     child_widget_id: placeholder4,
+                },
+                //
+                Command::SetChild {
+                    parent_widget_id: grid,
+                    column_index: 2,
+                    row_index: 0,
+                    child_widget_id: placeholder5,
+                },
+                Command::SetChild {
+                    parent_widget_id: grid,
+                    column_index: 2,
+                    row_index: 2,
+                    child_widget_id: placeholder6,
                 },
             ])
             .unwrap();

@@ -13,13 +13,8 @@ impl App {
 
         // Create the widgets.
         let padding = widget_manager.new_padding();
-        let row = widget_manager.new_row();
-        let column1 = widget_manager.new_column();
-        let column2 = widget_manager.new_column();
-        let text1 = widget_manager.new_text("This is a text");
-        let text2 = widget_manager.new_text_button("This is a button");
-        let placeholder1 = widget_manager.new_placeholder(Size::new(200.0, 50.0));
-        let text3 = widget_manager.new_text("This is a right aligned text");
+        let column = widget_manager.new_column();
+        let placeholder1 = widget_manager.new_placeholder(Size::new(100.0, 50.0));
         let placeholder2 = widget_manager.new_placeholder(Size::new(100.0, 50.0));
         let placeholder3 = widget_manager.new_placeholder(Size::new(100.0, 50.0));
 
@@ -30,52 +25,23 @@ impl App {
                 Command::AddChild {
                     parent_widget_id: padding,
                     widget_placement: None,
-                    child_widget_id: row,
+                    child_widget_id: column,
                 },
                 Command::AddChild {
-                    parent_widget_id: row,
-                    widget_placement: None,
-                    child_widget_id: column1,
-                },
-                Command::AddChild {
-                    parent_widget_id: column1,
-                    widget_placement: None,
-                    child_widget_id: text1,
-                },
-                Command::AddChild {
-                    parent_widget_id: column1,
-                    widget_placement: None,
-                    child_widget_id: text2,
-                },
-                Command::AddChild {
-                    parent_widget_id: column1,
-                    widget_placement: None,
-                    child_widget_id: placeholder3,
-                },
-                Command::AddChild {
-                    parent_widget_id: row,
-                    widget_placement: None,
-                    child_widget_id: column2,
-                },
-                Command::AddChild {
-                    parent_widget_id: column2,
+                    parent_widget_id: column,
                     widget_placement: None,
                     child_widget_id: placeholder1,
                 },
                 Command::AddChild {
-                    parent_widget_id: column2,
-                    widget_placement: None,
-                    child_widget_id: text3,
-                },
-                Command::AddChild {
-                    parent_widget_id: row,
+                    parent_widget_id: column,
                     widget_placement: None,
                     child_widget_id: placeholder2,
                 },
-                //
-                Command::SetVerticalAlignment(row, VerticalAlignment::Top),
-                Command::SetHorizontalAlignment(column1, HorizontalAlignment::Left),
-                Command::SetHorizontalAlignment(column2, HorizontalAlignment::Right),
+                Command::AddChild {
+                    parent_widget_id: column,
+                    widget_placement: None,
+                    child_widget_id: placeholder3,
+                },
             ])
             .unwrap();
 
