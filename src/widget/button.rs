@@ -1,6 +1,6 @@
 use crate::stroke::Stroke;
 use crate::widget::core::WidgetCore;
-use crate::widget::{WidgetError, WidgetPlacement};
+use crate::widget::{WidgetError, WidgetEventType, WidgetPlacement};
 use crate::widget_manager::WidgetBox;
 use crate::{
     Event, Font, HorizontalAlignment, SizeConstraints, VerticalAlignment, Widget, WidgetEvent,
@@ -145,7 +145,7 @@ impl Widget for Button {
             Event::KeyDown(key_event) => {
                 if key_event.key == KbKey::Enter {
                     // Enter on a (focused) button is like a click.
-                    widget_events.push(WidgetEvent::Clicked(self.core.widget_id));
+                    widget_events.push((self.core.widget_id, WidgetEventType::Clicked));
                 }
             }
             Event::MouseDown(mouse_event) => {
@@ -157,7 +157,7 @@ impl Widget for Button {
                         self.has_focus = true;
 
                         // Tell the widget manager about the change of focus.
-                        widget_events.push(WidgetEvent::GainedFocus(self.core.widget_id))
+                        widget_events.push((self.core.widget_id, WidgetEventType::GainedFocus))
                     }
 
                     self.is_down = true;
@@ -168,7 +168,7 @@ impl Widget for Button {
                     // This widget was focused.
                     if self.has_focus {
                         // Tell the widget manager about the change of focus.
-                        widget_events.push(WidgetEvent::LostFocus(self.core.widget_id))
+                        widget_events.push((self.core.widget_id, WidgetEventType::LostFocus))
                     }
 
                     self.has_focus = false;
@@ -188,7 +188,7 @@ impl Widget for Button {
             }
             Event::MouseUp(mouse_event) => {
                 if self.is_hot && self.core.rectangle.contains(mouse_event.pos) {
-                    widget_events.push(WidgetEvent::Clicked(self.core.widget_id));
+                    widget_events.push((self.core.widget_id, WidgetEventType::Clicked));
                 }
 
                 self.is_down = false;

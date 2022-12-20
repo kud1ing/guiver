@@ -165,7 +165,10 @@ impl Widget for Row {
                     println!("TODO: `Row::add_child(WidgetPlacement::RightOf(...))");
                 }
                 _ => {
-                    return Err(WidgetError::NotHandled);
+                    return Err(WidgetError::NotHandled {
+                        widget_id: self.widget_id().clone(),
+                        description: format!("{:?}", widget_placement),
+                    });
                 }
             }
         }

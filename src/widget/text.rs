@@ -1,7 +1,7 @@
 use crate::font::Font;
 use crate::stroke::Stroke;
 use crate::widget::core::WidgetCore;
-use crate::widget::{WidgetError, WidgetId};
+use crate::widget::{WidgetError, WidgetEventType, WidgetId};
 use crate::{
     Event, HorizontalAlignment, PaintBrush, SizeConstraints, VerticalAlignment, Widget, WidgetEvent,
 };
@@ -99,7 +99,7 @@ impl Widget for Text {
                 return;
             }
 
-            widget_events.push(WidgetEvent::Clicked(self.core.widget_id));
+            widget_events.push((self.core.widget_id, WidgetEventType::Clicked));
         }
     }
 
@@ -224,6 +224,10 @@ impl Widget for Text {
         self.layout_text();
 
         Ok(())
+    }
+
+    fn value(&self) -> Option<Box<dyn Any>> {
+        Some(Box::new(self.text.clone()))
     }
 
     fn widget_id(&self) -> &WidgetId {

@@ -1,6 +1,6 @@
 use crate::stroke::Stroke;
 use crate::widget::core::WidgetCore;
-use crate::widget::{Text, WidgetError};
+use crate::widget::{Text, WidgetError, WidgetEventType};
 use crate::{
     Event, Font, HorizontalAlignment, SizeConstraints, VerticalAlignment, Widget, WidgetEvent,
     WidgetId,
@@ -79,10 +79,7 @@ impl TextInput {
         self.update_text_widget();
 
         // Inform the world that the text has changed.
-        widget_events.push(WidgetEvent::ValueChanged(
-            self.core.widget_id,
-            Box::new(self.text.clone()),
-        ));
+        widget_events.push((self.core.widget_id, WidgetEventType::ValueChanged));
     }
 
     ///
@@ -199,11 +196,8 @@ impl Widget for TextInput {
     fn handle_event(&mut self, event: &Event, widget_events: &mut Vec<WidgetEvent>) {
         match event {
             Event::ClipboardPaste(string) => {
-                // Append the string.
-                self.text.push_str(string);
-
-                // Apply the text changes.
-                self.broadcast_modified_text(widget_events);
+                // TODO: error handling
+                self.set_selected_value(Box::new(string.clone())).unwrap();
             }
             Event::KeyDown(key_event) => match &key_event.key {
                 KbKey::Character(chracter_string) => {
@@ -226,7 +220,7 @@ impl Widget for TextInput {
                 }
                 KbKey::Enter => {
                     // Enter on a (focused) text input submits the value.
-                    widget_events.push(WidgetEvent::Submitted(self.core.widget_id));
+                    widget_events.push((self.core.widget_id, WidgetEventType::Submitted));
                 }
                 _ => {}
             },
@@ -239,7 +233,7 @@ impl Widget for TextInput {
                         self.has_focus = true;
 
                         // Tell the widget manager about the change of focus.
-                        widget_events.push(WidgetEvent::GainedFocus(self.core.widget_id))
+                        widget_events.push((self.core.widget_id, WidgetEventType::GainedFocus))
                     }
                 }
                 // The mouse is down outside of this text input.
@@ -250,7 +244,7 @@ impl Widget for TextInput {
                         self.has_focus = false;
 
                         // Tell the widget manager about the change of focus.
-                        widget_events.push(WidgetEvent::LostFocus(self.core.widget_id));
+                        widget_events.push((self.core.widget_id, WidgetEventType::LostFocus));
                     }
                 }
             }
@@ -308,6 +302,12 @@ impl Widget for TextInput {
         &self.core.rectangle
     }
 
+    fn remove_selected_value(&mut self) -> Result<(), WidgetError> {
+        // TODO
+        println!("`TextInput::remove_selected_value()`: TODO");
+        self.set_value(Box::new("".to_string()))
+    }
+
     fn selected_value(&self) -> Option<Box<dyn Any>> {
         self.text_widget.selected_value()
     }
@@ -347,11 +347,23 @@ impl Widget for TextInput {
         self.core.is_hidden = is_hidden;
     }
 
+    fn set_origin(&mut self, origin: Point) {
+        self.core.rectangle = self.core.rectangle.with_origin(origin);
+
+        // Layout the child widget.
+        self.layout_child_widget();
+    }
+
     fn set_stroke(&mut self, _stroke: Option<Stroke>) -> Result<(), WidgetError> {
         // TODO
         println!("`TextInput::set_stroke()`: TODO");
-
         Ok(())
+    }
+
+    fn set_selected_value(&mut self, value: Box<dyn Any>) -> Result<(), WidgetError> {
+        // TODO
+        println!("`TextInput::set_selected_value()`: TODO");
+        self.set_value(value)
     }
 
     fn set_value(&mut self, value: Box<dyn Any>) -> Result<(), WidgetError> {
@@ -366,13 +378,6 @@ impl Widget for TextInput {
         Ok(())
     }
 
-    fn set_origin(&mut self, origin: Point) {
-        self.core.rectangle = self.core.rectangle.with_origin(origin);
-
-        // Layout the child widget.
-        self.layout_child_widget();
-    }
-
     fn set_vertical_alignment(
         &mut self,
         _vertical_alignment: VerticalAlignment,
@@ -381,6 +386,10 @@ impl Widget for TextInput {
         println!("`TextInput::set_vertical_alignment()`: TODO");
 
         Ok(())
+    }
+
+    fn value(&self) -> Option<Box<dyn Any>> {
+        self.text_widget.value()
     }
 
     fn widget_id(&self) -> &WidgetId {

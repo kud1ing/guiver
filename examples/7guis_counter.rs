@@ -4,7 +4,8 @@ This implements the "Counter" task from [7GUIs](https://eugenkiss.github.io/7gui
 use druid_shell::kurbo::Size;
 use druid_shell::piet::Piet;
 use druid_shell::Region;
-use guiver::{run, Command, WidgetEvent, WidgetId, WidgetManager};
+use guiver::widget::WidgetEventType;
+use guiver::{run, Command, WidgetId, WidgetManager};
 use guiver::{Application, Clipboard, Event};
 
 pub(crate) struct App {
@@ -57,13 +58,13 @@ impl App {
 
 impl Application for App {
     fn handle_event(&mut self, event: &Event) {
-        // Handle the event, possibly create widget events.
+        // Handle the given event, possibly creating widget events.
         let widget_events = self.widget_manager.handle_event(event, None).unwrap();
 
         // Iterate over the generated widget events.
         for widget_event in widget_events {
             match widget_event {
-                WidgetEvent::Clicked(widget_id) => {
+                (widget_id, WidgetEventType::Clicked) => {
                     // The counter button was clicked.
                     if widget_id == self.counter_button {
                         // Increase the counter.

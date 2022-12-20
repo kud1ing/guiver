@@ -60,8 +60,9 @@ On the upside you get simple setup and simple control flow.
   * Windows: works in general, probably has rough edges
   * other: testers are welcome
 * Widget manager:
-  * handles widget focussing, including tab/focus order
-  * handle widget lifetimes
+  * handles widget lifetimes
+  * handles a main widget
+  * handles widget focussing – including tab order
   * handles copy/paste
 * Widgets:
   * Button
@@ -79,15 +80,24 @@ On the upside you get simple setup and simple control flow.
   * SizedBox
 
 
+## Developer guide
+
+Widgets are decoupled from the developers code via the `WidgetManager`. It owns the widgets and manages their lifetimes.
+Widgets are created via `new_*()` methods and are modified and composed via `Command`s.
+Commands allow transactional modification, where a re-layout happens once at the end.
+
+Widgets implement the `Widget` trait. The methods can be used by the `WidgetManager` and by other widgets (e.g. the
+`TextInput` widget contains a `Text` widget).
+A widget reacts to user `Event`s and possibly creates `WidgetEvent`s accordingly.
+The developer code can handle those widget events.
+
+
+
 ## Backlog
 
 * Text:
-  * [ ] implement `selected_text()`
-  * [ ] implement `selected_text_removed()`
-  * [ ] implement `selected_text_replaced()`
-  * [ ] implement `left_character_removed()`
-  * [ ] implement `right_character_removed()`
-  * [ ] implement `text_inserted()`
+  * [ ] `test_text_inserted()`: implement
+  * [ ] `TextInput::set_selected_value()`: implement
   * determine the graphical positions:
     * [TextLayout::hit_test_text_position(())](https://docs.rs/druid/latest/druid/piet/trait.TextLayout.html#tymethod.hit_test_text_position)
       * [HitTestPosition](https://docs.rs/druid/latest/druid/piet/struct.HitTestPosition.html)

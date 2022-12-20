@@ -1,4 +1,4 @@
-use crate::widget::{Text, WidgetError};
+use crate::widget::{Text, WidgetError, WidgetEventType};
 use crate::{Event, Font, Piet, Size, SizeConstraints, Stroke, Widget, WidgetEvent, WidgetId};
 use druid_shell::kurbo::{Point, Rect};
 use druid_shell::piet::Error;
@@ -104,7 +104,10 @@ impl Widget for Hyperlink {
                 // The hyperlink is being clicked.
                 self.set_is_being_clicked(true);
 
-                widget_events.push(WidgetEvent::Clicked(*self.text_widget.widget_id()));
+                widget_events.push((
+                    self.text_widget.widget_id().clone(),
+                    WidgetEventType::Clicked,
+                ));
             }
             Event::MouseUp(mouse_event) => {
                 // The click is outside of the text.

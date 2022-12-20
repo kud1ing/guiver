@@ -211,6 +211,31 @@ impl<T: Clone> WidgetManager<T> {
             .insert(*widget.widget_id(), Rc::new(RefCell::new(widget)));
     }
 
+    ///
+    fn copy_selected_value_to_clipboard(&self, clipboard: &mut Clipboard) {
+        // A widget has focus.
+        if let Some(focused_widget) = &self.focused_widget {
+            // The focused widget has a selected value.
+            if let Some(selected_value) = focused_widget.borrow().selected_value() {
+                // Get a string representation of the widget's selected value.
+                let string_value =
+                // The widget's selected value is a string.
+                if let Some(string) =
+                    selected_value.downcast_ref::<String>()
+                {
+                    string.clone()
+                }
+                // The widget selected value is not a string.
+                else {
+                    format!("{:?}", selected_value)
+                };
+
+                // Put the string value in the clipboard.
+                clipboard.put_string(string_value);
+            }
+        }
+    }
+
     /// Destroys the widget with the given ID and its child widget tree.
     fn destroy_widget(&mut self, widget_id: WidgetId) {
         let mut ids_of_widgets_to_destroy: HashSet<WidgetId> = HashSet::new();
@@ -345,59 +370,51 @@ impl<T: Clone> WidgetManager<T> {
         // Handle key events.
         match event {
             Event::KeyDown(key_event) => {
-                // A widget has focus.
-                if let Some(focused_widget) = &mut self.focused_widget {
-                    // The Meta key is pressed.
-                    if key_event.mods.contains(Modifiers::META) {
-                        // A clipboard is given.
-                        if let Some(clipboard) = clipboard {
-                            // Handle paste from clipboard.
-                            if key_event.key == KbKey::Character("v".to_string()) {
-                                // Could get a string from the clipboard.
-                                if let Some(string) = clipboard.get_string() {
-                                    // Let the focused widget handle a clipboard past event.
+                // The Meta key is pressed.
+                if key_event.mods.contains(Modifiers::META) {
+                    // A clipboard is given.
+                    if let Some(clipboard) = clipboard {
+                        // Handle paste from clipboard.
+                        if key_event.key == KbKey::Character("v".to_string()) {
+                            // Could get a string from the clipboard.
+                            if let Some(string) = clipboard.get_string() {
+                                // A widget has focus.
+                                if let Some(focused_widget) = &mut self.focused_widget {
+                                    // Let the focused widget handle a clipboard paste event.
                                     focused_widget.borrow_mut().handle_event(
                                         &Event::ClipboardPaste(string),
                                         &mut widget_events,
                                     );
                                 }
                             }
-                            // Handle copy to clipboard.
-                            else if key_event.key == KbKey::Character("c".to_string()) {
-                                // The focused widget's has a value.
-                                if let Some(widget_value) = focused_widget.borrow().selected_value()
-                                {
-                                    // The widget value is a string.
-                                    let string_value = if let Some(string) =
-                                        widget_value.downcast_ref::<String>()
-                                    {
-                                        string.clone()
-                                    }
-                                    // The widget value is not a string.
-                                    else {
-                                        format!("{:?}", widget_value)
-                                    };
+                        }
+                        // Handle copy to clipboard.
+                        else if key_event.key == KbKey::Character("c".to_string()) {
+                            self.copy_selected_value_to_clipboard(clipboard);
+                        }
+                        // Handle cut to clipboard.
+                        else if key_event.key == KbKey::Character("x".to_string()) {
+                            self.copy_selected_value_to_clipboard(clipboard);
 
-                                    // Put the value in the clipboard.
-                                    clipboard.put_string(string_value);
-                                }
-                            }
-                            // Handle cut to clipboard.
-                            else if key_event.key == KbKey::Character("x".to_string()) {
-                                // TODO
-                                println!("TODO: cut");
+                            // A widget has focus.
+                            if let Some(focused_widget) = &mut self.focused_widget {
+                                // Remove the selected value.
+                                focused_widget.borrow_mut().remove_selected_value()?;
                             }
                         }
                     }
-                    // The Meta key is not pressed.
+                }
+                // The Meta key is not pressed.
+                else {
+                    // Tab was pressed.
+                    if key_event.key == KbKey::Tab {
+                        // Give the next widget focus.
+                        self.give_next_widget_focus()?;
+                    }
+                    // Tab was not pressed.
                     else {
-                        // Tab was pressed.
-                        if key_event.key == KbKey::Tab {
-                            // Give the next widget focus.
-                            self.give_next_widget_focus()?;
-                        }
-                        // Tab was not pressed.
-                        else {
+                        // A widget has focus.
+                        if let Some(focused_widget) = &mut self.focused_widget {
                             // Let the focused widget handle the key event.
                             focused_widget
                                 .borrow_mut()
@@ -437,11 +454,11 @@ impl<T: Clone> WidgetManager<T> {
             // Iterate over the widget events in search of focus events.
             for widget_event in &widget_events {
                 match widget_event {
-                    WidgetEvent::GainedFocus(widget_id) => {
+                    (widget_id, WidgetEventType::GainedFocus) => {
                         // A widget gained focus.
-                        id_of_the_last_widget_that_gained_focus = Some(widget_id);
+                        id_of_the_last_widget_that_gained_focus = Some(widget_id.clone());
                     }
-                    WidgetEvent::LostFocus(widget_id) => {
+                    (widget_id, WidgetEventType::LostFocus) => {
                         // A widget had focus.
                         if let Some(focused_widget) = &mut self.focused_widget {
                             // The widget that lost focus had focus before.
@@ -459,11 +476,12 @@ impl<T: Clone> WidgetManager<T> {
                 id_of_the_last_widget_that_gained_focus
             {
                 // There is a widget with the given ID.
-                if let Some(widget_box) = self.widgets.get(id_of_the_widget_that_gained_focus) {
+                if let Some(widget_box) = self.widgets.get(&id_of_the_widget_that_gained_focus) {
                     // A widget had focus.
                     if let Some(focused_widget) = &mut self.focused_widget {
                         // The widgets are different.
-                        if focused_widget.borrow().widget_id() != id_of_the_widget_that_gained_focus
+                        if focused_widget.borrow().widget_id()
+                            != &id_of_the_widget_that_gained_focus
                         {
                             // Unfocus that previously focused widget.
                             focused_widget.borrow_mut().set_has_focus(false)?;
@@ -476,7 +494,7 @@ impl<T: Clone> WidgetManager<T> {
                 // There is no widget with the given ID.
                 else {
                     return Err(WidgetError::NoSuchWidget(
-                        *id_of_the_widget_that_gained_focus,
+                        id_of_the_widget_that_gained_focus,
                     ));
                 };
             }
@@ -497,26 +515,14 @@ impl<T: Clone> WidgetManager<T> {
         let widget_events = self.handle_event(event, clipboard)?;
 
         // Iterate over the widget events.
-        for widget_event in widget_events {
+        for (widget_id, widget_event_type) in widget_events {
             // The current widget has event subscriptions.
             if let Some(custom_events) = self
                 .widget_event_subscriptions_per_widget_id
-                .get(widget_event.widget_id())
+                .get(&widget_id)
             {
-                // Try to get custom events for the current widget and event.
-                let maybe_custom_event = match widget_event {
-                    WidgetEvent::Clicked(_) => custom_events.get(&WidgetEventType::Clicked),
-                    WidgetEvent::GainedFocus(_) => custom_events.get(&WidgetEventType::GainedFocus),
-                    WidgetEvent::LostFocus(_) => custom_events.get(&WidgetEventType::LostFocus),
-                    WidgetEvent::Submitted(_) => custom_events.get(&WidgetEventType::Submitted),
-                    WidgetEvent::ValueChanged(_, _) => {
-                        // TODO: capture the value?
-                        custom_events.get(&WidgetEventType::ValueChanged)
-                    }
-                };
-
                 // There is a custom event for the current event.
-                if let Some(custom_event) = maybe_custom_event {
+                if let Some(custom_event) = custom_events.get(&widget_event_type) {
                     custom_widget_events.push(custom_event.clone());
                 }
             }
@@ -819,6 +825,11 @@ impl<T: Clone> WidgetManager<T> {
         }
     }
 
+    /// Returns a widget's selected value.
+    pub fn selected_value(&self, widget_id: WidgetId) -> Result<Option<Box<dyn Any>>, WidgetError> {
+        Ok(self.widget(widget_id)?.borrow().selected_value())
+    }
+
     ///
     pub fn send_command(&mut self, command: Command<T>) -> Result<(), WidgetError> {
         self.send_commands(vec![command])
@@ -1011,5 +1022,34 @@ impl<T: Clone> WidgetManager<T> {
         }
 
         Ok(())
+    }
+
+    /// Returns a widget's value.
+    pub fn value(&self, widget_id: WidgetId) -> Result<Option<Box<dyn Any>>, WidgetError> {
+        Ok(self.widget(widget_id)?.borrow().value())
+    }
+
+    ///
+    fn widget(&self, widget_id: WidgetId) -> Result<&WidgetBox, WidgetError> {
+        // There is a widget with the given ID.
+        if let Some(widget_box) = self.widgets.get(&widget_id) {
+            Ok(widget_box)
+        }
+        // There is no widget with the given ID.
+        else {
+            Err(WidgetError::NoSuchWidget(widget_id))
+        }
+    }
+
+    ///
+    fn widget_mut(&mut self, widget_id: WidgetId) -> Result<&mut WidgetBox, WidgetError> {
+        // There is a widget with the given ID.
+        if let Some(widget_box) = self.widgets.get_mut(&widget_id) {
+            Ok(widget_box)
+        }
+        // There is no widget with the given ID.
+        else {
+            Err(WidgetError::NoSuchWidget(widget_id))
+        }
     }
 }

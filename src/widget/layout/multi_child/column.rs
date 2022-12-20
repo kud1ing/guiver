@@ -165,7 +165,12 @@ impl Widget for Column {
                     // TODO
                     println!("TODO: `Column::add_child(WidgetPlacement::Below(...))");
                 }
-                _ => return Err(WidgetError::NotHandled),
+                _ => {
+                    return Err(WidgetError::NotHandled {
+                        widget_id: self.widget_id().clone(),
+                        description: format!("{:?}", widget_placement),
+                    })
+                }
             }
         }
         // No widget placement is given.

@@ -1,9 +1,10 @@
+use guiver::widget::WidgetEventType;
 /**
 This implements the "Counter" task from [7GUIs](https://eugenkiss.github.io/7guis/tasks/).
  */
 use guiver::{
-    run, Application, Clipboard, Command, Event, HorizontalAlignment, Piet, Region, Size,
-    WidgetEvent, WidgetId, WidgetManager,
+    run, Application, Clipboard, Command, Event, HorizontalAlignment, Piet, Region, Size, WidgetId,
+    WidgetManager,
 };
 
 pub(crate) struct App {
@@ -80,7 +81,7 @@ fn fahrenheit_from_celsius(celsius: f32) -> f32 {
 
 impl Application for App {
     fn handle_event(&mut self, event: &Event) {
-        // Handle the system event, possibly create widget events.
+        // Handle the given event, possibly creating widget events.
         let widget_events = self
             .widget_manager
             .handle_event(event, self.clipboard.as_mut())
@@ -89,7 +90,10 @@ impl Application for App {
         // Iterate over the generated widget events.
         for widget_event in widget_events {
             match widget_event {
-                WidgetEvent::ValueChanged(widget_id, value) => {
+                (widget_id, WidgetEventType::ValueChanged) => {
+                    // Try to get the widget's value.
+                    let value = self.widget_manager.value(widget_id).unwrap().unwrap();
+
                     if widget_id == self.text_input_celsius {
                         // The given value is a string.
                         if let Some(string) = value.downcast_ref::<String>() {
