@@ -1,3 +1,4 @@
+use crate::shared_state::SharedState;
 use crate::widget::core::WidgetCore;
 use crate::widget::WidgetError;
 use crate::widget_manager::WidgetBox;
@@ -187,11 +188,6 @@ impl Grid {
         {
             // Iterate over the grid's column indices.
             for column_index in 0..self.number_of_columns {
-                // Add the column width.
-                child_and_spacing_size_sum.width = child_and_spacing_size_sum
-                    .width
-                    .max(*column_widths.get(column_index).unwrap());
-
                 // Get the column properties.
                 let column_properties = self.grid_column_properties(column_index);
 
@@ -220,11 +216,6 @@ impl Grid {
 
             // Iterate over the grid's row indices.
             for row_index in 0..self.number_of_rows {
-                // Add the row height.
-                child_and_spacing_size_sum.height = child_and_spacing_size_sum
-                    .height
-                    .max(*row_heights.get(row_index).unwrap());
-
                 // Get the row properties.
                 let row_properties = self.grid_row_properties(row_index);
 
@@ -239,7 +230,7 @@ impl Grid {
                 // The row does not have a flex factor.
                 if flex_factor == 0 {
                     // Add the row's height.
-                    child_and_spacing_size_sum.width += row_heights.get(row_index).unwrap();
+                    child_and_spacing_size_sum.height += row_heights.get(row_index).unwrap();
                 }
                 // The row does have a flex factor.
                 else {
@@ -355,56 +346,6 @@ impl Grid {
                 }
             }
         }
-
-        /*
-        // Second pass over the child widgets.
-        for child_widget in &mut self.child_widgets {
-            // Get the child widget's flex factor.
-            let flex_factor = RefCell::borrow(child_widget).borrow().flex_factor();
-
-            // The child widget does not have a flex factor.
-            let child_size = if flex_factor == 0 {
-                RefCell::borrow(child_widget).borrow().rectangle().size()
-            }
-            // The child widget does have a flex factor.
-            else {
-                let child_size = RefCell::borrow(child_widget).borrow().rectangle().size();
-
-                // Devide the remaining width among the child widgets with flex factor.
-                let expanded_child_size = Size::new(
-                    remaining_width * (flex_factor as f64 / flex_factor_sum as f64),
-                    child_size.height,
-                );
-
-                // Apply the size constraints to the current child widget.
-                RefCell::borrow_mut(child_widget)
-                    .borrow_mut()
-                    .apply_size_constraints(SizeConstraints::tight(expanded_child_size));
-
-                expanded_child_size
-            };
-
-            // Determine the child widget's vertical position.
-            let child_y = match self.vertical_alignment {
-                VerticalAlignment::Bottom => {
-                    self.core.rectangle.origin().y
-                        + (self.core.rectangle.size().height - child_size.height).max(0.0)
-                }
-                VerticalAlignment::Middle => {
-                    self.core.rectangle.origin().y
-                        + 0.5 * (self.core.rectangle.size().height - child_size.height).max(0.0)
-                }
-                VerticalAlignment::Top => self.core.rectangle.origin().y,
-            };
-
-            // Set the child widget's origins.
-            RefCell::borrow_mut(child_widget)
-                .borrow_mut()
-                .set_origin((child_x, child_y).into());
-
-            child_x += child_size.width + self.spacing;
-        }
-        */
     }
 
     ///
@@ -472,11 +413,16 @@ impl Widget for Grid {
         self.core.rectangle.size()
     }
 
-    fn handle_event(&mut self, event: &Event, widget_events: &mut Vec<WidgetEvent>) {
+    fn handle_event(
+        &mut self,
+        shared_state: &mut SharedState,
+        event: &Event,
+        widget_events: &mut Vec<WidgetEvent>,
+    ) {
         // Iterate over the child widgets.
         for child_widget in &mut self.child_widget_per_id.values() {
             // Let the current child widget handle the given event.
-            RefCell::borrow_mut(child_widget).handle_event(event, widget_events);
+            RefCell::borrow_mut(child_widget).handle_event(shared_state, event, widget_events);
         }
     }
 

@@ -1,5 +1,6 @@
 mod widget_focus_order;
 
+use crate::shared_state::SharedState;
 use crate::stroke::Stroke;
 use crate::style::Style;
 use crate::widget::layout::{
@@ -77,7 +78,7 @@ pub enum Command<T> {
     /// Sets the widget's vertical alignment.
     SetVerticalAlignment(WidgetId, VerticalAlignment),
     /// Subscribes to the given widget and widget event type so that it can be handled as `T` using
-    /// `handle_subscribed_event()`.
+    /// `handle_subscribed_widget_event()`.
     SubscribeEvent(WidgetId, WidgetEventType, T),
 }
 
@@ -128,6 +129,8 @@ pub struct WidgetManager<T> {
     next_widget_id_counter: WidgetId,
     /// The IDs of each widget's parent widget.
     parent_widget_id_per_widget_id: HashMap<WidgetId, WidgetId>,
+    ///
+    shared_state: SharedState,
     /// The size constraints. It is set in `resize()`, called by the window event handler for every
     /// window resize event so that the main widget fills the whole window.
     size_constraints: SizeConstraints,
@@ -152,6 +155,7 @@ impl<T: Clone> WidgetManager<T> {
             main_widget: None,
             next_widget_id_counter: 0,
             parent_widget_id_per_widget_id: HashMap::new(),
+            shared_state: SharedState::new(),
             size_constraints: SizeConstraints::default(),
             style: Style::default(),
             widget_event_subscriptions_per_widget_id: HashMap::new(),
@@ -382,6 +386,7 @@ impl<T: Clone> WidgetManager<T> {
                                 if let Some(focused_widget) = &mut self.focused_widget {
                                     // Let the focused widget handle a clipboard paste event.
                                     focused_widget.borrow_mut().handle_event(
+                                        &mut self.shared_state,
                                         &Event::ClipboardPaste(string),
                                         &mut widget_events,
                                     );
@@ -399,7 +404,9 @@ impl<T: Clone> WidgetManager<T> {
                             // A widget has focus.
                             if let Some(focused_widget) = &mut self.focused_widget {
                                 // Remove the selected value.
-                                focused_widget.borrow_mut().remove_selected_value()?;
+                                focused_widget
+                                    .borrow_mut()
+                                    .remove_selected_value(&mut self.shared_state)?;
                             }
                         }
                     }
@@ -416,9 +423,11 @@ impl<T: Clone> WidgetManager<T> {
                         // A widget has focus.
                         if let Some(focused_widget) = &mut self.focused_widget {
                             // Let the focused widget handle the key event.
-                            focused_widget
-                                .borrow_mut()
-                                .handle_event(event, &mut widget_events);
+                            focused_widget.borrow_mut().handle_event(
+                                &mut self.shared_state,
+                                event,
+                                &mut widget_events,
+                            );
                         }
                     }
                 }
@@ -429,9 +438,11 @@ impl<T: Clone> WidgetManager<T> {
                 // A widget has focus.
                 if let Some(focused_widget) = &mut self.focused_widget {
                     // Let the focused widget handle the key event.
-                    focused_widget
-                        .borrow_mut()
-                        .handle_event(event, &mut widget_events);
+                    focused_widget.borrow_mut().handle_event(
+                        &mut self.shared_state,
+                        event,
+                        &mut widget_events,
+                    );
                 }
 
                 return Ok(widget_events);
@@ -442,9 +453,11 @@ impl<T: Clone> WidgetManager<T> {
         // There is a main widget.
         if let Some(main_widget) = &mut self.main_widget {
             // Let the main widget handle the given user event.
-            main_widget
-                .borrow_mut()
-                .handle_event(event, &mut widget_events);
+            main_widget.borrow_mut().handle_event(
+                &mut self.shared_state,
+                event,
+                &mut widget_events,
+            );
         }
 
         // Focus handling.
@@ -504,31 +517,18 @@ impl<T: Clone> WidgetManager<T> {
     }
 
     ///
-    pub fn handle_subscribed_event(
-        &mut self,
-        event: &Event,
-        clipboard: Option<&mut Clipboard>,
-    ) -> Result<Vec<T>, WidgetError> {
-        let mut custom_widget_events = vec![];
+    pub fn handle_subscribed_widget_event(&mut self, widget_event: &WidgetEvent) -> Option<T> {
+        let (widget_id, widget_event_type) = widget_event;
 
-        // Let the widgets handle the event.
-        let widget_events = self.handle_event(event, clipboard)?;
-
-        // Iterate over the widget events.
-        for (widget_id, widget_event_type) in widget_events {
-            // The current widget has event subscriptions.
-            if let Some(custom_events) = self
-                .widget_event_subscriptions_per_widget_id
-                .get(&widget_id)
-            {
-                // There is a custom event for the current event.
-                if let Some(custom_event) = custom_events.get(&widget_event_type) {
-                    custom_widget_events.push(custom_event.clone());
-                }
+        // The current widget has event subscriptions.
+        if let Some(custom_events) = self.widget_event_subscriptions_per_widget_id.get(widget_id) {
+            // There is a custom event for the current event.
+            if let Some(custom_event) = custom_events.get(widget_event_type) {
+                return Some(custom_event.clone());
             }
         }
 
-        Ok(custom_widget_events)
+        None
     }
 
     ///
@@ -619,15 +619,18 @@ impl<T: Clone> WidgetManager<T> {
         let mut font_visited = self.style.font.clone();
         font_visited.font_color = Color::rgb8(50, 50, 100);
 
-        // Add a new hyperlink widget.
-        self.add_widget(Box::new(Hyperlink::new(
+        let widget = Hyperlink::new(
             widget_id,
             self.style.debug_rendering_stroke.clone(),
+            self.shared_state.piet_text(),
             font_unvisited,
             font_being_clicked,
             font_visited,
             text,
-        )));
+        );
+
+        // Add a new hyperlink widget.
+        self.add_widget(Box::new(widget));
 
         // Return the widget ID.
         widget_id
@@ -706,13 +709,16 @@ impl<T: Clone> WidgetManager<T> {
         // Get a new widget ID.
         let widget_id = self.next_widget_id();
 
-        // Add a new text widget.
-        self.add_widget(Box::new(Text::new(
+        let widget = Text::new(
             widget_id,
             self.style.debug_rendering_stroke.clone(),
+            self.shared_state.piet_text(),
             self.style.font.clone(),
             text,
-        )));
+        );
+
+        // Add a new text widget.
+        self.add_widget(Box::new(widget));
 
         // Return the widget ID.
         widget_id
@@ -724,16 +730,19 @@ impl<T: Clone> WidgetManager<T> {
         let widget_id = self.next_widget_id();
         let child_widget_id = self.next_widget_id();
 
+        let widget = Text::new(
+            child_widget_id,
+            self.style.debug_rendering_stroke.clone(),
+            self.shared_state.piet_text(),
+            self.style.font.clone(),
+            text,
+        );
+
         // Add a new button with a text as inner child widget.
         self.add_widget(Box::new(Button::new(
             widget_id,
             self.style.debug_rendering_stroke.clone(),
-            Rc::new(RefCell::new(Box::new(Text::new(
-                child_widget_id,
-                self.style.debug_rendering_stroke.clone(),
-                self.style.font.clone(),
-                text,
-            )))),
+            Rc::new(RefCell::new(Box::new(widget))),
             Some(PaintBrush::Color(self.style.accent_color.clone())),
             Some(self.style.frame_color.clone()),
             Some(self.style.accent_color.clone()),
@@ -748,16 +757,19 @@ impl<T: Clone> WidgetManager<T> {
         // Get a new widget ID.
         let widget_id = self.next_widget_id();
 
-        // Add a new text input widget.
-        self.add_widget(Box::new(TextInput::new(
+        let widget = TextInput::new(
             widget_id,
             self.style.debug_rendering_stroke.clone(),
+            self.shared_state.piet_text(),
             self.style.font.clone(),
             text,
             width,
             self.style.frame_color.clone(),
             self.style.accent_color.clone(),
-        )));
+        );
+
+        // Add a new text input widget.
+        self.add_widget(Box::new(widget));
 
         // Return the widget ID.
         widget_id
@@ -948,7 +960,9 @@ impl<T: Clone> WidgetManager<T> {
                     widget_box.borrow_mut().set_fill(fill)?;
                 }
                 Command::SetFont(_widget_id, font) => {
-                    widget_box.borrow_mut().set_font(font)?;
+                    widget_box
+                        .borrow_mut()
+                        .set_font(&mut self.shared_state, font)?;
                 }
                 Command::SetHasFocus(_widget_id, has_focus) => {
                     let mut widget_had_focus_already = false;
@@ -996,7 +1010,9 @@ impl<T: Clone> WidgetManager<T> {
                     widget_box.borrow_mut().set_stroke(stroke)?;
                 }
                 Command::SetValue(_widget_id, value) => {
-                    widget_box.borrow_mut().set_value(value)?;
+                    widget_box
+                        .borrow_mut()
+                        .set_value(&mut self.shared_state, value)?;
                 }
                 Command::SetVerticalAlignment(_widget_id, vertical_alignment) => {
                     widget_box

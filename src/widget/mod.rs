@@ -7,6 +7,7 @@ mod text;
 mod text_input;
 
 pub use self::core::WidgetCore;
+use crate::shared_state::SharedState;
 use crate::stroke::Stroke;
 use crate::widget_manager::WidgetBox;
 use crate::{Event, Font, HorizontalAlignment, Rect, SizeConstraints, VerticalAlignment};
@@ -114,7 +115,12 @@ pub trait Widget {
     }
 
     /// Ask the widget to handle the given event.
-    fn handle_event(&mut self, event: &Event, widget_events: &mut Vec<WidgetEvent>);
+    fn handle_event(
+        &mut self,
+        shared_state: &mut SharedState,
+        event: &Event,
+        widget_events: &mut Vec<WidgetEvent>,
+    );
 
     /// Paints the widget.
     fn paint(&self, piet: &mut piet::Piet, region: &Region) -> Result<(), piet::Error>;
@@ -139,7 +145,7 @@ pub trait Widget {
     }
 
     /// Removes the widget's selected value. This can be e.g. selected text in a `TextInput` widget.
-    fn remove_selected_value(&mut self) -> Result<(), WidgetError> {
+    fn remove_selected_value(&mut self, shared_state: &mut SharedState) -> Result<(), WidgetError> {
         Err(WidgetError::NotHandled {
             widget_id: self.widget_id().clone(),
             description: "`remove_selected_value()`".to_string(),
@@ -176,7 +182,11 @@ pub trait Widget {
     }
 
     /// Sets the widget's font.
-    fn set_font(&mut self, _font: Font) -> Result<(), WidgetError> {
+    fn set_font(
+        &mut self,
+        _shared_state: &mut SharedState,
+        _font: Font,
+    ) -> Result<(), WidgetError> {
         Err(WidgetError::NotHandled {
             widget_id: self.widget_id().clone(),
             description: "`set_font()`".to_string(),
@@ -212,8 +222,12 @@ pub trait Widget {
     fn set_origin(&mut self, origin: Point);
 
     /// Sets the widget's selected value. This can be e.g. selected text in a `TextInput` widget.
-    fn set_selected_value(&mut self, value: Box<dyn Any>) -> Result<(), WidgetError> {
-        self.set_value(value)
+    fn set_selected_value(
+        &mut self,
+        shared_state: &mut SharedState,
+        value: Box<dyn Any>,
+    ) -> Result<(), WidgetError> {
+        self.set_value(shared_state, value)
     }
 
     /// Sets the widget's stroke.
@@ -225,7 +239,11 @@ pub trait Widget {
     }
 
     /// Sets the widget's value.
-    fn set_value(&mut self, _value: Box<dyn Any>) -> Result<(), WidgetError> {
+    fn set_value(
+        &mut self,
+        _shared_state: &mut SharedState,
+        _value: Box<dyn Any>,
+    ) -> Result<(), WidgetError> {
         Err(WidgetError::NotHandled {
             widget_id: self.widget_id().clone(),
             description: "`srt_value()`".to_string(),

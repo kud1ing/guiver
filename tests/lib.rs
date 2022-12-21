@@ -4,7 +4,8 @@ mod tests {
     use guiver::widget::layout::{Center, Column, Padding, Row, SizedBox};
     use guiver::widget::{Button, Hyperlink, Placeholder, Text, TextInput};
     use guiver::{
-        Color, Font, HorizontalAlignment, SizeConstraints, Stroke, VerticalAlignment, Widget,
+        piet_text, Color, Font, HorizontalAlignment, SizeConstraints, Stroke, VerticalAlignment,
+        Widget,
     };
     use std::cell::RefCell;
     use std::rc::Rc;
@@ -120,6 +121,8 @@ mod tests {
 
     /// Returns the non-layout widgets.
     fn widgets_non_layout() -> Vec<Box<dyn Widget>> {
+        let mut piet_text = piet_text();
+
         vec![
             // Add a text button widget.
             Box::new(Button::new(
@@ -128,6 +131,7 @@ mod tests {
                 Rc::new(RefCell::new(Box::new(Text::new(
                     101,
                     Stroke::default(),
+                    &mut piet_text,
                     Font::default(),
                     "Button text".to_string(),
                 )))),
@@ -145,6 +149,7 @@ mod tests {
             Box::new(Hyperlink::new(
                 103,
                 Stroke::default(),
+                &mut piet_text,
                 Font::default(),
                 Font::default(),
                 Font::default(),
@@ -154,6 +159,7 @@ mod tests {
             Box::new(Text::new(
                 104,
                 Stroke::default(),
+                &mut piet_text,
                 Font::default(),
                 "Test text".to_string(),
             )),
@@ -161,6 +167,7 @@ mod tests {
             Box::new(TextInput::new(
                 105,
                 Stroke::default(),
+                &mut piet_text,
                 Font::default(),
                 "Text input".to_string(),
                 100.0,

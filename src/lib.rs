@@ -2,6 +2,7 @@ mod alignment;
 mod application;
 mod event;
 mod font;
+mod shared_state;
 pub mod size_constraints;
 mod stroke;
 mod style;
@@ -20,7 +21,7 @@ pub use druid_shell::piet::{
 };
 pub use druid_shell::{Clipboard, Region};
 pub use event::Event;
-pub use font::Font;
+pub use font::{piet_text, Font};
 pub use kurbo::{Line, Point};
 pub use size_constraints::SizeConstraints;
 pub use stroke::Stroke;

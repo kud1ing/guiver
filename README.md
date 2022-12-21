@@ -96,12 +96,16 @@ The developer code can handle those widget events.
 ## Backlog
 
 * Text:
+  * `test_selected_text_replaced()`:
+    * [ ] fix
+    * [ ] add a test case using umlauts
+  * [ ] `test_selected_text()`: add a test case using umlauts
   * [ ] `test_text_inserted()`: implement
+    *  add a test case using umlauts
   * [ ] `TextInput::set_selected_value()`: implement
   * determine the graphical positions:
     * [TextLayout::hit_test_text_position(())](https://docs.rs/druid/latest/druid/piet/trait.TextLayout.html#tymethod.hit_test_text_position)
       * [HitTestPosition](https://docs.rs/druid/latest/druid/piet/struct.HitTestPosition.html)
-      * https://doc.rust-lang.org/std/primitive.str.html#method.is_char_boundary
     * [ ] text cursor
     * [ ] text selection
   * [ ] `paint()`: paint the cursor
@@ -125,7 +129,6 @@ The developer code can handle those widget events.
     * `usize`? (8 bytes)
     * UUID? (16 bytes)
     * String? (>= 24 bytes)
-* [ ] `Hyperlink`: cache the two main `TextLayout`s to speed up mouse down/up
 * [ ] move `WidgetManager::focused_widget` to `WidgetFocusOrder`?
 * [ ] publish 0.1.1, once the updated `druid-shell` >0.7.0 is [released](https://github.com/linebender/druid/issues/2236)
 * [ ] make `Text` selectable:

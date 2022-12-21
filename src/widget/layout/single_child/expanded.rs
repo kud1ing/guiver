@@ -1,3 +1,4 @@
+use crate::shared_state::SharedState;
 use crate::widget::core::WidgetCore;
 use crate::widget::{WidgetError, WidgetPlacement};
 use crate::widget_manager::WidgetBox;
@@ -73,10 +74,17 @@ impl Widget for Expanded {
         self.flex_factor
     }
 
-    fn handle_event(&mut self, event: &Event, widget_events: &mut Vec<WidgetEvent>) {
+    fn handle_event(
+        &mut self,
+        shared_state: &mut SharedState,
+        event: &Event,
+        widget_events: &mut Vec<WidgetEvent>,
+    ) {
         // There is a child widget.
         if let Some(child_widget) = &mut self.child_widget {
-            child_widget.borrow_mut().handle_event(event, widget_events);
+            child_widget
+                .borrow_mut()
+                .handle_event(shared_state, event, widget_events);
         }
     }
 

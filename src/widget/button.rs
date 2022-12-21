@@ -1,3 +1,4 @@
+use crate::shared_state::SharedState;
 use crate::stroke::Stroke;
 use crate::widget::core::WidgetCore;
 use crate::widget::{WidgetError, WidgetEventType, WidgetPlacement};
@@ -140,7 +141,12 @@ impl Widget for Button {
         self.core.rectangle.size()
     }
 
-    fn handle_event(&mut self, event: &Event, widget_events: &mut Vec<WidgetEvent>) {
+    fn handle_event(
+        &mut self,
+        _shared_state: &mut SharedState,
+        event: &Event,
+        widget_events: &mut Vec<WidgetEvent>,
+    ) {
         match event {
             Event::KeyDown(key_event) => {
                 if key_event.key == KbKey::Enter {
@@ -269,9 +275,9 @@ impl Widget for Button {
         Ok(())
     }
 
-    fn set_font(&mut self, font: Font) -> Result<(), WidgetError> {
+    fn set_font(&mut self, shared_state: &mut SharedState, font: Font) -> Result<(), WidgetError> {
         if let Some(child_widget) = &mut self.child_widget {
-            child_widget.borrow_mut().set_font(font)?;
+            child_widget.borrow_mut().set_font(shared_state, font)?;
         }
 
         Ok(())
@@ -312,7 +318,11 @@ impl Widget for Button {
         Ok(())
     }
 
-    fn set_value(&mut self, _value: Box<dyn Any>) -> Result<(), WidgetError> {
+    fn set_value(
+        &mut self,
+        _shared_state: &mut SharedState,
+        _value: Box<dyn Any>,
+    ) -> Result<(), WidgetError> {
         // TODO
         println!("`Button::set_value()`: TODO");
 

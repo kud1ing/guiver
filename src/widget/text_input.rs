@@ -1,3 +1,4 @@
+use crate::shared_state::SharedState;
 use crate::stroke::Stroke;
 use crate::widget::core::WidgetCore;
 use crate::widget::{Text, WidgetError, WidgetEventType};
@@ -6,7 +7,7 @@ use crate::{
     WidgetId,
 };
 use druid_shell::kurbo::{Line, Point, Rect, RoundedRect, Size};
-use druid_shell::piet::{Color, Error, PaintBrush, Piet, RenderContext};
+use druid_shell::piet::{Color, Error, PaintBrush, Piet, PietText, RenderContext};
 use druid_shell::{KbKey, Region};
 use std::any::Any;
 use std::borrow::BorrowMut;
@@ -36,6 +37,7 @@ impl TextInput {
     pub fn new(
         widget_id: WidgetId,
         debug_rendering_stroke: Stroke,
+        piet_text: &mut PietText,
         font: Font,
         text: impl Into<String>,
         width: f64,
@@ -68,15 +70,25 @@ impl TextInput {
                 stroke_width: 1.0,
             },
             text: text.clone(),
-            text_widget: Text::new(child_widget_id, debug_rendering_stroke, font, text),
+            text_widget: Text::new(
+                child_widget_id,
+                debug_rendering_stroke,
+                piet_text,
+                font,
+                text,
+            ),
             width,
         }
     }
 
     ///
-    fn broadcast_modified_text(&mut self, widget_events: &mut Vec<WidgetEvent>) {
+    fn broadcast_modified_text(
+        &mut self,
+        shared_state: &mut SharedState,
+        widget_events: &mut Vec<WidgetEvent>,
+    ) {
         // Pass the updated text to the child text widget.
-        self.update_text_widget();
+        self.update_text_widget(shared_state);
 
         // Inform the world that the text has changed.
         widget_events.push((self.core.widget_id, WidgetEventType::ValueChanged));
@@ -164,11 +176,11 @@ impl TextInput {
     }
 
     ///
-    fn update_text_widget(&mut self) {
+    fn update_text_widget(&mut self, shared_state: &mut SharedState) {
         // Pass the updated text to the child text widget.
         self.text_widget
             .borrow_mut()
-            .set_value(Box::new(self.text.clone()))
+            .set_value(shared_state, Box::new(self.text.clone()))
             .unwrap();
 
         // Update the caret index, if necessary.
@@ -193,11 +205,17 @@ impl Widget for TextInput {
         self.core.rectangle.size()
     }
 
-    fn handle_event(&mut self, event: &Event, widget_events: &mut Vec<WidgetEvent>) {
+    fn handle_event(
+        &mut self,
+        shared_state: &mut SharedState,
+        event: &Event,
+        widget_events: &mut Vec<WidgetEvent>,
+    ) {
         match event {
             Event::ClipboardPaste(string) => {
                 // TODO: error handling
-                self.set_selected_value(Box::new(string.clone())).unwrap();
+                self.set_selected_value(shared_state, Box::new(string.clone()))
+                    .unwrap();
             }
             Event::KeyDown(key_event) => match &key_event.key {
                 KbKey::Character(chracter_string) => {
@@ -205,7 +223,7 @@ impl Widget for TextInput {
                     self.text.push_str(chracter_string);
 
                     // Apply the text changes.
-                    self.broadcast_modified_text(widget_events);
+                    self.broadcast_modified_text(shared_state, widget_events);
                 }
                 KbKey::Backspace => {
                     if !self.text.is_empty() {
@@ -216,7 +234,7 @@ impl Widget for TextInput {
                     }
 
                     // Apply the text changes.
-                    self.broadcast_modified_text(widget_events);
+                    self.broadcast_modified_text(shared_state, widget_events);
                 }
                 KbKey::Enter => {
                     // Enter on a (focused) text input submits the value.
@@ -302,10 +320,10 @@ impl Widget for TextInput {
         &self.core.rectangle
     }
 
-    fn remove_selected_value(&mut self) -> Result<(), WidgetError> {
+    fn remove_selected_value(&mut self, shared_state: &mut SharedState) -> Result<(), WidgetError> {
         // TODO
         println!("`TextInput::remove_selected_value()`: TODO");
-        self.set_value(Box::new("".to_string()))
+        self.set_value(shared_state, Box::new("".to_string()))
     }
 
     fn selected_value(&self) -> Option<Box<dyn Any>> {
@@ -321,8 +339,8 @@ impl Widget for TextInput {
         Ok(())
     }
 
-    fn set_font(&mut self, font: Font) -> Result<(), WidgetError> {
-        self.text_widget.set_font(font)
+    fn set_font(&mut self, shared_state: &mut SharedState, font: Font) -> Result<(), WidgetError> {
+        self.text_widget.set_font(shared_state, font)
     }
 
     fn set_has_focus(&mut self, has_focus: bool) -> Result<(), WidgetError> {
@@ -360,19 +378,27 @@ impl Widget for TextInput {
         Ok(())
     }
 
-    fn set_selected_value(&mut self, value: Box<dyn Any>) -> Result<(), WidgetError> {
+    fn set_selected_value(
+        &mut self,
+        shared_state: &mut SharedState,
+        value: Box<dyn Any>,
+    ) -> Result<(), WidgetError> {
         // TODO
         println!("`TextInput::set_selected_value()`: TODO");
-        self.set_value(value)
+        self.set_value(shared_state, value)
     }
 
-    fn set_value(&mut self, value: Box<dyn Any>) -> Result<(), WidgetError> {
+    fn set_value(
+        &mut self,
+        shared_state: &mut SharedState,
+        value: Box<dyn Any>,
+    ) -> Result<(), WidgetError> {
         // The given value is a string.
         if let Some(string) = value.downcast_ref::<String>() {
             self.text = string.clone();
 
             // Apply the text changes.
-            self.update_text_widget();
+            self.update_text_widget(shared_state);
         }
 
         Ok(())

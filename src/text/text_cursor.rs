@@ -13,34 +13,61 @@ pub(crate) fn left_character_removed(mut text: String, text_cursor: &TextCursor)
         return text;
     }
 
+    let mut left_char_boundary = text_cursor.left_of_byte_index - 1;
+    let mut right_char_boundary = text_cursor.left_of_byte_index;
+
+    // Find valid character boundaries.
+    {
+        while !text.is_char_boundary(right_char_boundary) && right_char_boundary > 0 {
+            right_char_boundary -= 1;
+        }
+
+        while !text.is_char_boundary(left_char_boundary) && left_char_boundary > 0 {
+            left_char_boundary -= 1;
+        }
+    }
+
     // Remove the character.
-    text.replace_range(
-        text_cursor.left_of_byte_index - 1..text_cursor.left_of_byte_index,
-        "",
-    );
+    text.replace_range(left_char_boundary..right_char_boundary, "");
 
     text
 }
 
 ///
 pub(crate) fn right_character_removed(mut text: String, text_cursor: &TextCursor) -> String {
+    let mut left_char_boundary = text_cursor.left_of_byte_index;
+    let mut right_char_boundary = text_cursor.left_of_byte_index + 1;
+
+    // Find valid character boundaries.
+    {
+        while !text.is_char_boundary(right_char_boundary) && right_char_boundary > 0 {
+            right_char_boundary += 1;
+        }
+
+        while !text.is_char_boundary(left_char_boundary) && left_char_boundary > 0 {
+            left_char_boundary += 1;
+        }
+    }
+
     // The text cursor is out of range.
-    if text_cursor.left_of_byte_index >= text.len() {
+    if left_char_boundary >= text.len() {
         return text;
     }
 
+    // The text cursor is out of range.
+    if right_char_boundary >= text.len() {
+        right_char_boundary = text.len();
+    }
+
     // Remove the character.
-    text.replace_range(
-        text_cursor.left_of_byte_index..text_cursor.left_of_byte_index + 1,
-        "",
-    );
+    text.replace_range(left_char_boundary..right_char_boundary, "");
 
     text
 }
 
 ///
 pub(crate) fn text_inserted(
-    mut text: String,
+    text: String,
     text_cursor: &TextCursor,
     insertion_text: &str,
 ) -> String {
@@ -104,6 +131,15 @@ mod tests {
                     ),
                     "abc".to_string()
                 );
+                assert_eq!(
+                    left_character_removed(
+                        "äbc".to_string(),
+                        &TextCursor {
+                            left_of_byte_index: 1
+                        },
+                    ),
+                    "äbc".to_string()
+                );
             }
         }
 
@@ -135,6 +171,15 @@ mod tests {
                     },
                 ),
                 "ab".to_string()
+            );
+            assert_eq!(
+                left_character_removed(
+                    "äbc".to_string(),
+                    &TextCursor {
+                        left_of_byte_index: 2
+                    },
+                ),
+                "bc".to_string()
             );
         }
     }
@@ -185,6 +230,15 @@ mod tests {
                     ),
                     "abc".to_string()
                 );
+                assert_eq!(
+                    right_character_removed(
+                        "äbc".to_string(),
+                        &TextCursor {
+                            left_of_byte_index: 1
+                        },
+                    ),
+                    "bc".to_string()
+                );
             }
         }
 
@@ -216,6 +270,24 @@ mod tests {
                     },
                 ),
                 "ab".to_string()
+            );
+            assert_eq!(
+                right_character_removed(
+                    "äbc".to_string(),
+                    &TextCursor {
+                        left_of_byte_index: 0
+                    },
+                ),
+                "bc".to_string()
+            );
+            assert_eq!(
+                right_character_removed(
+                    "äbc".to_string(),
+                    &TextCursor {
+                        left_of_byte_index: 2
+                    },
+                ),
+                "äc".to_string()
             );
         }
     }

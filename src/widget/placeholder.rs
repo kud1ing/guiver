@@ -1,3 +1,4 @@
+use crate::shared_state::SharedState;
 use crate::stroke::Stroke;
 use crate::widget::core::WidgetCore;
 use crate::widget::{WidgetError, WidgetId};
@@ -47,7 +48,12 @@ impl Widget for Placeholder {
         self.core.rectangle.size()
     }
 
-    fn handle_event(&mut self, _event: &Event, _widget_events: &mut Vec<WidgetEvent>) {
+    fn handle_event(
+        &mut self,
+        _shared_state: &mut SharedState,
+        _event: &Event,
+        _widget_events: &mut Vec<WidgetEvent>,
+    ) {
         // Nothing to do.
     }
 

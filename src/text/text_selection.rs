@@ -24,26 +24,34 @@ fn normalized_indices(text: &str, text_selection: &TextSelection) -> (usize, usi
             )
         };
 
+    // Find valid character boundaries.
+    {
+        while !text.is_char_boundary(left_of_byte_index_begin) && left_of_byte_index_begin > 0 {
+            left_of_byte_index_begin -= 1;
+        }
+
+        while !text.is_char_boundary(left_of_byte_index_end) && left_of_byte_index_end > 0 {
+            left_of_byte_index_end -= 1;
+        }
+    }
+
     // Trim the selection.
     if left_of_byte_index_end > text.len() {
         left_of_byte_index_end = text.len();
     }
 
+    // TODO: use `str::is_char_boundary()`
+
     (left_of_byte_index_begin, left_of_byte_index_end)
 }
 
 /// Tries to return a sub-string as defined by the given text selection.
-pub(crate) fn selected_text<'a>(text: &'a str, text_selection: &TextSelection) -> Option<&'a str> {
+pub(crate) fn selected_text<'a>(text: &'a str, text_selection: &TextSelection) -> &'a str {
     // Normalize the indices.
     let (left_of_byte_index_begin, left_of_byte_index_end) =
         normalized_indices(text, text_selection);
 
-    // The selection is out of range.
-    if left_of_byte_index_begin > text.len() {
-        return None;
-    }
-
-    Some(&text[left_of_byte_index_begin..left_of_byte_index_end])
+    &text[left_of_byte_index_begin..left_of_byte_index_end]
 }
 
 /// Tries to replace a sub-string as defined by the given text selection.
@@ -88,7 +96,7 @@ mod tests {
                             left_of_byte_index_end: 20,
                         }
                     ),
-                    None
+                    ""
                 );
                 assert_eq!(
                     selected_text(
@@ -98,7 +106,7 @@ mod tests {
                             left_of_byte_index_end: 10,
                         }
                     ),
-                    None
+                    ""
                 );
             }
 
@@ -112,7 +120,7 @@ mod tests {
                             left_of_byte_index_end: 20,
                         }
                     ),
-                    None
+                    ""
                 );
                 assert_eq!(
                     selected_text(
@@ -122,7 +130,7 @@ mod tests {
                             left_of_byte_index_end: 10,
                         }
                     ),
-                    None
+                    ""
                 );
             }
         }
@@ -139,7 +147,7 @@ mod tests {
                             left_of_byte_index_end: 0,
                         }
                     ),
-                    Some("")
+                    ""
                 );
                 assert_eq!(
                     selected_text(
@@ -149,7 +157,7 @@ mod tests {
                             left_of_byte_index_end: 10,
                         }
                     ),
-                    Some("")
+                    ""
                 );
 
                 assert_eq!(
@@ -160,7 +168,7 @@ mod tests {
                             left_of_byte_index_end: 1,
                         }
                     ),
-                    Some("")
+                    ""
                 );
             }
 
@@ -175,7 +183,7 @@ mod tests {
                                 left_of_byte_index_end: 1,
                             }
                         ),
-                        Some("a")
+                        "a"
                     );
                     assert_eq!(
                         selected_text(
@@ -185,7 +193,7 @@ mod tests {
                                 left_of_byte_index_end: 0,
                             }
                         ),
-                        Some("a")
+                        "a"
                     );
                 }
 
@@ -198,7 +206,7 @@ mod tests {
                                 left_of_byte_index_end: 2,
                             }
                         ),
-                        Some("ab")
+                        "ab"
                     );
                     assert_eq!(
                         selected_text(
@@ -208,7 +216,7 @@ mod tests {
                                 left_of_byte_index_end: 0,
                             }
                         ),
-                        Some("ab")
+                        "ab"
                     );
                 }
 
@@ -221,7 +229,7 @@ mod tests {
                                 left_of_byte_index_end: 3,
                             }
                         ),
-                        Some("abc")
+                        "abc"
                     );
                     assert_eq!(
                         selected_text(
@@ -231,7 +239,7 @@ mod tests {
                                 left_of_byte_index_end: 0,
                             }
                         ),
-                        Some("abc")
+                        "abc"
                     );
                 }
 
@@ -244,7 +252,7 @@ mod tests {
                                 left_of_byte_index_end: 10,
                             }
                         ),
-                        Some("abc")
+                        "abc"
                     );
                     assert_eq!(
                         selected_text(
@@ -254,7 +262,7 @@ mod tests {
                                 left_of_byte_index_end: 0,
                             }
                         ),
-                        Some("abc")
+                        "abc"
                     );
                 }
 
@@ -266,7 +274,7 @@ mod tests {
                             left_of_byte_index_end: 2,
                         }
                     ),
-                    Some("b")
+                    "b"
                 );
             }
         }

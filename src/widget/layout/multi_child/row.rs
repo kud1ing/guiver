@@ -1,3 +1,4 @@
+use crate::shared_state::SharedState;
 use crate::stroke::Stroke;
 use crate::widget::core::WidgetCore;
 use crate::widget::{WidgetError, WidgetId, WidgetPlacement};
@@ -192,11 +193,16 @@ impl Widget for Row {
         self.core.rectangle.size()
     }
 
-    fn handle_event(&mut self, event: &Event, widget_events: &mut Vec<WidgetEvent>) {
+    fn handle_event(
+        &mut self,
+        shared_state: &mut SharedState,
+        event: &Event,
+        widget_events: &mut Vec<WidgetEvent>,
+    ) {
         // Iterate over the child widgets.
         for child_widget in &mut self.child_widgets {
             // Let the current child widget handle the given event.
-            RefCell::borrow_mut(child_widget).handle_event(event, widget_events);
+            RefCell::borrow_mut(child_widget).handle_event(shared_state, event, widget_events);
         }
     }
 

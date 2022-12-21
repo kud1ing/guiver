@@ -1,4 +1,5 @@
 use crate::font::Font;
+use crate::shared_state::SharedState;
 use crate::stroke::Stroke;
 use crate::widget::core::WidgetCore;
 use crate::widget::{WidgetError, WidgetEventType, WidgetId};
@@ -6,7 +7,7 @@ use crate::{
     Event, HorizontalAlignment, PaintBrush, SizeConstraints, VerticalAlignment, Widget, WidgetEvent,
 };
 use druid_shell::kurbo::{Point, Rect, Size};
-use druid_shell::piet::{Piet, PietTextLayout, RenderContext, TextLayout};
+use druid_shell::piet::{Piet, PietText, PietTextLayout, RenderContext, TextLayout};
 use druid_shell::{piet, Region};
 use std::any::Any;
 
@@ -26,6 +27,7 @@ impl Text {
     pub fn new(
         widget_id: WidgetId,
         debug_rendering_stroke: Stroke,
+        piet_text: &mut PietText,
         font: Font,
         text: impl Into<String>,
     ) -> Self {
@@ -36,7 +38,7 @@ impl Text {
             font: font.clone(),
             horizontal_alignment: HorizontalAlignment::Center,
             text: text.clone(),
-            text_layout: font.text_layout(text),
+            text_layout: font.text_layout(piet_text, text),
             text_origin: Point::default(),
             vertical_alignment: VerticalAlignment::Middle,
         }
@@ -92,7 +94,12 @@ impl Widget for Text {
         self.core.rectangle.size()
     }
 
-    fn handle_event(&mut self, event: &Event, widget_events: &mut Vec<WidgetEvent>) {
+    fn handle_event(
+        &mut self,
+        _shared_state: &mut SharedState,
+        event: &Event,
+        widget_events: &mut Vec<WidgetEvent>,
+    ) {
         if let Event::MouseDown(mouse_event) = event {
             // The click is outside of the text.
             if !self.core.rectangle.contains(mouse_event.pos) {
@@ -151,11 +158,11 @@ impl Widget for Text {
         Ok(())
     }
 
-    fn set_font(&mut self, font: Font) -> Result<(), WidgetError> {
+    fn set_font(&mut self, shared_state: &mut SharedState, font: Font) -> Result<(), WidgetError> {
         self.font = font;
-
-        // TODO: How to update the font without recreating the text layout?
-        self.text_layout = self.font.text_layout(self.text.clone());
+        self.text_layout = self
+            .font
+            .text_layout(shared_state.piet_text(), self.text.clone());
 
         self.layout_text();
 
@@ -190,7 +197,11 @@ impl Widget for Text {
         Ok(())
     }
 
-    fn set_value(&mut self, value: Box<dyn Any>) -> Result<(), WidgetError> {
+    fn set_value(
+        &mut self,
+        shared_state: &mut SharedState,
+        value: Box<dyn Any>,
+    ) -> Result<(), WidgetError> {
         // The given value is a string.
         if let Some(string) = value.downcast_ref::<String>() {
             self.text = string.clone();
@@ -200,7 +211,9 @@ impl Widget for Text {
             self.text = format!("{:?}", value);
         }
 
-        self.text_layout = self.font.text_layout(self.text.clone());
+        self.text_layout = self
+            .font
+            .text_layout(shared_state.piet_text(), self.text.clone());
         self.layout_text();
 
         Ok(())
@@ -239,6 +252,7 @@ impl Widget for Text {
 
 #[cfg(test)]
 mod tests {
+    use crate::font::piet_text;
     use crate::widget::Text;
     use crate::{Font, SizeConstraints, Stroke, Widget};
 
@@ -246,7 +260,14 @@ mod tests {
     fn test_apply_size_constraints() {
         // Create the text widget.
         let font = Font::default();
-        let mut text_widget = Text::new(0, Stroke::default(), font.clone(), "Test text");
+        let mut piet_text = piet_text();
+        let mut text_widget = Text::new(
+            0,
+            Stroke::default(),
+            &mut piet_text,
+            font.clone(),
+            "Test text",
+        );
 
         // Apply an unbounded `SizeConstraints`.
         {

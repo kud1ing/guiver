@@ -1,7 +1,8 @@
+use crate::shared_state::SharedState;
 use crate::widget::{Text, WidgetError, WidgetEventType};
 use crate::{Event, Font, Piet, Size, SizeConstraints, Stroke, Widget, WidgetEvent, WidgetId};
 use druid_shell::kurbo::{Point, Rect};
-use druid_shell::piet::Error;
+use druid_shell::piet::{Error, PietText};
 use druid_shell::Region;
 use std::borrow::BorrowMut;
 
@@ -25,6 +26,7 @@ impl Hyperlink {
     pub fn new(
         widget_id: WidgetId,
         debug_rendering_stroke: Stroke,
+        piet_text: &mut PietText,
         mut font_unvisited: Font,
         mut font_being_clicked: Font,
         mut font_visited: Font,
@@ -39,13 +41,19 @@ impl Hyperlink {
             font_is_being_clicked: font_being_clicked,
             font_normal: font_unvisited.clone(),
             font_was_visited: font_visited,
-            text_widget: Text::new(widget_id, debug_rendering_stroke, font_unvisited, text),
+            text_widget: Text::new(
+                widget_id,
+                debug_rendering_stroke,
+                piet_text,
+                font_unvisited,
+                text,
+            ),
             was_visited: false,
         }
     }
 
     ///
-    fn set_is_being_clicked(&mut self, is_being_clicked: bool) {
+    fn set_is_being_clicked(&mut self, shared_state: &mut SharedState, is_being_clicked: bool) {
         self.is_being_clicked = is_being_clicked;
 
         // The hyperlink is being clicked.
@@ -53,7 +61,7 @@ impl Hyperlink {
             // Set the "is being clicked" font.
             self.text_widget
                 .borrow_mut()
-                .set_font(self.font_is_being_clicked.clone())
+                .set_font(shared_state, self.font_is_being_clicked.clone())
                 .unwrap();
         }
         // The hyperlink is not being clicked anymore.
@@ -63,27 +71,27 @@ impl Hyperlink {
                 // Set the "was visited" font.
                 self.text_widget
                     .borrow_mut()
-                    .set_font(self.font_was_visited.clone())
+                    .set_font(shared_state, self.font_was_visited.clone())
                     .unwrap();
             } else {
                 // Set the "normal" font.
                 self.text_widget
                     .borrow_mut()
-                    .set_font(self.font_normal.clone())
+                    .set_font(shared_state, self.font_normal.clone())
                     .unwrap();
             }
         }
     }
 
     ///
-    fn set_was_visited(&mut self) {
+    fn set_was_visited(&mut self, shared_state: &mut SharedState) {
         self.is_being_clicked = false;
         self.was_visited = true;
 
         // Set the "was visited" font.
         self.text_widget
             .borrow_mut()
-            .set_font(self.font_was_visited.clone());
+            .set_font(shared_state, self.font_was_visited.clone());
     }
 }
 
@@ -92,17 +100,22 @@ impl Widget for Hyperlink {
         self.text_widget.apply_size_constraints(size_constraints)
     }
 
-    fn handle_event(&mut self, event: &Event, widget_events: &mut Vec<WidgetEvent>) {
+    fn handle_event(
+        &mut self,
+        shared_state: &mut SharedState,
+        event: &Event,
+        widget_events: &mut Vec<WidgetEvent>,
+    ) {
         match event {
             Event::MouseDown(mouse_event) => {
                 // The click is outside of the text.
                 if !self.text_widget.rectangle().contains(mouse_event.pos) {
-                    self.set_is_being_clicked(false);
+                    self.set_is_being_clicked(shared_state, false);
                     return;
                 }
 
                 // The hyperlink is being clicked.
-                self.set_is_being_clicked(true);
+                self.set_is_being_clicked(shared_state, true);
 
                 widget_events.push((
                     self.text_widget.widget_id().clone(),
@@ -113,16 +126,21 @@ impl Widget for Hyperlink {
                 // The click is outside of the text.
                 if !self.text_widget.rectangle().contains(mouse_event.pos) {
                     // The hyperlink is not being clicked.
-                    self.set_is_being_clicked(false);
+                    self.set_is_being_clicked(shared_state, false);
 
                     return;
                 }
 
                 if self.is_being_clicked {
-                    self.set_was_visited();
+                    self.set_was_visited(shared_state);
+
+                    widget_events.push((
+                        self.text_widget.widget_id().clone(),
+                        WidgetEventType::Submitted,
+                    ));
                 } else {
                     // The hyperlink is not being clicked.
-                    self.set_is_being_clicked(false);
+                    self.set_is_being_clicked(shared_state, false);
                 }
             }
             _ => {}
