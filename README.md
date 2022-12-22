@@ -95,6 +95,7 @@ The developer code can handle those widget events.
 
 ## Backlog
 
+* [ ] introduce a cargo workspace, separating the Piet/Druid dependent backend
 * Text:
   * `test_selected_text_replaced()`:
     * [ ] fix
@@ -116,6 +117,10 @@ The developer code can handle those widget events.
   * [ ] `TextInput`: Meta+X should cut the selected text
   * [ ] `TextInput`: if a text is too large to fit in, the size of the text input should not increase but truncate
   * [ ] `TextInput::handle_event()`: select the whole text on double click
+* [ ] inform the Piet widgets about the event subscriptions so that they only produces values for them
+  * the widget manager needs the `WidgetEventType::GainedFocus`/`WidgetEventType::LostFocus` at all times
+* [ ] add support for scrolling
+  * [ ] how?
 * [ ] `test::widgets_layout()`: add remaining layout widgets
 * [ ] `test::widgets()`: add child widgets to the layout widgets
 * [ ] use `WidgetId`s that are independent of a `WidgetManager`
@@ -130,7 +135,7 @@ The developer code can handle those widget events.
     * UUID? (16 bytes)
     * String? (>= 24 bytes)
 * [ ] move `WidgetManager::focused_widget` to `WidgetFocusOrder`?
-* [ ] publish 0.1.1, once the updated `druid-shell` >0.7.0 is [released](https://github.com/linebender/druid/issues/2236)
+* [ ] publish 0.1.1, once the updated `druid-shell` >0.7.0 is [released](https://github.com/linebender)
 * [ ] make `Text` selectable:
   * [ ] via double click
     * [ ] how?
