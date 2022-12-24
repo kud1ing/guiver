@@ -1,4 +1,4 @@
-use guiver::{run, Application, Clipboard, Command, Event, Piet, Region, Size, WidgetManager};
+use guiver_piet::{run, Application, Clipboard, Command, Event, Piet, Region, Size, WidgetManager};
 
 pub(crate) struct App {
     widget_manager: WidgetManager<()>,
@@ -10,10 +10,13 @@ impl App {
 
         // Create the widgets.
         let padding = widget_manager.new_padding();
+        let column = widget_manager.new_column();
+        let text = widget_manager.new_text("The placeholders are expanded");
         let row = widget_manager.new_row();
+        let expanded1 = widget_manager.new_expanded(1);
+        let expanded2 = widget_manager.new_expanded(1);
         let placeholder1 = widget_manager.new_placeholder(Size::new(100.0, 50.0));
         let placeholder2 = widget_manager.new_placeholder(Size::new(100.0, 50.0));
-        let placeholder3 = widget_manager.new_placeholder(Size::new(100.0, 50.0));
 
         // Compose the widgets.
         widget_manager
@@ -22,22 +25,37 @@ impl App {
                 Command::AddChild {
                     parent_widget_id: padding,
                     widget_placement: None,
+                    child_widget_id: column,
+                },
+                Command::AddChild {
+                    parent_widget_id: column,
+                    widget_placement: None,
                     child_widget_id: row,
                 },
                 Command::AddChild {
                     parent_widget_id: row,
                     widget_placement: None,
+                    child_widget_id: text,
+                },
+                Command::AddChild {
+                    parent_widget_id: row,
+                    widget_placement: None,
+                    child_widget_id: expanded1,
+                },
+                Command::AddChild {
+                    parent_widget_id: expanded1,
+                    widget_placement: None,
                     child_widget_id: placeholder1,
                 },
                 Command::AddChild {
-                    parent_widget_id: row,
+                    parent_widget_id: column,
                     widget_placement: None,
-                    child_widget_id: placeholder2,
+                    child_widget_id: expanded2,
                 },
                 Command::AddChild {
-                    parent_widget_id: row,
+                    parent_widget_id: expanded2,
                     widget_placement: None,
-                    child_widget_id: placeholder3,
+                    child_widget_id: placeholder2,
                 },
             ])
             .unwrap();
@@ -60,5 +78,5 @@ impl Application for App {
 }
 
 pub fn main() {
-    run(Box::new(App::new()), "row", (400.0, 200.0).into());
+    run(Box::new(App::new()), "expanded", (300.0, 150.0).into());
 }

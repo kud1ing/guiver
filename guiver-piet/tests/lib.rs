@@ -1,9 +1,9 @@
 #[cfg(test)]
 mod tests {
     use druid_shell::kurbo::Size;
-    use guiver::widget::layout::{Center, Column, Padding, Row, SizedBox};
-    use guiver::widget::{Button, Hyperlink, Placeholder, Text, TextInput};
-    use guiver::{
+    use guiver_piet::widget::layout::{Center, Column, Padding, Row, SizedBox};
+    use guiver_piet::widget::{Button, Hyperlink, Placeholder, Text, TextInput};
+    use guiver_piet::{
         piet_text, Color, Font, HorizontalAlignment, SizeConstraints, Stroke, VerticalAlignment,
         Widget,
     };

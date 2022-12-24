@@ -13,7 +13,7 @@ The widgets are decoupled from the application data via message passing. This is
 [Tk commands](https://www.tcl.tk/man/tcl/TkCmd/contents.html) and egui.
 The widget size constraint system and some layout widgets are influenced by [Flutter](https://flutter.dev).
 
-The [example code](examples/) may appear a bit verbose.
+The [example code](guiver-piet/examples/) may appear a bit verbose.
 On the upside you get simple setup and simple control flow.
 
 <!-- center -->
@@ -95,7 +95,7 @@ The developer code can handle those widget events.
 
 ## Backlog
 
-* [ ] introduce a cargo workspace, separating the Piet/Druid dependent backend
+* [ ] split off the Piet/Druid dependent backend
 * Text:
   * `test_selected_text_replaced()`:
     * [ ] fix
@@ -226,8 +226,8 @@ See also ["So you want to write a GUI framework"](https://www.cmyr.net/blog/gui-
 ## License
 
 Licensed under either of
-* Apache License, Version 2.0 ([LICENSE-APACHE](LICENSE-APACHE) or http://www.apache.org/licenses/LICENSE-2.0)
-* MIT license ([LICENSE-MIT](LICENSE-MIT) or http://opensource.org/licenses/MIT)
+* Apache License, Version 2.0 ([LICENSE-APACHE](guiver-piet/LICENSE-APACHE) or http://www.apache.org/licenses/LICENSE-2.0)
+* MIT license ([LICENSE-MIT](guiver-piet/LICENSE-MIT) or http://opensource.org/licenses/MIT)
   at your option.
 
 ### Contribution

@@ -1,4 +1,4 @@
-use druid_shell::kurbo::Size;
+use kurbo::Size;
 
 ///
 #[derive(Clone, Copy, Debug, Default)]

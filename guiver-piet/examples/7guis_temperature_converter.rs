@@ -1,8 +1,8 @@
-use guiver::widget::WidgetEventType;
+use guiver_piet::widget::WidgetEventType;
 /**
 This implements the "Counter" task from [7GUIs](https://eugenkiss.github.io/7guis/tasks/).
  */
-use guiver::{
+use guiver_piet::{
     run, Application, Clipboard, Command, Event, HorizontalAlignment, Piet, Region, Size, WidgetId,
     WidgetManager,
 };

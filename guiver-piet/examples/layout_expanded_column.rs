@@ -1,10 +1,4 @@
-/**
-This implements the "Flight Booker" task from [7GUIs](https://eugenkiss.github.io/7guis/tasks/).
-*/
-use guiver::{
-    run, Application, Clipboard, Color, Command, Event, PaintBrush, Piet, Region, Size,
-    WidgetManager,
-};
+use guiver_piet::{run, Application, Clipboard, Command, Event, Piet, Region, Size, WidgetManager};
 
 pub(crate) struct App {
     widget_manager: WidgetManager<()>,
@@ -16,11 +10,12 @@ impl App {
 
         // Create the widgets.
         let padding = widget_manager.new_padding();
+        let text = widget_manager.new_text("The placeholders are expanded");
         let column = widget_manager.new_column();
-        let dropdown_box = widget_manager.new_placeholder(Size::new(200.0, 50.0));
-        let text_input_start_date = widget_manager.new_text_input("", 100.0);
-        let text_input_return_date = widget_manager.new_text_input("", 100.0);
-        let book_button = widget_manager.new_text_button("Book");
+        let expanded1 = widget_manager.new_expanded(1);
+        let expanded2 = widget_manager.new_expanded(1);
+        let placeholder1 = widget_manager.new_placeholder(Size::new(100.0, 50.0));
+        let placeholder2 = widget_manager.new_placeholder(Size::new(100.0, 50.0));
 
         // Compose the widgets.
         widget_manager
@@ -34,29 +29,28 @@ impl App {
                 Command::AddChild {
                     parent_widget_id: column,
                     widget_placement: None,
-                    child_widget_id: dropdown_box,
+                    child_widget_id: expanded1,
                 },
                 Command::AddChild {
                     parent_widget_id: column,
                     widget_placement: None,
-                    child_widget_id: text_input_start_date,
+                    child_widget_id: text,
                 },
                 Command::AddChild {
                     parent_widget_id: column,
                     widget_placement: None,
-                    child_widget_id: text_input_return_date,
+                    child_widget_id: expanded2,
                 },
                 Command::AddChild {
-                    parent_widget_id: column,
+                    parent_widget_id: expanded1,
                     widget_placement: None,
-                    child_widget_id: book_button,
+                    child_widget_id: placeholder1,
                 },
-                //
-                // TODO: remove
-                Command::SetFill(
-                    text_input_start_date,
-                    Some(PaintBrush::Color(Color::rgb8(255, 0, 0))),
-                ),
+                Command::AddChild {
+                    parent_widget_id: expanded2,
+                    widget_placement: None,
+                    child_widget_id: placeholder2,
+                },
             ])
             .unwrap();
 
@@ -65,11 +59,7 @@ impl App {
 }
 
 impl Application for App {
-    fn handle_event(&mut self, event: &Event) {
-        let _widget_events = self.widget_manager.handle_event(event, None).unwrap();
-
-        // TODO
-    }
+    fn handle_event(&mut self, _system_event_event: &Event) {}
 
     fn paint(&mut self, piet: &mut Piet, region: &Region) {
         self.widget_manager.paint(piet, region).unwrap();
@@ -84,7 +74,7 @@ impl Application for App {
 pub fn main() {
     run(
         Box::new(App::new()),
-        "7GUIs: Flight Booker",
+        "expanded column",
         (300.0, 150.0).into(),
     );
 }

@@ -4,9 +4,9 @@ This implements the "Counter" task from [7GUIs](https://eugenkiss.github.io/7gui
 use druid_shell::kurbo::Size;
 use druid_shell::piet::Piet;
 use druid_shell::Region;
-use guiver::widget::WidgetEventType;
-use guiver::{run, Command, WidgetId, WidgetManager};
-use guiver::{Application, Clipboard, Event};
+use guiver_piet::widget::WidgetEventType;
+use guiver_piet::{run, Command, WidgetId, WidgetManager};
+use guiver_piet::{Application, Clipboard, Event};
 
 pub(crate) struct App {
     counter: u32,
