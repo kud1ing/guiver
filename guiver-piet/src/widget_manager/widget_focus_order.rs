@@ -1,4 +1,4 @@
-use crate::WidgetId;
+use guiver::WidgetId;
 
 ///
 pub(crate) struct WidgetFocusOrder {

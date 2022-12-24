@@ -1,9 +1,10 @@
 use crate::shared_state::SharedState;
-use crate::widget::{Text, WidgetError, WidgetEventType};
-use crate::{Event, Font, Piet, Size, SizeConstraints, Stroke, Widget, WidgetEvent, WidgetId};
+use crate::widget::{Text, WidgetError};
+use crate::{Event, Font, Piet, Size, SizeConstraints, Stroke, Widget};
 use druid_shell::kurbo::{Point, Rect};
 use druid_shell::piet::{Error, PietText};
 use druid_shell::Region;
+use guiver::{WidgetEvent, WidgetEventType, WidgetId};
 use std::borrow::BorrowMut;
 
 ///

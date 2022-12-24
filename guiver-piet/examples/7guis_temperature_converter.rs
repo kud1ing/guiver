@@ -1,22 +1,22 @@
-use guiver_piet::widget::WidgetEventType;
+use guiver::{Command, WidgetEventType, WidgetId, WidgetManager};
+
 /**
 This implements the "Counter" task from [7GUIs](https://eugenkiss.github.io/7guis/tasks/).
  */
 use guiver_piet::{
-    run, Application, Clipboard, Command, Event, HorizontalAlignment, Piet, Region, Size, WidgetId,
-    WidgetManager,
+    run, Application, Clipboard, Event, HorizontalAlignment, Piet, PietWidgetManager, Region, Size,
 };
 
 pub(crate) struct App {
     clipboard: Option<Clipboard>,
     text_input_celsius: WidgetId,
     text_input_fahrenheit: WidgetId,
-    widget_manager: WidgetManager<()>,
+    widget_manager: PietWidgetManager<()>,
 }
 
 impl App {
     pub(crate) fn new() -> Self {
-        let mut widget_manager = WidgetManager::new();
+        let mut widget_manager = PietWidgetManager::new();
 
         // Create the widgets.
         let padding = widget_manager.new_padding();
@@ -28,7 +28,7 @@ impl App {
 
         // Compose the widgets.
         widget_manager
-            .send_commands(vec![
+            .handle_commands(vec![
                 Command::SetMainWidget(padding),
                 Command::AddChild {
                     parent_widget_id: padding,
@@ -100,7 +100,7 @@ impl Application for App {
                             // The string is empty.
                             if string.trim().is_empty() {
                                 self.widget_manager
-                                    .send_command(Command::SetValue(
+                                    .handle_command(Command::SetValue(
                                         self.text_input_fahrenheit,
                                         Box::new("".to_string()),
                                     ))
@@ -109,7 +109,7 @@ impl Application for App {
                             // The string could be parsed as a float
                             else if let Ok(celsius) = string.parse::<f32>() {
                                 self.widget_manager
-                                    .send_command(Command::SetValue(
+                                    .handle_command(Command::SetValue(
                                         self.text_input_fahrenheit,
                                         Box::new(format!(
                                             "{:.0}",
@@ -125,7 +125,7 @@ impl Application for App {
                             // The string is empty.
                             if string.trim().is_empty() {
                                 self.widget_manager
-                                    .send_command(Command::SetValue(
+                                    .handle_command(Command::SetValue(
                                         self.text_input_celsius,
                                         Box::new("".to_string()),
                                     ))
@@ -134,7 +134,7 @@ impl Application for App {
                             // The string could be parsed as a float
                             else if let Ok(fahrenheit) = string.parse::<f32>() {
                                 self.widget_manager
-                                    .send_command(Command::SetValue(
+                                    .handle_command(Command::SetValue(
                                         self.text_input_celsius,
                                         Box::new(format!(
                                             "{:.0}",

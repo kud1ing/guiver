@@ -1,4 +1,4 @@
-use kurbo::Size;
+use crate::Size;
 
 ///
 #[derive(Clone, Copy, Debug, Default)]

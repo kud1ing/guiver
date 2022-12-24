@@ -1,5 +1,6 @@
-use crate::{SizeConstraints, Stroke, WidgetId};
+use crate::{SizeConstraints, Stroke};
 use druid_shell::kurbo::Rect;
+use guiver::WidgetId;
 
 /// Common data and functionality for widgets.
 #[derive(Default)]

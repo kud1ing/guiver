@@ -1,4 +1,4 @@
-use druid_shell::piet::{
+use crate::{
     Color, FontFamily, FontWeight, PietText, PietTextLayout, Text, TextAttribute,
     TextLayoutBuilder, TextStorage,
 };

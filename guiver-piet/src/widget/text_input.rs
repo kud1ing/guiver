@@ -1,14 +1,12 @@
 use crate::shared_state::SharedState;
-use crate::stroke::Stroke;
 use crate::widget::core::WidgetCore;
-use crate::widget::{Text, WidgetError, WidgetEventType};
-use crate::{
-    Event, Font, HorizontalAlignment, SizeConstraints, VerticalAlignment, Widget, WidgetEvent,
-    WidgetId,
-};
+use crate::widget::Text;
+use crate::{Event, Font, HorizontalAlignment, SizeConstraints, VerticalAlignment, Widget};
 use druid_shell::kurbo::{Line, Point, Rect, RoundedRect, Size};
 use druid_shell::piet::{Color, Error, PaintBrush, Piet, PietText, RenderContext};
 use druid_shell::{KbKey, Region};
+use guiver::stroke::Stroke;
+use guiver::{WidgetError, WidgetEvent, WidgetEventType, WidgetId};
 use std::any::Any;
 use std::borrow::BorrowMut;
 

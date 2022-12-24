@@ -12,4 +12,6 @@ readme = "README.md"
 
 [dependencies]
 
-kurbo = "^0"
+# Druid 0.7.0 depends on the old Piet 0.3.2
+druid-shell = { git = "https://github.com/linebender/druid.git" }
+# druid-shell = "^0"

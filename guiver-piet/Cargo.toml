@@ -11,7 +11,7 @@ license = "MIT/Apache-2.0"
 readme = "README.md"
 
 [dependencies]
-
+# We only include druid-shell to make sure the data structures are compatible with the ones in `guiver-piet`.
 # Druid 0.7.0 depends on the old Piet 0.3.2
 druid-shell = { git = "https://github.com/linebender/druid.git" }
 # druid-shell = "^0"

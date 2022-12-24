@@ -1,5 +1,5 @@
-use crate::font::piet_text;
 use druid_shell::piet::PietText;
+use guiver::font::piet_text;
 
 ///
 pub struct SharedState {

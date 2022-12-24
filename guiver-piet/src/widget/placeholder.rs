@@ -1,11 +1,12 @@
 use crate::shared_state::SharedState;
-use crate::stroke::Stroke;
 use crate::widget::core::WidgetCore;
-use crate::widget::{WidgetError, WidgetId};
-use crate::{Event, SizeConstraints, Widget, WidgetEvent};
+use crate::widget::WidgetError;
+use crate::{Event, SizeConstraints, Widget};
 use druid_shell::kurbo::{Line, Point, Rect, Size};
 use druid_shell::piet::{Color, Piet, RenderContext};
 use druid_shell::{piet, Region};
+use guiver::stroke::Stroke;
+use guiver::{WidgetEvent, WidgetId};
 use piet::{PaintBrush, StrokeDash, StrokeStyle};
 
 /// A placeholder widget.

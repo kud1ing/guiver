@@ -1,11 +1,12 @@
 use crate::shared_state::SharedState;
 use crate::widget::core::WidgetCore;
-use crate::widget::{WidgetError, WidgetPlacement};
+
 use crate::widget_manager::WidgetBox;
-use crate::{Event, Piet, SizeConstraints, Stroke, Widget, WidgetEvent, WidgetId};
+use crate::{Event, Piet, SizeConstraints, Stroke, Widget};
 use druid_shell::kurbo::{Point, Rect, Size};
 use druid_shell::piet::{Error, RenderContext};
 use druid_shell::Region;
+use guiver::{WidgetError, WidgetEvent, WidgetId, WidgetPlacement};
 
 /// A layout widget that tries to adjust its child widget to a desired size.
 pub struct SizedBox {

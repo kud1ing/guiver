@@ -1,8 +1,6 @@
 mod application;
 mod event;
-mod font;
 mod shared_state;
-mod stroke;
 mod style;
 mod text;
 pub mod widget;
@@ -18,10 +16,10 @@ pub use druid_shell::piet::{
 };
 pub use druid_shell::{Clipboard, Region};
 pub use event::Event;
-pub use font::{piet_text, Font};
+pub use guiver::font::{piet_text, Font};
+pub use guiver::stroke::Stroke;
 pub use guiver::SizeConstraints;
 pub use guiver::{HorizontalAlignment, VerticalAlignment};
 pub use kurbo::{Line, Point};
-pub use stroke::Stroke;
-pub use widget::{Widget, WidgetCore, WidgetEvent, WidgetId};
-pub use widget_manager::{Command, WidgetManager};
+pub use widget::{Widget, WidgetCore};
+pub use widget_manager::PietWidgetManager;

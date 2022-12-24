@@ -1,6 +1,6 @@
-use crate::stroke::Stroke;
 use crate::Font;
 use crate::{Color, PaintBrush, StrokeStyle};
+use guiver::stroke::Stroke;
 use guiver::VerticalAlignment;
 
 ///

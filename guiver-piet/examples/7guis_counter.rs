@@ -4,20 +4,20 @@ This implements the "Counter" task from [7GUIs](https://eugenkiss.github.io/7gui
 use druid_shell::kurbo::Size;
 use druid_shell::piet::Piet;
 use druid_shell::Region;
-use guiver_piet::widget::WidgetEventType;
-use guiver_piet::{run, Command, WidgetId, WidgetManager};
+use guiver::{Command, WidgetEventType, WidgetId, WidgetManager};
+use guiver_piet::{run, PietWidgetManager};
 use guiver_piet::{Application, Clipboard, Event};
 
 pub(crate) struct App {
     counter: u32,
     counter_button: WidgetId,
     counter_text: WidgetId,
-    widget_manager: WidgetManager<()>,
+    widget_manager: PietWidgetManager<()>,
 }
 
 impl App {
     pub(crate) fn new() -> Self {
-        let mut widget_manager = WidgetManager::new();
+        let mut widget_manager = PietWidgetManager::new();
 
         // Create the widgets.
         let padding = widget_manager.new_padding();
@@ -27,7 +27,7 @@ impl App {
 
         // Compose the widgets.
         widget_manager
-            .send_commands(vec![
+            .handle_commands(vec![
                 Command::SetMainWidget(padding),
                 Command::AddChild {
                     parent_widget_id: padding,
@@ -72,7 +72,7 @@ impl Application for App {
 
                         // Update the counter text.
                         self.widget_manager
-                            .send_command(Command::SetValue(
+                            .handle_command(Command::SetValue(
                                 self.counter_text,
                                 Box::new(format!("{}", self.counter)),
                             ))

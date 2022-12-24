@@ -1,22 +1,18 @@
 mod widget_focus_order;
 
 use crate::shared_state::SharedState;
-use crate::stroke::Stroke;
 use crate::style::Style;
-use crate::widget::layout::{
-    Center, Column, Expanded, Grid, GridColumnProperties, GridRowProperties, Padding, Row, SizedBox,
-};
-use crate::widget::{
-    Button, Hyperlink, Placeholder, Text, TextInput, WidgetError, WidgetEventType, WidgetPlacement,
-};
+use crate::widget::layout::{Center, Column, Expanded, Grid, Padding, Row, SizedBox};
+use crate::widget::{Button, Hyperlink, Placeholder, Text, TextInput};
 use crate::widget_manager::widget_focus_order::WidgetFocusOrder;
-use crate::{
-    Color, Event, Font, HorizontalAlignment, SizeConstraints, VerticalAlignment, Widget,
-    WidgetEvent, WidgetId,
-};
+use crate::{Color, Event, HorizontalAlignment, SizeConstraints, Widget};
 use druid_shell::kurbo::Size;
 use druid_shell::piet::Piet;
 use druid_shell::{piet, Clipboard, KbKey, Modifiers, Region};
+use guiver::{
+    Command, GridColumnProperties, GridRowProperties, WidgetError, WidgetEvent, WidgetEventType,
+    WidgetId, WidgetManager,
+};
 use piet::PaintBrush;
 use std::any::Any;
 use std::cell::RefCell;
@@ -26,99 +22,8 @@ use std::rc::Rc;
 ///
 pub type WidgetBox = Rc<RefCell<Box<dyn Widget>>>;
 
-/// A command to the widget manager or widgets.
-#[derive(Debug)]
-pub enum Command<T> {
-    /// Adds the child widget with the given ID to the parent widget.
-    AddChild {
-        parent_widget_id: WidgetId,
-        widget_placement: Option<WidgetPlacement>,
-        child_widget_id: WidgetId,
-    },
-    /// Destroys the widget with the given ID.
-    Destroy(WidgetId),
-    /// Removes the child widget with the given ID from the parent widget.
-    RemoveChild {
-        parent_widget_id: WidgetId,
-        child_widget_id: WidgetId,
-        destroy_child_widget: bool,
-    },
-    /// Removes the widget's child widgets.
-    RemoveChildren {
-        parent_widget_id: WidgetId,
-        destroy_child_widgets: bool,
-    },
-    /// Sets the child widget at the given location.
-    SetChild {
-        parent_widget_id: WidgetId,
-        column_index: usize,
-        row_index: usize,
-        child_widget_id: WidgetId,
-    },
-    /// Enables/disables debug rendering mode for the widget.
-    SetDebugRendering(WidgetId, bool),
-    /// Sets/unsets the widget's fill.
-    SetFill(WidgetId, Option<PaintBrush>),
-    /// Sets the widget's font.
-    SetFont(WidgetId, Font),
-    /// Gives/removes focus to the widget.
-    SetHasFocus(WidgetId, bool),
-    /// Sets the widget's horizontal alignment.
-    SetHorizontalAlignment(WidgetId, HorizontalAlignment),
-    /// Enables/disables the widget.
-    SetIsDisabled(WidgetId, bool),
-    /// Hides/shows the widget.
-    SetIsHidden(WidgetId, bool),
-    /// Makes the widget with the given ID the main widget.
-    SetMainWidget(WidgetId),
-    /// Sets/unsets the widget's stroke.
-    SetStroke(WidgetId, Option<Stroke>),
-    /// Sets the given value to the widget.
-    SetValue(WidgetId, Box<dyn Any>),
-    /// Sets the widget's vertical alignment.
-    SetVerticalAlignment(WidgetId, VerticalAlignment),
-    /// Subscribes to the given widget and widget event type so that it can be handled as `T` using
-    /// `handle_subscribed_widget_event()`.
-    SubscribeEvent(WidgetId, WidgetEventType, T),
-}
-
-impl<T> Command<T> {
-    /// Returns the ID of the receiver widget.
-    pub fn widget_id(&self) -> &WidgetId {
-        match self {
-            Command::AddChild {
-                parent_widget_id, ..
-            } => parent_widget_id,
-            Command::Destroy(widget_id) => widget_id,
-            Command::RemoveChild {
-                parent_widget_id, ..
-            } => parent_widget_id,
-            Command::RemoveChildren {
-                parent_widget_id, ..
-            } => parent_widget_id,
-            Command::SetChild {
-                parent_widget_id, ..
-            } => parent_widget_id,
-            Command::SetDebugRendering(widget_id, _) => widget_id,
-            Command::SetFill(widget_id, _) => widget_id,
-            Command::SetFont(widget_id, _) => widget_id,
-            Command::SetHasFocus(widget_id, _) => widget_id,
-            Command::SetHorizontalAlignment(widget_id, _) => widget_id,
-            Command::SetIsDisabled(widget_id, _) => widget_id,
-            Command::SetIsHidden(widget_id, _) => widget_id,
-            Command::SetMainWidget(widget_id) => widget_id,
-            Command::SetStroke(widget_id, _) => widget_id,
-            Command::SetValue(widget_id, _) => widget_id,
-            Command::SetVerticalAlignment(widget_id, _) => widget_id,
-            Command::SubscribeEvent(widget_id, _, _) => widget_id,
-        }
-    }
-}
-
-// =================================================================================================
-
 ///
-pub struct WidgetManager<T> {
+pub struct PietWidgetManager<T> {
     /// The IDs of each widget's child widgets.
     child_widget_ids_per_widget_id: HashMap<WidgetId, HashSet<WidgetId>>,
     /// The widget that has the focus.
@@ -146,10 +51,10 @@ pub struct WidgetManager<T> {
     widgets: HashMap<WidgetId, WidgetBox>,
 }
 
-impl<T: Clone> WidgetManager<T> {
+impl<T: Clone> PietWidgetManager<T> {
     ///
     pub fn new() -> Self {
-        WidgetManager {
+        PietWidgetManager {
             child_widget_ids_per_widget_id: HashMap::new(),
             focused_widget: None,
             main_widget: None,
@@ -538,244 +443,6 @@ impl<T: Clone> WidgetManager<T> {
     }
 
     ///
-    pub fn new_center(&mut self) -> WidgetId {
-        // Get a new widget ID.
-        let widget_id = self.next_widget_id();
-
-        // Add a new center layout widget.
-        self.add_widget(Box::new(Center::new(
-            widget_id,
-            self.style.debug_rendering_stroke.clone(),
-        )));
-
-        widget_id
-    }
-
-    ///
-    pub fn new_column(&mut self) -> WidgetId {
-        // Get a new widget ID.
-        let widget_id = self.next_widget_id();
-
-        // Add a new column layout widget.
-        self.add_widget(Box::new(Column::new(
-            widget_id,
-            self.style.debug_rendering_stroke.clone(),
-            HorizontalAlignment::Center,
-            self.style.spacing,
-        )));
-
-        // Return the widget ID.
-        widget_id
-    }
-
-    ///
-    pub fn new_expanded(&mut self, flex_factor: u16) -> WidgetId {
-        // Get a new widget ID.
-        let widget_id = self.next_widget_id();
-
-        // Add a new expanded widget.
-        self.add_widget(Box::new(Expanded::new(
-            widget_id,
-            self.style.debug_rendering_stroke.clone(),
-            flex_factor,
-        )));
-
-        // Return the widget ID.
-        widget_id
-    }
-
-    ///
-    pub fn new_grid(
-        &mut self,
-        column_properties: GridColumnProperties,
-        row_properties: GridRowProperties,
-    ) -> WidgetId {
-        // Get a new widget ID.
-        let widget_id = self.next_widget_id();
-
-        // Add a new grid layout widget.
-        self.add_widget(Box::new(Grid::new(
-            widget_id,
-            self.style.debug_rendering_stroke.clone(),
-            column_properties,
-            row_properties,
-        )));
-
-        // Return the widget ID.
-        widget_id
-    }
-
-    ///
-    pub fn new_hyper_link(&mut self, text: impl Into<String>) -> WidgetId {
-        // Get a new widget ID.
-        let widget_id = self.next_widget_id();
-
-        let mut font_unvisited = self.style.font.clone();
-        font_unvisited.font_color = Color::rgb8(100, 100, 255);
-
-        let mut font_being_clicked = self.style.font.clone();
-        font_being_clicked.font_color = self.style.accent_color.clone();
-
-        let mut font_visited = self.style.font.clone();
-        font_visited.font_color = Color::rgb8(50, 50, 100);
-
-        let widget = Hyperlink::new(
-            widget_id,
-            self.style.debug_rendering_stroke.clone(),
-            self.shared_state.piet_text(),
-            font_unvisited,
-            font_being_clicked,
-            font_visited,
-            text,
-        );
-
-        // Add a new hyperlink widget.
-        self.add_widget(Box::new(widget));
-
-        // Return the widget ID.
-        widget_id
-    }
-
-    ///
-    pub fn new_padding(&mut self) -> WidgetId {
-        // Get a new widget ID.
-        let widget_id = self.next_widget_id();
-
-        // Add a new padding widget.
-        self.add_widget(Box::new(Padding::new(
-            widget_id,
-            self.style.debug_rendering_stroke.clone(),
-            self.style.padding,
-            self.style.padding,
-            self.style.padding,
-            self.style.padding,
-        )));
-
-        // Return the widget ID.
-        widget_id
-    }
-
-    ///
-    pub fn new_placeholder(&mut self, maximum_size: Size) -> WidgetId {
-        // Get a new widget ID.
-        let widget_id = self.next_widget_id();
-
-        // Add a new placeholder widget.
-        self.add_widget(Box::new(Placeholder::new(
-            widget_id,
-            self.style.debug_rendering_stroke.clone(),
-            maximum_size,
-        )));
-
-        // Return the widget ID.
-        widget_id
-    }
-
-    ///
-    pub fn new_row(&mut self) -> WidgetId {
-        // Get a new widget ID.
-        let widget_id = self.next_widget_id();
-
-        // Add a new row widget.
-        self.add_widget(Box::new(Row::new(
-            widget_id,
-            self.style.debug_rendering_stroke.clone(),
-            self.style.vertical_alignment,
-            self.style.spacing,
-        )));
-
-        // Return the widget ID.
-        widget_id
-    }
-
-    ///
-    pub fn new_sized_box(&mut self, desired_size: Size) -> WidgetId {
-        // Get a new widget ID.
-        let widget_id = self.next_widget_id();
-
-        // Add a new sized box layout widget.
-        self.add_widget(Box::new(SizedBox::new(
-            widget_id,
-            self.style.debug_rendering_stroke.clone(),
-            desired_size,
-        )));
-
-        // Return the widget ID.
-        widget_id
-    }
-
-    ///
-    pub fn new_text(&mut self, text: impl Into<String>) -> WidgetId {
-        // Get a new widget ID.
-        let widget_id = self.next_widget_id();
-
-        let widget = Text::new(
-            widget_id,
-            self.style.debug_rendering_stroke.clone(),
-            self.shared_state.piet_text(),
-            self.style.font.clone(),
-            text,
-        );
-
-        // Add a new text widget.
-        self.add_widget(Box::new(widget));
-
-        // Return the widget ID.
-        widget_id
-    }
-
-    ///
-    pub fn new_text_button(&mut self, text: impl Into<String>) -> WidgetId {
-        // Get a new widget ID.
-        let widget_id = self.next_widget_id();
-        let child_widget_id = self.next_widget_id();
-
-        let widget = Text::new(
-            child_widget_id,
-            self.style.debug_rendering_stroke.clone(),
-            self.shared_state.piet_text(),
-            self.style.font.clone(),
-            text,
-        );
-
-        // Add a new button with a text as inner child widget.
-        self.add_widget(Box::new(Button::new(
-            widget_id,
-            self.style.debug_rendering_stroke.clone(),
-            Rc::new(RefCell::new(Box::new(widget))),
-            Some(PaintBrush::Color(self.style.accent_color.clone())),
-            Some(self.style.frame_color.clone()),
-            Some(self.style.accent_color.clone()),
-        )));
-
-        // Return the widget ID.
-        widget_id
-    }
-
-    ///
-    pub fn new_text_input(&mut self, text: impl Into<String>, width: f64) -> WidgetId {
-        // Get a new widget ID.
-        let widget_id = self.next_widget_id();
-
-        let widget = TextInput::new(
-            widget_id,
-            self.style.debug_rendering_stroke.clone(),
-            self.shared_state.piet_text(),
-            self.style.font.clone(),
-            text,
-            width,
-            self.style.frame_color.clone(),
-            self.style.accent_color.clone(),
-        );
-
-        // Add a new text input widget.
-        self.add_widget(Box::new(widget));
-
-        // Return the widget ID.
-        widget_id
-    }
-
-    ///
     pub fn paint(&self, piet: &mut Piet, region: &Region) -> Result<(), piet::Error> {
         // There is a main widget.
         if let Some(main_widget) = &self.main_widget {
@@ -821,34 +488,32 @@ impl<T: Clone> WidgetManager<T> {
     }
 
     ///
-    pub fn resize(&mut self, size: Size) {
-        // Create a new size constraint from the given window size.
-        let size_constraints = SizeConstraints::tight(size - Size::new(2.0, 2.0));
-
-        // Use the new size constraint.
-        self.size_constraints = size_constraints;
-
-        // There is a main widget.
-        if let Some(main_widget) = &mut self.main_widget {
-            // Resize the main widget.
-            main_widget
-                .borrow_mut()
-                .apply_size_constraints(size_constraints);
+    fn widget(&self, widget_id: WidgetId) -> Result<&WidgetBox, WidgetError> {
+        // There is a widget with the given ID.
+        if let Some(widget_box) = self.widgets.get(&widget_id) {
+            Ok(widget_box)
+        }
+        // There is no widget with the given ID.
+        else {
+            Err(WidgetError::NoSuchWidget(widget_id))
         }
     }
 
-    /// Returns a widget's selected value.
-    pub fn selected_value(&self, widget_id: WidgetId) -> Result<Option<Box<dyn Any>>, WidgetError> {
-        Ok(self.widget(widget_id)?.borrow().selected_value())
-    }
-
     ///
-    pub fn send_command(&mut self, command: Command<T>) -> Result<(), WidgetError> {
-        self.send_commands(vec![command])
+    fn widget_mut(&mut self, widget_id: WidgetId) -> Result<&mut WidgetBox, WidgetError> {
+        // There is a widget with the given ID.
+        if let Some(widget_box) = self.widgets.get_mut(&widget_id) {
+            Ok(widget_box)
+        }
+        // There is no widget with the given ID.
+        else {
+            Err(WidgetError::NoSuchWidget(widget_id))
+        }
     }
+}
 
-    ///
-    pub fn send_commands(&mut self, commands: Vec<Command<T>>) -> Result<(), WidgetError> {
+impl<T: Clone> WidgetManager<T> for PietWidgetManager<T> {
+    fn handle_commands(&mut self, commands: Vec<Command<T>>) -> Result<(), WidgetError> {
         // Iterate over the given commands.
         for command in commands {
             // Get the ID of the widget from the command.
@@ -1040,32 +705,253 @@ impl<T: Clone> WidgetManager<T> {
         Ok(())
     }
 
-    /// Returns a widget's value.
-    pub fn value(&self, widget_id: WidgetId) -> Result<Option<Box<dyn Any>>, WidgetError> {
+    fn new_center(&mut self) -> WidgetId {
+        // Get a new widget ID.
+        let widget_id = self.next_widget_id();
+
+        // Add a new center layout widget.
+        self.add_widget(Box::new(Center::new(
+            widget_id,
+            self.style.debug_rendering_stroke.clone(),
+        )));
+
+        widget_id
+    }
+
+    fn new_column(&mut self) -> WidgetId {
+        // Get a new widget ID.
+        let widget_id = self.next_widget_id();
+
+        // Add a new column layout widget.
+        self.add_widget(Box::new(Column::new(
+            widget_id,
+            self.style.debug_rendering_stroke.clone(),
+            HorizontalAlignment::Center,
+            self.style.spacing,
+        )));
+
+        // Return the widget ID.
+        widget_id
+    }
+
+    fn new_expanded(&mut self, flex_factor: u16) -> WidgetId {
+        // Get a new widget ID.
+        let widget_id = self.next_widget_id();
+
+        // Add a new expanded widget.
+        self.add_widget(Box::new(Expanded::new(
+            widget_id,
+            self.style.debug_rendering_stroke.clone(),
+            flex_factor,
+        )));
+
+        // Return the widget ID.
+        widget_id
+    }
+
+    fn new_grid(
+        &mut self,
+        column_properties: GridColumnProperties,
+        row_properties: GridRowProperties,
+    ) -> WidgetId {
+        // Get a new widget ID.
+        let widget_id = self.next_widget_id();
+
+        // Add a new grid layout widget.
+        self.add_widget(Box::new(Grid::new(
+            widget_id,
+            self.style.debug_rendering_stroke.clone(),
+            column_properties,
+            row_properties,
+        )));
+
+        // Return the widget ID.
+        widget_id
+    }
+
+    fn new_hyper_link(&mut self, text: impl Into<String>) -> WidgetId {
+        // Get a new widget ID.
+        let widget_id = self.next_widget_id();
+
+        let mut font_unvisited = self.style.font.clone();
+        font_unvisited.font_color = Color::rgb8(100, 100, 255);
+
+        let mut font_being_clicked = self.style.font.clone();
+        font_being_clicked.font_color = self.style.accent_color.clone();
+
+        let mut font_visited = self.style.font.clone();
+        font_visited.font_color = Color::rgb8(50, 50, 100);
+
+        let widget = Hyperlink::new(
+            widget_id,
+            self.style.debug_rendering_stroke.clone(),
+            self.shared_state.piet_text(),
+            font_unvisited,
+            font_being_clicked,
+            font_visited,
+            text,
+        );
+
+        // Add a new hyperlink widget.
+        self.add_widget(Box::new(widget));
+
+        // Return the widget ID.
+        widget_id
+    }
+
+    fn new_padding(&mut self) -> WidgetId {
+        // Get a new widget ID.
+        let widget_id = self.next_widget_id();
+
+        // Add a new padding widget.
+        self.add_widget(Box::new(Padding::new(
+            widget_id,
+            self.style.debug_rendering_stroke.clone(),
+            self.style.padding,
+            self.style.padding,
+            self.style.padding,
+            self.style.padding,
+        )));
+
+        // Return the widget ID.
+        widget_id
+    }
+
+    fn new_placeholder(&mut self, maximum_size: Size) -> WidgetId {
+        // Get a new widget ID.
+        let widget_id = self.next_widget_id();
+
+        // Add a new placeholder widget.
+        self.add_widget(Box::new(Placeholder::new(
+            widget_id,
+            self.style.debug_rendering_stroke.clone(),
+            maximum_size,
+        )));
+
+        // Return the widget ID.
+        widget_id
+    }
+
+    fn new_row(&mut self) -> WidgetId {
+        // Get a new widget ID.
+        let widget_id = self.next_widget_id();
+
+        // Add a new row widget.
+        self.add_widget(Box::new(Row::new(
+            widget_id,
+            self.style.debug_rendering_stroke.clone(),
+            self.style.vertical_alignment,
+            self.style.spacing,
+        )));
+
+        // Return the widget ID.
+        widget_id
+    }
+
+    fn new_sized_box(&mut self, desired_size: Size) -> WidgetId {
+        // Get a new widget ID.
+        let widget_id = self.next_widget_id();
+
+        // Add a new sized box layout widget.
+        self.add_widget(Box::new(SizedBox::new(
+            widget_id,
+            self.style.debug_rendering_stroke.clone(),
+            desired_size,
+        )));
+
+        // Return the widget ID.
+        widget_id
+    }
+
+    fn new_text(&mut self, text: impl Into<String>) -> WidgetId {
+        // Get a new widget ID.
+        let widget_id = self.next_widget_id();
+
+        let widget = Text::new(
+            widget_id,
+            self.style.debug_rendering_stroke.clone(),
+            self.shared_state.piet_text(),
+            self.style.font.clone(),
+            text,
+        );
+
+        // Add a new text widget.
+        self.add_widget(Box::new(widget));
+
+        // Return the widget ID.
+        widget_id
+    }
+
+    fn new_text_button(&mut self, text: impl Into<String>) -> WidgetId {
+        // Get a new widget ID.
+        let widget_id = self.next_widget_id();
+        let child_widget_id = self.next_widget_id();
+
+        let widget = Text::new(
+            child_widget_id,
+            self.style.debug_rendering_stroke.clone(),
+            self.shared_state.piet_text(),
+            self.style.font.clone(),
+            text,
+        );
+
+        // Add a new button with a text as inner child widget.
+        self.add_widget(Box::new(Button::new(
+            widget_id,
+            self.style.debug_rendering_stroke.clone(),
+            Rc::new(RefCell::new(Box::new(widget))),
+            Some(PaintBrush::Color(self.style.accent_color.clone())),
+            Some(self.style.frame_color.clone()),
+            Some(self.style.accent_color.clone()),
+        )));
+
+        // Return the widget ID.
+        widget_id
+    }
+
+    fn new_text_input(&mut self, text: impl Into<String>, width: f64) -> WidgetId {
+        // Get a new widget ID.
+        let widget_id = self.next_widget_id();
+
+        let widget = TextInput::new(
+            widget_id,
+            self.style.debug_rendering_stroke.clone(),
+            self.shared_state.piet_text(),
+            self.style.font.clone(),
+            text,
+            width,
+            self.style.frame_color.clone(),
+            self.style.accent_color.clone(),
+        );
+
+        // Add a new text input widget.
+        self.add_widget(Box::new(widget));
+
+        // Return the widget ID.
+        widget_id
+    }
+
+    fn resize(&mut self, size: Size) {
+        // Create a new size constraint from the given window size.
+        let size_constraints = SizeConstraints::tight(size - Size::new(2.0, 2.0));
+
+        // Use the new size constraint.
+        self.size_constraints = size_constraints;
+
+        // There is a main widget.
+        if let Some(main_widget) = &mut self.main_widget {
+            // Resize the main widget.
+            main_widget
+                .borrow_mut()
+                .apply_size_constraints(size_constraints);
+        }
+    }
+
+    fn selected_value(&self, widget_id: WidgetId) -> Result<Option<Box<dyn Any>>, WidgetError> {
+        Ok(self.widget(widget_id)?.borrow().selected_value())
+    }
+
+    fn value(&self, widget_id: WidgetId) -> Result<Option<Box<dyn Any>>, WidgetError> {
         Ok(self.widget(widget_id)?.borrow().value())
-    }
-
-    ///
-    fn widget(&self, widget_id: WidgetId) -> Result<&WidgetBox, WidgetError> {
-        // There is a widget with the given ID.
-        if let Some(widget_box) = self.widgets.get(&widget_id) {
-            Ok(widget_box)
-        }
-        // There is no widget with the given ID.
-        else {
-            Err(WidgetError::NoSuchWidget(widget_id))
-        }
-    }
-
-    ///
-    fn widget_mut(&mut self, widget_id: WidgetId) -> Result<&mut WidgetBox, WidgetError> {
-        // There is a widget with the given ID.
-        if let Some(widget_box) = self.widgets.get_mut(&widget_id) {
-            Ok(widget_box)
-        }
-        // There is no widget with the given ID.
-        else {
-            Err(WidgetError::NoSuchWidget(widget_id))
-        }
     }
 }
