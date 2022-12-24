@@ -1,12 +1,12 @@
 use crate::shared_state::SharedState;
 use crate::widget::core::WidgetCore;
 use crate::widget::WidgetError;
-use crate::{Event, SizeConstraints, Widget};
+use crate::{Event, Widget};
 use druid_shell::kurbo::{Line, Point, Rect, Size};
 use druid_shell::piet::{Color, Piet, RenderContext};
 use druid_shell::{piet, Region};
 use guiver::stroke::Stroke;
-use guiver::{WidgetEvent, WidgetId};
+use guiver::{SizeConstraints, WidgetEvent, WidgetId};
 use piet::{PaintBrush, StrokeDash, StrokeStyle};
 
 /// A placeholder widget.
@@ -157,7 +157,8 @@ impl Widget for Placeholder {
 #[cfg(test)]
 mod tests {
     use crate::widget::Placeholder;
-    use crate::{Size, SizeConstraints, Stroke, Widget};
+    use crate::Widget;
+    use guiver::{Size, SizeConstraints, Stroke};
 
     #[test]
     fn test_apply_size_constraints() {

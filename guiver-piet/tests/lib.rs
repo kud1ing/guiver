@@ -1,12 +1,11 @@
 #[cfg(test)]
 mod tests {
     use druid_shell::kurbo::Size;
+    use guiver::font::piet_text;
+    use guiver::stroke::Stroke;
+    use guiver::{Color, Font, HorizontalAlignment, SizeConstraints, VerticalAlignment};
     use guiver_piet::widget::layout::{Center, Column, Padding, Row, SizedBox};
-    use guiver_piet::widget::{Button, Hyperlink, Placeholder, Text, TextInput};
-    use guiver_piet::{
-        piet_text, Color, Font, HorizontalAlignment, SizeConstraints, Stroke, VerticalAlignment,
-        Widget,
-    };
+    use guiver_piet::widget::{Button, Hyperlink, Placeholder, Text, TextInput, Widget};
     use std::cell::RefCell;
     use std::rc::Rc;
 

@@ -1,12 +1,15 @@
 use crate::shared_state::SharedState;
 use crate::widget::core::WidgetCore;
-use crate::{Event, HorizontalAlignment, PaintBrush, SizeConstraints, VerticalAlignment, Widget};
+use crate::{Event, Widget};
 use druid_shell::kurbo::{Point, Rect, Size};
 use druid_shell::piet::{Piet, PietText, PietTextLayout, RenderContext, TextLayout};
 use druid_shell::{piet, Region};
 use guiver::font::Font;
 use guiver::stroke::Stroke;
-use guiver::{WidgetError, WidgetEvent, WidgetEventType, WidgetId};
+use guiver::{
+    HorizontalAlignment, PaintBrush, SizeConstraints, VerticalAlignment, WidgetError, WidgetEvent,
+    WidgetEventType, WidgetId,
+};
 use std::any::Any;
 
 /// A text widget.
@@ -251,8 +254,9 @@ impl Widget for Text {
 #[cfg(test)]
 mod tests {
     use crate::widget::Text;
-    use crate::{Font, SizeConstraints, Stroke, Widget};
+    use crate::Widget;
     use guiver::font::piet_text;
+    use guiver::{Font, SizeConstraints, Stroke};
 
     #[test]
     fn test_apply_size_constraints() {

@@ -5,13 +5,13 @@ use crate::style::Style;
 use crate::widget::layout::{Center, Column, Expanded, Grid, Padding, Row, SizedBox};
 use crate::widget::{Button, Hyperlink, Placeholder, Text, TextInput};
 use crate::widget_manager::widget_focus_order::WidgetFocusOrder;
-use crate::{Color, Event, HorizontalAlignment, SizeConstraints, Widget};
+use crate::{Event, Widget};
 use druid_shell::kurbo::Size;
 use druid_shell::piet::Piet;
 use druid_shell::{piet, Clipboard, KbKey, Modifiers, Region};
 use guiver::{
-    Command, GridColumnProperties, GridRowProperties, WidgetError, WidgetEvent, WidgetEventType,
-    WidgetId, WidgetManager,
+    Color, Command, GridColumnProperties, GridRowProperties, HorizontalAlignment, SizeConstraints,
+    WidgetError, WidgetEvent, WidgetEventType, WidgetId, WidgetManager,
 };
 use piet::PaintBrush;
 use std::any::Any;
@@ -22,7 +22,7 @@ use std::rc::Rc;
 ///
 pub type WidgetBox = Rc<RefCell<Box<dyn Widget>>>;
 
-///
+/// A widget manager that uses `Piet` and `druid-shell`.
 pub struct PietWidgetManager<T> {
     /// The IDs of each widget's child widgets.
     child_widget_ids_per_widget_id: HashMap<WidgetId, HashSet<WidgetId>>,

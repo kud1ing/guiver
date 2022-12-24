@@ -2,13 +2,14 @@ use crate::shared_state::SharedState;
 use crate::widget::core::WidgetCore;
 use crate::widget::WidgetError;
 use crate::widget_manager::WidgetBox;
-use crate::{
-    Event, Piet, Size, SizeConstraints, Stroke, Widget,
-};
+use crate::{Event, Piet, Widget};
 use druid_shell::kurbo::{Point, Rect};
 use druid_shell::piet::{Error, RenderContext};
 use druid_shell::Region;
-use guiver::{GridColumnProperties, GridRowProperties, WidgetEvent, WidgetId};
+use guiver::stroke::Stroke;
+use guiver::{
+    GridColumnProperties, GridRowProperties, Size, SizeConstraints, WidgetEvent, WidgetId,
+};
 use std::borrow::BorrowMut;
 use std::cell::RefCell;
 use std::collections::{HashMap, HashSet};

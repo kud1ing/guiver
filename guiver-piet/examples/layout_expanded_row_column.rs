@@ -1,5 +1,5 @@
-use guiver::{Command, WidgetManager};
-use guiver_piet::{run, Application, Clipboard, Event, Piet, PietWidgetManager, Region, Size};
+use guiver::{Command, Size, WidgetManager};
+use guiver_piet::{run, Application, Clipboard, Event, Piet, PietWidgetManager, Region};
 
 pub(crate) struct App {
     widget_manager: PietWidgetManager<()>,

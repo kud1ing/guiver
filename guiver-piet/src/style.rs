@@ -1,7 +1,4 @@
-use crate::Font;
-use crate::{Color, PaintBrush, StrokeStyle};
-use guiver::stroke::Stroke;
-use guiver::VerticalAlignment;
+use guiver::{Color, Font, PaintBrush, Stroke, StrokeStyle, VerticalAlignment};
 
 ///
 #[derive(Clone)]

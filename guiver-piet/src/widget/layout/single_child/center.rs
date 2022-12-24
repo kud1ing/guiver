@@ -1,12 +1,12 @@
 use crate::shared_state::SharedState;
 use crate::widget::core::WidgetCore;
 use crate::widget_manager::WidgetBox;
-use crate::{Event, SizeConstraints, Widget};
+use crate::{Event, Widget};
 use druid_shell::kurbo::{Point, Rect, Size};
 use druid_shell::piet::{Piet, RenderContext};
 use druid_shell::{piet, Region};
 use guiver::stroke::Stroke;
-use guiver::{WidgetError, WidgetEvent, WidgetId, WidgetPlacement};
+use guiver::{SizeConstraints, WidgetError, WidgetEvent, WidgetId, WidgetPlacement};
 
 /// A layout widget that centers its child widget.
 pub struct Center {

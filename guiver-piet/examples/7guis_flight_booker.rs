@@ -1,9 +1,9 @@
-use guiver::{Command, WidgetManager};
+use guiver::{Command, Size, WidgetManager};
 /**
 This implements the "Flight Booker" task from [7GUIs](https://eugenkiss.github.io/7guis/tasks/).
 */
 use guiver_piet::{
-    run, Application, Clipboard, Color, Event, PaintBrush, Piet, PietWidgetManager, Region, Size,
+    run, Application, Clipboard, Color, Event, PaintBrush, Piet, PietWidgetManager, Region,
 };
 
 pub(crate) struct App {

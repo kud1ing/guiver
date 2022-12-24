@@ -1,12 +1,14 @@
 use crate::shared_state::SharedState;
 use crate::widget::core::WidgetCore;
 use crate::widget_manager::WidgetBox;
-use crate::{Event, HorizontalAlignment, SizeConstraints, Widget};
+use crate::{Event, Widget};
 use druid_shell::kurbo::{Point, Rect, Size};
 use druid_shell::piet::Piet;
 use druid_shell::{piet, Region};
 use guiver::stroke::Stroke;
-use guiver::{WidgetError, WidgetEvent, WidgetId, WidgetPlacement};
+use guiver::{
+    HorizontalAlignment, SizeConstraints, WidgetError, WidgetEvent, WidgetId, WidgetPlacement,
+};
 use piet::RenderContext;
 use std::borrow::{Borrow, BorrowMut};
 use std::cell::RefCell;

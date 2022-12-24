@@ -95,7 +95,11 @@ The developer code can handle those widget events.
 
 ## Backlog
 
-* [ ] split off the Piet/Druid dependent backend
+* [ ] move `piet_text()` to `guiver-piet`
+* move to an integration crate:
+  * [ ] tests
+  * [ ] examples
+* [ ] sketch a `cacao` backend
 * Text:
   * `test_selected_text_replaced()`:
     * [ ] fix

@@ -9,13 +9,16 @@ mod text_input;
 pub use self::core::WidgetCore;
 use crate::shared_state::SharedState;
 use crate::widget_manager::WidgetBox;
-use crate::{Event, Font, HorizontalAlignment, Rect, SizeConstraints, VerticalAlignment};
+use crate::Event;
 pub use button::Button;
 use druid_shell::kurbo::{Point, Size};
 use druid_shell::piet;
 use druid_shell::Region;
 use guiver::stroke::Stroke;
-use guiver::{WidgetError, WidgetEvent, WidgetId, WidgetPlacement};
+use guiver::{
+    Font, HorizontalAlignment, Rect, SizeConstraints, VerticalAlignment, WidgetError, WidgetEvent,
+    WidgetId, WidgetPlacement,
+};
 pub use hyperlink::Hyperlink;
 use piet::PaintBrush;
 pub use placeholder::Placeholder;

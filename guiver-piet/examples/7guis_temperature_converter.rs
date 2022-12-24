@@ -1,11 +1,10 @@
-use guiver::{Command, WidgetEventType, WidgetId, WidgetManager};
+use druid_shell::Region;
+use guiver::{Command, HorizontalAlignment, Size, WidgetEventType, WidgetId, WidgetManager};
 
 /**
 This implements the "Counter" task from [7GUIs](https://eugenkiss.github.io/7guis/tasks/).
  */
-use guiver_piet::{
-    run, Application, Clipboard, Event, HorizontalAlignment, Piet, PietWidgetManager, Region, Size,
-};
+use guiver_piet::{run, Application, Clipboard, Event, Piet, PietWidgetManager};
 
 pub(crate) struct App {
     clipboard: Option<Clipboard>,
