@@ -4,7 +4,7 @@ use guiver::{Command, HorizontalAlignment, Size, WidgetEventType, WidgetId, Widg
 /**
 This implements the "Counter" task from [7GUIs](https://eugenkiss.github.io/7guis/tasks/).
  */
-use guiver_piet::{run, Application, Clipboard, Event, Piet, PietWidgetManager};
+use guiver_piet::{run, Clipboard, Event, Piet, PietApplication, PietWidgetManager};
 
 pub(crate) struct App {
     clipboard: Option<Clipboard>,
@@ -78,7 +78,7 @@ fn fahrenheit_from_celsius(celsius: f32) -> f32 {
     celsius * (9.0 / 5.0) + 32.0
 }
 
-impl Application for App {
+impl PietApplication for App {
     fn handle_event(&mut self, event: &Event) {
         // Handle the given event, possibly creating widget events.
         let widget_events = self

@@ -1,5 +1,5 @@
 use guiver::{Command, Size, WidgetManager};
-use guiver_piet::{run, Application, Clipboard, Event, Piet, PietWidgetManager, Region};
+use guiver_piet::{run, Clipboard, Event, Piet, PietApplication, PietWidgetManager, Region};
 
 pub(crate) struct App {
     widget_manager: PietWidgetManager<()>,
@@ -47,7 +47,7 @@ impl App {
     }
 }
 
-impl Application for App {
+impl PietApplication for App {
     fn handle_event(&mut self, event: &Event) {
         let _widget_events = self.widget_manager.handle_event(event, None);
     }

@@ -5,7 +5,7 @@ use druid_shell::piet::Piet;
 use druid_shell::{Clipboard, Region, WindowBuilder};
 
 ///
-pub trait Application {
+pub trait PietApplication {
     ///
     fn handle_event(&mut self, event: &Event);
 
@@ -20,7 +20,7 @@ pub trait Application {
 }
 
 ///
-pub fn run(mut application: Box<dyn Application>, title: impl Into<String>, size: Size) {
+pub fn run(mut application: Box<dyn PietApplication>, title: impl Into<String>, size: Size) {
     // Create a druid shell application.
     let druid_shell_application = druid_shell::Application::new().unwrap();
 

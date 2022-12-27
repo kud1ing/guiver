@@ -3,7 +3,7 @@ use guiver::{Command, Size, WidgetManager};
 This implements the "Flight Booker" task from [7GUIs](https://eugenkiss.github.io/7guis/tasks/).
 */
 use guiver_piet::{
-    run, Application, Clipboard, Color, Event, PaintBrush, Piet, PietWidgetManager, Region,
+    run, Clipboard, Color, Event, PaintBrush, Piet, PietApplication, PietWidgetManager, Region,
 };
 
 pub(crate) struct App {
@@ -64,7 +64,7 @@ impl App {
     }
 }
 
-impl Application for App {
+impl PietApplication for App {
     fn handle_event(&mut self, event: &Event) {
         let _widget_events = self.widget_manager.handle_event(event, None).unwrap();
 

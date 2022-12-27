@@ -10,8 +10,8 @@ use druid_shell::kurbo::Size;
 use druid_shell::piet::Piet;
 use druid_shell::{piet, Clipboard, KbKey, Modifiers, Region};
 use guiver::{
-    Color, Command, GridColumnProperties, GridRowProperties, HorizontalAlignment, SizeConstraints,
-    WidgetError, WidgetEvent, WidgetEventType, WidgetId, WidgetManager,
+    Color, Command, GridColumnProperties, GridRowProperties, HorizontalAlignment, Rect,
+    SizeConstraints, WidgetError, WidgetEvent, WidgetEventType, WidgetId, WidgetManager,
 };
 use piet::PaintBrush;
 use std::any::Any;
@@ -929,6 +929,11 @@ impl<T: Clone> WidgetManager<T> for PietWidgetManager<T> {
 
         // Return the widget ID.
         widget_id
+    }
+
+    /// Returns a widget's rectangle.
+    fn rectangle(&self, widget_id: WidgetId) -> Result<Rect, WidgetError> {
+        Ok(self.widget(widget_id)?.borrow().rectangle().clone())
     }
 
     fn resize(&mut self, size: Size) {

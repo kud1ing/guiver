@@ -4,6 +4,7 @@ use crate::{
     GridColumnProperties, GridRowProperties, HorizontalAlignment, PaintBrush, Size,
     VerticalAlignment,
 };
+use druid_shell::kurbo::Rect;
 use std::any::Any;
 
 /// A command to the widget manager or widgets.
@@ -207,6 +208,9 @@ pub trait WidgetManager<T> {
 
     ///
     fn new_text_input(&mut self, text: impl Into<String>, width: f64) -> WidgetId;
+
+    /// Returns a widget's rectangle.
+    fn rectangle(&self, widget_id: WidgetId) -> Result<Rect, WidgetError>;
 
     ///
     fn resize(&mut self, size: Size);

@@ -6,7 +6,7 @@ use druid_shell::piet::Piet;
 use druid_shell::Region;
 use guiver::{Command, WidgetEventType, WidgetId, WidgetManager};
 use guiver_piet::{run, PietWidgetManager};
-use guiver_piet::{Application, Clipboard, Event};
+use guiver_piet::{Clipboard, Event, PietApplication};
 
 pub(crate) struct App {
     counter: u32,
@@ -56,7 +56,7 @@ impl App {
     }
 }
 
-impl Application for App {
+impl PietApplication for App {
     fn handle_event(&mut self, event: &Event) {
         // Handle the given event, possibly creating widget events.
         let widget_events = self.widget_manager.handle_event(event, None).unwrap();

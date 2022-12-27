@@ -1,4 +1,4 @@
-use crate::{Application, Event};
+use crate::{Event, PietApplication};
 use druid_shell::kurbo::Size;
 use druid_shell::piet::Piet;
 use druid_shell::{
@@ -10,7 +10,7 @@ use std::any::Any;
 ///
 pub struct WindowEventHandler {
     /// The application.
-    application: Box<dyn Application>,
+    application: Box<dyn PietApplication>,
     /// The window handle.
     window_handle: WindowHandle,
     /// The window size. Needed for repainting.
@@ -19,7 +19,7 @@ pub struct WindowEventHandler {
 
 impl WindowEventHandler {
     ///
-    pub fn new(application: Box<dyn Application>) -> Self {
+    pub fn new(application: Box<dyn PietApplication>) -> Self {
         WindowEventHandler {
             application,
             window_handle: WindowHandle::default(),

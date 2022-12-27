@@ -3,12 +3,6 @@ use crate::{
     TextLayoutBuilder, TextStorage,
 };
 
-#[cfg(any(target_os = "linux", target_os = "openbsd", target_os = "freebsd"))]
-use druid_shell::piet::CairoText;
-
-#[cfg(target_os = "windows")]
-use druid_shell::piet::{D2DText, DwriteFactory};
-
 ///
 #[derive(Clone, Debug)]
 pub struct Font {
@@ -31,22 +25,6 @@ impl Default for Font {
             has_underline: false,
         }
     }
-}
-
-#[cfg(any(target_os = "linux", target_os = "openbsd", target_os = "freebsd"))]
-pub fn piet_text() -> PietText {
-    CairoText::new()
-}
-
-#[cfg(any(target_os = "macos", target_os = "ios"))]
-pub fn piet_text() -> PietText {
-    PietText::new_with_unique_state()
-}
-
-#[cfg(target_os = "windows")]
-pub fn piet_text() -> PietText {
-    let dwrite = DwriteFactory::new().unwrap();
-    D2DText::new_with_shared_fonts(dwrite, None)
 }
 
 impl Font {

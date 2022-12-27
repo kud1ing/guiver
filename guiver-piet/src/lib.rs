@@ -7,12 +7,13 @@ pub mod widget;
 mod widget_manager;
 mod window_event_handler;
 
-pub use application::{run, Application};
+pub use application::{run, PietApplication};
 pub use druid_shell::piet::{
     Color, Error, FontFamily, FontWeight, LinearGradient, PaintBrush, Piet, PietTextLayout,
     RenderContext, StrokeDash, StrokeStyle, TextLayout, UnitPoint,
 };
 pub use druid_shell::{Clipboard, Region};
 pub use event::Event;
-use widget::{Widget, WidgetCore};
+pub use shared_state::piet_text;
+use widget::Widget;
 pub use widget_manager::PietWidgetManager;

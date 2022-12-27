@@ -253,9 +253,9 @@ impl Widget for Text {
 
 #[cfg(test)]
 mod tests {
+    use crate::shared_state::piet_text;
     use crate::widget::Text;
     use crate::Widget;
-    use guiver::font::piet_text;
     use guiver::{Font, SizeConstraints, Stroke};
 
     #[test]
