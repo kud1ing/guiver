@@ -9,6 +9,7 @@ use druid_shell::Region;
 use guiver::stroke::Stroke;
 use guiver::{
     GridColumnProperties, GridRowProperties, Size, SizeConstraints, WidgetEvent, WidgetId,
+    WidgetPlacement,
 };
 use std::borrow::BorrowMut;
 use std::cell::RefCell;
@@ -365,6 +366,28 @@ impl Grid {
 }
 
 impl Widget for Grid {
+    fn add_child(
+        &mut self,
+        widget_placement: Option<WidgetPlacement>,
+        child_widget: WidgetBox,
+    ) -> Result<(), WidgetError> {
+        // A grid widget placement is given
+        if let Some(WidgetPlacement::Grid {
+            column_index,
+            row_index,
+        }) = widget_placement
+        {
+            self.add_child_widget(child_widget.clone(), column_index, row_index);
+
+            return Ok(());
+        }
+
+        Err(WidgetError::NotHandled {
+            widget_id: self.core.widget_id,
+            description: format!("`add_child({:?})`", widget_placement),
+        })
+    }
+
     fn apply_size_constraints(&mut self, size_constraints: SizeConstraints) -> Size {
         self.core.size_constraints = size_constraints;
 
@@ -426,17 +449,6 @@ impl Widget for Grid {
 
         // Update this widget's size.
         self.layout_child_widgets();
-
-        Ok(())
-    }
-
-    fn set_child(
-        &mut self,
-        column_index: usize,
-        row_index: usize,
-        child_widget: WidgetBox,
-    ) -> Result<(), WidgetError> {
-        self.add_child_widget(child_widget.clone(), column_index, row_index);
 
         Ok(())
     }

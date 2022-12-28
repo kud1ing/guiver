@@ -104,19 +104,6 @@ pub trait Widget {
         self.value()
     }
 
-    /// Sets the child widget with the given ID to a grid-like container widget.
-    fn set_child(
-        &mut self,
-        _column_index: usize,
-        _row_index: usize,
-        _child_widget: WidgetBox,
-    ) -> Result<(), WidgetError> {
-        Err(WidgetError::NotHandled {
-            widget_id: self.widget_id().clone(),
-            description: "`set_child()`".to_string(),
-        })
-    }
-
     /// Enables or disables the widget's debug rendering.
     fn set_debug_rendering(&mut self, debug_rendering: bool);
 

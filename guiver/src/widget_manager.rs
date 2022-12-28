@@ -29,13 +29,6 @@ pub enum Command<T> {
         parent_widget_id: WidgetId,
         destroy_child_widgets: bool,
     },
-    /// Sets the child widget at the given location.
-    SetChild {
-        parent_widget_id: WidgetId,
-        column_index: usize,
-        row_index: usize,
-        child_widget_id: WidgetId,
-    },
     /// Enables/disables debug rendering mode for the widget.
     SetDebugRendering(WidgetId, bool),
     /// Sets/unsets the widget's fill.
@@ -75,9 +68,6 @@ impl<T> Command<T> {
                 parent_widget_id, ..
             } => parent_widget_id,
             Command::RemoveChildren {
-                parent_widget_id, ..
-            } => parent_widget_id,
-            Command::SetChild {
                 parent_widget_id, ..
             } => parent_widget_id,
             Command::SetDebugRendering(widget_id, _) => widget_id,
@@ -143,6 +133,8 @@ pub enum WidgetEventType {
 #[derive(Clone, Debug)]
 pub enum WidgetsLocation {
     Column(usize),
+    FirstColumn,
+    FirstRow,
     LastColumn,
     LastRow,
     Row(usize),
@@ -151,12 +143,15 @@ pub enum WidgetsLocation {
 // =================================================================================================
 
 ///
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 pub enum WidgetPlacement {
-    Above(WidgetsLocation),
-    Below(WidgetsLocation),
-    LeftOf(WidgetsLocation),
-    RightOf(WidgetsLocation),
+    After(WidgetsLocation),
+    Before(WidgetsLocation),
+    Custom(Box<dyn Any>),
+    Grid {
+        column_index: usize,
+        row_index: usize,
+    },
 }
 
 // =================================================================================================

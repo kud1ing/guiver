@@ -159,13 +159,13 @@ impl Widget for Row {
         // A widget placement is given.
         if let Some(widget_placement) = widget_placement {
             match widget_placement {
-                WidgetPlacement::LeftOf(_widgets_location) => {
+                WidgetPlacement::After(_widgets_location) => {
                     // TODO
-                    println!("TODO: `Row::add_child(WidgetPlacement::LeftOf(...))");
+                    println!("TODO: `Row::add_child(WidgetPlacement::After(...))");
                 }
-                WidgetPlacement::RightOf(_widgets_location) => {
+                WidgetPlacement::Before(_widgets_location) => {
                     // TODO
-                    println!("TODO: `Row::add_child(WidgetPlacement::RightOf(...))");
+                    println!("TODO: `Row::add_child(WidgetPlacement::Before(...))");
                 }
                 _ => {
                     return Err(WidgetError::NotHandled {

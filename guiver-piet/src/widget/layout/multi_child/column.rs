@@ -160,13 +160,13 @@ impl Widget for Column {
         // A widget placement is given.
         if let Some(widget_placement) = widget_placement {
             match widget_placement {
-                WidgetPlacement::Above(_widgets_location) => {
+                WidgetPlacement::After(_widgets_location) => {
                     // TODO
-                    println!("TODO: `Column::add_child(WidgetPlacement::Above(...))");
+                    println!("TODO: `Column::add_child(WidgetPlacement::After(...))");
                 }
-                WidgetPlacement::Below(_widgets_location) => {
+                WidgetPlacement::Before(_widgets_location) => {
                     // TODO
-                    println!("TODO: `Column::add_child(WidgetPlacement::Below(...))");
+                    println!("TODO: `Column::add_child(WidgetPlacement::Before(...))");
                 }
                 _ => {
                     return Err(WidgetError::NotHandled {

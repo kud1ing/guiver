@@ -1,4 +1,6 @@
-use guiver::{Command, GridColumnProperties, GridRowProperties, Size, WidgetManager};
+use guiver::{
+    Command, GridColumnProperties, GridRowProperties, Size, WidgetManager, WidgetPlacement,
+};
 use guiver_piet::{run, Clipboard, Event, Piet, PietApplication, PietWidgetManager, Region};
 
 pub(crate) struct App {
@@ -32,42 +34,54 @@ impl App {
                     child_widget_id: grid,
                 },
                 //
-                Command::SetChild {
+                Command::AddChild {
                     parent_widget_id: grid,
-                    column_index: 0,
-                    row_index: 1,
+                    widget_placement: Some(WidgetPlacement::Grid {
+                        column_index: 0,
+                        row_index: 1,
+                    }),
                     child_widget_id: placeholder1,
                 },
                 //
-                Command::SetChild {
+                Command::AddChild {
                     parent_widget_id: grid,
-                    column_index: 1,
-                    row_index: 0,
+                    widget_placement: Some(WidgetPlacement::Grid {
+                        column_index: 1,
+                        row_index: 0,
+                    }),
                     child_widget_id: placeholder2,
                 },
-                Command::SetChild {
+                Command::AddChild {
                     parent_widget_id: grid,
-                    column_index: 1,
-                    row_index: 1,
+                    widget_placement: Some(WidgetPlacement::Grid {
+                        column_index: 1,
+                        row_index: 1,
+                    }),
                     child_widget_id: placeholder3,
                 },
-                Command::SetChild {
+                Command::AddChild {
                     parent_widget_id: grid,
-                    column_index: 1,
-                    row_index: 2,
+                    widget_placement: Some(WidgetPlacement::Grid {
+                        column_index: 1,
+                        row_index: 2,
+                    }),
                     child_widget_id: placeholder4,
                 },
                 //
-                Command::SetChild {
+                Command::AddChild {
                     parent_widget_id: grid,
-                    column_index: 2,
-                    row_index: 0,
+                    widget_placement: Some(WidgetPlacement::Grid {
+                        column_index: 2,
+                        row_index: 0,
+                    }),
                     child_widget_id: placeholder5,
                 },
-                Command::SetChild {
+                Command::AddChild {
                     parent_widget_id: grid,
-                    column_index: 2,
-                    row_index: 2,
+                    widget_placement: Some(WidgetPlacement::Grid {
+                        column_index: 2,
+                        row_index: 2,
+                    }),
                     child_widget_id: placeholder6,
                 },
             ])

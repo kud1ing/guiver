@@ -596,28 +596,6 @@ impl<T: Clone> WidgetManager<T> for PietWidgetManager<T> {
                         self.remove_parent_child_widget_connections(widget_id);
                     }
                 }
-                Command::SetChild {
-                    parent_widget_id: _,
-                    column_index: column,
-                    row_index: row,
-                    child_widget_id,
-                } => {
-                    // There is a widget with the given child widget ID.
-                    let child_widget_box =
-                        if let Some(widget_box) = self.widgets.get(&child_widget_id) {
-                            widget_box
-                        }
-                        // There is no widget with the given ID.
-                        else {
-                            return Err(WidgetError::NoSuchWidget(child_widget_id));
-                        };
-
-                    widget_box
-                        .borrow_mut()
-                        .set_child(column, row, child_widget_box.clone())?;
-
-                    self.add_parent_child_widget_connection(widget_id, child_widget_id);
-                }
                 Command::SetDebugRendering(_widget_id, debug_rendering) => {
                     widget_box.borrow_mut().set_debug_rendering(debug_rendering);
                 }
