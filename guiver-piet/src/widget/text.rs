@@ -8,7 +8,7 @@ use guiver::font::Font;
 use guiver::stroke::Stroke;
 use guiver::{
     HorizontalAlignment, PaintBrush, SizeConstraints, VerticalAlignment, WidgetError, WidgetEvent,
-    WidgetEventType, WidgetId,
+    WidgetEventType, WidgetId, WidgetIdProvider,
 };
 use std::any::Any;
 
@@ -95,18 +95,22 @@ impl Widget for Text {
 
     fn handle_event(
         &mut self,
+        _widget_id_provider: &mut WidgetIdProvider,
         _shared_state: &mut SharedState,
         event: &Event,
-        widget_events: &mut Vec<WidgetEvent>,
-    ) {
+    ) -> Vec<WidgetEvent> {
+        let mut widget_events = vec![];
+
         if let Event::MouseDown(mouse_event) = event {
             // The click is outside of the text.
             if !self.core.rectangle.contains(mouse_event.pos) {
-                return;
+                return widget_events;
             }
 
             widget_events.push((self.core.widget_id, WidgetEventType::Clicked));
         }
+
+        widget_events
     }
 
     fn paint(&self, piet: &mut Piet, _region: &Region) -> Result<(), piet::Error> {
@@ -198,6 +202,7 @@ impl Widget for Text {
 
     fn set_value(
         &mut self,
+        _widget_id_provider: &mut WidgetIdProvider,
         shared_state: &mut SharedState,
         value: Box<dyn Any>,
     ) -> Result<(), WidgetError> {

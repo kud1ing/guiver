@@ -9,7 +9,7 @@ use druid_shell::Region;
 use guiver::stroke::Stroke;
 use guiver::{
     GridColumnProperties, GridRowProperties, Size, SizeConstraints, WidgetEvent, WidgetId,
-    WidgetPlacement,
+    WidgetIdProvider, WidgetPlacement,
 };
 use std::borrow::BorrowMut;
 use std::cell::RefCell;
@@ -399,15 +399,23 @@ impl Widget for Grid {
 
     fn handle_event(
         &mut self,
+        widget_id_provider: &mut WidgetIdProvider,
         shared_state: &mut SharedState,
         event: &Event,
-        widget_events: &mut Vec<WidgetEvent>,
-    ) {
+    ) -> Vec<WidgetEvent> {
+        let mut widget_events = vec![];
+
         // Iterate over the child widgets.
         for child_widget in &mut self.child_widget_per_id.values() {
             // Let the current child widget handle the given event.
-            RefCell::borrow_mut(child_widget).handle_event(shared_state, event, widget_events);
+            widget_events.append(&mut RefCell::borrow_mut(child_widget).handle_event(
+                widget_id_provider,
+                shared_state,
+                event,
+            ));
         }
+
+        widget_events
     }
 
     fn paint(&self, piet: &mut Piet, region: &Region) -> Result<(), Error> {

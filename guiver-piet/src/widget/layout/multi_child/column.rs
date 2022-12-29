@@ -7,7 +7,8 @@ use druid_shell::piet::Piet;
 use druid_shell::{piet, Region};
 use guiver::stroke::Stroke;
 use guiver::{
-    HorizontalAlignment, SizeConstraints, WidgetError, WidgetEvent, WidgetId, WidgetPlacement,
+    HorizontalAlignment, SizeConstraints, WidgetError, WidgetEvent, WidgetId, WidgetIdProvider,
+    WidgetPlacement,
 };
 use piet::RenderContext;
 use std::borrow::{Borrow, BorrowMut};
@@ -198,15 +199,23 @@ impl Widget for Column {
 
     fn handle_event(
         &mut self,
+        widget_id_provider: &mut WidgetIdProvider,
         shared_state: &mut SharedState,
         event: &Event,
-        widget_events: &mut Vec<WidgetEvent>,
-    ) {
+    ) -> Vec<WidgetEvent> {
+        let mut widget_events = vec![];
+
         // Iterate over the child widgets.
         for child_widget in &mut self.child_widgets {
             // Let the current child widget handle the given event.
-            RefCell::borrow_mut(child_widget).handle_event(shared_state, event, widget_events);
+            widget_events.append(&mut RefCell::borrow_mut(child_widget).handle_event(
+                widget_id_provider,
+                shared_state,
+                event,
+            ));
         }
+
+        widget_events
     }
 
     fn paint(&self, piet: &mut Piet, region: &Region) -> Result<(), piet::Error> {

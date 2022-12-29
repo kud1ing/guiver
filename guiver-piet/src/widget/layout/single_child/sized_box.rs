@@ -7,7 +7,9 @@ use druid_shell::kurbo::{Point, Rect, Size};
 use druid_shell::piet::{Error, RenderContext};
 use druid_shell::Region;
 use guiver::stroke::Stroke;
-use guiver::{SizeConstraints, WidgetError, WidgetEvent, WidgetId, WidgetPlacement};
+use guiver::{
+    SizeConstraints, WidgetError, WidgetEvent, WidgetId, WidgetIdProvider, WidgetPlacement,
+};
 
 /// A layout widget that tries to adjust its child widget to a desired size.
 pub struct SizedBox {
@@ -77,16 +79,18 @@ impl Widget for SizedBox {
 
     fn handle_event(
         &mut self,
+        widget_id_provider: &mut WidgetIdProvider,
         shared_state: &mut SharedState,
         event: &Event,
-        widget_events: &mut Vec<WidgetEvent>,
-    ) {
+    ) -> Vec<WidgetEvent> {
         // There is a child widget.
         if let Some(child_widget) = &mut self.child_widget {
             // Let the child widget handle the event.
             child_widget
                 .borrow_mut()
-                .handle_event(shared_state, event, widget_events);
+                .handle_event(widget_id_provider, shared_state, event)
+        } else {
+            vec![]
         }
     }
 

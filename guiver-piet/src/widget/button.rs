@@ -9,7 +9,7 @@ use druid_shell::{piet, KbKey, Region};
 use guiver::stroke::Stroke;
 use guiver::{
     Font, HorizontalAlignment, SizeConstraints, VerticalAlignment, WidgetError, WidgetEvent,
-    WidgetEventType, WidgetId, WidgetPlacement,
+    WidgetEventType, WidgetId, WidgetIdProvider, WidgetPlacement,
 };
 use std::any::Any;
 
@@ -144,10 +144,12 @@ impl Widget for Button {
 
     fn handle_event(
         &mut self,
+        _widget_id_provider: &mut WidgetIdProvider,
         _shared_state: &mut SharedState,
         event: &Event,
-        widget_events: &mut Vec<WidgetEvent>,
-    ) {
+    ) -> Vec<WidgetEvent> {
+        let mut widget_events = vec![];
+
         match event {
             Event::KeyDown(key_event) => {
                 if key_event.key == KbKey::Enter {
@@ -203,6 +205,8 @@ impl Widget for Button {
             }
             _ => {}
         }
+
+        widget_events
     }
 
     fn paint(&self, piet: &mut Piet, region: &Region) -> Result<(), piet::Error> {
@@ -321,6 +325,7 @@ impl Widget for Button {
 
     fn set_value(
         &mut self,
+        _widget_id_provider: &mut WidgetIdProvider,
         _shared_state: &mut SharedState,
         _value: Box<dyn Any>,
     ) -> Result<(), WidgetError> {

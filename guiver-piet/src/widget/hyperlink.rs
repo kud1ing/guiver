@@ -5,7 +5,9 @@ use druid_shell::kurbo::{Point, Rect};
 use druid_shell::piet::{Error, PietText};
 use druid_shell::Region;
 use guiver::stroke::Stroke;
-use guiver::{Font, Size, SizeConstraints, WidgetEvent, WidgetEventType, WidgetId};
+use guiver::{
+    Font, Size, SizeConstraints, WidgetEvent, WidgetEventType, WidgetId, WidgetIdProvider,
+};
 use std::borrow::BorrowMut;
 
 ///
@@ -104,16 +106,18 @@ impl Widget for Hyperlink {
 
     fn handle_event(
         &mut self,
+        _widget_id_provider: &mut WidgetIdProvider,
         shared_state: &mut SharedState,
         event: &Event,
-        widget_events: &mut Vec<WidgetEvent>,
-    ) {
+    ) -> Vec<WidgetEvent> {
+        let mut widget_events = vec![];
+
         match event {
             Event::MouseDown(mouse_event) => {
                 // The click is outside of the text.
                 if !self.text_widget.rectangle().contains(mouse_event.pos) {
                     self.set_is_being_clicked(shared_state, false);
-                    return;
+                    return widget_events;
                 }
 
                 // The hyperlink is being clicked.
@@ -130,7 +134,7 @@ impl Widget for Hyperlink {
                     // The hyperlink is not being clicked.
                     self.set_is_being_clicked(shared_state, false);
 
-                    return;
+                    return widget_events;
                 }
 
                 if self.is_being_clicked {
@@ -147,6 +151,8 @@ impl Widget for Hyperlink {
             }
             _ => {}
         }
+
+        widget_events
     }
 
     fn paint(&self, piet: &mut Piet, region: &Region) -> Result<(), Error> {

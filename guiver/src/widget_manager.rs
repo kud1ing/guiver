@@ -164,6 +164,14 @@ pub enum WidgetPlacement {
 
 // =================================================================================================
 
+/// A widget manager decouples widgets from the business logic via `WidgetId`s and `Command`s.
+///
+/// In addition it can and probably should handle:
+/// * a window's main widget
+/// * widget focus, including tab/focus order
+/// * widget event subscriptions (mapping of `WidgetEvent`s to high-level events)
+/// * clipboard interaction
+/// * widget styling
 pub trait WidgetManager<T> {
     ///
     fn handle_command(&mut self, command: Command<T>) -> Result<(), WidgetError> {
@@ -197,6 +205,7 @@ pub trait WidgetManager<T> {
 
     ///
     fn new_placeholder(&mut self, maximum_size: Size) -> WidgetId;
+
     ///
     fn new_row(&mut self) -> WidgetId;
 

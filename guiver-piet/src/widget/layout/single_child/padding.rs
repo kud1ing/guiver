@@ -7,7 +7,9 @@ use druid_shell::kurbo::{Point, Rect, Size};
 use druid_shell::piet::{Piet, RenderContext};
 use druid_shell::{piet, Region};
 use guiver::stroke::Stroke;
-use guiver::{SizeConstraints, WidgetError, WidgetEvent, WidgetId, WidgetPlacement};
+use guiver::{
+    SizeConstraints, WidgetError, WidgetEvent, WidgetId, WidgetIdProvider, WidgetPlacement,
+};
 
 /// A layout widget that adds padding around its child widget.
 pub struct Padding {
@@ -101,15 +103,17 @@ impl Widget for Padding {
 
     fn handle_event(
         &mut self,
+        widget_id_provider: &mut WidgetIdProvider,
         shared_state: &mut SharedState,
         event: &Event,
-        widget_events: &mut Vec<WidgetEvent>,
-    ) {
+    ) -> Vec<WidgetEvent> {
         // There is a child widget.
         if let Some(child_widget) = &mut self.child_widget {
             child_widget
                 .borrow_mut()
-                .handle_event(shared_state, event, widget_events);
+                .handle_event(widget_id_provider, shared_state, event)
+        } else {
+            vec![]
         }
     }
 

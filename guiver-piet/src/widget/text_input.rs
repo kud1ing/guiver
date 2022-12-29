@@ -8,7 +8,7 @@ use druid_shell::{KbKey, Region};
 use guiver::stroke::Stroke;
 use guiver::{
     Font, HorizontalAlignment, SizeConstraints, VerticalAlignment, WidgetError, WidgetEvent,
-    WidgetEventType, WidgetId,
+    WidgetEventType, WidgetId, WidgetIdProvider,
 };
 use std::any::Any;
 use std::borrow::BorrowMut;
@@ -84,11 +84,12 @@ impl TextInput {
     ///
     fn broadcast_modified_text(
         &mut self,
+        widget_id_provider: &mut WidgetIdProvider,
         shared_state: &mut SharedState,
         widget_events: &mut Vec<WidgetEvent>,
     ) {
         // Pass the updated text to the child text widget.
-        self.update_text_widget(shared_state);
+        self.update_text_widget(widget_id_provider, shared_state);
 
         // Inform the world that the text has changed.
         widget_events.push((self.core.widget_id, WidgetEventType::ValueChanged));
@@ -176,11 +177,19 @@ impl TextInput {
     }
 
     ///
-    fn update_text_widget(&mut self, shared_state: &mut SharedState) {
+    fn update_text_widget(
+        &mut self,
+        widget_id_provider: &mut WidgetIdProvider,
+        shared_state: &mut SharedState,
+    ) {
         // Pass the updated text to the child text widget.
         self.text_widget
             .borrow_mut()
-            .set_value(shared_state, Box::new(self.text.clone()))
+            .set_value(
+                widget_id_provider,
+                shared_state,
+                Box::new(self.text.clone()),
+            )
             .unwrap();
 
         // Update the caret index, if necessary.
@@ -207,14 +216,16 @@ impl Widget for TextInput {
 
     fn handle_event(
         &mut self,
+        widget_id_provider: &mut WidgetIdProvider,
         shared_state: &mut SharedState,
         event: &Event,
-        widget_events: &mut Vec<WidgetEvent>,
-    ) {
+    ) -> Vec<WidgetEvent> {
+        let mut widget_events = vec![];
+
         match event {
             Event::ClipboardPaste(string) => {
                 // TODO: error handling
-                self.set_selected_value(shared_state, Box::new(string.clone()))
+                self.set_selected_value(widget_id_provider, shared_state, Box::new(string.clone()))
                     .unwrap();
             }
             Event::KeyDown(key_event) => match &key_event.key {
@@ -223,7 +234,11 @@ impl Widget for TextInput {
                     self.text.push_str(chracter_string);
 
                     // Apply the text changes.
-                    self.broadcast_modified_text(shared_state, widget_events);
+                    self.broadcast_modified_text(
+                        widget_id_provider,
+                        shared_state,
+                        &mut widget_events,
+                    );
                 }
                 KbKey::Backspace => {
                     if !self.text.is_empty() {
@@ -234,7 +249,11 @@ impl Widget for TextInput {
                     }
 
                     // Apply the text changes.
-                    self.broadcast_modified_text(shared_state, widget_events);
+                    self.broadcast_modified_text(
+                        widget_id_provider,
+                        shared_state,
+                        &mut widget_events,
+                    );
                 }
                 KbKey::Enter => {
                     // Enter on a (focused) text input submits the value.
@@ -268,6 +287,8 @@ impl Widget for TextInput {
             }
             _ => {}
         }
+
+        widget_events
     }
 
     fn paint(&self, piet: &mut Piet, region: &Region) -> Result<(), Error> {
@@ -320,10 +341,14 @@ impl Widget for TextInput {
         &self.core.rectangle
     }
 
-    fn remove_selected_value(&mut self, shared_state: &mut SharedState) -> Result<(), WidgetError> {
+    fn remove_selected_value(
+        &mut self,
+        widget_id_provider: &mut WidgetIdProvider,
+        shared_state: &mut SharedState,
+    ) -> Result<(), WidgetError> {
         // TODO
         println!("`TextInput::remove_selected_value()`: TODO");
-        self.set_value(shared_state, Box::new("".to_string()))
+        self.set_value(widget_id_provider, shared_state, Box::new("".to_string()))
     }
 
     fn selected_value(&self) -> Option<Box<dyn Any>> {
@@ -380,16 +405,18 @@ impl Widget for TextInput {
 
     fn set_selected_value(
         &mut self,
+        widget_id_provider: &mut WidgetIdProvider,
         shared_state: &mut SharedState,
         value: Box<dyn Any>,
     ) -> Result<(), WidgetError> {
         // TODO
         println!("`TextInput::set_selected_value()`: TODO");
-        self.set_value(shared_state, value)
+        self.set_value(widget_id_provider, shared_state, value)
     }
 
     fn set_value(
         &mut self,
+        widget_id_provider: &mut WidgetIdProvider,
         shared_state: &mut SharedState,
         value: Box<dyn Any>,
     ) -> Result<(), WidgetError> {
@@ -398,7 +425,7 @@ impl Widget for TextInput {
             self.text = string.clone();
 
             // Apply the text changes.
-            self.update_text_widget(shared_state);
+            self.update_text_widget(widget_id_provider, shared_state);
         }
 
         Ok(())

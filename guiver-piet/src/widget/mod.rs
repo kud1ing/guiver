@@ -17,7 +17,7 @@ use druid_shell::Region;
 use guiver::stroke::Stroke;
 use guiver::{
     Font, HorizontalAlignment, Rect, SizeConstraints, VerticalAlignment, WidgetError, WidgetEvent,
-    WidgetId, WidgetPlacement,
+    WidgetId, WidgetIdProvider, WidgetPlacement,
 };
 pub use hyperlink::Hyperlink;
 use piet::PaintBrush;
@@ -61,10 +61,10 @@ pub trait Widget {
     /// Ask the widget to handle the given event.
     fn handle_event(
         &mut self,
+        widget_id_provider: &mut WidgetIdProvider,
         shared_state: &mut SharedState,
         event: &Event,
-        widget_events: &mut Vec<WidgetEvent>,
-    );
+    ) -> Vec<WidgetEvent>;
 
     /// Paints the widget.
     fn paint(&self, piet: &mut piet::Piet, region: &Region) -> Result<(), piet::Error>;
@@ -91,6 +91,7 @@ pub trait Widget {
     /// Removes the widget's selected value. This can be e.g. selected text in a `TextInput` widget.
     fn remove_selected_value(
         &mut self,
+        _widget_id_provider: &mut WidgetIdProvider,
         _shared_state: &mut SharedState,
     ) -> Result<(), WidgetError> {
         Err(WidgetError::NotHandled {
@@ -158,10 +159,14 @@ pub trait Widget {
     /// Sets the widget's selected value. This can be e.g. selected text in a `TextInput` widget.
     fn set_selected_value(
         &mut self,
-        shared_state: &mut SharedState,
-        value: Box<dyn Any>,
+        _widget_id_provider: &mut WidgetIdProvider,
+        _shared_state: &mut SharedState,
+        _value: Box<dyn Any>,
     ) -> Result<(), WidgetError> {
-        self.set_value(shared_state, value)
+        Err(WidgetError::NotHandled {
+            widget_id: self.widget_id().clone(),
+            description: "`set_selected_value()`".to_string(),
+        })
     }
 
     /// Sets the widget's stroke.
@@ -175,6 +180,7 @@ pub trait Widget {
     /// Sets the widget's value.
     fn set_value(
         &mut self,
+        _widget_id_provider: &mut WidgetIdProvider,
         _shared_state: &mut SharedState,
         _value: Box<dyn Any>,
     ) -> Result<(), WidgetError> {

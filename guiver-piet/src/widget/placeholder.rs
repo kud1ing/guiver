@@ -6,7 +6,7 @@ use druid_shell::kurbo::{Line, Point, Rect, Size};
 use druid_shell::piet::{Color, Piet, RenderContext};
 use druid_shell::{piet, Region};
 use guiver::stroke::Stroke;
-use guiver::{SizeConstraints, WidgetEvent, WidgetId};
+use guiver::{SizeConstraints, WidgetEvent, WidgetId, WidgetIdProvider};
 use piet::{PaintBrush, StrokeDash, StrokeStyle};
 
 /// A placeholder widget.
@@ -51,11 +51,12 @@ impl Widget for Placeholder {
 
     fn handle_event(
         &mut self,
+        _widget_id_provider: &mut WidgetIdProvider,
         _shared_state: &mut SharedState,
         _event: &Event,
-        _widget_events: &mut Vec<WidgetEvent>,
-    ) {
+    ) -> Vec<WidgetEvent> {
         // Nothing to do.
+        vec![]
     }
 
     fn paint(&self, piet: &mut Piet, _region: &Region) -> Result<(), piet::Error> {

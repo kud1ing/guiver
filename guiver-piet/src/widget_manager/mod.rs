@@ -11,7 +11,8 @@ use druid_shell::piet::Piet;
 use druid_shell::{piet, Clipboard, KbKey, Modifiers, Region};
 use guiver::{
     Color, Command, GridColumnProperties, GridRowProperties, HorizontalAlignment, Rect,
-    SizeConstraints, WidgetError, WidgetEvent, WidgetEventType, WidgetId, WidgetManager,
+    SizeConstraints, WidgetError, WidgetEvent, WidgetEventType, WidgetId, WidgetIdProvider,
+    WidgetManager,
 };
 use piet::PaintBrush;
 use std::any::Any;
@@ -30,8 +31,6 @@ pub struct PietWidgetManager<T> {
     focused_widget: Option<WidgetBox>,
     /// The main widget that fills the whole window.
     main_widget: Option<WidgetBox>,
-    /// The counter for the next widget ID.
-    next_widget_id_counter: WidgetId,
     /// The IDs of each widget's parent widget.
     parent_widget_id_per_widget_id: HashMap<WidgetId, WidgetId>,
     ///
@@ -39,15 +38,17 @@ pub struct PietWidgetManager<T> {
     /// The size constraints. It is set in `resize()`, called by the window event handler for every
     /// window resize event so that the main widget fills the whole window.
     size_constraints: SizeConstraints,
-    ///
+    /// The widget style.
     style: Style,
-    ///
+    /// Widget event subscriptions (mapping to high-level events).
     widget_event_subscriptions_per_widget_id: HashMap<WidgetId, HashMap<WidgetEventType, T>>,
-    ///
+    /// The widgets' tab/focus order.
     widget_focus_order: WidgetFocusOrder,
+    /// The provide for widget IDs.
+    widget_id_provider: WidgetIdProvider,
     /// All widgets per widget ID. This is used:
     /// * to determine whether a widget with a given ID exists
-    /// * to pass commands to a widget
+    /// * to pass commands to widgets directly
     widgets: HashMap<WidgetId, WidgetBox>,
 }
 
@@ -58,13 +59,13 @@ impl<T: Clone> PietWidgetManager<T> {
             child_widget_ids_per_widget_id: HashMap::new(),
             focused_widget: None,
             main_widget: None,
-            next_widget_id_counter: 0,
             parent_widget_id_per_widget_id: HashMap::new(),
             shared_state: SharedState::new(),
             size_constraints: SizeConstraints::default(),
             style: Style::default(),
             widget_event_subscriptions_per_widget_id: HashMap::new(),
             widget_focus_order: WidgetFocusOrder::new(),
+            widget_id_provider: WidgetIdProvider::new(),
             widgets: HashMap::new(),
         }
     }
@@ -290,10 +291,12 @@ impl<T: Clone> PietWidgetManager<T> {
                                 // A widget has focus.
                                 if let Some(focused_widget) = &mut self.focused_widget {
                                     // Let the focused widget handle a clipboard paste event.
-                                    focused_widget.borrow_mut().handle_event(
-                                        &mut self.shared_state,
-                                        &Event::ClipboardPaste(string),
-                                        &mut widget_events,
+                                    widget_events.append(
+                                        &mut focused_widget.borrow_mut().handle_event(
+                                            &mut self.widget_id_provider,
+                                            &mut self.shared_state,
+                                            &Event::ClipboardPaste(string),
+                                        ),
                                     );
                                 }
                             }
@@ -309,9 +312,10 @@ impl<T: Clone> PietWidgetManager<T> {
                             // A widget has focus.
                             if let Some(focused_widget) = &mut self.focused_widget {
                                 // Remove the selected value.
-                                focused_widget
-                                    .borrow_mut()
-                                    .remove_selected_value(&mut self.shared_state)?;
+                                focused_widget.borrow_mut().remove_selected_value(
+                                    &mut self.widget_id_provider,
+                                    &mut self.shared_state,
+                                )?;
                             }
                         }
                     }
@@ -328,11 +332,11 @@ impl<T: Clone> PietWidgetManager<T> {
                         // A widget has focus.
                         if let Some(focused_widget) = &mut self.focused_widget {
                             // Let the focused widget handle the key event.
-                            focused_widget.borrow_mut().handle_event(
+                            widget_events.append(&mut focused_widget.borrow_mut().handle_event(
+                                &mut self.widget_id_provider,
                                 &mut self.shared_state,
                                 event,
-                                &mut widget_events,
-                            );
+                            ));
                         }
                     }
                 }
@@ -343,11 +347,11 @@ impl<T: Clone> PietWidgetManager<T> {
                 // A widget has focus.
                 if let Some(focused_widget) = &mut self.focused_widget {
                     // Let the focused widget handle the key event.
-                    focused_widget.borrow_mut().handle_event(
+                    widget_events.append(&mut focused_widget.borrow_mut().handle_event(
+                        &mut self.widget_id_provider,
                         &mut self.shared_state,
                         event,
-                        &mut widget_events,
-                    );
+                    ));
                 }
 
                 return Ok(widget_events);
@@ -358,11 +362,11 @@ impl<T: Clone> PietWidgetManager<T> {
         // There is a main widget.
         if let Some(main_widget) = &mut self.main_widget {
             // Let the main widget handle the given user event.
-            main_widget.borrow_mut().handle_event(
+            widget_events.append(&mut main_widget.borrow_mut().handle_event(
+                &mut self.widget_id_provider,
                 &mut self.shared_state,
                 event,
-                &mut widget_events,
-            );
+            ));
         }
 
         // Focus handling.
@@ -434,12 +438,6 @@ impl<T: Clone> PietWidgetManager<T> {
         }
 
         None
-    }
-
-    ///
-    pub fn next_widget_id(&mut self) -> WidgetId {
-        self.next_widget_id_counter += 1;
-        self.next_widget_id_counter
     }
 
     ///
@@ -708,9 +706,11 @@ impl<T: Clone> WidgetManager<T> for PietWidgetManager<T> {
                         return Err(WidgetError::NoSuchWidget(widget_id));
                     };
 
-                    widget_box
-                        .borrow_mut()
-                        .set_value(&mut self.shared_state, value)?;
+                    widget_box.borrow_mut().set_value(
+                        &mut self.widget_id_provider,
+                        &mut self.shared_state,
+                        value,
+                    )?;
                 }
                 Command::SetVerticalAlignment(_widget_id, vertical_alignment) => {
                     let widget_box = self.widget(widget_id)?;
@@ -729,8 +729,8 @@ impl<T: Clone> WidgetManager<T> for PietWidgetManager<T> {
 
         // There is a main widget.
         if let Some(main_widget) = &mut self.main_widget {
-            // The widget commands might have affected the layout.
-            // Apply the size constraints again for re-layout.
+            // The widget commands might have affected the layout. Apply the size constraints again
+            // for re-layout.
             main_widget
                 .borrow_mut()
                 .apply_size_constraints(self.size_constraints);
@@ -741,7 +741,7 @@ impl<T: Clone> WidgetManager<T> for PietWidgetManager<T> {
 
     fn new_center(&mut self) -> WidgetId {
         // Get a new widget ID.
-        let widget_id = self.next_widget_id();
+        let widget_id = self.widget_id_provider.next_widget_id();
 
         // Add a new center layout widget.
         self.add_widget(Box::new(Center::new(
@@ -754,7 +754,7 @@ impl<T: Clone> WidgetManager<T> for PietWidgetManager<T> {
 
     fn new_column(&mut self) -> WidgetId {
         // Get a new widget ID.
-        let widget_id = self.next_widget_id();
+        let widget_id = self.widget_id_provider.next_widget_id();
 
         // Add a new column layout widget.
         self.add_widget(Box::new(Column::new(
@@ -770,7 +770,7 @@ impl<T: Clone> WidgetManager<T> for PietWidgetManager<T> {
 
     fn new_expanded(&mut self, flex_factor: u16) -> WidgetId {
         // Get a new widget ID.
-        let widget_id = self.next_widget_id();
+        let widget_id = self.widget_id_provider.next_widget_id();
 
         // Add a new expanded widget.
         self.add_widget(Box::new(Expanded::new(
@@ -789,7 +789,7 @@ impl<T: Clone> WidgetManager<T> for PietWidgetManager<T> {
         row_properties: GridRowProperties,
     ) -> WidgetId {
         // Get a new widget ID.
-        let widget_id = self.next_widget_id();
+        let widget_id = self.widget_id_provider.next_widget_id();
 
         // Add a new grid layout widget.
         self.add_widget(Box::new(Grid::new(
@@ -805,7 +805,7 @@ impl<T: Clone> WidgetManager<T> for PietWidgetManager<T> {
 
     fn new_hyper_link(&mut self, text: String) -> WidgetId {
         // Get a new widget ID.
-        let widget_id = self.next_widget_id();
+        let widget_id = self.widget_id_provider.next_widget_id();
 
         let mut font_unvisited = self.style.font.clone();
         font_unvisited.font_color = Color::rgb8(100, 100, 255);
@@ -835,7 +835,7 @@ impl<T: Clone> WidgetManager<T> for PietWidgetManager<T> {
 
     fn new_padding(&mut self) -> WidgetId {
         // Get a new widget ID.
-        let widget_id = self.next_widget_id();
+        let widget_id = self.widget_id_provider.next_widget_id();
 
         // Add a new padding widget.
         self.add_widget(Box::new(Padding::new(
@@ -853,7 +853,7 @@ impl<T: Clone> WidgetManager<T> for PietWidgetManager<T> {
 
     fn new_placeholder(&mut self, maximum_size: Size) -> WidgetId {
         // Get a new widget ID.
-        let widget_id = self.next_widget_id();
+        let widget_id = self.widget_id_provider.next_widget_id();
 
         // Add a new placeholder widget.
         self.add_widget(Box::new(Placeholder::new(
@@ -868,7 +868,7 @@ impl<T: Clone> WidgetManager<T> for PietWidgetManager<T> {
 
     fn new_row(&mut self) -> WidgetId {
         // Get a new widget ID.
-        let widget_id = self.next_widget_id();
+        let widget_id = self.widget_id_provider.next_widget_id();
 
         // Add a new row widget.
         self.add_widget(Box::new(Row::new(
@@ -884,7 +884,7 @@ impl<T: Clone> WidgetManager<T> for PietWidgetManager<T> {
 
     fn new_sized_box(&mut self, desired_size: Size) -> WidgetId {
         // Get a new widget ID.
-        let widget_id = self.next_widget_id();
+        let widget_id = self.widget_id_provider.next_widget_id();
 
         // Add a new sized box layout widget.
         self.add_widget(Box::new(SizedBox::new(
@@ -899,7 +899,7 @@ impl<T: Clone> WidgetManager<T> for PietWidgetManager<T> {
 
     fn new_text(&mut self, text: String) -> WidgetId {
         // Get a new widget ID.
-        let widget_id = self.next_widget_id();
+        let widget_id = self.widget_id_provider.next_widget_id();
 
         let widget = Text::new(
             widget_id,
@@ -918,8 +918,8 @@ impl<T: Clone> WidgetManager<T> for PietWidgetManager<T> {
 
     fn new_text_button(&mut self, text: String) -> WidgetId {
         // Get a new widget ID.
-        let widget_id = self.next_widget_id();
-        let child_widget_id = self.next_widget_id();
+        let widget_id = self.widget_id_provider.next_widget_id();
+        let child_widget_id = self.widget_id_provider.next_widget_id();
 
         let widget = Text::new(
             child_widget_id,
@@ -945,7 +945,7 @@ impl<T: Clone> WidgetManager<T> for PietWidgetManager<T> {
 
     fn new_text_input(&mut self, text: String, width: f64) -> WidgetId {
         // Get a new widget ID.
-        let widget_id = self.next_widget_id();
+        let widget_id = self.widget_id_provider.next_widget_id();
 
         let widget = TextInput::new(
             widget_id,
