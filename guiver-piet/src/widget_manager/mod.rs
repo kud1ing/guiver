@@ -519,21 +519,14 @@ impl<T: Clone> WidgetManager<T> for PietWidgetManager<T> {
             // Get the ID of the widget from the command.
             let widget_id = *command.widget_id();
 
-            // There is a widget with the given ID.
-            let widget_box = if let Some(widget_box) = self.widgets.get(&widget_id) {
-                widget_box
-            }
-            // There is no widget with the given ID.
-            else {
-                return Err(WidgetError::NoSuchWidget(widget_id));
-            };
-
             match command {
                 Command::AddChild {
                     widget_placement,
                     child_widget_id,
                     ..
                 } => {
+                    let widget_box = self.widget(widget_id)?;
+
                     // There is a widget with the child widget ID from the command.
                     let child_widget_box =
                         if let Some(child_widget_box) = self.widgets.get(&child_widget_id) {
@@ -550,12 +543,39 @@ impl<T: Clone> WidgetManager<T> for PietWidgetManager<T> {
 
                     self.add_parent_child_widget_connection(widget_id, child_widget_id);
                 }
+                Command::AddChildren { child_widgets, .. } => {
+                    // Iterate over the child widgets. This additional loop is in order to escape
+                    // the borrow checker.
+                    for (_, child_widget_id) in &child_widgets {
+                        self.add_parent_child_widget_connection(widget_id, *child_widget_id);
+                    }
+
+                    let widget_box = self.widget(widget_id)?;
+
+                    // Iterate over the child widgets.
+                    for (widget_placement, child_widget_id) in child_widgets {
+                        // There is a widget with the child widget ID from the command.
+                        let child_widget_box =
+                            if let Some(child_widget_box) = self.widgets.get(&child_widget_id) {
+                                child_widget_box
+                            }
+                            // There is no widget with the given child ID.
+                            else {
+                                return Err(WidgetError::NoSuchWidget(child_widget_id));
+                            };
+
+                        widget_box
+                            .borrow_mut()
+                            .add_child(widget_placement, child_widget_box.clone())?;
+                    }
+                }
                 Command::Destroy(_widget_id) => self.destroy_widget(widget_id),
                 Command::RemoveChild {
                     parent_widget_id,
                     child_widget_id,
                     destroy_child_widget: destroy,
                 } => {
+                    let widget_box = self.widget(widget_id)?;
                     widget_box.borrow_mut().remove_child(child_widget_id)?;
 
                     // Destroy the child widget.
@@ -574,6 +594,7 @@ impl<T: Clone> WidgetManager<T> for PietWidgetManager<T> {
                     destroy_child_widgets,
                     ..
                 } => {
+                    let widget_box = self.widget(widget_id)?;
                     widget_box.borrow_mut().remove_children()?;
 
                     // Destroy the child widgets.
@@ -597,17 +618,37 @@ impl<T: Clone> WidgetManager<T> for PietWidgetManager<T> {
                     }
                 }
                 Command::SetDebugRendering(_widget_id, debug_rendering) => {
+                    let widget_box = self.widget(widget_id)?;
                     widget_box.borrow_mut().set_debug_rendering(debug_rendering);
                 }
                 Command::SetFill(_widget_id, fill) => {
+                    let widget_box = self.widget(widget_id)?;
                     widget_box.borrow_mut().set_fill(fill)?;
                 }
                 Command::SetFont(_widget_id, font) => {
+                    // There is a widget with the given ID.
+                    let widget_box = if let Some(widget_box) = self.widgets.get(&widget_id) {
+                        widget_box
+                    }
+                    // There is no widget with the given ID.
+                    else {
+                        return Err(WidgetError::NoSuchWidget(widget_id));
+                    };
+
                     widget_box
                         .borrow_mut()
                         .set_font(&mut self.shared_state, font)?;
                 }
                 Command::SetHasFocus(_widget_id, has_focus) => {
+                    // There is a widget with the given ID.
+                    let widget_box = if let Some(widget_box) = self.widgets.get(&widget_id) {
+                        widget_box
+                    }
+                    // There is no widget with the given ID.
+                    else {
+                        return Err(WidgetError::NoSuchWidget(widget_id));
+                    };
+
                     let mut widget_had_focus_already = false;
 
                     // A widget had focus.
@@ -635,29 +676,44 @@ impl<T: Clone> WidgetManager<T> for PietWidgetManager<T> {
                     }
                 }
                 Command::SetHorizontalAlignment(_widget_id, horizontal_alignment) => {
+                    let widget_box = self.widget(widget_id)?;
                     widget_box
                         .borrow_mut()
                         .set_horizontal_alignment(horizontal_alignment)?;
                 }
                 Command::SetIsDisabled(_widget_id, is_disabled) => {
+                    let widget_box = self.widget(widget_id)?;
                     widget_box.borrow_mut().set_is_disabled(is_disabled);
                 }
                 Command::SetIsHidden(_widget_id, is_hidden) => {
+                    let widget_box = self.widget(widget_id)?;
                     widget_box.borrow_mut().set_is_hidden(is_hidden);
                 }
                 Command::SetMainWidget(_widget_id) => {
+                    let widget_box = self.widget(widget_id)?;
                     widget_box.borrow_mut().set_origin((1.0, 1.0).into());
                     self.main_widget = Some(widget_box.clone());
                 }
                 Command::SetStroke(_widget_id, stroke) => {
+                    let widget_box = self.widget(widget_id)?;
                     widget_box.borrow_mut().set_stroke(stroke)?;
                 }
                 Command::SetValue(_widget_id, value) => {
+                    // There is a widget with the given ID.
+                    let widget_box = if let Some(widget_box) = self.widgets.get(&widget_id) {
+                        widget_box
+                    }
+                    // There is no widget with the given ID.
+                    else {
+                        return Err(WidgetError::NoSuchWidget(widget_id));
+                    };
+
                     widget_box
                         .borrow_mut()
                         .set_value(&mut self.shared_state, value)?;
                 }
                 Command::SetVerticalAlignment(_widget_id, vertical_alignment) => {
+                    let widget_box = self.widget(widget_id)?;
                     widget_box
                         .borrow_mut()
                         .set_vertical_alignment(vertical_alignment)?;

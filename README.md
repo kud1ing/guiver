@@ -96,6 +96,7 @@ The developer code can handle those widget events.
 ## Backlog
 
 * [ ] sketch a `cacao` backend
+* [ ] sketch a `Iced` backend
 * Text:
   * `test_selected_text_replaced()`:
     * [ ] fix

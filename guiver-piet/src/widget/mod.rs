@@ -33,7 +33,7 @@ pub use text_input::TextInput;
 /// A widget should try to be as small as possible.
 pub trait Widget {
     /// Returns `true` if the widget generally accepts focus, like e.g. a `Button` or `TextInput`
-    /// widget. This is used to build a focus order in the `WidgetManager`.
+    /// widget. `WidgetManager` uses this to build a tab/focus order.
     fn accepts_focus(&self) -> bool {
         false
     }
