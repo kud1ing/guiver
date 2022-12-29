@@ -23,14 +23,14 @@ pub fn piet_text() -> PietText {
 }
 
 ///
-pub struct SharedState {
+pub struct PietSharedState {
     piet_text: PietText,
 }
 
-impl SharedState {
+impl PietSharedState {
     ///
     pub fn new() -> Self {
-        SharedState {
+        PietSharedState {
             piet_text: piet_text(),
         }
     }

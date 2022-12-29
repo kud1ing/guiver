@@ -1,7 +1,7 @@
-use crate::shared_state::SharedState;
+use crate::shared_state::PietSharedState;
 use crate::widget::core::WidgetCore;
 
-use crate::widget_manager::WidgetBox;
+use crate::widget_manager::PietWidgetBox;
 use crate::{Event, PietWidget};
 use druid_shell::kurbo::{Point, Rect, RoundedRect, Size};
 use druid_shell::piet::{Color, LinearGradient, PaintBrush, Piet, RenderContext, UnitPoint};
@@ -16,7 +16,7 @@ use std::any::Any;
 ///
 #[derive(Default)]
 pub struct Button {
-    child_widget: Option<WidgetBox>,
+    child_widget: Option<PietWidgetBox>,
     core: WidgetCore,
     corner_radius: f64,
     fill_brush_down: Option<PaintBrush>,
@@ -36,7 +36,7 @@ impl Button {
     pub fn new(
         widget_id: WidgetId,
         debug_rendering_stroke: Stroke,
-        child_widget: WidgetBox,
+        child_widget: PietWidgetBox,
         fill_brush_down: Option<PaintBrush>,
         frame_color: Option<Color>,
         frame_color_focused: Option<Color>,
@@ -126,7 +126,7 @@ impl PietWidget for Button {
     fn add_child(
         &mut self,
         _widget_placement: Option<WidgetPlacement>,
-        child_widget: WidgetBox,
+        child_widget: PietWidgetBox,
     ) -> Result<(), WidgetError> {
         // TODO: use `_widget_placement`?
 
@@ -150,7 +150,7 @@ impl PietWidget for Button {
     fn handle_event(
         &mut self,
         _widget_id_provider: &mut WidgetIdProvider,
-        _shared_state: &mut SharedState,
+        _shared_state: &mut PietSharedState,
         event: &Event,
     ) -> Vec<WidgetEvent> {
         let mut widget_events = vec![];
@@ -285,7 +285,11 @@ impl PietWidget for Button {
         Ok(())
     }
 
-    fn set_font(&mut self, shared_state: &mut SharedState, font: Font) -> Result<(), WidgetError> {
+    fn set_font(
+        &mut self,
+        shared_state: &mut PietSharedState,
+        font: Font,
+    ) -> Result<(), WidgetError> {
         if let Some(child_widget) = &mut self.child_widget {
             child_widget.borrow_mut().set_font(shared_state, font)?;
         }
@@ -331,7 +335,7 @@ impl PietWidget for Button {
     fn set_value(
         &mut self,
         _widget_id_provider: &mut WidgetIdProvider,
-        _shared_state: &mut SharedState,
+        _shared_state: &mut PietSharedState,
         _value: Box<dyn Any>,
     ) -> Result<(), WidgetError> {
         // TODO

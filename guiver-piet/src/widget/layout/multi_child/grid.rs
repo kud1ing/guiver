@@ -1,7 +1,7 @@
-use crate::shared_state::SharedState;
+use crate::shared_state::PietSharedState;
 use crate::widget::core::WidgetCore;
 use crate::widget::WidgetError;
-use crate::widget_manager::WidgetBox;
+use crate::widget_manager::PietWidgetBox;
 use crate::{Event, Piet, PietWidget};
 use druid_shell::kurbo::{Point, Rect};
 use druid_shell::piet::{Error, RenderContext};
@@ -22,7 +22,7 @@ pub struct Grid {
     child_widget_id_per_cell: HashMap<(usize, usize), WidgetId>,
     child_widget_ids_per_column: HashMap<usize, HashSet<WidgetId>>,
     child_widget_ids_per_row: HashMap<usize, HashSet<WidgetId>>,
-    child_widget_per_id: HashMap<WidgetId, WidgetBox>,
+    child_widget_per_id: HashMap<WidgetId, PietWidgetBox>,
     column_properties: Vec<GridColumnProperties>,
     core: WidgetCore,
     default_column_properties: GridColumnProperties,
@@ -56,7 +56,12 @@ impl Grid {
     }
 
     /// Adds the given child widget to the grid.
-    fn add_child_widget(&mut self, child_widget: WidgetBox, column_index: usize, row_index: usize) {
+    fn add_child_widget(
+        &mut self,
+        child_widget: PietWidgetBox,
+        column_index: usize,
+        row_index: usize,
+    ) {
         // Get the child widget ID.
         let child_widget_id = *RefCell::borrow(&child_widget).widget_id();
 
@@ -375,7 +380,7 @@ impl PietWidget for Grid {
     fn add_child(
         &mut self,
         widget_placement: Option<WidgetPlacement>,
-        child_widget: WidgetBox,
+        child_widget: PietWidgetBox,
     ) -> Result<(), WidgetError> {
         // A grid widget placement is given
         if let Some(WidgetPlacement::Grid {
@@ -406,7 +411,7 @@ impl PietWidget for Grid {
     fn handle_event(
         &mut self,
         widget_id_provider: &mut WidgetIdProvider,
-        shared_state: &mut SharedState,
+        shared_state: &mut PietSharedState,
         event: &Event,
     ) -> Vec<WidgetEvent> {
         let mut widget_events = vec![];

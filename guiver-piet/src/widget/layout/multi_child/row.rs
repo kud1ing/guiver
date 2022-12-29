@@ -1,7 +1,7 @@
-use crate::shared_state::SharedState;
+use crate::shared_state::PietSharedState;
 use crate::widget::core::WidgetCore;
 
-use crate::widget_manager::WidgetBox;
+use crate::widget_manager::PietWidgetBox;
 use crate::{Event, PietWidget};
 use druid_shell::kurbo::{Point, Rect, Size};
 use druid_shell::piet::{Piet, RenderContext};
@@ -15,7 +15,7 @@ use std::cell::RefCell;
 
 /// A layout widget that positions its child widgets in a horizontal row.
 pub struct Row {
-    child_widgets: Vec<WidgetBox>,
+    child_widgets: Vec<PietWidgetBox>,
     core: WidgetCore,
     spacing: f64,
     vertical_alignment: VerticalAlignment,
@@ -161,7 +161,7 @@ impl PietWidget for Row {
     fn add_child(
         &mut self,
         widget_placement: Option<WidgetPlacement>,
-        child_widget: WidgetBox,
+        child_widget: PietWidgetBox,
     ) -> Result<(), WidgetError> {
         // A widget placement is given.
         if let Some(widget_placement) = widget_placement {
@@ -205,7 +205,7 @@ impl PietWidget for Row {
     fn handle_event(
         &mut self,
         widget_id_provider: &mut WidgetIdProvider,
-        shared_state: &mut SharedState,
+        shared_state: &mut PietSharedState,
         event: &Event,
     ) -> Vec<WidgetEvent> {
         let mut widget_events = vec![];

@@ -1,4 +1,4 @@
-use crate::shared_state::SharedState;
+use crate::shared_state::PietSharedState;
 use crate::widget::core::WidgetCore;
 use crate::{Event, PietWidget};
 use druid_shell::kurbo::{Point, Rect, Size};
@@ -102,7 +102,7 @@ impl PietWidget for Text {
     fn handle_event(
         &mut self,
         _widget_id_provider: &mut WidgetIdProvider,
-        _shared_state: &mut SharedState,
+        _shared_state: &mut PietSharedState,
         event: &Event,
     ) -> Vec<WidgetEvent> {
         let mut widget_events = vec![];
@@ -167,7 +167,11 @@ impl PietWidget for Text {
         Ok(())
     }
 
-    fn set_font(&mut self, shared_state: &mut SharedState, font: Font) -> Result<(), WidgetError> {
+    fn set_font(
+        &mut self,
+        shared_state: &mut PietSharedState,
+        font: Font,
+    ) -> Result<(), WidgetError> {
         self.font = font;
         self.text_layout = self
             .font
@@ -209,7 +213,7 @@ impl PietWidget for Text {
     fn set_value(
         &mut self,
         _widget_id_provider: &mut WidgetIdProvider,
-        shared_state: &mut SharedState,
+        shared_state: &mut PietSharedState,
         value: Box<dyn Any>,
     ) -> Result<(), WidgetError> {
         // The given value is a string.

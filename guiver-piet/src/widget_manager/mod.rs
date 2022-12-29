@@ -1,6 +1,6 @@
 mod widget_focus_order;
 
-use crate::shared_state::SharedState;
+use crate::shared_state::PietSharedState;
 use crate::style::Style;
 use crate::widget::layout::{Center, Column, Expanded, Grid, Padding, Row, SizedBox};
 use crate::widget::{Button, Hyperlink, Placeholder, Text, TextInput};
@@ -21,20 +21,20 @@ use std::collections::{HashMap, HashSet};
 use std::rc::Rc;
 
 ///
-pub type WidgetBox = Rc<RefCell<Box<dyn PietWidget>>>;
+pub type PietWidgetBox = Rc<RefCell<Box<dyn PietWidget>>>;
 
 /// A widget manager that uses `Piet` and `druid-shell`.
 pub struct PietWidgetManager<T> {
     /// The IDs of each widget's child widgets.
     child_widget_ids_per_widget_id: HashMap<WidgetId, HashSet<WidgetId>>,
     /// The widget that has the focus.
-    focused_widget: Option<WidgetBox>,
+    focused_widget: Option<PietWidgetBox>,
     /// The main widget that fills the whole window.
-    main_widget: Option<WidgetBox>,
+    main_widget: Option<PietWidgetBox>,
     /// The IDs of each widget's parent widget.
     parent_widget_id_per_widget_id: HashMap<WidgetId, WidgetId>,
     ///
-    shared_state: SharedState,
+    shared_state: PietSharedState,
     /// The size constraints. It is set in `resize()`, called by the window event handler for every
     /// window resize event so that the main widget fills the whole window.
     size_constraints: SizeConstraints,
@@ -49,7 +49,7 @@ pub struct PietWidgetManager<T> {
     /// All widgets per widget ID. This is used:
     /// * to determine whether a widget with a given ID exists
     /// * to pass commands to widgets directly
-    widgets: HashMap<WidgetId, WidgetBox>,
+    widgets: HashMap<WidgetId, PietWidgetBox>,
 }
 
 impl<T: Clone> PietWidgetManager<T> {
@@ -60,7 +60,7 @@ impl<T: Clone> PietWidgetManager<T> {
             focused_widget: None,
             main_widget: None,
             parent_widget_id_per_widget_id: HashMap::new(),
-            shared_state: SharedState::new(),
+            shared_state: PietSharedState::new(),
             size_constraints: SizeConstraints::default(),
             style: Style::default(),
             widget_event_subscriptions_per_widget_id: HashMap::new(),
@@ -486,7 +486,7 @@ impl<T: Clone> PietWidgetManager<T> {
     }
 
     ///
-    fn widget(&self, widget_id: WidgetId) -> Result<&WidgetBox, WidgetError> {
+    fn widget(&self, widget_id: WidgetId) -> Result<&PietWidgetBox, WidgetError> {
         // There is a widget with the given ID.
         if let Some(widget_box) = self.widgets.get(&widget_id) {
             Ok(widget_box)
@@ -503,7 +503,7 @@ impl<T: Clone> PietWidgetManager<T> {
     }
 
     ///
-    fn widget_mut(&mut self, widget_id: WidgetId) -> Result<&mut WidgetBox, WidgetError> {
+    fn widget_mut(&mut self, widget_id: WidgetId) -> Result<&mut PietWidgetBox, WidgetError> {
         // There is a widget with the given ID.
         if let Some(widget_box) = self.widgets.get_mut(&widget_id) {
             Ok(widget_box)

@@ -1,4 +1,4 @@
-use crate::shared_state::SharedState;
+use crate::shared_state::PietSharedState;
 use crate::widget::core::WidgetCore;
 use crate::widget::WidgetError;
 use crate::{Event, PietWidget};
@@ -58,7 +58,7 @@ impl PietWidget for Placeholder {
     fn handle_event(
         &mut self,
         _widget_id_provider: &mut WidgetIdProvider,
-        _shared_state: &mut SharedState,
+        _shared_state: &mut PietSharedState,
         _event: &Event,
     ) -> Vec<WidgetEvent> {
         // Nothing to do.

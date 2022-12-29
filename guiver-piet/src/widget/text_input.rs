@@ -1,4 +1,4 @@
-use crate::shared_state::SharedState;
+use crate::shared_state::PietSharedState;
 use crate::widget::core::WidgetCore;
 use crate::widget::Text;
 use crate::{Event, PietWidget};
@@ -85,7 +85,7 @@ impl TextInput {
     fn broadcast_modified_text(
         &mut self,
         widget_id_provider: &mut WidgetIdProvider,
-        shared_state: &mut SharedState,
+        shared_state: &mut PietSharedState,
         widget_events: &mut Vec<WidgetEvent>,
     ) {
         // Pass the updated text to the child text widget.
@@ -180,7 +180,7 @@ impl TextInput {
     fn update_text_widget(
         &mut self,
         widget_id_provider: &mut WidgetIdProvider,
-        shared_state: &mut SharedState,
+        shared_state: &mut PietSharedState,
     ) {
         // Pass the updated text to the child text widget.
         self.text_widget
@@ -222,7 +222,7 @@ impl PietWidget for TextInput {
     fn handle_event(
         &mut self,
         widget_id_provider: &mut WidgetIdProvider,
-        shared_state: &mut SharedState,
+        shared_state: &mut PietSharedState,
         event: &Event,
     ) -> Vec<WidgetEvent> {
         let mut widget_events = vec![];
@@ -349,7 +349,7 @@ impl PietWidget for TextInput {
     fn remove_selected_value(
         &mut self,
         widget_id_provider: &mut WidgetIdProvider,
-        shared_state: &mut SharedState,
+        shared_state: &mut PietSharedState,
     ) -> Result<(), WidgetError> {
         // TODO
         println!("`TextInput::remove_selected_value()`: TODO");
@@ -369,7 +369,11 @@ impl PietWidget for TextInput {
         Ok(())
     }
 
-    fn set_font(&mut self, shared_state: &mut SharedState, font: Font) -> Result<(), WidgetError> {
+    fn set_font(
+        &mut self,
+        shared_state: &mut PietSharedState,
+        font: Font,
+    ) -> Result<(), WidgetError> {
         self.text_widget.set_font(shared_state, font)
     }
 
@@ -411,7 +415,7 @@ impl PietWidget for TextInput {
     fn set_selected_value(
         &mut self,
         widget_id_provider: &mut WidgetIdProvider,
-        shared_state: &mut SharedState,
+        shared_state: &mut PietSharedState,
         value: Box<dyn Any>,
     ) -> Result<(), WidgetError> {
         // TODO
@@ -422,7 +426,7 @@ impl PietWidget for TextInput {
     fn set_value(
         &mut self,
         widget_id_provider: &mut WidgetIdProvider,
-        shared_state: &mut SharedState,
+        shared_state: &mut PietSharedState,
         value: Box<dyn Any>,
     ) -> Result<(), WidgetError> {
         // The given value is a string.

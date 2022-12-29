@@ -7,8 +7,8 @@ mod text;
 mod text_input;
 
 pub use self::core::WidgetCore;
-use crate::shared_state::SharedState;
-use crate::widget_manager::WidgetBox;
+use crate::shared_state::PietSharedState;
+use crate::widget_manager::PietWidgetBox;
 use crate::Event;
 pub use button::Button;
 use druid_shell::kurbo::{Point, Size};
@@ -36,7 +36,7 @@ pub trait PietWidget: Widget {
     fn add_child(
         &mut self,
         _widget_placement: Option<WidgetPlacement>,
-        _child_widget: WidgetBox,
+        _child_widget: PietWidgetBox,
     ) -> Result<(), WidgetError> {
         Err(WidgetError::NotHandled {
             widget_id: self.widget_id().clone(),
@@ -51,7 +51,7 @@ pub trait PietWidget: Widget {
     fn handle_event(
         &mut self,
         widget_id_provider: &mut WidgetIdProvider,
-        shared_state: &mut SharedState,
+        shared_state: &mut PietSharedState,
         event: &Event,
     ) -> Vec<WidgetEvent>;
 
@@ -81,7 +81,7 @@ pub trait PietWidget: Widget {
     fn remove_selected_value(
         &mut self,
         _widget_id_provider: &mut WidgetIdProvider,
-        _shared_state: &mut SharedState,
+        _shared_state: &mut PietSharedState,
     ) -> Result<(), WidgetError> {
         Err(WidgetError::NotHandled {
             widget_id: self.widget_id().clone(),
@@ -108,7 +108,7 @@ pub trait PietWidget: Widget {
     /// Sets the widget's font.
     fn set_font(
         &mut self,
-        _shared_state: &mut SharedState,
+        _shared_state: &mut PietSharedState,
         _font: Font,
     ) -> Result<(), WidgetError> {
         Err(WidgetError::NotHandled {
@@ -149,7 +149,7 @@ pub trait PietWidget: Widget {
     fn set_selected_value(
         &mut self,
         _widget_id_provider: &mut WidgetIdProvider,
-        _shared_state: &mut SharedState,
+        _shared_state: &mut PietSharedState,
         _value: Box<dyn Any>,
     ) -> Result<(), WidgetError> {
         Err(WidgetError::NotHandled {
@@ -170,7 +170,7 @@ pub trait PietWidget: Widget {
     fn set_value(
         &mut self,
         _widget_id_provider: &mut WidgetIdProvider,
-        _shared_state: &mut SharedState,
+        _shared_state: &mut PietSharedState,
         _value: Box<dyn Any>,
     ) -> Result<(), WidgetError> {
         Err(WidgetError::NotHandled {

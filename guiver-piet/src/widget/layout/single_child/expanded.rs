@@ -1,7 +1,7 @@
-use crate::shared_state::SharedState;
+use crate::shared_state::PietSharedState;
 use crate::widget::core::WidgetCore;
 
-use crate::widget_manager::WidgetBox;
+use crate::widget_manager::PietWidgetBox;
 use crate::{Event, Piet, PietWidget};
 use druid_shell::kurbo::{Point, Rect};
 use druid_shell::piet::{Error, RenderContext};
@@ -15,7 +15,7 @@ use guiver::{
 /// A layout widget that tries to adjust its child widget to take all of the available space.
 /// Mostly useful in `Column` and `Row`.
 pub struct Expanded {
-    child_widget: Option<WidgetBox>,
+    child_widget: Option<PietWidgetBox>,
     core: WidgetCore,
     flex_factor: u16,
 }
@@ -66,7 +66,7 @@ impl PietWidget for Expanded {
     fn add_child(
         &mut self,
         _widget_placement: Option<WidgetPlacement>,
-        child_widget: WidgetBox,
+        child_widget: PietWidgetBox,
     ) -> Result<(), WidgetError> {
         self.child_widget = Some(child_widget.clone());
 
@@ -88,7 +88,7 @@ impl PietWidget for Expanded {
     fn handle_event(
         &mut self,
         widget_id_provider: &mut WidgetIdProvider,
-        shared_state: &mut SharedState,
+        shared_state: &mut PietSharedState,
         event: &Event,
     ) -> Vec<WidgetEvent> {
         // There is a child widget.

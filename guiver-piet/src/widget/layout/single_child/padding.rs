@@ -1,7 +1,7 @@
-use crate::shared_state::SharedState;
+use crate::shared_state::PietSharedState;
 use crate::widget::core::WidgetCore;
 
-use crate::widget_manager::WidgetBox;
+use crate::widget_manager::PietWidgetBox;
 use crate::{Event, PietWidget};
 use druid_shell::kurbo::{Point, Rect, Size};
 use druid_shell::piet::{Piet, RenderContext};
@@ -13,7 +13,7 @@ use guiver::{
 
 /// A layout widget that adds padding around its child widget.
 pub struct Padding {
-    child_widget: Option<WidgetBox>,
+    child_widget: Option<PietWidgetBox>,
     core: WidgetCore,
     padding_bottom: f64,
     padding_left: f64,
@@ -86,7 +86,7 @@ impl PietWidget for Padding {
     fn add_child(
         &mut self,
         _widget_placement: Option<WidgetPlacement>,
-        child_widget: WidgetBox,
+        child_widget: PietWidgetBox,
     ) -> Result<(), WidgetError> {
         // TODO: use `_widget_placement`?
 
@@ -110,7 +110,7 @@ impl PietWidget for Padding {
     fn handle_event(
         &mut self,
         widget_id_provider: &mut WidgetIdProvider,
-        shared_state: &mut SharedState,
+        shared_state: &mut PietSharedState,
         event: &Event,
     ) -> Vec<WidgetEvent> {
         // There is a child widget.

@@ -1,4 +1,4 @@
-use crate::shared_state::SharedState;
+use crate::shared_state::PietSharedState;
 use crate::widget::{Text, WidgetError};
 use crate::{Event, Piet, PietWidget};
 use druid_shell::kurbo::{Point, Rect};
@@ -57,7 +57,7 @@ impl Hyperlink {
     }
 
     ///
-    fn set_is_being_clicked(&mut self, shared_state: &mut SharedState, is_being_clicked: bool) {
+    fn set_is_being_clicked(&mut self, shared_state: &mut PietSharedState, is_being_clicked: bool) {
         self.is_being_clicked = is_being_clicked;
 
         // The hyperlink is being clicked.
@@ -88,7 +88,7 @@ impl Hyperlink {
     }
 
     ///
-    fn set_was_visited(&mut self, shared_state: &mut SharedState) {
+    fn set_was_visited(&mut self, shared_state: &mut PietSharedState) {
         self.is_being_clicked = false;
         self.was_visited = true;
 
@@ -113,7 +113,7 @@ impl PietWidget for Hyperlink {
     fn handle_event(
         &mut self,
         _widget_id_provider: &mut WidgetIdProvider,
-        shared_state: &mut SharedState,
+        shared_state: &mut PietSharedState,
         event: &Event,
     ) -> Vec<WidgetEvent> {
         let mut widget_events = vec![];
