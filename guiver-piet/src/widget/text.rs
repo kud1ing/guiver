@@ -30,10 +30,8 @@ impl Text {
         debug_rendering_stroke: Stroke,
         piet_text: &mut PietText,
         font: Font,
-        text: impl Into<String>,
+        text: String,
     ) -> Self {
-        let text = text.into();
-
         Text {
             core: WidgetCore::new(widget_id, debug_rendering_stroke),
             font: font.clone(),
@@ -268,7 +266,7 @@ mod tests {
             Stroke::default(),
             &mut piet_text,
             font.clone(),
-            "Test text",
+            "Test text".to_string(),
         );
 
         // Apply an unbounded `SizeConstraints`.

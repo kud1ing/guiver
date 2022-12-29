@@ -20,10 +20,10 @@ impl App {
         // Create the widgets.
         let padding = widget_manager.new_padding();
         let row = widget_manager.new_row();
-        let text_input_celsius = widget_manager.new_text_input("", 50.0);
-        let text1 = widget_manager.new_text("Celsius =");
-        let text_input_fahrenheit = widget_manager.new_text_input("", 50.0);
-        let text2 = widget_manager.new_text("Fahrenheit");
+        let text_input_celsius = widget_manager.new_text_input("".to_string(), 50.0);
+        let text1 = widget_manager.new_text("Celsius =".to_string());
+        let text_input_fahrenheit = widget_manager.new_text_input("".to_string(), 50.0);
+        let text2 = widget_manager.new_text("Fahrenheit".to_string());
 
         // Compose the widgets.
         widget_manager

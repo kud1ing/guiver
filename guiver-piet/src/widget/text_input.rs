@@ -40,13 +40,12 @@ impl TextInput {
         debug_rendering_stroke: Stroke,
         piet_text: &mut PietText,
         font: Font,
-        text: impl Into<String>,
+        text: String,
         width: f64,
         frame_color: Color,
         frame_color_focused: Color,
     ) -> Self {
         let child_widget_id = 0;
-        let text = text.into();
 
         TextInput {
             caret_character_index: 0,

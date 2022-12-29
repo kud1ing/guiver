@@ -11,7 +11,7 @@ impl App {
 
         // Create the widgets.
         let center = widget_manager.new_center();
-        let text = widget_manager.new_text("This is a text at the center");
+        let text = widget_manager.new_text("This is a text at the center".to_string());
 
         // Compose the widgets.
         widget_manager

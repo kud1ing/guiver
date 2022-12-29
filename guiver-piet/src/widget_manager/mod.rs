@@ -803,7 +803,7 @@ impl<T: Clone> WidgetManager<T> for PietWidgetManager<T> {
         widget_id
     }
 
-    fn new_hyper_link(&mut self, text: impl Into<String>) -> WidgetId {
+    fn new_hyper_link(&mut self, text: String) -> WidgetId {
         // Get a new widget ID.
         let widget_id = self.next_widget_id();
 
@@ -897,7 +897,7 @@ impl<T: Clone> WidgetManager<T> for PietWidgetManager<T> {
         widget_id
     }
 
-    fn new_text(&mut self, text: impl Into<String>) -> WidgetId {
+    fn new_text(&mut self, text: String) -> WidgetId {
         // Get a new widget ID.
         let widget_id = self.next_widget_id();
 
@@ -916,7 +916,7 @@ impl<T: Clone> WidgetManager<T> for PietWidgetManager<T> {
         widget_id
     }
 
-    fn new_text_button(&mut self, text: impl Into<String>) -> WidgetId {
+    fn new_text_button(&mut self, text: String) -> WidgetId {
         // Get a new widget ID.
         let widget_id = self.next_widget_id();
         let child_widget_id = self.next_widget_id();
@@ -943,7 +943,7 @@ impl<T: Clone> WidgetManager<T> for PietWidgetManager<T> {
         widget_id
     }
 
-    fn new_text_input(&mut self, text: impl Into<String>, width: f64) -> WidgetId {
+    fn new_text_input(&mut self, text: String, width: f64) -> WidgetId {
         // Get a new widget ID.
         let widget_id = self.next_widget_id();
 

@@ -11,7 +11,7 @@ impl App {
 
         // Create the widgets.
         let padding = widget_manager.new_padding();
-        let text = widget_manager.new_text("The placeholders are expanded");
+        let text = widget_manager.new_text("The placeholders are expanded".to_string());
         let row = widget_manager.new_row();
         let expanded1 = widget_manager.new_expanded(1);
         let expanded2 = widget_manager.new_expanded(1);

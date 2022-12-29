@@ -18,9 +18,9 @@ impl App {
         let padding = widget_manager.new_padding();
         let column = widget_manager.new_column();
         let dropdown_box = widget_manager.new_placeholder(Size::new(200.0, 50.0));
-        let text_input_start_date = widget_manager.new_text_input("", 100.0);
-        let text_input_return_date = widget_manager.new_text_input("", 100.0);
-        let book_button = widget_manager.new_text_button("Book");
+        let text_input_start_date = widget_manager.new_text_input("".to_string(), 100.0);
+        let text_input_return_date = widget_manager.new_text_input("".to_string(), 100.0);
+        let book_button = widget_manager.new_text_button("Book".to_string());
 
         // Compose the widgets.
         widget_manager

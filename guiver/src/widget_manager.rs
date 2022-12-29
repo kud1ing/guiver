@@ -190,7 +190,7 @@ pub trait WidgetManager<T> {
     ) -> WidgetId;
 
     ///
-    fn new_hyper_link(&mut self, text: impl Into<String>) -> WidgetId;
+    fn new_hyper_link(&mut self, text: String) -> WidgetId;
 
     ///
     fn new_padding(&mut self) -> WidgetId;
@@ -204,13 +204,13 @@ pub trait WidgetManager<T> {
     fn new_sized_box(&mut self, desired_size: Size) -> WidgetId;
 
     ///
-    fn new_text(&mut self, text: impl Into<String>) -> WidgetId;
+    fn new_text(&mut self, text: String) -> WidgetId;
 
     ///
-    fn new_text_button(&mut self, text: impl Into<String>) -> WidgetId;
+    fn new_text_button(&mut self, text: String) -> WidgetId;
 
     ///
-    fn new_text_input(&mut self, text: impl Into<String>, width: f64) -> WidgetId;
+    fn new_text_input(&mut self, text: String, width: f64) -> WidgetId;
 
     /// Returns a widget's rectangle.
     fn rectangle(&self, widget_id: WidgetId) -> Result<Rect, WidgetError>;

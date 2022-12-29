@@ -152,7 +152,7 @@ mod tests {
                 Font::default(),
                 Font::default(),
                 Font::default(),
-                "Test hyperlink",
+                "Test hyperlink".to_string(),
             )),
             // Add a text widget.
             Box::new(Text::new(

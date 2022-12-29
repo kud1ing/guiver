@@ -22,8 +22,8 @@ impl App {
         // Create the widgets.
         let padding = widget_manager.new_padding();
         let row = widget_manager.new_row();
-        let counter_text = widget_manager.new_text("0");
-        let counter_button = widget_manager.new_text_button("Count");
+        let counter_text = widget_manager.new_text("0".to_string());
+        let counter_button = widget_manager.new_text_button("Count".to_string());
 
         // Compose the widgets.
         widget_manager

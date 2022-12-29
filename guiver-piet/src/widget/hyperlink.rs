@@ -32,7 +32,7 @@ impl Hyperlink {
         mut font_unvisited: Font,
         mut font_being_clicked: Font,
         mut font_visited: Font,
-        text: impl Into<String>,
+        text: String,
     ) -> Self {
         adjust_font(&mut font_visited);
         adjust_font(&mut font_being_clicked);

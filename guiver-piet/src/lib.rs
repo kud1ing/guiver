@@ -15,5 +15,5 @@ pub use druid_shell::piet::{
 pub use druid_shell::{Clipboard, Region};
 pub use event::Event;
 pub use shared_state::{piet_text, SharedState};
-use widget::{Widget, WidgetCore};
+use widget::Widget;
 pub use widget_manager::{PietWidgetManager, WidgetBox};
