@@ -2,13 +2,13 @@ use crate::shared_state::SharedState;
 use crate::widget::core::WidgetCore;
 use crate::widget::WidgetError;
 use crate::widget_manager::WidgetBox;
-use crate::{Event, Piet, Widget};
+use crate::{Event, Piet, PietWidget};
 use druid_shell::kurbo::{Point, Rect};
 use druid_shell::piet::{Error, RenderContext};
 use druid_shell::Region;
 use guiver::stroke::Stroke;
 use guiver::{
-    GridColumnProperties, GridRowProperties, Size, SizeConstraints, WidgetEvent, WidgetId,
+    GridColumnProperties, GridRowProperties, Size, SizeConstraints, Widget, WidgetEvent, WidgetId,
     WidgetIdProvider, WidgetPlacement,
 };
 use std::borrow::BorrowMut;
@@ -366,6 +366,12 @@ impl Grid {
 }
 
 impl Widget for Grid {
+    fn widget_id(&self) -> &WidgetId {
+        &self.core.widget_id
+    }
+}
+
+impl PietWidget for Grid {
     fn add_child(
         &mut self,
         widget_placement: Option<WidgetPlacement>,
@@ -479,9 +485,5 @@ impl Widget for Grid {
 
         // Layout the child widgets.
         self.layout_child_widgets();
-    }
-
-    fn widget_id(&self) -> &WidgetId {
-        &self.core.widget_id
     }
 }

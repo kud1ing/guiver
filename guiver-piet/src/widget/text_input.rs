@@ -1,14 +1,14 @@
 use crate::shared_state::SharedState;
 use crate::widget::core::WidgetCore;
 use crate::widget::Text;
-use crate::{Event, Widget};
+use crate::{Event, PietWidget};
 use druid_shell::kurbo::{Line, Point, Rect, RoundedRect, Size};
 use druid_shell::piet::{Color, Error, PaintBrush, Piet, PietText, RenderContext};
 use druid_shell::{KbKey, Region};
 use guiver::stroke::Stroke;
 use guiver::{
-    Font, HorizontalAlignment, SizeConstraints, VerticalAlignment, WidgetError, WidgetEvent,
-    WidgetEventType, WidgetId, WidgetIdProvider,
+    Font, HorizontalAlignment, SizeConstraints, VerticalAlignment, Widget, WidgetError,
+    WidgetEvent, WidgetEventType, WidgetId, WidgetIdProvider,
 };
 use std::any::Any;
 use std::borrow::BorrowMut;
@@ -200,11 +200,16 @@ impl TextInput {
 }
 
 impl Widget for TextInput {
-    ///
     fn accepts_focus(&self) -> bool {
         true
     }
 
+    fn widget_id(&self) -> &WidgetId {
+        &self.core.widget_id
+    }
+}
+
+impl PietWidget for TextInput {
     fn apply_size_constraints(&mut self, size_constraints: SizeConstraints) -> Size {
         self.core.size_constraints = size_constraints;
 
@@ -443,10 +448,6 @@ impl Widget for TextInput {
 
     fn value(&self) -> Option<Box<dyn Any>> {
         self.text_widget.value()
-    }
-
-    fn widget_id(&self) -> &WidgetId {
-        &self.core.widget_id
     }
 }
 

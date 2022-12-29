@@ -5,7 +5,7 @@ use crate::style::Style;
 use crate::widget::layout::{Center, Column, Expanded, Grid, Padding, Row, SizedBox};
 use crate::widget::{Button, Hyperlink, Placeholder, Text, TextInput};
 use crate::widget_manager::widget_focus_order::WidgetFocusOrder;
-use crate::{Event, Widget};
+use crate::{Event, PietWidget};
 use druid_shell::kurbo::Size;
 use druid_shell::piet::Piet;
 use druid_shell::{piet, Clipboard, KbKey, Modifiers, Region};
@@ -21,7 +21,7 @@ use std::collections::{HashMap, HashSet};
 use std::rc::Rc;
 
 ///
-pub type WidgetBox = Rc<RefCell<Box<dyn Widget>>>;
+pub type WidgetBox = Rc<RefCell<Box<dyn PietWidget>>>;
 
 /// A widget manager that uses `Piet` and `druid-shell`.
 pub struct PietWidgetManager<T> {
@@ -109,7 +109,7 @@ impl<T: Clone> PietWidgetManager<T> {
     }
 
     /// Puts the given widget under widget management.
-    pub fn add_widget(&mut self, widget: Box<dyn Widget>) {
+    pub fn add_widget(&mut self, widget: Box<dyn PietWidget>) {
         // The widget accepts focus.
         if widget.accepts_focus() {
             // Append it to the focus order.
@@ -495,6 +495,11 @@ impl<T: Clone> PietWidgetManager<T> {
         else {
             Err(WidgetError::NoSuchWidget(widget_id))
         }
+    }
+
+    ///
+    pub fn widget_id_provider(&mut self) -> &mut WidgetIdProvider {
+        &mut self.widget_id_provider
     }
 
     ///

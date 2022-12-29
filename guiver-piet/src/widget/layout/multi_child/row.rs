@@ -2,12 +2,12 @@ use crate::shared_state::SharedState;
 use crate::widget::core::WidgetCore;
 
 use crate::widget_manager::WidgetBox;
-use crate::{Event, Widget};
+use crate::{Event, PietWidget};
 use druid_shell::kurbo::{Point, Rect, Size};
 use druid_shell::piet::{Piet, RenderContext};
 use druid_shell::{piet, Region};
 use guiver::{
-    SizeConstraints, Stroke, VerticalAlignment, WidgetError, WidgetEvent, WidgetId,
+    SizeConstraints, Stroke, VerticalAlignment, Widget, WidgetError, WidgetEvent, WidgetId,
     WidgetIdProvider, WidgetPlacement,
 };
 use std::borrow::{Borrow, BorrowMut};
@@ -152,6 +152,12 @@ impl Row {
 }
 
 impl Widget for Row {
+    fn widget_id(&self) -> &WidgetId {
+        &self.core.widget_id
+    }
+}
+
+impl PietWidget for Row {
     fn add_child(
         &mut self,
         widget_placement: Option<WidgetPlacement>,
@@ -295,9 +301,5 @@ impl Widget for Row {
         self.layout_child_widgets();
 
         return Ok(());
-    }
-
-    fn widget_id(&self) -> &WidgetId {
-        &self.core.widget_id
     }
 }

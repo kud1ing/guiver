@@ -1,12 +1,12 @@
 use crate::shared_state::SharedState;
 use crate::widget::{Text, WidgetError};
-use crate::{Event, Piet, Widget};
+use crate::{Event, Piet, PietWidget};
 use druid_shell::kurbo::{Point, Rect};
 use druid_shell::piet::{Error, PietText};
 use druid_shell::Region;
 use guiver::stroke::Stroke;
 use guiver::{
-    Font, Size, SizeConstraints, WidgetEvent, WidgetEventType, WidgetId, WidgetIdProvider,
+    Font, Size, SizeConstraints, Widget, WidgetEvent, WidgetEventType, WidgetId, WidgetIdProvider,
 };
 use std::borrow::BorrowMut;
 
@@ -100,6 +100,12 @@ impl Hyperlink {
 }
 
 impl Widget for Hyperlink {
+    fn widget_id(&self) -> &WidgetId {
+        self.text_widget.widget_id()
+    }
+}
+
+impl PietWidget for Hyperlink {
     fn apply_size_constraints(&mut self, size_constraints: SizeConstraints) -> Size {
         self.text_widget.apply_size_constraints(size_constraints)
     }
@@ -182,9 +188,5 @@ impl Widget for Hyperlink {
 
     fn set_stroke(&mut self, stroke: Option<Stroke>) -> Result<(), WidgetError> {
         self.text_widget.set_stroke(stroke)
-    }
-
-    fn widget_id(&self) -> &WidgetId {
-        self.text_widget.widget_id()
     }
 }

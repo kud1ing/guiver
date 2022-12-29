@@ -2,13 +2,12 @@ use crate::font::Font;
 use crate::stroke::Stroke;
 use crate::{
     GridColumnProperties, GridRowProperties, HorizontalAlignment, PaintBrush, Size,
-    VerticalAlignment,
+    VerticalAlignment, WidgetId,
 };
 use druid_shell::kurbo::Rect;
 use std::any::Any;
 
 /// A command to the widget manager or widgets.
-#[derive(Debug)]
 pub enum Command<T> {
     /// Adds the child widget with the given ID to the parent widget.
     AddChild {
@@ -93,11 +92,6 @@ impl<T> Command<T> {
         }
     }
 }
-
-// =================================================================================================
-
-///
-pub type WidgetId = usize;
 
 // =================================================================================================
 

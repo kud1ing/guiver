@@ -16,8 +16,8 @@ use druid_shell::piet;
 use druid_shell::Region;
 use guiver::stroke::Stroke;
 use guiver::{
-    Font, HorizontalAlignment, Rect, SizeConstraints, VerticalAlignment, WidgetError, WidgetEvent,
-    WidgetId, WidgetIdProvider, WidgetPlacement,
+    Font, HorizontalAlignment, Rect, SizeConstraints, VerticalAlignment, Widget, WidgetError,
+    WidgetEvent, WidgetId, WidgetIdProvider, WidgetPlacement,
 };
 pub use hyperlink::Hyperlink;
 use piet::PaintBrush;
@@ -28,16 +28,10 @@ pub use text_input::TextInput;
 
 // =================================================================================================
 
-/// The widget trait
+/// The widget trait.
 ///
 /// A widget should try to be as small as possible.
-pub trait Widget {
-    /// Returns `true` if the widget generally accepts focus, like e.g. a `Button` or `TextInput`
-    /// widget. `WidgetManager` uses this to build a tab/focus order.
-    fn accepts_focus(&self) -> bool {
-        false
-    }
-
+pub trait PietWidget: Widget {
     /// Adds the given child to a container widget.
     fn add_child(
         &mut self,
@@ -52,11 +46,6 @@ pub trait Widget {
 
     /// Applies the given size constraints to the widget and returns its size.
     fn apply_size_constraints(&mut self, size_constraints: SizeConstraints) -> Size;
-
-    /// Returns the widget's flex factor. This is used in layout widgets like `Column` and `Row`.
-    fn flex_factor(&self) -> u16 {
-        0
-    }
 
     /// Ask the widget to handle the given event.
     fn handle_event(
@@ -186,7 +175,7 @@ pub trait Widget {
     ) -> Result<(), WidgetError> {
         Err(WidgetError::NotHandled {
             widget_id: self.widget_id().clone(),
-            description: "`srt_value()`".to_string(),
+            description: "`set_value()`".to_string(),
         })
     }
 
@@ -205,7 +194,4 @@ pub trait Widget {
     fn value(&self) -> Option<Box<dyn Any>> {
         None
     }
-
-    /// Returns the widget's ID.
-    fn widget_id(&self) -> &WidgetId;
 }

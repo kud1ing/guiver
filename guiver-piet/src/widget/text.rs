@@ -1,14 +1,14 @@
 use crate::shared_state::SharedState;
 use crate::widget::core::WidgetCore;
-use crate::{Event, Widget};
+use crate::{Event, PietWidget};
 use druid_shell::kurbo::{Point, Rect, Size};
 use druid_shell::piet::{Piet, PietText, PietTextLayout, RenderContext, TextLayout};
 use druid_shell::{piet, Region};
 use guiver::font::Font;
 use guiver::stroke::Stroke;
 use guiver::{
-    HorizontalAlignment, PaintBrush, SizeConstraints, VerticalAlignment, WidgetError, WidgetEvent,
-    WidgetEventType, WidgetId, WidgetIdProvider,
+    HorizontalAlignment, PaintBrush, SizeConstraints, VerticalAlignment, Widget, WidgetError,
+    WidgetEvent, WidgetEventType, WidgetId, WidgetIdProvider,
 };
 use std::any::Any;
 
@@ -84,6 +84,12 @@ impl Text {
 }
 
 impl Widget for Text {
+    fn widget_id(&self) -> &WidgetId {
+        &self.core.widget_id
+    }
+}
+
+impl PietWidget for Text {
     ///
     fn apply_size_constraints(&mut self, size_constraints: SizeConstraints) -> Size {
         self.core.size_constraints = size_constraints;
@@ -246,10 +252,6 @@ impl Widget for Text {
     fn value(&self) -> Option<Box<dyn Any>> {
         Some(Box::new(self.text.clone()))
     }
-
-    fn widget_id(&self) -> &WidgetId {
-        &self.core.widget_id
-    }
 }
 
 // =================================================================================================
@@ -258,7 +260,7 @@ impl Widget for Text {
 mod tests {
     use crate::shared_state::piet_text;
     use crate::widget::Text;
-    use crate::Widget;
+    use crate::PietWidget;
     use guiver::{Font, SizeConstraints, Stroke};
 
     #[test]

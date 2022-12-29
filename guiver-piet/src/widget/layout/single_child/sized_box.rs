@@ -2,13 +2,13 @@ use crate::shared_state::SharedState;
 use crate::widget::core::WidgetCore;
 
 use crate::widget_manager::WidgetBox;
-use crate::{Event, Piet, Widget};
+use crate::{Event, Piet, PietWidget};
 use druid_shell::kurbo::{Point, Rect, Size};
 use druid_shell::piet::{Error, RenderContext};
 use druid_shell::Region;
 use guiver::stroke::Stroke;
 use guiver::{
-    SizeConstraints, WidgetError, WidgetEvent, WidgetId, WidgetIdProvider, WidgetPlacement,
+    SizeConstraints, Widget, WidgetError, WidgetEvent, WidgetId, WidgetIdProvider, WidgetPlacement,
 };
 
 /// A layout widget that tries to adjust its child widget to a desired size.
@@ -53,6 +53,12 @@ impl SizedBox {
 }
 
 impl Widget for SizedBox {
+    fn widget_id(&self) -> &WidgetId {
+        &self.core.widget_id
+    }
+}
+
+impl PietWidget for SizedBox {
     fn add_child(
         &mut self,
         _widget_placement: Option<WidgetPlacement>,
@@ -159,9 +165,5 @@ impl Widget for SizedBox {
 
         // Layout the child.
         self.layout_child_widget();
-    }
-
-    fn widget_id(&self) -> &WidgetId {
-        &self.core.widget_id
     }
 }

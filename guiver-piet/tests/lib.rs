@@ -5,7 +5,7 @@ mod tests {
     use guiver::{Color, Font, HorizontalAlignment, SizeConstraints, VerticalAlignment};
     use guiver_piet::piet_text;
     use guiver_piet::widget::layout::{Center, Column, Padding, Row, SizedBox};
-    use guiver_piet::widget::{Button, Hyperlink, Placeholder, Text, TextInput, Widget};
+    use guiver_piet::widget::{Button, Hyperlink, PietWidget, Placeholder, Text, TextInput};
     use std::cell::RefCell;
     use std::rc::Rc;
 
@@ -43,7 +43,7 @@ mod tests {
     }
 
     /// Returns all widgets.
-    fn widgets() -> Vec<Box<dyn Widget>> {
+    fn widgets() -> Vec<Box<dyn PietWidget>> {
         // TODO: add child widgets to the layout widgets.
         let mut widgets = widgets_layout();
         widgets.append(&mut widgets_non_layout());
@@ -51,7 +51,7 @@ mod tests {
     }
 
     /// Returns the layout widgets.
-    fn widgets_layout() -> Vec<Box<dyn Widget>> {
+    fn widgets_layout() -> Vec<Box<dyn PietWidget>> {
         let mut center_widget = Center::new(0, Stroke::default());
         center_widget
             .add_child(
@@ -119,7 +119,7 @@ mod tests {
     }
 
     /// Returns the non-layout widgets.
-    fn widgets_non_layout() -> Vec<Box<dyn Widget>> {
+    fn widgets_non_layout() -> Vec<Box<dyn PietWidget>> {
         let mut piet_text = piet_text();
 
         vec![

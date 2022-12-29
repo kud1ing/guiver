@@ -95,10 +95,11 @@ The developer code can handle those widget events.
 
 ## Backlog
 
-* `Widget::set_value()`:
-  * [ ] return a `Vec<Command>`
+* [ ] spin-off methods of `PietWidget` to a new `Widget`
+* [ ] add `Command::AddWidget(Box<dyn Widget>)`
+  * Problem: Upcasting in the specialize widget manager is necessary
+* [ ] `Widget::set_value()`: return a `Vec<Command>`
   * [ ] `PietWidgetManager::handle_commands()`: handle the `Vec<Commands>` from `set_value()`
-* [ ] pass `WidgetIdProvider` 
 * [ ] sketch a `cacao` backend
 * [ ] sketch a `Iced` backend
 * Text:

@@ -2,14 +2,14 @@ use crate::shared_state::SharedState;
 use crate::widget::core::WidgetCore;
 
 use crate::widget_manager::WidgetBox;
-use crate::{Event, Widget};
+use crate::{Event, PietWidget};
 use druid_shell::kurbo::{Point, Rect, RoundedRect, Size};
 use druid_shell::piet::{Color, LinearGradient, PaintBrush, Piet, RenderContext, UnitPoint};
 use druid_shell::{piet, KbKey, Region};
 use guiver::stroke::Stroke;
 use guiver::{
-    Font, HorizontalAlignment, SizeConstraints, VerticalAlignment, WidgetError, WidgetEvent,
-    WidgetEventType, WidgetId, WidgetIdProvider, WidgetPlacement,
+    Font, HorizontalAlignment, SizeConstraints, VerticalAlignment, Widget, WidgetError,
+    WidgetEvent, WidgetEventType, WidgetId, WidgetIdProvider, WidgetPlacement,
 };
 use std::any::Any;
 
@@ -113,11 +113,16 @@ impl Button {
 }
 
 impl Widget for Button {
-    ///
     fn accepts_focus(&self) -> bool {
         true
     }
 
+    fn widget_id(&self) -> &WidgetId {
+        &self.core.widget_id
+    }
+}
+
+impl PietWidget for Button {
     fn add_child(
         &mut self,
         _widget_placement: Option<WidgetPlacement>,
@@ -343,10 +348,6 @@ impl Widget for Button {
         println!("`Button::set_vertical_alignment()`: TODO");
 
         Ok(())
-    }
-
-    fn widget_id(&self) -> &WidgetId {
-        &self.core.widget_id
     }
 }
 

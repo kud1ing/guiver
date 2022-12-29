@@ -1,13 +1,13 @@
 use crate::shared_state::SharedState;
 use crate::widget::core::WidgetCore;
 use crate::widget_manager::WidgetBox;
-use crate::{Event, Widget};
+use crate::{Event, PietWidget};
 use druid_shell::kurbo::{Point, Rect, Size};
 use druid_shell::piet::{Piet, RenderContext};
 use druid_shell::{piet, Region};
 use guiver::stroke::Stroke;
 use guiver::{
-    SizeConstraints, WidgetError, WidgetEvent, WidgetId, WidgetIdProvider, WidgetPlacement,
+    SizeConstraints, Widget, WidgetError, WidgetEvent, WidgetId, WidgetIdProvider, WidgetPlacement,
 };
 
 /// A layout widget that centers its child widget.
@@ -57,6 +57,12 @@ impl Center {
 }
 
 impl Widget for Center {
+    fn widget_id(&self) -> &WidgetId {
+        &self.core.widget_id
+    }
+}
+
+impl PietWidget for Center {
     fn add_child(
         &mut self,
         _widget_placement: Option<WidgetPlacement>,
@@ -161,9 +167,5 @@ impl Widget for Center {
 
         // Layout the child widget.
         self.layout_child_widget();
-    }
-
-    fn widget_id(&self) -> &WidgetId {
-        &self.core.widget_id
     }
 }
