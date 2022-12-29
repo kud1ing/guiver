@@ -371,6 +371,54 @@ impl Grid {
 }
 
 impl Widget for Grid {
+    fn apply_size_constraints(&mut self, size_constraints: SizeConstraints) -> Size {
+        self.core.size_constraints = size_constraints;
+
+        // Layout the child widgets.
+        self.layout_child_widgets();
+
+        self.core.rectangle.size()
+    }
+
+    fn rectangle(&self) -> &Rect {
+        &self.core.rectangle
+    }
+
+    fn remove_children(&mut self) -> Result<(), WidgetError> {
+        self.child_widget_id_per_cell.clear();
+        self.child_widget_ids_per_column.clear();
+        self.child_widget_ids_per_row.clear();
+        self.child_widget_per_id.clear();
+
+        self.number_of_columns = 0;
+        self.number_of_rows = 0;
+
+        // Update this widget's size.
+        self.layout_child_widgets();
+
+        Ok(())
+    }
+
+    fn set_debug_rendering(&mut self, debug_rendering: bool) {
+        self.core.debug_rendering = debug_rendering;
+    }
+
+    fn set_is_disabled(&mut self, _is_disabled: bool) {
+        // TODO
+        println!("`Grid::set_is_disabled()`: TODO");
+    }
+
+    fn set_is_hidden(&mut self, is_hidden: bool) {
+        self.core.is_hidden = is_hidden;
+    }
+
+    fn set_origin(&mut self, origin: Point) {
+        self.core.rectangle = self.core.rectangle.with_origin(origin);
+
+        // Layout the child widgets.
+        self.layout_child_widgets();
+    }
+
     fn widget_id(&self) -> &WidgetId {
         &self.core.widget_id
     }
@@ -397,15 +445,6 @@ impl PietWidget for Grid {
             widget_id: self.core.widget_id,
             description: format!("`add_child({:?})`", widget_placement),
         })
-    }
-
-    fn apply_size_constraints(&mut self, size_constraints: SizeConstraints) -> Size {
-        self.core.size_constraints = size_constraints;
-
-        // Layout the child widgets.
-        self.layout_child_widgets();
-
-        self.core.rectangle.size()
     }
 
     fn handle_event(
@@ -451,44 +490,5 @@ impl PietWidget for Grid {
         }
 
         Ok(())
-    }
-
-    fn rectangle(&self) -> &Rect {
-        &self.core.rectangle
-    }
-
-    fn remove_children(&mut self) -> Result<(), WidgetError> {
-        self.child_widget_id_per_cell.clear();
-        self.child_widget_ids_per_column.clear();
-        self.child_widget_ids_per_row.clear();
-        self.child_widget_per_id.clear();
-
-        self.number_of_columns = 0;
-        self.number_of_rows = 0;
-
-        // Update this widget's size.
-        self.layout_child_widgets();
-
-        Ok(())
-    }
-
-    fn set_debug_rendering(&mut self, debug_rendering: bool) {
-        self.core.debug_rendering = debug_rendering;
-    }
-
-    fn set_is_disabled(&mut self, _is_disabled: bool) {
-        // TODO
-        println!("`Grid::set_is_disabled()`: TODO");
-    }
-
-    fn set_is_hidden(&mut self, is_hidden: bool) {
-        self.core.is_hidden = is_hidden;
-    }
-
-    fn set_origin(&mut self, origin: Point) {
-        self.core.rectangle = self.core.rectangle.with_origin(origin);
-
-        // Layout the child widgets.
-        self.layout_child_widgets();
     }
 }

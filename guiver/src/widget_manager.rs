@@ -107,6 +107,7 @@ pub enum WidgetError {
         widget_id: WidgetId,
         description: String,
     },
+    WidgetExistsAlready(WidgetId),
 }
 
 // =================================================================================================
@@ -127,33 +128,6 @@ pub enum WidgetEventType {
     Submitted,
     /// The widget's value was changed.
     ValueChanged,
-}
-
-// =================================================================================================
-
-///
-#[derive(Clone, Debug)]
-pub enum WidgetsLocation {
-    Column(usize),
-    FirstColumn,
-    FirstRow,
-    LastColumn,
-    LastRow,
-    Row(usize),
-}
-
-// =================================================================================================
-
-///
-#[derive(Debug)]
-pub enum WidgetPlacement {
-    After(WidgetsLocation),
-    Before(WidgetsLocation),
-    Custom(Box<dyn Any>),
-    Grid {
-        column_index: usize,
-        row_index: usize,
-    },
 }
 
 // =================================================================================================
@@ -226,4 +200,62 @@ pub trait WidgetManager<T> {
 
     /// Returns a widget's value.
     fn value(&self, widget_id: WidgetId) -> Result<Option<Box<dyn Any>>, WidgetError>;
+}
+
+// =================================================================================================
+
+///
+#[derive(Debug)]
+pub enum WidgetPlacement {
+    After(WidgetsLocation),
+    Before(WidgetsLocation),
+    Custom(Box<dyn Any>),
+    Grid {
+        column_index: usize,
+        row_index: usize,
+    },
+}
+
+// =================================================================================================
+
+///
+#[derive(Clone, Debug)]
+pub enum WidgetsLocation {
+    Column(usize),
+    FirstColumn,
+    FirstRow,
+    LastColumn,
+    LastRow,
+    Row(usize),
+}
+
+// =================================================================================================
+
+///
+#[derive(Clone, Debug)]
+pub enum WidgetType {
+    Center,
+    Column,
+    Expanded {
+        flex_factor: u16,
+    },
+    Grid {
+        column_properties: GridColumnProperties,
+        row_properties: GridRowProperties,
+    },
+    Hyperlink(String),
+    Padding,
+    Placeholder {
+        maximum_size: Size,
+    },
+    Row,
+    SizedBox {
+        desired_size: Size,
+    },
+    Text(String),
+    TextButton(String),
+    TextInput {
+        text: String,
+        width: f64,
+    },
 }

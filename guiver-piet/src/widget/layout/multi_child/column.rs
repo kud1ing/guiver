@@ -153,47 +153,6 @@ impl Column {
 }
 
 impl Widget for Column {
-    fn widget_id(&self) -> &WidgetId {
-        &self.core.widget_id
-    }
-}
-
-impl PietWidget for Column {
-    fn add_child(
-        &mut self,
-        widget_placement: Option<WidgetPlacement>,
-        child_widget: PietWidgetBox,
-    ) -> Result<(), WidgetError> {
-        // A widget placement is given.
-        if let Some(widget_placement) = widget_placement {
-            match widget_placement {
-                WidgetPlacement::After(_widgets_location) => {
-                    // TODO
-                    println!("TODO: `Column::add_child(WidgetPlacement::After(...))");
-                }
-                WidgetPlacement::Before(_widgets_location) => {
-                    // TODO
-                    println!("TODO: `Column::add_child(WidgetPlacement::Before(...))");
-                }
-                _ => {
-                    return Err(WidgetError::NotHandled {
-                        widget_id: self.widget_id().clone(),
-                        description: format!("{:?}", widget_placement),
-                    })
-                }
-            }
-        }
-        // No widget placement is given.
-        else {
-            self.child_widgets.push(child_widget.clone());
-        }
-
-        // Layout the child widgets.
-        self.layout_child_widgets();
-
-        Ok(())
-    }
-
     fn apply_size_constraints(&mut self, size_constraints: SizeConstraints) -> Size {
         self.core.size_constraints = size_constraints;
 
@@ -201,51 +160,6 @@ impl PietWidget for Column {
         self.layout_child_widgets();
 
         self.core.rectangle.size()
-    }
-
-    fn handle_event(
-        &mut self,
-        widget_id_provider: &mut WidgetIdProvider,
-        shared_state: &mut PietSharedState,
-        event: &Event,
-    ) -> Vec<WidgetEvent> {
-        let mut widget_events = vec![];
-
-        // Iterate over the child widgets.
-        for child_widget in &mut self.child_widgets {
-            // Let the current child widget handle the given event.
-            widget_events.append(&mut RefCell::borrow_mut(child_widget).handle_event(
-                widget_id_provider,
-                shared_state,
-                event,
-            ));
-        }
-
-        widget_events
-    }
-
-    fn paint(&self, piet: &mut Piet, region: &Region) -> Result<(), piet::Error> {
-        // The row widget is hidden.
-        if self.core.is_hidden {
-            return Ok(());
-        }
-
-        // Iterate over the child widgets.
-        for child_widget in &self.child_widgets {
-            // Paint the current child widget.
-            RefCell::borrow(child_widget).paint(piet, region)?;
-        }
-
-        // Render debug hints.
-        if self.core.debug_rendering {
-            piet.stroke(
-                self.core.rectangle,
-                &self.core.debug_rendering_stroke.stroke_brush,
-                self.core.debug_rendering_stroke.stroke_width,
-            );
-        }
-
-        Ok(())
     }
 
     fn rectangle(&self) -> &Rect {
@@ -304,5 +218,91 @@ impl PietWidget for Column {
 
         // Layout the child widgets.
         self.layout_child_widgets();
+    }
+
+    fn widget_id(&self) -> &WidgetId {
+        &self.core.widget_id
+    }
+}
+
+impl PietWidget for Column {
+    fn add_child(
+        &mut self,
+        widget_placement: Option<WidgetPlacement>,
+        child_widget: PietWidgetBox,
+    ) -> Result<(), WidgetError> {
+        // A widget placement is given.
+        if let Some(widget_placement) = widget_placement {
+            match widget_placement {
+                WidgetPlacement::After(_widgets_location) => {
+                    // TODO
+                    println!("TODO: `Column::add_child(WidgetPlacement::After(...))");
+                }
+                WidgetPlacement::Before(_widgets_location) => {
+                    // TODO
+                    println!("TODO: `Column::add_child(WidgetPlacement::Before(...))");
+                }
+                _ => {
+                    return Err(WidgetError::NotHandled {
+                        widget_id: self.widget_id().clone(),
+                        description: format!("{:?}", widget_placement),
+                    })
+                }
+            }
+        }
+        // No widget placement is given.
+        else {
+            self.child_widgets.push(child_widget.clone());
+        }
+
+        // Layout the child widgets.
+        self.layout_child_widgets();
+
+        Ok(())
+    }
+
+    fn handle_event(
+        &mut self,
+        widget_id_provider: &mut WidgetIdProvider,
+        shared_state: &mut PietSharedState,
+        event: &Event,
+    ) -> Vec<WidgetEvent> {
+        let mut widget_events = vec![];
+
+        // Iterate over the child widgets.
+        for child_widget in &mut self.child_widgets {
+            // Let the current child widget handle the given event.
+            widget_events.append(&mut RefCell::borrow_mut(child_widget).handle_event(
+                widget_id_provider,
+                shared_state,
+                event,
+            ));
+        }
+
+        widget_events
+    }
+
+    fn paint(&self, piet: &mut Piet, region: &Region) -> Result<(), piet::Error> {
+        // The row widget is hidden.
+        if self.core.is_hidden {
+            return Ok(());
+        }
+
+        // Iterate over the child widgets.
+        for child_widget in &self.child_widgets {
+            // Paint the current child widget.
+            RefCell::borrow(child_widget).paint(piet, region)?;
+        }
+
+        // Render debug hints.
+        if self.core.debug_rendering {
+            piet.stroke(
+                self.core.rectangle,
+                &self.core.debug_rendering_stroke.stroke_brush,
+                self.core.debug_rendering_stroke.stroke_width,
+            );
+        }
+
+        Ok(())
     }
 }

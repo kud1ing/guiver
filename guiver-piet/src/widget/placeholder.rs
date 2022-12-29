@@ -40,13 +40,6 @@ impl Placeholder {
 }
 
 impl Widget for Placeholder {
-    fn widget_id(&self) -> &WidgetId {
-        &self.core.widget_id
-    }
-}
-
-impl PietWidget for Placeholder {
-    ///
     fn apply_size_constraints(&mut self, size_constraints: SizeConstraints) -> Size {
         self.core.rectangle = self.core.rectangle.with_size(
             self.desired_size
@@ -55,6 +48,45 @@ impl PietWidget for Placeholder {
         self.core.rectangle.size()
     }
 
+    fn rectangle(&self) -> &Rect {
+        &self.core.rectangle
+    }
+
+    fn set_debug_rendering(&mut self, debug_rendering: bool) {
+        self.core.debug_rendering = debug_rendering;
+    }
+
+    fn set_fill(&mut self, fill: Option<PaintBrush>) -> Result<(), WidgetError> {
+        self.fill = fill.clone();
+        Ok(())
+    }
+
+    fn set_is_disabled(&mut self, _is_disabled: bool) {
+        // TODO
+        println!("`Placeholder::set_is_disabled()`: TODO");
+    }
+
+    fn set_is_hidden(&mut self, is_hidden: bool) {
+        self.core.is_hidden = is_hidden;
+    }
+
+    fn set_origin(&mut self, origin: Point) {
+        self.core.rectangle = self.core.rectangle.with_origin(origin)
+    }
+
+    fn set_stroke(&mut self, _stroke: Option<Stroke>) -> Result<(), WidgetError> {
+        // TODO
+        println!("`Placeholder::set_stroke()`: TODO");
+
+        Ok(())
+    }
+
+    fn widget_id(&self) -> &WidgetId {
+        &self.core.widget_id
+    }
+}
+
+impl PietWidget for Placeholder {
     fn handle_event(
         &mut self,
         _widget_id_provider: &mut WidgetIdProvider,
@@ -120,39 +152,6 @@ impl PietWidget for Placeholder {
 
         Ok(())
     }
-
-    fn rectangle(&self) -> &Rect {
-        &self.core.rectangle
-    }
-
-    fn set_debug_rendering(&mut self, debug_rendering: bool) {
-        self.core.debug_rendering = debug_rendering;
-    }
-
-    fn set_fill(&mut self, fill: Option<PaintBrush>) -> Result<(), WidgetError> {
-        self.fill = fill.clone();
-        Ok(())
-    }
-
-    fn set_is_disabled(&mut self, _is_disabled: bool) {
-        // TODO
-        println!("`Placeholder::set_is_disabled()`: TODO");
-    }
-
-    fn set_is_hidden(&mut self, is_hidden: bool) {
-        self.core.is_hidden = is_hidden;
-    }
-
-    fn set_origin(&mut self, origin: Point) {
-        self.core.rectangle = self.core.rectangle.with_origin(origin)
-    }
-
-    fn set_stroke(&mut self, _stroke: Option<Stroke>) -> Result<(), WidgetError> {
-        // TODO
-        println!("`Placeholder::set_stroke()`: TODO");
-
-        Ok(())
-    }
 }
 
 // =================================================================================================
@@ -160,8 +159,7 @@ impl PietWidget for Placeholder {
 #[cfg(test)]
 mod tests {
     use crate::widget::Placeholder;
-    use crate::PietWidget;
-    use guiver::{Size, SizeConstraints, Stroke};
+    use guiver::{Size, SizeConstraints, Stroke, Widget};
 
     #[test]
     fn test_apply_size_constraints() {

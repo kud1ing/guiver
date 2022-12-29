@@ -204,12 +204,6 @@ impl Widget for TextInput {
         true
     }
 
-    fn widget_id(&self) -> &WidgetId {
-        &self.core.widget_id
-    }
-}
-
-impl PietWidget for TextInput {
     fn apply_size_constraints(&mut self, size_constraints: SizeConstraints) -> Size {
         self.core.size_constraints = size_constraints;
 
@@ -219,6 +213,78 @@ impl PietWidget for TextInput {
         self.core.rectangle.size()
     }
 
+    fn rectangle(&self) -> &Rect {
+        &self.core.rectangle
+    }
+
+    fn selected_value(&self) -> Option<Box<dyn Any>> {
+        self.text_widget.selected_value()
+    }
+
+    fn set_debug_rendering(&mut self, debug_rendering: bool) {
+        self.core.debug_rendering = debug_rendering;
+    }
+
+    fn set_fill(&mut self, fill: Option<PaintBrush>) -> Result<(), WidgetError> {
+        self.fill = fill;
+        Ok(())
+    }
+
+    fn set_has_focus(&mut self, has_focus: bool) -> Result<(), WidgetError> {
+        self.has_focus = has_focus;
+        Ok(())
+    }
+
+    fn set_horizontal_alignment(
+        &mut self,
+        horizontal_alignment: HorizontalAlignment,
+    ) -> Result<(), WidgetError> {
+        self.horizontal_alignment = horizontal_alignment;
+
+        Ok(())
+    }
+
+    fn set_is_disabled(&mut self, is_disabled: bool) {
+        self.is_disabled = is_disabled;
+    }
+
+    fn set_is_hidden(&mut self, is_hidden: bool) {
+        self.core.is_hidden = is_hidden;
+    }
+
+    fn set_origin(&mut self, origin: Point) {
+        self.core.rectangle = self.core.rectangle.with_origin(origin);
+
+        // Layout the child widget.
+        self.layout_child_widget();
+    }
+
+    fn set_stroke(&mut self, _stroke: Option<Stroke>) -> Result<(), WidgetError> {
+        // TODO
+        println!("`TextInput::set_stroke()`: TODO");
+        Ok(())
+    }
+
+    fn set_vertical_alignment(
+        &mut self,
+        _vertical_alignment: VerticalAlignment,
+    ) -> Result<(), WidgetError> {
+        // TODO
+        println!("`TextInput::set_vertical_alignment()`: TODO");
+
+        Ok(())
+    }
+
+    fn value(&self) -> Option<Box<dyn Any>> {
+        self.text_widget.value()
+    }
+
+    fn widget_id(&self) -> &WidgetId {
+        &self.core.widget_id
+    }
+}
+
+impl PietWidget for TextInput {
     fn handle_event(
         &mut self,
         widget_id_provider: &mut WidgetIdProvider,
@@ -342,10 +408,6 @@ impl PietWidget for TextInput {
         Ok(())
     }
 
-    fn rectangle(&self) -> &Rect {
-        &self.core.rectangle
-    }
-
     fn remove_selected_value(
         &mut self,
         widget_id_provider: &mut WidgetIdProvider,
@@ -356,60 +418,12 @@ impl PietWidget for TextInput {
         self.set_value(widget_id_provider, shared_state, Box::new("".to_string()))
     }
 
-    fn selected_value(&self) -> Option<Box<dyn Any>> {
-        self.text_widget.selected_value()
-    }
-
-    fn set_debug_rendering(&mut self, debug_rendering: bool) {
-        self.core.debug_rendering = debug_rendering;
-    }
-
-    fn set_fill(&mut self, fill: Option<PaintBrush>) -> Result<(), WidgetError> {
-        self.fill = fill;
-        Ok(())
-    }
-
     fn set_font(
         &mut self,
         shared_state: &mut PietSharedState,
         font: Font,
     ) -> Result<(), WidgetError> {
         self.text_widget.set_font(shared_state, font)
-    }
-
-    fn set_has_focus(&mut self, has_focus: bool) -> Result<(), WidgetError> {
-        self.has_focus = has_focus;
-        Ok(())
-    }
-
-    fn set_horizontal_alignment(
-        &mut self,
-        horizontal_alignment: HorizontalAlignment,
-    ) -> Result<(), WidgetError> {
-        self.horizontal_alignment = horizontal_alignment;
-
-        Ok(())
-    }
-
-    fn set_is_disabled(&mut self, is_disabled: bool) {
-        self.is_disabled = is_disabled;
-    }
-
-    fn set_is_hidden(&mut self, is_hidden: bool) {
-        self.core.is_hidden = is_hidden;
-    }
-
-    fn set_origin(&mut self, origin: Point) {
-        self.core.rectangle = self.core.rectangle.with_origin(origin);
-
-        // Layout the child widget.
-        self.layout_child_widget();
-    }
-
-    fn set_stroke(&mut self, _stroke: Option<Stroke>) -> Result<(), WidgetError> {
-        // TODO
-        println!("`TextInput::set_stroke()`: TODO");
-        Ok(())
     }
 
     fn set_selected_value(
@@ -438,20 +452,6 @@ impl PietWidget for TextInput {
         }
 
         Ok(())
-    }
-
-    fn set_vertical_alignment(
-        &mut self,
-        _vertical_alignment: VerticalAlignment,
-    ) -> Result<(), WidgetError> {
-        // TODO
-        println!("`TextInput::set_vertical_alignment()`: TODO");
-
-        Ok(())
-    }
-
-    fn value(&self) -> Option<Box<dyn Any>> {
-        self.text_widget.value()
     }
 }
 

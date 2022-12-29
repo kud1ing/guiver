@@ -95,11 +95,18 @@ The developer code can handle those widget events.
 
 ## Backlog
 
-* [ ] spin-off methods of `PietWidget` to a new `Widget`
-* [ ] add `Command::AddWidget(Box<dyn Widget>)`
-  * Problem: Upcasting in the specialize widget manager is necessary
-* [ ] `Widget::set_value()`: return a `Vec<Command>`
-  * [ ] `PietWidgetManager::handle_commands()`: handle the `Vec<Commands>` from `set_value()`
+* [ ] add `Command::CreateWidget(WidgetId, WidgetType)`
+  * [ ] raise `WidgetError::WidgetExistsAlready` if necessary
+* make widgets able to create child widgets themselves via the `WidgetManager`?
+  * discussion:
+    * Chances:
+      * elaborate widget construction/update logic can be provided by widgets themselves
+    * Risks:
+      * widget logic is spread in client and widget code
+  * either:
+    * [ ] remove `WidgetIdProvider` again from `Widget`?
+    * [ ] `Widget::set_value()`: return `Vec<Command>`?
+      * [ ] `PietWidgetManager::handle_commands()`: handle the `Vec<Command>` from `set_value()`
 * [ ] sketch a `cacao` backend
 * [ ] sketch a `Iced` backend
 * Text:

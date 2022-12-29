@@ -1,6 +1,7 @@
 use crate::{HorizontalAlignment, VerticalAlignment};
 
 ///
+#[derive(Clone, Debug)]
 pub struct GridColumnProperties {
     pub flex_factor: u16,
     pub horizontal_alignment: HorizontalAlignment,
@@ -22,6 +23,7 @@ impl Default for GridColumnProperties {
 // =================================================================================================
 
 ///
+#[derive(Clone, Debug)]
 pub struct GridRowProperties {
     pub flex_factor: u16,
     pub minimum_height: f64,

@@ -53,29 +53,6 @@ impl Expanded {
 }
 
 impl Widget for Expanded {
-    fn flex_factor(&self) -> u16 {
-        self.flex_factor
-    }
-
-    fn widget_id(&self) -> &WidgetId {
-        &self.core.widget_id
-    }
-}
-
-impl PietWidget for Expanded {
-    fn add_child(
-        &mut self,
-        _widget_placement: Option<WidgetPlacement>,
-        child_widget: PietWidgetBox,
-    ) -> Result<(), WidgetError> {
-        self.child_widget = Some(child_widget.clone());
-
-        // Layout the child.
-        self.layout_child_widget();
-
-        return Ok(());
-    }
-
     fn apply_size_constraints(&mut self, size_constraints: SizeConstraints) -> Size {
         self.core.size_constraints = size_constraints;
 
@@ -85,44 +62,8 @@ impl PietWidget for Expanded {
         self.core.rectangle.size()
     }
 
-    fn handle_event(
-        &mut self,
-        widget_id_provider: &mut WidgetIdProvider,
-        shared_state: &mut PietSharedState,
-        event: &Event,
-    ) -> Vec<WidgetEvent> {
-        // There is a child widget.
-        if let Some(child_widget) = &mut self.child_widget {
-            child_widget
-                .borrow_mut()
-                .handle_event(widget_id_provider, shared_state, event)
-        } else {
-            vec![]
-        }
-    }
-
-    fn paint(&self, piet: &mut Piet, region: &Region) -> Result<(), Error> {
-        // The expanded widget is hidden.
-        if self.core.is_hidden {
-            return Ok(());
-        }
-
-        // There is a child widget.
-        if let Some(child_widget_rc) = &self.child_widget {
-            // Paint the child widget.
-            child_widget_rc.borrow().paint(piet, region)?;
-        }
-
-        // Render debug hints.
-        if self.core.debug_rendering {
-            piet.stroke(
-                self.core.rectangle,
-                &self.core.debug_rendering_stroke.stroke_brush,
-                self.core.debug_rendering_stroke.stroke_width,
-            );
-        }
-
-        Ok(())
+    fn flex_factor(&self) -> u16 {
+        self.flex_factor
     }
 
     fn rectangle(&self) -> &Rect {
@@ -176,5 +117,64 @@ impl PietWidget for Expanded {
 
         // Layout the child.
         self.layout_child_widget();
+    }
+
+    fn widget_id(&self) -> &WidgetId {
+        &self.core.widget_id
+    }
+}
+
+impl PietWidget for Expanded {
+    fn add_child(
+        &mut self,
+        _widget_placement: Option<WidgetPlacement>,
+        child_widget: PietWidgetBox,
+    ) -> Result<(), WidgetError> {
+        self.child_widget = Some(child_widget.clone());
+
+        // Layout the child.
+        self.layout_child_widget();
+
+        return Ok(());
+    }
+
+    fn handle_event(
+        &mut self,
+        widget_id_provider: &mut WidgetIdProvider,
+        shared_state: &mut PietSharedState,
+        event: &Event,
+    ) -> Vec<WidgetEvent> {
+        // There is a child widget.
+        if let Some(child_widget) = &mut self.child_widget {
+            child_widget
+                .borrow_mut()
+                .handle_event(widget_id_provider, shared_state, event)
+        } else {
+            vec![]
+        }
+    }
+
+    fn paint(&self, piet: &mut Piet, region: &Region) -> Result<(), Error> {
+        // The expanded widget is hidden.
+        if self.core.is_hidden {
+            return Ok(());
+        }
+
+        // There is a child widget.
+        if let Some(child_widget_rc) = &self.child_widget {
+            // Paint the child widget.
+            child_widget_rc.borrow().paint(piet, region)?;
+        }
+
+        // Render debug hints.
+        if self.core.debug_rendering {
+            piet.stroke(
+                self.core.rectangle,
+                &self.core.debug_rendering_stroke.stroke_brush,
+                self.core.debug_rendering_stroke.stroke_width,
+            );
+        }
+
+        Ok(())
     }
 }

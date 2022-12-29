@@ -53,27 +53,6 @@ impl SizedBox {
 }
 
 impl Widget for SizedBox {
-    fn widget_id(&self) -> &WidgetId {
-        &self.core.widget_id
-    }
-}
-
-impl PietWidget for SizedBox {
-    fn add_child(
-        &mut self,
-        _widget_placement: Option<WidgetPlacement>,
-        child_widget: PietWidgetBox,
-    ) -> Result<(), WidgetError> {
-        // TODO: use `_widget_placement`?
-
-        self.child_widget = Some(child_widget);
-
-        // Layout the child widget.
-        self.layout_child_widget();
-
-        Ok(())
-    }
-
     fn apply_size_constraints(&mut self, size_constraints: SizeConstraints) -> Size {
         self.core.size_constraints = size_constraints;
 
@@ -81,47 +60,6 @@ impl PietWidget for SizedBox {
         self.layout_child_widget();
 
         self.core.rectangle.size()
-    }
-
-    fn handle_event(
-        &mut self,
-        widget_id_provider: &mut WidgetIdProvider,
-        shared_state: &mut PietSharedState,
-        event: &Event,
-    ) -> Vec<WidgetEvent> {
-        // There is a child widget.
-        if let Some(child_widget) = &mut self.child_widget {
-            // Let the child widget handle the event.
-            child_widget
-                .borrow_mut()
-                .handle_event(widget_id_provider, shared_state, event)
-        } else {
-            vec![]
-        }
-    }
-
-    fn paint(&self, piet: &mut Piet, region: &Region) -> Result<(), Error> {
-        // The sized box widget is hidden.
-        if self.core.is_hidden {
-            return Ok(());
-        }
-
-        // There is a child widget.
-        if let Some(child_widget_rc) = &self.child_widget {
-            // Paint the child widget.
-            child_widget_rc.borrow().paint(piet, region)?;
-        }
-
-        // Render debug hints.
-        if self.core.debug_rendering {
-            piet.stroke(
-                self.core.rectangle,
-                &self.core.debug_rendering_stroke.stroke_brush,
-                self.core.debug_rendering_stroke.stroke_width,
-            );
-        }
-
-        Ok(())
     }
 
     fn rectangle(&self) -> &Rect {
@@ -165,5 +103,67 @@ impl PietWidget for SizedBox {
 
         // Layout the child.
         self.layout_child_widget();
+    }
+
+    fn widget_id(&self) -> &WidgetId {
+        &self.core.widget_id
+    }
+}
+
+impl PietWidget for SizedBox {
+    fn add_child(
+        &mut self,
+        _widget_placement: Option<WidgetPlacement>,
+        child_widget: PietWidgetBox,
+    ) -> Result<(), WidgetError> {
+        // TODO: use `_widget_placement`?
+
+        self.child_widget = Some(child_widget);
+
+        // Layout the child widget.
+        self.layout_child_widget();
+
+        Ok(())
+    }
+
+    fn handle_event(
+        &mut self,
+        widget_id_provider: &mut WidgetIdProvider,
+        shared_state: &mut PietSharedState,
+        event: &Event,
+    ) -> Vec<WidgetEvent> {
+        // There is a child widget.
+        if let Some(child_widget) = &mut self.child_widget {
+            // Let the child widget handle the event.
+            child_widget
+                .borrow_mut()
+                .handle_event(widget_id_provider, shared_state, event)
+        } else {
+            vec![]
+        }
+    }
+
+    fn paint(&self, piet: &mut Piet, region: &Region) -> Result<(), Error> {
+        // The sized box widget is hidden.
+        if self.core.is_hidden {
+            return Ok(());
+        }
+
+        // There is a child widget.
+        if let Some(child_widget_rc) = &self.child_widget {
+            // Paint the child widget.
+            child_widget_rc.borrow().paint(piet, region)?;
+        }
+
+        // Render debug hints.
+        if self.core.debug_rendering {
+            piet.stroke(
+                self.core.rectangle,
+                &self.core.debug_rendering_stroke.stroke_brush,
+                self.core.debug_rendering_stroke.stroke_width,
+            );
+        }
+
+        Ok(())
     }
 }

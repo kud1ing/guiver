@@ -117,6 +117,78 @@ impl Widget for Button {
         true
     }
 
+    fn apply_size_constraints(&mut self, size_constraints: SizeConstraints) -> Size {
+        self.core.size_constraints = size_constraints;
+
+        // Layout the child widget.
+        self.layout_child_widget();
+
+        self.core.rectangle.size()
+    }
+
+    fn rectangle(&self) -> &Rect {
+        &self.core.rectangle
+    }
+
+    fn remove_children(&mut self) -> Result<(), WidgetError> {
+        self.child_widget = None;
+        Ok(())
+    }
+
+    fn set_debug_rendering(&mut self, debug_rendering: bool) {
+        self.core.debug_rendering = debug_rendering;
+    }
+
+    fn set_fill(&mut self, fill: Option<PaintBrush>) -> Result<(), WidgetError> {
+        self.fill_brush_up = fill;
+        Ok(())
+    }
+
+    fn set_has_focus(&mut self, has_focus: bool) -> Result<(), WidgetError> {
+        self.has_focus = has_focus;
+        Ok(())
+    }
+
+    fn set_horizontal_alignment(
+        &mut self,
+        _horizontal_alignment: HorizontalAlignment,
+    ) -> Result<(), WidgetError> {
+        // TODO
+        println!("`Button::set_horizontal_alignment()`: TODO");
+
+        Ok(())
+    }
+
+    fn set_is_disabled(&mut self, is_disabled: bool) {
+        self.is_disabled = is_disabled;
+    }
+
+    fn set_is_hidden(&mut self, is_hidden: bool) {
+        self.core.is_hidden = is_hidden;
+    }
+
+    fn set_origin(&mut self, origin: Point) {
+        self.core.rectangle = self.core.rectangle.with_origin(origin);
+
+        // Layout the child widget.
+        self.layout_child_widget();
+    }
+
+    fn set_stroke(&mut self, stroke: Option<Stroke>) -> Result<(), WidgetError> {
+        self.stroke = stroke;
+        Ok(())
+    }
+
+    fn set_vertical_alignment(
+        &mut self,
+        _vertical_alignment: VerticalAlignment,
+    ) -> Result<(), WidgetError> {
+        // TODO
+        println!("`Button::set_vertical_alignment()`: TODO");
+
+        Ok(())
+    }
+
     fn widget_id(&self) -> &WidgetId {
         &self.core.widget_id
     }
@@ -136,15 +208,6 @@ impl PietWidget for Button {
         self.layout_child_widget();
 
         Ok(())
-    }
-
-    fn apply_size_constraints(&mut self, size_constraints: SizeConstraints) -> Size {
-        self.core.size_constraints = size_constraints;
-
-        // Layout the child widget.
-        self.layout_child_widget();
-
-        self.core.rectangle.size()
     }
 
     fn handle_event(
@@ -267,24 +330,6 @@ impl PietWidget for Button {
         Ok(())
     }
 
-    fn rectangle(&self) -> &Rect {
-        &self.core.rectangle
-    }
-
-    fn remove_children(&mut self) -> Result<(), WidgetError> {
-        self.child_widget = None;
-        Ok(())
-    }
-
-    fn set_debug_rendering(&mut self, debug_rendering: bool) {
-        self.core.debug_rendering = debug_rendering;
-    }
-
-    fn set_fill(&mut self, fill: Option<PaintBrush>) -> Result<(), WidgetError> {
-        self.fill_brush_up = fill;
-        Ok(())
-    }
-
     fn set_font(
         &mut self,
         shared_state: &mut PietSharedState,
@@ -297,41 +342,6 @@ impl PietWidget for Button {
         Ok(())
     }
 
-    fn set_has_focus(&mut self, has_focus: bool) -> Result<(), WidgetError> {
-        self.has_focus = has_focus;
-        Ok(())
-    }
-
-    fn set_horizontal_alignment(
-        &mut self,
-        _horizontal_alignment: HorizontalAlignment,
-    ) -> Result<(), WidgetError> {
-        // TODO
-        println!("`Button::set_horizontal_alignment()`: TODO");
-
-        Ok(())
-    }
-
-    fn set_is_disabled(&mut self, is_disabled: bool) {
-        self.is_disabled = is_disabled;
-    }
-
-    fn set_is_hidden(&mut self, is_hidden: bool) {
-        self.core.is_hidden = is_hidden;
-    }
-
-    fn set_origin(&mut self, origin: Point) {
-        self.core.rectangle = self.core.rectangle.with_origin(origin);
-
-        // Layout the child widget.
-        self.layout_child_widget();
-    }
-
-    fn set_stroke(&mut self, stroke: Option<Stroke>) -> Result<(), WidgetError> {
-        self.stroke = stroke;
-        Ok(())
-    }
-
     fn set_value(
         &mut self,
         _widget_id_provider: &mut WidgetIdProvider,
@@ -340,16 +350,6 @@ impl PietWidget for Button {
     ) -> Result<(), WidgetError> {
         // TODO
         println!("`Button::set_value()`: TODO");
-
-        Ok(())
-    }
-
-    fn set_vertical_alignment(
-        &mut self,
-        _vertical_alignment: VerticalAlignment,
-    ) -> Result<(), WidgetError> {
-        // TODO
-        println!("`Button::set_vertical_alignment()`: TODO");
 
         Ok(())
     }

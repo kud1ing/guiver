@@ -100,16 +100,41 @@ impl Hyperlink {
 }
 
 impl Widget for Hyperlink {
+    fn apply_size_constraints(&mut self, size_constraints: SizeConstraints) -> Size {
+        self.text_widget.apply_size_constraints(size_constraints)
+    }
+
+    fn rectangle(&self) -> &Rect {
+        self.text_widget.rectangle()
+    }
+
+    fn set_debug_rendering(&mut self, debug_rendering: bool) {
+        self.text_widget.set_debug_rendering(debug_rendering);
+    }
+
+    fn set_is_disabled(&mut self, _is_disabled: bool) {
+        // TODO
+        println!("`Hyperlink::set_is_disabled()`: TODO");
+    }
+
+    fn set_is_hidden(&mut self, is_hidden: bool) {
+        self.text_widget.set_is_hidden(is_hidden);
+    }
+
+    fn set_origin(&mut self, origin: Point) {
+        self.text_widget.set_origin(origin)
+    }
+
+    fn set_stroke(&mut self, stroke: Option<Stroke>) -> Result<(), WidgetError> {
+        self.text_widget.set_stroke(stroke)
+    }
+
     fn widget_id(&self) -> &WidgetId {
         self.text_widget.widget_id()
     }
 }
 
 impl PietWidget for Hyperlink {
-    fn apply_size_constraints(&mut self, size_constraints: SizeConstraints) -> Size {
-        self.text_widget.apply_size_constraints(size_constraints)
-    }
-
     fn handle_event(
         &mut self,
         _widget_id_provider: &mut WidgetIdProvider,
@@ -163,30 +188,5 @@ impl PietWidget for Hyperlink {
 
     fn paint(&self, piet: &mut Piet, region: &Region) -> Result<(), Error> {
         self.text_widget.paint(piet, region)
-    }
-
-    fn rectangle(&self) -> &Rect {
-        self.text_widget.rectangle()
-    }
-
-    fn set_debug_rendering(&mut self, debug_rendering: bool) {
-        self.text_widget.set_debug_rendering(debug_rendering);
-    }
-
-    fn set_is_disabled(&mut self, _is_disabled: bool) {
-        // TODO
-        println!("`Hyperlink::set_is_disabled()`: TODO");
-    }
-
-    fn set_is_hidden(&mut self, is_hidden: bool) {
-        self.text_widget.set_is_hidden(is_hidden);
-    }
-
-    fn set_origin(&mut self, origin: Point) {
-        self.text_widget.set_origin(origin)
-    }
-
-    fn set_stroke(&mut self, stroke: Option<Stroke>) -> Result<(), WidgetError> {
-        self.text_widget.set_stroke(stroke)
     }
 }
