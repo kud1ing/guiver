@@ -95,18 +95,25 @@ The developer code can handle those widget events.
 
 ## Backlog
 
-* [ ] add `Command::CreateWidget(WidgetId, WidgetType)`
-  * [ ] raise `WidgetError::WidgetExistsAlready` if necessary
-* make widgets able to create child widgets themselves via the `WidgetManager`?
+* [ ] inform the widgets about the event subscriptions so that they only produces values for them
+  * the widget manager needs the `WidgetEventType::GainedFocus`/`WidgetEventType::LostFocus` at all times
+* make widgets able to create child widgets themselves via `Command`s to the `WidgetManager`?
   * discussion:
     * Chances:
       * elaborate widget construction/update logic can be provided by widgets themselves
+        * thus automatically confined to the widget lifetime
     * Risks:
       * widget logic is spread in client and widget code
   * either:
-    * [ ] remove `WidgetIdProvider` again from `Widget`?
+    * [ ] remove `WidgetIdProvider` again from `PietWidget`?
     * [ ] `Widget::set_value()`: return `Vec<Command>`?
       * [ ] `PietWidgetManager::handle_commands()`: handle the `Vec<Command>` from `set_value()`
+* extract methods from `PietWidget` to `Widget` and find abstractions for:
+  * [ ] `PietWidgetBox`
+  * [ ] `PietSharedState`
+  * [ ] `Event`
+  * [ ] `Piet`
+  * [ ] `Region`
 * [ ] sketch a `cacao` backend
 * [ ] sketch a `Iced` backend
 * Text:
@@ -130,8 +137,6 @@ The developer code can handle those widget events.
   * [ ] `TextInput`: Meta+X should cut the selected text
   * [ ] `TextInput`: if a text is too large to fit in, the size of the text input should not increase but truncate
   * [ ] `TextInput::handle_event()`: select the whole text on double click
-* [ ] inform the Piet widgets about the event subscriptions so that they only produces values for them
-  * the widget manager needs the `WidgetEventType::GainedFocus`/`WidgetEventType::LostFocus` at all times
 * [ ] add support for scrolling
   * [ ] how?
 * [ ] `test::widgets_layout()`: add remaining layout widgets

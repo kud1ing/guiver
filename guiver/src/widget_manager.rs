@@ -20,6 +20,8 @@ pub enum Command<T> {
         parent_widget_id: WidgetId,
         child_widgets: Vec<(Option<WidgetPlacement>, WidgetId)>,
     },
+    /// Creates a widget with the given ID and type.
+    CreateWidget(WidgetId, WidgetType),
     /// Destroys the widget with the given ID.
     Destroy(WidgetId),
     /// Removes the child widget with the given ID from the parent widget.
@@ -70,6 +72,7 @@ impl<T> Command<T> {
             Command::AddChildren {
                 parent_widget_id, ..
             } => parent_widget_id,
+            Command::CreateWidget(widget_id, _) => widget_id,
             Command::Destroy(widget_id) => widget_id,
             Command::RemoveChild {
                 parent_widget_id, ..

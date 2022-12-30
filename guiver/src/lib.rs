@@ -20,5 +20,5 @@ pub use stroke::Stroke;
 pub use widget::{Widget, WidgetId};
 pub use widget_id_provider::WidgetIdProvider;
 pub use widget_manager::{
-    Command, WidgetError, WidgetEvent, WidgetEventType, WidgetManager, WidgetPlacement,
+    Command, WidgetError, WidgetEvent, WidgetEventType, WidgetManager, WidgetPlacement, WidgetType,
 };

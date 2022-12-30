@@ -12,7 +12,7 @@ use druid_shell::{piet, Clipboard, KbKey, Modifiers, Region};
 use guiver::{
     Color, Command, GridColumnProperties, GridRowProperties, HorizontalAlignment, Rect,
     SizeConstraints, WidgetError, WidgetEvent, WidgetEventType, WidgetId, WidgetIdProvider,
-    WidgetManager,
+    WidgetManager, WidgetType,
 };
 use piet::PaintBrush;
 use std::any::Any;
@@ -570,6 +570,54 @@ impl<T: Clone> WidgetManager<T> for PietWidgetManager<T> {
                         widget_box
                             .borrow_mut()
                             .add_child(widget_placement, child_widget_box.clone())?;
+                    }
+                }
+                Command::CreateWidget(widget_id, widget_type) => {
+                    // A widget with the given ID exists already.
+                    if self.widgets.contains_key(&widget_id) {
+                        return Err(WidgetError::WidgetExistsAlready(widget_id));
+                    }
+
+                    match widget_type {
+                        WidgetType::Center => {
+                            let _ = self.new_center();
+                        }
+                        WidgetType::Column => {
+                            let _ = self.new_column();
+                        }
+                        WidgetType::Expanded { flex_factor } => {
+                            let _ = self.new_expanded(flex_factor);
+                        }
+                        WidgetType::Grid {
+                            column_properties,
+                            row_properties,
+                        } => {
+                            let _ = self.new_grid(column_properties, row_properties);
+                        }
+                        WidgetType::Hyperlink(text) => {
+                            let _ = self.new_hyper_link(text);
+                        }
+                        WidgetType::Padding => {
+                            let _ = self.new_padding();
+                        }
+                        WidgetType::Placeholder { maximum_size } => {
+                            let _ = self.new_placeholder(maximum_size);
+                        }
+                        WidgetType::Row => {
+                            let _ = self.new_row();
+                        }
+                        WidgetType::SizedBox { desired_size } => {
+                            let _ = self.new_sized_box(desired_size);
+                        }
+                        WidgetType::Text(text) => {
+                            let _ = self.new_text(text);
+                        }
+                        WidgetType::TextButton(text) => {
+                            let _ = self.new_text_button(text);
+                        }
+                        WidgetType::TextInput { text, width } => {
+                            let _ = self.new_text_input(text, width);
+                        }
                     }
                 }
                 Command::Destroy(_widget_id) => self.destroy_widget(widget_id),
