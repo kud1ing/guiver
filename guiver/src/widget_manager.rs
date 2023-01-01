@@ -15,6 +15,8 @@ pub enum Command<T> {
         widget_placement: Option<WidgetPlacement>,
         child_widget_id: WidgetId,
     },
+    /// Adds observation of the given widget's event, by producing a value of type `T`.
+    AddEventObservation(WidgetId, WidgetEventType, T),
     /// Adds the child widgets to the parent widget.
     AddChildren {
         parent_widget_id: WidgetId,
@@ -35,6 +37,8 @@ pub enum Command<T> {
         parent_widget_id: WidgetId,
         destroy_child_widgets: bool,
     },
+    /// Removes observation of the given widget's event.
+    RemoveEventObservation(WidgetId, WidgetEventType),
     /// Enables/disables debug rendering mode for the widget.
     SetDebugRendering(WidgetId, bool),
     /// Sets/unsets the widget's fill.
@@ -57,9 +61,6 @@ pub enum Command<T> {
     SetValue(WidgetId, Box<dyn Any>),
     /// Sets the widget's vertical alignment.
     SetVerticalAlignment(WidgetId, VerticalAlignment),
-    /// Subscribes to the given widget and widget event type so that it can be handled as `T` using
-    /// `handle_subscribed_widget_event()`.
-    SubscribeEvent(WidgetId, WidgetEventType, T),
 }
 
 impl<T> Command<T> {
@@ -72,6 +73,7 @@ impl<T> Command<T> {
             Command::AddChildren {
                 parent_widget_id, ..
             } => parent_widget_id,
+            Command::AddEventObservation(widget_id, _, _) => widget_id,
             Command::CreateWidget(widget_id, _) => widget_id,
             Command::Destroy(widget_id) => widget_id,
             Command::RemoveChild {
@@ -80,6 +82,7 @@ impl<T> Command<T> {
             Command::RemoveChildren {
                 parent_widget_id, ..
             } => parent_widget_id,
+            Command::RemoveEventObservation(widget_id, _) => widget_id,
             Command::SetDebugRendering(widget_id, _) => widget_id,
             Command::SetFill(widget_id, _) => widget_id,
             Command::SetFont(widget_id, _) => widget_id,
@@ -91,7 +94,6 @@ impl<T> Command<T> {
             Command::SetStroke(widget_id, _) => widget_id,
             Command::SetValue(widget_id, _) => widget_id,
             Command::SetVerticalAlignment(widget_id, _) => widget_id,
-            Command::SubscribeEvent(widget_id, _, _) => widget_id,
         }
     }
 }

@@ -95,8 +95,13 @@ The developer code can handle those widget events.
 
 ## Backlog
 
-* [ ] inform the widgets about the event subscriptions so that they only produces values for them
-  * the widget manager needs the `WidgetEventType::GainedFocus`/`WidgetEventType::LostFocus` at all times
+* rework widget event handling:
+  * [ ] add `Widget::add_event_observation(WidgetEventType, WidgetEvent)`, `Widget::remove_event_observation(WidgetEventType)`
+    * [ ] implement in `Core`
+  * [ ] `PietWidgetManager::handle_commands()`: handle `Command::RemoveEventObservation`
+  * [ ] `PietWidgetManager::handle_commands()`: handle `Command::AddEventObservation`
+  * [ ] remove `PietWidgetManager::handle_subscribed_widget_event()`, `widget_event_subscriptions_per_widget_id`
+  * [ ] change `WidgetEvent` to only consist of: `Custom(T)`, `GainedFocus(WidgetId)`, `LostFocus(WidgetId)`
 * make widgets able to create child widgets themselves via `Command`s to the `WidgetManager`?
   * discussion:
     * Chances:
@@ -108,12 +113,16 @@ The developer code can handle those widget events.
     * [ ] remove `WidgetIdProvider` again from `PietWidget`?
     * [ ] `Widget::set_value()`: return `Vec<Command>`?
       * [ ] `PietWidgetManager::handle_commands()`: handle the `Vec<Command>` from `set_value()`
-* extract methods from `PietWidget` to `Widget` and find abstractions for:
-  * [ ] `PietWidgetBox`
-  * [ ] `PietSharedState`
-  * [ ] `Event`
-  * [ ] `Piet`
-  * [ ] `Region`
+* extract the remaining methods from `PietWidget` to `Widget`:
+  * first find abstractions for:
+    * [ ] `PietWidgetBox`
+    * [ ] `PietSharedState`
+    * [ ] `Event`
+    * [ ] `Piet`
+    * [ ] `Region`
+  * once `PietWidgetManager` can handle `dyn Widget` instead of `dyn PietWidget`:
+    * [ ] change `Command::CreateWidget(WidgetId, WidgetType)` => `Command::CreateWidget(Box<Widget>)`
+    * [ ] remove `WidgetType`
 * [ ] sketch a `cacao` backend
 * [ ] sketch a `Iced` backend
 * Text:

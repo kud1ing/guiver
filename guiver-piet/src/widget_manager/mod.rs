@@ -572,6 +572,12 @@ impl<T: Clone> WidgetManager<T> for PietWidgetManager<T> {
                             .add_child(widget_placement, child_widget_box.clone())?;
                     }
                 }
+                Command::AddEventObservation(_widget_id, widget_event_type, custom_event) => {
+                    self.widget_event_subscriptions_per_widget_id
+                        .entry(widget_id)
+                        .or_default()
+                        .insert(widget_event_type, custom_event);
+                }
                 Command::CreateWidget(widget_id, widget_type) => {
                     // A widget with the given ID exists already.
                     if self.widgets.contains_key(&widget_id) {
@@ -667,6 +673,9 @@ impl<T: Clone> WidgetManager<T> for PietWidgetManager<T> {
                     else {
                         self.remove_parent_child_widget_connections(widget_id);
                     }
+                }
+                Command::RemoveEventObservation(_widget_id, _widget_event_type) => {
+                    todo!()
                 }
                 Command::SetDebugRendering(_widget_id, debug_rendering) => {
                     let widget_box = self.widget(widget_id)?;
@@ -770,12 +779,6 @@ impl<T: Clone> WidgetManager<T> for PietWidgetManager<T> {
                     widget_box
                         .borrow_mut()
                         .set_vertical_alignment(vertical_alignment)?;
-                }
-                Command::SubscribeEvent(_widget_id, widget_event_type, custom_event) => {
-                    self.widget_event_subscriptions_per_widget_id
-                        .entry(widget_id)
-                        .or_default()
-                        .insert(widget_event_type, custom_event);
                 }
             };
         }
