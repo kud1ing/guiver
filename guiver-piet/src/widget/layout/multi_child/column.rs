@@ -283,18 +283,18 @@ impl<T: Clone> PietWidget<T> for Column<T> {
 
     fn handle_event(
         &mut self,
-        widget_id_provider: &mut WidgetIdProvider,
-        shared_state: &mut PietSharedState,
         event: &Event,
+        shared_state: &mut PietSharedState,
+        widget_id_provider: &mut WidgetIdProvider,
         widget_events: &mut Vec<WidgetEvent<T>>,
     ) {
         // Iterate over the child widgets.
         for child_widget in &mut self.child_widgets {
             // Let the current child widget handle the given event.
             RefCell::borrow_mut(child_widget).handle_event(
-                widget_id_provider,
-                shared_state,
                 event,
+                shared_state,
+                widget_id_provider,
                 widget_events,
             );
         }

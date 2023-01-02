@@ -13,7 +13,7 @@ use crate::Event;
 pub use button::Button;
 use druid_shell::piet;
 use druid_shell::Region;
-use guiver::{Font, Widget, WidgetError, WidgetEvent, WidgetIdProvider, WidgetPlacement};
+use guiver::{Command, Font, Widget, WidgetError, WidgetEvent, WidgetIdProvider, WidgetPlacement};
 pub use hyperlink::Hyperlink;
 pub use placeholder::Placeholder;
 use std::any::Any;
@@ -38,12 +38,12 @@ pub trait PietWidget<T: Clone>: Widget<T> {
         })
     }
 
-    /// Ask the widget to handle the given event.
+    /// Ask the widget to handle the given event, possibly creating `WidgetEvent`s.
     fn handle_event(
         &mut self,
-        widget_id_provider: &mut WidgetIdProvider,
-        shared_state: &mut PietSharedState,
         event: &Event,
+        shared_state: &mut PietSharedState,
+        widget_id_provider: &mut WidgetIdProvider,
         widget_events: &mut Vec<WidgetEvent<T>>,
     );
 
@@ -53,8 +53,8 @@ pub trait PietWidget<T: Clone>: Widget<T> {
     /// Removes the widget's selected value. This can be e.g. selected text in a `TextInput` widget.
     fn remove_selected_value(
         &mut self,
-        _widget_id_provider: &mut WidgetIdProvider,
         _shared_state: &mut PietSharedState,
+        _widget_id_provider: &mut WidgetIdProvider,
     ) -> Result<(), WidgetError> {
         Err(WidgetError::NotHandled {
             widget_id: self.widget_id().clone(),
@@ -65,8 +65,8 @@ pub trait PietWidget<T: Clone>: Widget<T> {
     /// Sets the widget's font.
     fn set_font(
         &mut self,
-        _shared_state: &mut PietSharedState,
         _font: Font,
+        _shared_state: &mut PietSharedState,
     ) -> Result<(), WidgetError> {
         Err(WidgetError::NotHandled {
             widget_id: self.widget_id().clone(),
@@ -77,9 +77,9 @@ pub trait PietWidget<T: Clone>: Widget<T> {
     /// Sets the widget's selected value. This can be e.g. selected text in a `TextInput` widget.
     fn set_selected_value(
         &mut self,
-        _widget_id_provider: &mut WidgetIdProvider,
-        _shared_state: &mut PietSharedState,
         _value: Box<dyn Any>,
+        _shared_state: &mut PietSharedState,
+        _widget_id_provider: &mut WidgetIdProvider,
     ) -> Result<(), WidgetError> {
         Err(WidgetError::NotHandled {
             widget_id: self.widget_id().clone(),
@@ -90,9 +90,10 @@ pub trait PietWidget<T: Clone>: Widget<T> {
     /// Sets the widget's value.
     fn set_value(
         &mut self,
-        _widget_id_provider: &mut WidgetIdProvider,
-        _shared_state: &mut PietSharedState,
         _value: Box<dyn Any>,
+        _shared_state: &mut PietSharedState,
+        _widget_id_provider: &mut WidgetIdProvider,
+        _commands: &mut Vec<Command<T>>,
     ) -> Result<(), WidgetError> {
         Err(WidgetError::NotHandled {
             widget_id: self.widget_id().clone(),

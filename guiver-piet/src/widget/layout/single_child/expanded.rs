@@ -160,17 +160,17 @@ impl<T: Clone> PietWidget<T> for Expanded<T> {
 
     fn handle_event(
         &mut self,
-        widget_id_provider: &mut WidgetIdProvider,
-        shared_state: &mut PietSharedState,
         event: &Event,
+        shared_state: &mut PietSharedState,
+        widget_id_provider: &mut WidgetIdProvider,
         widget_events: &mut Vec<WidgetEvent<T>>,
     ) {
         // There is a child widget.
         if let Some(child_widget) = &mut self.child_widget {
             child_widget.borrow_mut().handle_event(
-                widget_id_provider,
-                shared_state,
                 event,
+                shared_state,
+                widget_id_provider,
                 widget_events,
             )
         }

@@ -109,10 +109,10 @@ impl<T: Clone> Widget<T> for Placeholder<T> {
 impl<T: Clone> PietWidget<T> for Placeholder<T> {
     fn handle_event(
         &mut self,
-        _widget_id_provider: &mut WidgetIdProvider,
-        _shared_state: &mut PietSharedState,
-        _event: &Event,
-        _widget_events: &mut Vec<WidgetEvent<T>>,
+        event: &Event,
+        shared_state: &mut PietSharedState,
+        widget_id_provider: &mut WidgetIdProvider,
+        widget_events: &mut Vec<WidgetEvent<T>>,
     ) {
         // Nothing to do.
     }

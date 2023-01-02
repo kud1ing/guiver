@@ -95,17 +95,6 @@ The developer code can handle those widget events.
 
 ## Backlog
 
-* make widgets able to create child widgets themselves via `Command`s to the `WidgetManager`?
-  * discussion:
-    * Chances:
-      * elaborate widget construction/update logic can be provided by widgets themselves
-        * thus automatically confined to the widget lifetime
-    * Risks:
-      * widget logic is spread in client and widget code
-  * either:
-    * [ ] `Widget::set_value()`: add `commands: &mut Vec<Command>`?
-      * [ ] `PietWidgetManager::handle_commands()`: handle the `Vec<Command>` from `set_value()`
-    * [ ] remove `WidgetIdProvider` again from `PietWidget`?
 * add selectors:
   * [ ] add `Command::SetClass(Option<C>)`
   * [ ] add `WidgetSelector`:

@@ -65,7 +65,7 @@ impl<T: Clone> Hyperlink<T> {
             // Set the "is being clicked" font.
             self.text_widget
                 .borrow_mut()
-                .set_font(shared_state, self.font_is_being_clicked.clone())
+                .set_font(self.font_is_being_clicked.clone(), shared_state)
                 .unwrap();
         }
         // The hyperlink is not being clicked anymore.
@@ -75,13 +75,13 @@ impl<T: Clone> Hyperlink<T> {
                 // Set the "was visited" font.
                 self.text_widget
                     .borrow_mut()
-                    .set_font(shared_state, self.font_was_visited.clone())
+                    .set_font(self.font_was_visited.clone(), shared_state)
                     .unwrap();
             } else {
                 // Set the "normal" font.
                 self.text_widget
                     .borrow_mut()
-                    .set_font(shared_state, self.font_normal.clone())
+                    .set_font(self.font_normal.clone(), shared_state)
                     .unwrap();
             }
         }
@@ -95,7 +95,7 @@ impl<T: Clone> Hyperlink<T> {
         // Set the "was visited" font.
         self.text_widget
             .borrow_mut()
-            .set_font(shared_state, self.font_was_visited.clone());
+            .set_font(self.font_was_visited.clone(), shared_state);
     }
 }
 
@@ -157,9 +157,9 @@ impl<T: Clone> Widget<T> for Hyperlink<T> {
 impl<T: Clone> PietWidget<T> for Hyperlink<T> {
     fn handle_event(
         &mut self,
-        _widget_id_provider: &mut WidgetIdProvider,
-        shared_state: &mut PietSharedState,
         event: &Event,
+        shared_state: &mut PietSharedState,
+        widget_id_provider: &mut WidgetIdProvider,
         widget_events: &mut Vec<WidgetEvent<T>>,
     ) {
         match event {

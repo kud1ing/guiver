@@ -7,7 +7,7 @@ use druid_shell::piet::{Color, Error, PaintBrush, Piet, PietText, RenderContext}
 use druid_shell::{KbKey, Region};
 use guiver::stroke::Stroke;
 use guiver::{
-    Font, HorizontalAlignment, SizeConstraints, VerticalAlignment, Widget, WidgetError,
+    Command, Font, HorizontalAlignment, SizeConstraints, VerticalAlignment, Widget, WidgetError,
     WidgetEvent, WidgetEventType, WidgetId, WidgetIdProvider,
 };
 use std::any::Any;
@@ -88,8 +88,12 @@ impl<T: Clone> TextInput<T> {
         shared_state: &mut PietSharedState,
         widget_events: &mut Vec<WidgetEvent<T>>,
     ) {
+        let mut commands = vec![];
+
         // Pass the updated text to the child text widget.
-        self.update_text_widget(widget_id_provider, shared_state);
+        self.update_text_widget(shared_state, widget_id_provider, &mut commands);
+
+        assert!(commands.is_empty());
 
         // There is a widget event observation.
         if let Some(widget_event) = self.core.event_observation(&WidgetEventType::ValueChanged) {
@@ -181,16 +185,18 @@ impl<T: Clone> TextInput<T> {
     ///
     fn update_text_widget(
         &mut self,
-        widget_id_provider: &mut WidgetIdProvider,
         shared_state: &mut PietSharedState,
+        widget_id_provider: &mut WidgetIdProvider,
+        commands: &mut Vec<Command<T>>,
     ) {
         // Pass the updated text to the child text widget.
         self.text_widget
             .borrow_mut()
             .set_value(
-                widget_id_provider,
-                shared_state,
                 Box::new(self.text.clone()),
+                shared_state,
+                widget_id_provider,
+                commands,
             )
             .unwrap();
 
@@ -309,15 +315,15 @@ impl<T: Clone> Widget<T> for TextInput<T> {
 impl<T: Clone> PietWidget<T> for TextInput<T> {
     fn handle_event(
         &mut self,
-        widget_id_provider: &mut WidgetIdProvider,
-        shared_state: &mut PietSharedState,
         event: &Event,
+        shared_state: &mut PietSharedState,
+        widget_id_provider: &mut WidgetIdProvider,
         widget_events: &mut Vec<WidgetEvent<T>>,
     ) {
         match event {
             Event::ClipboardPaste(string) => {
                 // TODO: error handling
-                self.set_selected_value(widget_id_provider, shared_state, Box::new(string.clone()))
+                self.set_selected_value(Box::new(string.clone()), shared_state, widget_id_provider)
                     .unwrap();
             }
             Event::KeyDown(key_event) => match &key_event.key {
@@ -427,45 +433,63 @@ impl<T: Clone> PietWidget<T> for TextInput<T> {
 
     fn remove_selected_value(
         &mut self,
-        widget_id_provider: &mut WidgetIdProvider,
         shared_state: &mut PietSharedState,
+        widget_id_provider: &mut WidgetIdProvider,
     ) -> Result<(), WidgetError> {
+        let mut commands = vec![];
+
         // TODO
         println!("`TextInput::remove_selected_value()`: TODO");
-        self.set_value(widget_id_provider, shared_state, Box::new("".to_string()))
+        self.set_value(
+            Box::new("".to_string()),
+            shared_state,
+            widget_id_provider,
+            &mut commands,
+        )?;
+
+        assert!(commands.is_empty());
+
+        Ok(())
     }
 
     fn set_font(
         &mut self,
-        shared_state: &mut PietSharedState,
         font: Font,
+        shared_state: &mut PietSharedState,
     ) -> Result<(), WidgetError> {
-        self.text_widget.set_font(shared_state, font)
+        self.text_widget.set_font(font, shared_state)
     }
 
     fn set_selected_value(
         &mut self,
-        widget_id_provider: &mut WidgetIdProvider,
-        shared_state: &mut PietSharedState,
         value: Box<dyn Any>,
+        shared_state: &mut PietSharedState,
+        widget_id_provider: &mut WidgetIdProvider,
     ) -> Result<(), WidgetError> {
+        let mut commands = vec![];
+
         // TODO
         println!("`TextInput::set_selected_value()`: TODO");
-        self.set_value(widget_id_provider, shared_state, value)
+        self.set_value(value, shared_state, widget_id_provider, &mut commands)?;
+
+        assert!(commands.is_empty());
+
+        Ok(())
     }
 
     fn set_value(
         &mut self,
-        widget_id_provider: &mut WidgetIdProvider,
-        shared_state: &mut PietSharedState,
         value: Box<dyn Any>,
+        shared_state: &mut PietSharedState,
+        widget_id_provider: &mut WidgetIdProvider,
+        commands: &mut Vec<Command<T>>,
     ) -> Result<(), WidgetError> {
         // The given value is a string.
         if let Some(string) = value.downcast_ref::<String>() {
             self.text = string.clone();
 
             // Apply the text changes.
-            self.update_text_widget(widget_id_provider, shared_state);
+            self.update_text_widget(shared_state, widget_id_provider, commands);
         }
 
         Ok(())

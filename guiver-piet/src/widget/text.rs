@@ -7,8 +7,8 @@ use druid_shell::{piet, Region};
 use guiver::font::Font;
 use guiver::stroke::Stroke;
 use guiver::{
-    HorizontalAlignment, PaintBrush, SizeConstraints, VerticalAlignment, Widget, WidgetError,
-    WidgetEvent, WidgetEventType, WidgetId, WidgetIdProvider,
+    Command, HorizontalAlignment, PaintBrush, SizeConstraints, VerticalAlignment, Widget,
+    WidgetError, WidgetEvent, WidgetEventType, WidgetId, WidgetIdProvider,
 };
 use std::any::Any;
 
@@ -192,9 +192,9 @@ impl<T: Clone> Widget<T> for Text<T> {
 impl<T: Clone> PietWidget<T> for Text<T> {
     fn handle_event(
         &mut self,
-        _widget_id_provider: &mut WidgetIdProvider,
-        _shared_state: &mut PietSharedState,
         event: &Event,
+        shared_state: &mut PietSharedState,
+        widget_id_provider: &mut WidgetIdProvider,
         widget_events: &mut Vec<WidgetEvent<T>>,
     ) {
         if let Event::MouseDown(mouse_event) = event {
@@ -240,13 +240,13 @@ impl<T: Clone> PietWidget<T> for Text<T> {
 
     fn set_font(
         &mut self,
-        shared_state: &mut PietSharedState,
-        font: Font,
+        _font: Font,
+        _shared_state: &mut PietSharedState,
     ) -> Result<(), WidgetError> {
-        self.font = font;
+        self.font = _font;
         self.text_layout = self
             .font
-            .text_layout(shared_state.piet_text(), self.text.clone());
+            .text_layout(_shared_state.piet_text(), self.text.clone());
 
         self.layout_text();
 
@@ -255,22 +255,23 @@ impl<T: Clone> PietWidget<T> for Text<T> {
 
     fn set_value(
         &mut self,
+        _value: Box<dyn Any>,
+        _shared_state: &mut PietSharedState,
         _widget_id_provider: &mut WidgetIdProvider,
-        shared_state: &mut PietSharedState,
-        value: Box<dyn Any>,
+        _commands: &mut Vec<Command<T>>,
     ) -> Result<(), WidgetError> {
         // The given value is a string.
-        if let Some(string) = value.downcast_ref::<String>() {
+        if let Some(string) = _value.downcast_ref::<String>() {
             self.text = string.clone();
         }
         // The given value is something else.
         else {
-            self.text = format!("{:?}", value);
+            self.text = format!("{:?}", _value);
         }
 
         self.text_layout = self
             .font
-            .text_layout(shared_state.piet_text(), self.text.clone());
+            .text_layout(_shared_state.piet_text(), self.text.clone());
         self.layout_text();
 
         Ok(())

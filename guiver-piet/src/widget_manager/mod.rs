@@ -285,9 +285,9 @@ impl<T: Clone + 'static> PietWidgetManager<T> {
                                 if let Some(focused_widget) = &mut self.focused_widget {
                                     // Let the focused widget handle a clipboard paste event.
                                     focused_widget.borrow_mut().handle_event(
-                                        &mut self.widget_id_provider,
-                                        &mut self.shared_state,
                                         &Event::ClipboardPaste(string),
+                                        &mut self.shared_state,
+                                        &mut self.widget_id_provider,
                                         &mut widget_events,
                                     );
                                 }
@@ -305,8 +305,8 @@ impl<T: Clone + 'static> PietWidgetManager<T> {
                             if let Some(focused_widget) = &mut self.focused_widget {
                                 // Remove the selected value.
                                 focused_widget.borrow_mut().remove_selected_value(
-                                    &mut self.widget_id_provider,
                                     &mut self.shared_state,
+                                    &mut self.widget_id_provider,
                                 )?;
                             }
                         }
@@ -325,9 +325,9 @@ impl<T: Clone + 'static> PietWidgetManager<T> {
                         if let Some(focused_widget) = &mut self.focused_widget {
                             // Let the focused widget handle the key event.
                             focused_widget.borrow_mut().handle_event(
-                                &mut self.widget_id_provider,
-                                &mut self.shared_state,
                                 event,
+                                &mut self.shared_state,
+                                &mut self.widget_id_provider,
                                 &mut widget_events,
                             );
                         }
@@ -341,9 +341,9 @@ impl<T: Clone + 'static> PietWidgetManager<T> {
                 if let Some(focused_widget) = &mut self.focused_widget {
                     // Let the focused widget handle the key event.
                     focused_widget.borrow_mut().handle_event(
-                        &mut self.widget_id_provider,
-                        &mut self.shared_state,
                         event,
+                        &mut self.shared_state,
+                        &mut self.widget_id_provider,
                         &mut widget_events,
                     );
                 }
@@ -357,9 +357,9 @@ impl<T: Clone + 'static> PietWidgetManager<T> {
         if let Some(main_widget) = &mut self.main_widget {
             // Let the main widget handle the given user event.
             main_widget.borrow_mut().handle_event(
-                &mut self.widget_id_provider,
-                &mut self.shared_state,
                 event,
+                &mut self.shared_state,
+                &mut self.widget_id_provider,
                 &mut widget_events,
             );
         }
@@ -496,47 +496,23 @@ impl<T: Clone + 'static> PietWidgetManager<T> {
 }
 
 impl<T: Clone + 'static> WidgetManager<T> for PietWidgetManager<T> {
-    fn handle_commands(&mut self, commands: Vec<Command<T>>) -> Result<(), WidgetError> {
-        // Iterate over the given commands.
-        for command in commands {
-            // Get the ID of the widget from the command.
-            let widget_id = *command.widget_id();
+    fn handle_commands(&mut self, mut commands: Vec<Command<T>>) -> Result<(), WidgetError> {
+        loop {
+            let mut next_commands = vec![];
 
-            match command {
-                Command::AddChild {
-                    widget_placement,
-                    child_widget_id,
-                    ..
-                } => {
-                    let widget_box = self.widget(widget_id)?;
+            // Iterate over the given commands.
+            for command in commands {
+                // Get the ID of the widget from the command.
+                let widget_id = *command.widget_id();
 
-                    // There is a widget with the child widget ID from the command.
-                    let child_widget_box =
-                        if let Some(child_widget_box) = self.widgets.get(&child_widget_id) {
-                            child_widget_box
-                        }
-                        // There is no widget with the given child ID.
-                        else {
-                            return Err(WidgetError::NoSuchWidget(child_widget_id));
-                        };
+                match command {
+                    Command::AddChild {
+                        widget_placement,
+                        child_widget_id,
+                        ..
+                    } => {
+                        let widget_box = self.widget(widget_id)?;
 
-                    widget_box
-                        .borrow_mut()
-                        .add_child(widget_placement, child_widget_box.clone())?;
-
-                    self.add_parent_child_widget_connection(widget_id, child_widget_id);
-                }
-                Command::AddChildren { child_widgets, .. } => {
-                    // Iterate over the child widgets. This additional loop is in order to escape
-                    // the borrow checker.
-                    for (_, child_widget_id) in &child_widgets {
-                        self.add_parent_child_widget_connection(widget_id, *child_widget_id);
-                    }
-
-                    let widget_box = self.widget(widget_id)?;
-
-                    // Iterate over the child widgets.
-                    for (widget_placement, child_widget_id) in child_widgets {
                         // There is a widget with the child widget ID from the command.
                         let child_widget_box =
                             if let Some(child_widget_box) = self.widgets.get(&child_widget_id) {
@@ -550,289 +526,325 @@ impl<T: Clone + 'static> WidgetManager<T> for PietWidgetManager<T> {
                         widget_box
                             .borrow_mut()
                             .add_child(widget_placement, child_widget_box.clone())?;
+
+                        self.add_parent_child_widget_connection(widget_id, child_widget_id);
                     }
-                }
-                Command::AddEventObservation(_widget_id, widget_event_type, custom_value) => {
-                    let widget_box = self.widget(widget_id)?;
+                    Command::AddChildren { child_widgets, .. } => {
+                        // Iterate over the child widgets. This additional loop is in order to escape
+                        // the borrow checker.
+                        for (_, child_widget_id) in &child_widgets {
+                            self.add_parent_child_widget_connection(widget_id, *child_widget_id);
+                        }
 
-                    widget_box.borrow_mut().add_event_observation(
-                        widget_event_type.clone(),
-                        WidgetEvent::Custom(custom_value),
-                    );
-                }
-                Command::CreateWidget(widget_id, widget_type) => {
-                    // A widget with the given ID exists already.
-                    if self.widgets.contains_key(&widget_id) {
-                        return Err(WidgetError::WidgetExistsAlready(widget_id));
+                        let widget_box = self.widget(widget_id)?;
+
+                        // Iterate over the child widgets.
+                        for (widget_placement, child_widget_id) in child_widgets {
+                            // There is a widget with the child widget ID from the command.
+                            let child_widget_box = if let Some(child_widget_box) =
+                                self.widgets.get(&child_widget_id)
+                            {
+                                child_widget_box
+                            }
+                            // There is no widget with the given child ID.
+                            else {
+                                return Err(WidgetError::NoSuchWidget(child_widget_id));
+                            };
+
+                            widget_box
+                                .borrow_mut()
+                                .add_child(widget_placement, child_widget_box.clone())?;
+                        }
                     }
+                    Command::AddEventObservation(_widget_id, widget_event_type, custom_value) => {
+                        let widget_box = self.widget(widget_id)?;
 
-                    let widget_box: Box<dyn PietWidget<T>> = match widget_type {
-                        WidgetType::Center => Box::new(Center::new(
-                            widget_id,
-                            self.style.debug_rendering_stroke.clone(),
-                        )),
-                        WidgetType::Column => Box::new(Column::new(
-                            widget_id,
-                            self.style.debug_rendering_stroke.clone(),
-                            HorizontalAlignment::Center,
-                            self.style.spacing,
-                        )),
-                        WidgetType::Expanded { flex_factor } => Box::new(Expanded::new(
-                            widget_id,
-                            self.style.debug_rendering_stroke.clone(),
-                            flex_factor,
-                        )),
-                        WidgetType::Grid {
-                            column_properties,
-                            row_properties,
-                        } => Box::new(Grid::new(
-                            widget_id,
-                            self.style.debug_rendering_stroke.clone(),
-                            column_properties,
-                            row_properties,
-                        )),
-                        WidgetType::Hyperlink(text) => {
-                            let mut font_unvisited = self.style.font.clone();
-                            font_unvisited.font_color = Color::rgb8(100, 100, 255);
+                        widget_box.borrow_mut().add_event_observation(
+                            widget_event_type.clone(),
+                            WidgetEvent::Custom(custom_value),
+                        );
+                    }
+                    Command::CreateWidget(widget_id, widget_type) => {
+                        // A widget with the given ID exists already.
+                        if self.widgets.contains_key(&widget_id) {
+                            return Err(WidgetError::WidgetExistsAlready(widget_id));
+                        }
 
-                            let mut font_being_clicked = self.style.font.clone();
-                            font_being_clicked.font_color = self.style.accent_color.clone();
-
-                            let mut font_visited = self.style.font.clone();
-                            font_visited.font_color = Color::rgb8(50, 50, 100);
-
-                            Box::new(Hyperlink::new(
+                        let widget_box: Box<dyn PietWidget<T>> = match widget_type {
+                            WidgetType::Center => Box::new(Center::new(
                                 widget_id,
                                 self.style.debug_rendering_stroke.clone(),
-                                self.shared_state.piet_text(),
-                                font_unvisited,
-                                font_being_clicked,
-                                font_visited,
-                                text,
-                            ))
-                        }
-                        WidgetType::Padding => Box::new(Padding::new(
-                            widget_id,
-                            self.style.debug_rendering_stroke.clone(),
-                            self.style.padding,
-                            self.style.padding,
-                            self.style.padding,
-                            self.style.padding,
-                        )),
-                        WidgetType::Placeholder { maximum_size } => Box::new(Placeholder::new(
-                            widget_id,
-                            self.style.debug_rendering_stroke.clone(),
-                            maximum_size,
-                        )),
-                        WidgetType::Row => Box::new(Row::new(
-                            widget_id,
-                            self.style.debug_rendering_stroke.clone(),
-                            self.style.vertical_alignment,
-                            self.style.spacing,
-                        )),
-                        WidgetType::SizedBox { desired_size } => Box::new(SizedBox::new(
-                            widget_id,
-                            self.style.debug_rendering_stroke.clone(),
-                            desired_size,
-                        )),
-                        WidgetType::Text(text) => Box::new(Text::new(
-                            widget_id,
-                            self.style.debug_rendering_stroke.clone(),
-                            self.shared_state.piet_text(),
-                            self.style.font.clone(),
-                            text,
-                        )),
-                        WidgetType::TextButton(text) => {
-                            let child_widget = Text::new(
-                                self.widget_id_provider.next_widget_id(),
+                            )),
+                            WidgetType::Column => Box::new(Column::new(
+                                widget_id,
+                                self.style.debug_rendering_stroke.clone(),
+                                HorizontalAlignment::Center,
+                                self.style.spacing,
+                            )),
+                            WidgetType::Expanded { flex_factor } => Box::new(Expanded::new(
+                                widget_id,
+                                self.style.debug_rendering_stroke.clone(),
+                                flex_factor,
+                            )),
+                            WidgetType::Grid {
+                                column_properties,
+                                row_properties,
+                            } => Box::new(Grid::new(
+                                widget_id,
+                                self.style.debug_rendering_stroke.clone(),
+                                column_properties,
+                                row_properties,
+                            )),
+                            WidgetType::Hyperlink(text) => {
+                                let mut font_unvisited = self.style.font.clone();
+                                font_unvisited.font_color = Color::rgb8(100, 100, 255);
+
+                                let mut font_being_clicked = self.style.font.clone();
+                                font_being_clicked.font_color = self.style.accent_color.clone();
+
+                                let mut font_visited = self.style.font.clone();
+                                font_visited.font_color = Color::rgb8(50, 50, 100);
+
+                                Box::new(Hyperlink::new(
+                                    widget_id,
+                                    self.style.debug_rendering_stroke.clone(),
+                                    self.shared_state.piet_text(),
+                                    font_unvisited,
+                                    font_being_clicked,
+                                    font_visited,
+                                    text,
+                                ))
+                            }
+                            WidgetType::Padding => Box::new(Padding::new(
+                                widget_id,
+                                self.style.debug_rendering_stroke.clone(),
+                                self.style.padding,
+                                self.style.padding,
+                                self.style.padding,
+                                self.style.padding,
+                            )),
+                            WidgetType::Placeholder { maximum_size } => Box::new(Placeholder::new(
+                                widget_id,
+                                self.style.debug_rendering_stroke.clone(),
+                                maximum_size,
+                            )),
+                            WidgetType::Row => Box::new(Row::new(
+                                widget_id,
+                                self.style.debug_rendering_stroke.clone(),
+                                self.style.vertical_alignment,
+                                self.style.spacing,
+                            )),
+                            WidgetType::SizedBox { desired_size } => Box::new(SizedBox::new(
+                                widget_id,
+                                self.style.debug_rendering_stroke.clone(),
+                                desired_size,
+                            )),
+                            WidgetType::Text(text) => Box::new(Text::new(
+                                widget_id,
                                 self.style.debug_rendering_stroke.clone(),
                                 self.shared_state.piet_text(),
                                 self.style.font.clone(),
                                 text,
-                            );
+                            )),
+                            WidgetType::TextButton(text) => {
+                                let child_widget = Text::new(
+                                    self.widget_id_provider.next_widget_id(),
+                                    self.style.debug_rendering_stroke.clone(),
+                                    self.shared_state.piet_text(),
+                                    self.style.font.clone(),
+                                    text,
+                                );
 
-                            Box::new(Button::new(
+                                Box::new(Button::new(
+                                    widget_id,
+                                    self.style.debug_rendering_stroke.clone(),
+                                    Rc::new(RefCell::new(Box::new(child_widget))),
+                                    Some(PaintBrush::Color(self.style.accent_color.clone())),
+                                    Some(self.style.frame_color.clone()),
+                                    Some(self.style.accent_color.clone()),
+                                ))
+                            }
+                            WidgetType::TextInput { text, width } => Box::new(TextInput::new(
                                 widget_id,
                                 self.style.debug_rendering_stroke.clone(),
-                                Rc::new(RefCell::new(Box::new(child_widget))),
-                                Some(PaintBrush::Color(self.style.accent_color.clone())),
-                                Some(self.style.frame_color.clone()),
-                                Some(self.style.accent_color.clone()),
-                            ))
+                                self.shared_state.piet_text(),
+                                self.style.font.clone(),
+                                text,
+                                width,
+                                self.style.frame_color.clone(),
+                                self.style.accent_color.clone(),
+                            )),
+                        };
+
+                        self.add_widget(widget_box);
+                    }
+                    Command::Destroy(_widget_id) => self.destroy_widget(widget_id),
+                    Command::RemoveChild {
+                        parent_widget_id,
+                        child_widget_id,
+                        destroy_child_widget: destroy,
+                    } => {
+                        let widget_box = self.widget(widget_id)?;
+                        widget_box.borrow_mut().remove_child(child_widget_id)?;
+
+                        // Destroy the child widget.
+                        if destroy {
+                            self.destroy_widget(parent_widget_id);
                         }
-                        WidgetType::TextInput { text, width } => Box::new(TextInput::new(
-                            widget_id,
-                            self.style.debug_rendering_stroke.clone(),
-                            self.shared_state.piet_text(),
-                            self.style.font.clone(),
-                            text,
-                            width,
-                            self.style.frame_color.clone(),
-                            self.style.accent_color.clone(),
-                        )),
-                    };
-
-                    self.add_widget(widget_box);
-                }
-                Command::Destroy(_widget_id) => self.destroy_widget(widget_id),
-                Command::RemoveChild {
-                    parent_widget_id,
-                    child_widget_id,
-                    destroy_child_widget: destroy,
-                } => {
-                    let widget_box = self.widget(widget_id)?;
-                    widget_box.borrow_mut().remove_child(child_widget_id)?;
-
-                    // Destroy the child widget.
-                    if destroy {
-                        self.destroy_widget(parent_widget_id);
-                    }
-                    // Remove the child widget.
-                    else {
-                        self.remove_parent_child_widget_connection(
-                            parent_widget_id,
-                            child_widget_id,
-                        );
-                    }
-                }
-                Command::RemoveChildren {
-                    destroy_child_widgets,
-                    ..
-                } => {
-                    let widget_box = self.widget(widget_id)?;
-                    widget_box.borrow_mut().remove_children()?;
-
-                    // Destroy the child widgets.
-                    if destroy_child_widgets {
-                        // Get the widget's the child widget IDs.
-                        let child_widget_ids = self
-                            .child_widget_ids_per_widget_id
-                            .entry(widget_id)
-                            .or_default()
-                            .clone();
-
-                        // Iterate over the child widget IDs.
-                        for child_widget_id in child_widget_ids {
-                            // Destroy the child widget.
-                            self.destroy_widget(child_widget_id);
-                        }
-                    }
-                    // Remove the child widgets.
-                    else {
-                        self.remove_parent_child_widget_connections(widget_id);
-                    }
-                }
-                Command::RemoveEventObservation(_widget_id, widget_event_type) => {
-                    let widget_box = self.widget(widget_id)?;
-
-                    widget_box
-                        .borrow_mut()
-                        .remove_event_observation(&widget_event_type);
-                }
-                Command::SetDebugRendering(_widget_id, debug_rendering) => {
-                    let widget_box = self.widget(widget_id)?;
-                    widget_box.borrow_mut().set_debug_rendering(debug_rendering);
-                }
-                Command::SetFill(_widget_id, fill) => {
-                    let widget_box = self.widget(widget_id)?;
-                    widget_box.borrow_mut().set_fill(fill)?;
-                }
-                Command::SetFont(_widget_id, font) => {
-                    // There is a widget with the given ID.
-                    let widget_box = if let Some(widget_box) = self.widgets.get(&widget_id) {
-                        widget_box
-                    }
-                    // There is no widget with the given ID.
-                    else {
-                        return Err(WidgetError::NoSuchWidget(widget_id));
-                    };
-
-                    widget_box
-                        .borrow_mut()
-                        .set_font(&mut self.shared_state, font)?;
-                }
-                Command::SetHasFocus(_widget_id, has_focus) => {
-                    // There is a widget with the given ID.
-                    let widget_box = if let Some(widget_box) = self.widgets.get(&widget_id) {
-                        widget_box
-                    }
-                    // There is no widget with the given ID.
-                    else {
-                        return Err(WidgetError::NoSuchWidget(widget_id));
-                    };
-
-                    let mut widget_had_focus_already = false;
-
-                    // A widget had focus.
-                    if let Some(focused_widget) = &mut self.focused_widget {
-                        // The widgets are different.
-                        if *focused_widget.borrow().widget_id() != widget_id {
-                            // Unfocus that widget.
-                            focused_widget.borrow_mut().set_has_focus(false)?;
-                        }
-                        // The widgets are the same.
+                        // Remove the child widget.
                         else {
-                            widget_had_focus_already = true;
+                            self.remove_parent_child_widget_connection(
+                                parent_widget_id,
+                                child_widget_id,
+                            );
                         }
                     }
+                    Command::RemoveChildren {
+                        destroy_child_widgets,
+                        ..
+                    } => {
+                        let widget_box = self.widget(widget_id)?;
+                        widget_box.borrow_mut().remove_children()?;
 
-                    if !widget_had_focus_already {
-                        // Tell the widget it has focus.
-                        widget_box.borrow_mut().set_has_focus(has_focus)?;
+                        // Destroy the child widgets.
+                        if destroy_child_widgets {
+                            // Get the widget's the child widget IDs.
+                            let child_widget_ids = self
+                                .child_widget_ids_per_widget_id
+                                .entry(widget_id)
+                                .or_default()
+                                .clone();
 
-                        // Select the widget in the focus order.
-                        self.widget_focus_order.focus_widget(widget_id);
-
-                        // Remember the current widget as focused.
-                        self.focused_widget = Some(widget_box.clone());
+                            // Iterate over the child widget IDs.
+                            for child_widget_id in child_widget_ids {
+                                // Destroy the child widget.
+                                self.destroy_widget(child_widget_id);
+                            }
+                        }
+                        // Remove the child widgets.
+                        else {
+                            self.remove_parent_child_widget_connections(widget_id);
+                        }
                     }
-                }
-                Command::SetHorizontalAlignment(_widget_id, horizontal_alignment) => {
-                    let widget_box = self.widget(widget_id)?;
-                    widget_box
-                        .borrow_mut()
-                        .set_horizontal_alignment(horizontal_alignment)?;
-                }
-                Command::SetIsDisabled(_widget_id, is_disabled) => {
-                    let widget_box = self.widget(widget_id)?;
-                    widget_box.borrow_mut().set_is_disabled(is_disabled);
-                }
-                Command::SetIsHidden(_widget_id, is_hidden) => {
-                    let widget_box = self.widget(widget_id)?;
-                    widget_box.borrow_mut().set_is_hidden(is_hidden);
-                }
-                Command::SetMainWidget(_widget_id) => {
-                    let widget_box = self.widget(widget_id)?;
-                    widget_box.borrow_mut().set_origin((1.0, 1.0).into());
-                    self.main_widget = Some(widget_box.clone());
-                }
-                Command::SetStroke(_widget_id, stroke) => {
-                    let widget_box = self.widget(widget_id)?;
-                    widget_box.borrow_mut().set_stroke(stroke)?;
-                }
-                Command::SetValue(_widget_id, value) => {
-                    // There is a widget with the given ID.
-                    let widget_box = if let Some(widget_box) = self.widgets.get(&widget_id) {
+                    Command::RemoveEventObservation(_widget_id, widget_event_type) => {
+                        let widget_box = self.widget(widget_id)?;
+
                         widget_box
+                            .borrow_mut()
+                            .remove_event_observation(&widget_event_type);
                     }
-                    // There is no widget with the given ID.
-                    else {
-                        return Err(WidgetError::NoSuchWidget(widget_id));
-                    };
+                    Command::SetDebugRendering(_widget_id, debug_rendering) => {
+                        let widget_box = self.widget(widget_id)?;
+                        widget_box.borrow_mut().set_debug_rendering(debug_rendering);
+                    }
+                    Command::SetFill(_widget_id, fill) => {
+                        let widget_box = self.widget(widget_id)?;
+                        widget_box.borrow_mut().set_fill(fill)?;
+                    }
+                    Command::SetFont(_widget_id, font) => {
+                        // There is a widget with the given ID.
+                        let widget_box = if let Some(widget_box) = self.widgets.get(&widget_id) {
+                            widget_box
+                        }
+                        // There is no widget with the given ID.
+                        else {
+                            return Err(WidgetError::NoSuchWidget(widget_id));
+                        };
 
-                    widget_box.borrow_mut().set_value(
-                        &mut self.widget_id_provider,
-                        &mut self.shared_state,
-                        value,
-                    )?;
-                }
-                Command::SetVerticalAlignment(_widget_id, vertical_alignment) => {
-                    let widget_box = self.widget(widget_id)?;
-                    widget_box
-                        .borrow_mut()
-                        .set_vertical_alignment(vertical_alignment)?;
-                }
-            };
+                        widget_box
+                            .borrow_mut()
+                            .set_font(font, &mut self.shared_state)?;
+                    }
+                    Command::SetHasFocus(_widget_id, has_focus) => {
+                        // There is a widget with the given ID.
+                        let widget_box = if let Some(widget_box) = self.widgets.get(&widget_id) {
+                            widget_box
+                        }
+                        // There is no widget with the given ID.
+                        else {
+                            return Err(WidgetError::NoSuchWidget(widget_id));
+                        };
+
+                        let mut widget_had_focus_already = false;
+
+                        // A widget had focus.
+                        if let Some(focused_widget) = &mut self.focused_widget {
+                            // The widgets are different.
+                            if *focused_widget.borrow().widget_id() != widget_id {
+                                // Unfocus that widget.
+                                focused_widget.borrow_mut().set_has_focus(false)?;
+                            }
+                            // The widgets are the same.
+                            else {
+                                widget_had_focus_already = true;
+                            }
+                        }
+
+                        if !widget_had_focus_already {
+                            // Tell the widget it has focus.
+                            widget_box.borrow_mut().set_has_focus(has_focus)?;
+
+                            // Select the widget in the focus order.
+                            self.widget_focus_order.focus_widget(widget_id);
+
+                            // Remember the current widget as focused.
+                            self.focused_widget = Some(widget_box.clone());
+                        }
+                    }
+                    Command::SetHorizontalAlignment(_widget_id, horizontal_alignment) => {
+                        let widget_box = self.widget(widget_id)?;
+                        widget_box
+                            .borrow_mut()
+                            .set_horizontal_alignment(horizontal_alignment)?;
+                    }
+                    Command::SetIsDisabled(_widget_id, is_disabled) => {
+                        let widget_box = self.widget(widget_id)?;
+                        widget_box.borrow_mut().set_is_disabled(is_disabled);
+                    }
+                    Command::SetIsHidden(_widget_id, is_hidden) => {
+                        let widget_box = self.widget(widget_id)?;
+                        widget_box.borrow_mut().set_is_hidden(is_hidden);
+                    }
+                    Command::SetMainWidget(_widget_id) => {
+                        let widget_box = self.widget(widget_id)?;
+                        widget_box.borrow_mut().set_origin((1.0, 1.0).into());
+                        self.main_widget = Some(widget_box.clone());
+                    }
+                    Command::SetStroke(_widget_id, stroke) => {
+                        let widget_box = self.widget(widget_id)?;
+                        widget_box.borrow_mut().set_stroke(stroke)?;
+                    }
+                    Command::SetValue(_widget_id, value) => {
+                        // There is a widget with the given ID.
+                        let widget_box = if let Some(widget_box) = self.widgets.get(&widget_id) {
+                            widget_box
+                        }
+                        // There is no widget with the given ID.
+                        else {
+                            return Err(WidgetError::NoSuchWidget(widget_id));
+                        };
+
+                        widget_box.borrow_mut().set_value(
+                            value,
+                            &mut self.shared_state,
+                            &mut self.widget_id_provider,
+                            &mut next_commands,
+                        )?;
+                    }
+                    Command::SetVerticalAlignment(_widget_id, vertical_alignment) => {
+                        let widget_box = self.widget(widget_id)?;
+                        widget_box
+                            .borrow_mut()
+                            .set_vertical_alignment(vertical_alignment)?;
+                    }
+                };
+            }
+
+            if next_commands.is_empty() {
+                break;
+            }
+
+            commands = next_commands;
         }
 
         // There is a main widget.

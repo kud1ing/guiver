@@ -8,7 +8,7 @@ use druid_shell::piet::{Color, LinearGradient, PaintBrush, Piet, RenderContext, 
 use druid_shell::{piet, KbKey, Region};
 use guiver::stroke::Stroke;
 use guiver::{
-    Font, HorizontalAlignment, SizeConstraints, VerticalAlignment, Widget, WidgetError,
+    Command, Font, HorizontalAlignment, SizeConstraints, VerticalAlignment, Widget, WidgetError,
     WidgetEvent, WidgetEventType, WidgetId, WidgetIdProvider, WidgetPlacement,
 };
 use std::any::Any;
@@ -232,9 +232,9 @@ impl<T: Clone> PietWidget<T> for Button<T> {
 
     fn handle_event(
         &mut self,
-        _widget_id_provider: &mut WidgetIdProvider,
-        _shared_state: &mut PietSharedState,
         event: &Event,
+        shared_state: &mut PietSharedState,
+        widget_id_provider: &mut WidgetIdProvider,
         widget_events: &mut Vec<WidgetEvent<T>>,
     ) {
         match event {
@@ -358,11 +358,11 @@ impl<T: Clone> PietWidget<T> for Button<T> {
 
     fn set_font(
         &mut self,
-        shared_state: &mut PietSharedState,
-        font: Font,
+        _font: Font,
+        _shared_state: &mut PietSharedState,
     ) -> Result<(), WidgetError> {
         if let Some(child_widget) = &mut self.child_widget {
-            child_widget.borrow_mut().set_font(shared_state, font)?;
+            child_widget.borrow_mut().set_font(_font, _shared_state)?;
         }
 
         Ok(())
@@ -370,9 +370,10 @@ impl<T: Clone> PietWidget<T> for Button<T> {
 
     fn set_value(
         &mut self,
-        _widget_id_provider: &mut WidgetIdProvider,
-        _shared_state: &mut PietSharedState,
         _value: Box<dyn Any>,
+        _shared_state: &mut PietSharedState,
+        _widget_id_provider: &mut WidgetIdProvider,
+        _commands: &mut Vec<Command<T>>,
     ) -> Result<(), WidgetError> {
         // TODO
         println!("`Button::set_value()`: TODO");
