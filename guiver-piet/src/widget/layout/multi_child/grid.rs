@@ -8,8 +8,8 @@ use druid_shell::piet::{Error, RenderContext};
 use druid_shell::Region;
 use guiver::stroke::Stroke;
 use guiver::{
-    GridColumnProperties, GridRowProperties, Size, SizeConstraints, Widget, WidgetEvent, WidgetId,
-    WidgetIdProvider, WidgetPlacement,
+    GridColumnProperties, GridRowProperties, Size, SizeConstraints, Widget, WidgetEvent,
+    WidgetEventType, WidgetId, WidgetIdProvider, WidgetPlacement,
 };
 use std::borrow::BorrowMut;
 use std::cell::RefCell;
@@ -18,13 +18,13 @@ use std::collections::{HashMap, HashSet};
 // =================================================================================================
 
 /// A layout widget that positions its child widgets in a 2-dimensional grid.
-pub struct Grid {
+pub struct Grid<T: Clone> {
     child_widget_id_per_cell: HashMap<(usize, usize), WidgetId>,
     child_widget_ids_per_column: HashMap<usize, HashSet<WidgetId>>,
     child_widget_ids_per_row: HashMap<usize, HashSet<WidgetId>>,
-    child_widget_per_id: HashMap<WidgetId, PietWidgetBox>,
+    child_widget_per_id: HashMap<WidgetId, PietWidgetBox<T>>,
     column_properties: Vec<GridColumnProperties>,
-    core: WidgetCore,
+    core: WidgetCore<T>,
     default_column_properties: GridColumnProperties,
     default_row_properties: GridRowProperties,
     number_of_columns: usize,
@@ -32,7 +32,7 @@ pub struct Grid {
     row_properties: Vec<GridRowProperties>,
 }
 
-impl Grid {
+impl<T: Clone> Grid<T> {
     ///
     pub fn new(
         widget_id: WidgetId,
@@ -58,7 +58,7 @@ impl Grid {
     /// Adds the given child widget to the grid.
     fn add_child_widget(
         &mut self,
-        child_widget: PietWidgetBox,
+        child_widget: PietWidgetBox<T>,
         column_index: usize,
         row_index: usize,
     ) {
@@ -370,7 +370,16 @@ impl Grid {
     }
 }
 
-impl Widget for Grid {
+impl<T: Clone> Widget<T> for Grid<T> {
+    fn add_event_observation(
+        &mut self,
+        widget_event_type: WidgetEventType,
+        widget_event: WidgetEvent<T>,
+    ) {
+        self.core
+            .add_event_observation(widget_event_type, widget_event);
+    }
+
     fn apply_size_constraints(&mut self, size_constraints: SizeConstraints) -> Size {
         self.core.size_constraints = size_constraints;
 
@@ -378,6 +387,13 @@ impl Widget for Grid {
         self.layout_child_widgets();
 
         self.core.rectangle.size()
+    }
+
+    fn event_observation(
+        &mut self,
+        widget_event_type: &WidgetEventType,
+    ) -> Option<&WidgetEvent<T>> {
+        self.core.event_observation(widget_event_type)
     }
 
     fn rectangle(&self) -> &Rect {
@@ -397,6 +413,10 @@ impl Widget for Grid {
         self.layout_child_widgets();
 
         Ok(())
+    }
+
+    fn remove_event_observation(&mut self, widget_event_type: &WidgetEventType) {
+        self.core.remove_event_observation(widget_event_type);
     }
 
     fn set_debug_rendering(&mut self, debug_rendering: bool) {
@@ -424,11 +444,11 @@ impl Widget for Grid {
     }
 }
 
-impl PietWidget for Grid {
+impl<T: Clone> PietWidget<T> for Grid<T> {
     fn add_child(
         &mut self,
         widget_placement: Option<WidgetPlacement>,
-        child_widget: PietWidgetBox,
+        child_widget: PietWidgetBox<T>,
     ) -> Result<(), WidgetError> {
         // A grid widget placement is given
         if let Some(WidgetPlacement::Grid {
@@ -452,20 +472,18 @@ impl PietWidget for Grid {
         widget_id_provider: &mut WidgetIdProvider,
         shared_state: &mut PietSharedState,
         event: &Event,
-    ) -> Vec<WidgetEvent> {
-        let mut widget_events = vec![];
-
+        widget_events: &mut Vec<WidgetEvent<T>>,
+    ) {
         // Iterate over the child widgets.
         for child_widget in &mut self.child_widget_per_id.values() {
             // Let the current child widget handle the given event.
-            widget_events.append(&mut RefCell::borrow_mut(child_widget).handle_event(
+            RefCell::borrow_mut(child_widget).handle_event(
                 widget_id_provider,
                 shared_state,
                 event,
-            ));
+                widget_events,
+            );
         }
-
-        widget_events
     }
 
     fn paint(&self, piet: &mut Piet, region: &Region) -> Result<(), Error> {

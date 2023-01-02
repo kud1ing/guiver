@@ -25,12 +25,12 @@ pub use text_input::TextInput;
 /// The widget trait.
 ///
 /// A widget should try to be as small as possible.
-pub trait PietWidget: Widget {
+pub trait PietWidget<T: Clone>: Widget<T> {
     /// Adds the given child to a container widget.
     fn add_child(
         &mut self,
         _widget_placement: Option<WidgetPlacement>,
-        _child_widget: PietWidgetBox,
+        _child_widget: PietWidgetBox<T>,
     ) -> Result<(), WidgetError> {
         Err(WidgetError::NotHandled {
             widget_id: self.widget_id().clone(),
@@ -44,7 +44,8 @@ pub trait PietWidget: Widget {
         widget_id_provider: &mut WidgetIdProvider,
         shared_state: &mut PietSharedState,
         event: &Event,
-    ) -> Vec<WidgetEvent>;
+        widget_events: &mut Vec<WidgetEvent<T>>,
+    );
 
     /// Paints the widget.
     fn paint(&self, piet: &mut piet::Piet, region: &Region) -> Result<(), piet::Error>;

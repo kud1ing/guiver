@@ -8,20 +8,21 @@ use druid_shell::piet::{Piet, RenderContext};
 use druid_shell::{piet, Region};
 use guiver::stroke::Stroke;
 use guiver::{
-    SizeConstraints, Widget, WidgetError, WidgetEvent, WidgetId, WidgetIdProvider, WidgetPlacement,
+    SizeConstraints, Widget, WidgetError, WidgetEvent, WidgetEventType, WidgetId, WidgetIdProvider,
+    WidgetPlacement,
 };
 
 /// A layout widget that adds padding around its child widget.
-pub struct Padding {
-    child_widget: Option<PietWidgetBox>,
-    core: WidgetCore,
+pub struct Padding<T: Clone> {
+    child_widget: Option<PietWidgetBox<T>>,
+    core: WidgetCore<T>,
     padding_bottom: f64,
     padding_left: f64,
     padding_right: f64,
     padding_top: f64,
 }
 
-impl Padding {
+impl<T: Clone> Padding<T> {
     ///
     pub fn new(
         widget_id: WidgetId,
@@ -76,7 +77,16 @@ impl Padding {
     }
 }
 
-impl Widget for Padding {
+impl<T: Clone> Widget<T> for Padding<T> {
+    fn add_event_observation(
+        &mut self,
+        widget_event_type: WidgetEventType,
+        widget_event: WidgetEvent<T>,
+    ) {
+        self.core
+            .add_event_observation(widget_event_type, widget_event);
+    }
+
     fn apply_size_constraints(&mut self, size_constraints: SizeConstraints) -> Size {
         self.core.size_constraints = size_constraints;
 
@@ -84,6 +94,13 @@ impl Widget for Padding {
         self.layout_child_widget();
 
         self.core.rectangle.size()
+    }
+
+    fn event_observation(
+        &mut self,
+        widget_event_type: &WidgetEventType,
+    ) -> Option<&WidgetEvent<T>> {
+        self.core.event_observation(widget_event_type)
     }
 
     fn rectangle(&self) -> &Rect {
@@ -119,6 +136,10 @@ impl Widget for Padding {
         }
     }
 
+    fn remove_event_observation(&mut self, widget_event_type: &WidgetEventType) {
+        self.core.remove_event_observation(widget_event_type);
+    }
+
     fn set_debug_rendering(&mut self, debug_rendering: bool) {
         self.core.debug_rendering = debug_rendering;
     }
@@ -144,11 +165,11 @@ impl Widget for Padding {
     }
 }
 
-impl PietWidget for Padding {
+impl<T: Clone> PietWidget<T> for Padding<T> {
     fn add_child(
         &mut self,
         _widget_placement: Option<WidgetPlacement>,
-        child_widget: PietWidgetBox,
+        child_widget: PietWidgetBox<T>,
     ) -> Result<(), WidgetError> {
         // TODO: use `_widget_placement`?
 
@@ -165,14 +186,16 @@ impl PietWidget for Padding {
         widget_id_provider: &mut WidgetIdProvider,
         shared_state: &mut PietSharedState,
         event: &Event,
-    ) -> Vec<WidgetEvent> {
+        widget_events: &mut Vec<WidgetEvent<T>>,
+    ) {
         // There is a child widget.
         if let Some(child_widget) = &mut self.child_widget {
-            child_widget
-                .borrow_mut()
-                .handle_event(widget_id_provider, shared_state, event)
-        } else {
-            vec![]
+            child_widget.borrow_mut().handle_event(
+                widget_id_provider,
+                shared_state,
+                event,
+                widget_events,
+            )
         }
     }
 

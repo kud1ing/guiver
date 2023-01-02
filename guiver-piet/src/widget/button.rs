@@ -15,9 +15,9 @@ use std::any::Any;
 
 ///
 #[derive(Default)]
-pub struct Button {
-    child_widget: Option<PietWidgetBox>,
-    core: WidgetCore,
+pub struct Button<T: Clone> {
+    child_widget: Option<PietWidgetBox<T>>,
+    core: WidgetCore<T>,
     corner_radius: f64,
     fill_brush_down: Option<PaintBrush>,
     fill_brush_up: Option<PaintBrush>,
@@ -31,12 +31,12 @@ pub struct Button {
     stroke_focused: Option<Stroke>,
 }
 
-impl Button {
+impl<T: Clone> Button<T> {
     ///
     pub fn new(
         widget_id: WidgetId,
         debug_rendering_stroke: Stroke,
-        child_widget: PietWidgetBox,
+        child_widget: PietWidgetBox<T>,
         fill_brush_down: Option<PaintBrush>,
         frame_color: Option<Color>,
         frame_color_focused: Option<Color>,
@@ -112,9 +112,18 @@ impl Button {
     }
 }
 
-impl Widget for Button {
+impl<T: Clone> Widget<T> for Button<T> {
     fn accepts_focus(&self) -> bool {
         true
+    }
+
+    fn add_event_observation(
+        &mut self,
+        widget_event_type: WidgetEventType,
+        widget_event: WidgetEvent<T>,
+    ) {
+        self.core
+            .add_event_observation(widget_event_type, widget_event);
     }
 
     fn apply_size_constraints(&mut self, size_constraints: SizeConstraints) -> Size {
@@ -126,6 +135,13 @@ impl Widget for Button {
         self.core.rectangle.size()
     }
 
+    fn event_observation(
+        &mut self,
+        widget_event_type: &WidgetEventType,
+    ) -> Option<&WidgetEvent<T>> {
+        self.core.event_observation(widget_event_type)
+    }
+
     fn rectangle(&self) -> &Rect {
         &self.core.rectangle
     }
@@ -133,6 +149,10 @@ impl Widget for Button {
     fn remove_children(&mut self) -> Result<(), WidgetError> {
         self.child_widget = None;
         Ok(())
+    }
+
+    fn remove_event_observation(&mut self, widget_event_type: &WidgetEventType) {
+        self.core.remove_event_observation(widget_event_type);
     }
 
     fn set_debug_rendering(&mut self, debug_rendering: bool) {
@@ -194,11 +214,11 @@ impl Widget for Button {
     }
 }
 
-impl PietWidget for Button {
+impl<T: Clone> PietWidget<T> for Button<T> {
     fn add_child(
         &mut self,
         _widget_placement: Option<WidgetPlacement>,
-        child_widget: PietWidgetBox,
+        child_widget: PietWidgetBox<T>,
     ) -> Result<(), WidgetError> {
         // TODO: use `_widget_placement`?
 
@@ -215,14 +235,17 @@ impl PietWidget for Button {
         _widget_id_provider: &mut WidgetIdProvider,
         _shared_state: &mut PietSharedState,
         event: &Event,
-    ) -> Vec<WidgetEvent> {
-        let mut widget_events = vec![];
-
+        widget_events: &mut Vec<WidgetEvent<T>>,
+    ) {
         match event {
             Event::KeyDown(key_event) => {
                 if key_event.key == KbKey::Enter {
-                    // Enter on a (focused) button is like a click.
-                    widget_events.push((self.core.widget_id, WidgetEventType::Clicked));
+                    // `Enter` on a (focused) button is like a click.
+                    if let Some(widget_event) =
+                        self.core.event_observation(&WidgetEventType::Clicked)
+                    {
+                        widget_events.push(widget_event.clone());
+                    }
                 }
             }
             Event::MouseDown(mouse_event) => {
@@ -233,8 +256,8 @@ impl PietWidget for Button {
                         // Give it focus.
                         self.has_focus = true;
 
-                        // Tell the widget manager about the change of focus.
-                        widget_events.push((self.core.widget_id, WidgetEventType::GainedFocus))
+                        // Tell the widget manager about the gain of focus.
+                        widget_events.push(WidgetEvent::GainedFocus(self.core.widget_id));
                     }
 
                     self.is_down = true;
@@ -244,8 +267,8 @@ impl PietWidget for Button {
                 else {
                     // This widget was focused.
                     if self.has_focus {
-                        // Tell the widget manager about the change of focus.
-                        widget_events.push((self.core.widget_id, WidgetEventType::LostFocus))
+                        // Tell the widget manager about the loss of focus.
+                        widget_events.push(WidgetEvent::LostFocus(self.core.widget_id));
                     }
 
                     self.has_focus = false;
@@ -265,7 +288,12 @@ impl PietWidget for Button {
             }
             Event::MouseUp(mouse_event) => {
                 if self.is_hot && self.core.rectangle.contains(mouse_event.pos) {
-                    widget_events.push((self.core.widget_id, WidgetEventType::Clicked));
+                    // There is a widget event observation.
+                    if let Some(widget_event) =
+                        self.core.event_observation(&WidgetEventType::Clicked)
+                    {
+                        widget_events.push(widget_event.clone());
+                    }
                 }
 
                 self.is_down = false;
@@ -273,8 +301,6 @@ impl PietWidget for Button {
             }
             _ => {}
         }
-
-        widget_events
     }
 
     fn paint(&self, piet: &mut Piet, region: &Region) -> Result<(), piet::Error> {

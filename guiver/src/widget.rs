@@ -1,4 +1,7 @@
-use crate::{HorizontalAlignment, SizeConstraints, Stroke, VerticalAlignment, WidgetError};
+use crate::{
+    HorizontalAlignment, SizeConstraints, Stroke, VerticalAlignment, WidgetError, WidgetEvent,
+    WidgetEventType,
+};
 use druid_shell::kurbo::{Point, Rect, Size};
 use druid_shell::piet::PaintBrush;
 use std::any::Any;
@@ -8,15 +11,26 @@ pub type WidgetId = usize;
 
 /// A trait for widgets.
 /// The methods are typically called by a `WidgetManager` and parental composite widgets.
-pub trait Widget {
+pub trait Widget<T: Clone> {
     /// Returns `true` if the widget generally accepts focus, like e.g. a `Button` or `TextInput`
     /// widget. A `WidgetManager` uses this to build a tab/focus order.
     fn accepts_focus(&self) -> bool {
         false
     }
 
+    ///
+    fn add_event_observation(
+        &mut self,
+        widget_event_type: WidgetEventType,
+        widget_event: WidgetEvent<T>,
+    );
+
     /// Applies the given size constraints to the widget and returns its size.
     fn apply_size_constraints(&mut self, size_constraints: SizeConstraints) -> Size;
+
+    ///
+    fn event_observation(&mut self, widget_event_type: &WidgetEventType)
+        -> Option<&WidgetEvent<T>>;
 
     /// Returns the widget's flex factor. This is used in layout widgets like `Column` and `Row`.
     fn flex_factor(&self) -> u16 {
@@ -41,6 +55,9 @@ pub trait Widget {
             description: "`remove_children()`".to_string(),
         })
     }
+
+    ///
+    fn remove_event_observation(&mut self, widget_event_type: &WidgetEventType);
 
     /// Returns the widget's selected value. This can be e.g. selected text in a `TextInput` widget.
     fn selected_value(&self) -> Option<Box<dyn Any>> {

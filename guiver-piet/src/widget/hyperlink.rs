@@ -11,12 +11,12 @@ use guiver::{
 use std::borrow::BorrowMut;
 
 ///
-pub struct Hyperlink {
+pub struct Hyperlink<T: Clone> {
     is_being_clicked: bool,
     font_is_being_clicked: Font,
     font_normal: Font,
     font_was_visited: Font,
-    text_widget: Text,
+    text_widget: Text<T>,
     was_visited: bool,
 }
 
@@ -25,7 +25,7 @@ fn adjust_font(font: &mut Font) {
     font.has_underline = true;
 }
 
-impl Hyperlink {
+impl<T: Clone> Hyperlink<T> {
     ///
     pub fn new(
         widget_id: WidgetId,
@@ -99,13 +99,33 @@ impl Hyperlink {
     }
 }
 
-impl Widget for Hyperlink {
+impl<T: Clone> Widget<T> for Hyperlink<T> {
+    fn add_event_observation(
+        &mut self,
+        widget_event_type: WidgetEventType,
+        widget_event: WidgetEvent<T>,
+    ) {
+        self.text_widget
+            .add_event_observation(widget_event_type, widget_event);
+    }
+
     fn apply_size_constraints(&mut self, size_constraints: SizeConstraints) -> Size {
         self.text_widget.apply_size_constraints(size_constraints)
     }
 
+    fn event_observation(
+        &mut self,
+        widget_event_type: &WidgetEventType,
+    ) -> Option<&WidgetEvent<T>> {
+        self.text_widget.event_observation(widget_event_type)
+    }
+
     fn rectangle(&self) -> &Rect {
         self.text_widget.rectangle()
+    }
+
+    fn remove_event_observation(&mut self, widget_event_type: &WidgetEventType) {
+        self.text_widget.remove_event_observation(widget_event_type);
     }
 
     fn set_debug_rendering(&mut self, debug_rendering: bool) {
@@ -134,47 +154,51 @@ impl Widget for Hyperlink {
     }
 }
 
-impl PietWidget for Hyperlink {
+impl<T: Clone> PietWidget<T> for Hyperlink<T> {
     fn handle_event(
         &mut self,
         _widget_id_provider: &mut WidgetIdProvider,
         shared_state: &mut PietSharedState,
         event: &Event,
-    ) -> Vec<WidgetEvent> {
-        let mut widget_events = vec![];
-
+        widget_events: &mut Vec<WidgetEvent<T>>,
+    ) {
         match event {
             Event::MouseDown(mouse_event) => {
                 // The click is outside of the text.
                 if !self.text_widget.rectangle().contains(mouse_event.pos) {
                     self.set_is_being_clicked(shared_state, false);
-                    return widget_events;
+                    return;
                 }
 
                 // The hyperlink is being clicked.
                 self.set_is_being_clicked(shared_state, true);
 
-                widget_events.push((
-                    self.text_widget.widget_id().clone(),
-                    WidgetEventType::Clicked,
-                ));
+                // There is a widget event observation.
+                if let Some(widget_event) = self
+                    .text_widget
+                    .event_observation(&WidgetEventType::Clicked)
+                {
+                    widget_events.push(widget_event.clone());
+                }
             }
             Event::MouseUp(mouse_event) => {
                 // The click is outside of the text.
                 if !self.text_widget.rectangle().contains(mouse_event.pos) {
                     // The hyperlink is not being clicked.
                     self.set_is_being_clicked(shared_state, false);
-
-                    return widget_events;
+                    return;
                 }
 
                 if self.is_being_clicked {
                     self.set_was_visited(shared_state);
 
-                    widget_events.push((
-                        self.text_widget.widget_id().clone(),
-                        WidgetEventType::Submitted,
-                    ));
+                    // There is a widget event observation.
+                    if let Some(widget_event) = self
+                        .text_widget
+                        .event_observation(&WidgetEventType::Submitted)
+                    {
+                        widget_events.push(widget_event.clone());
+                    }
                 } else {
                     // The hyperlink is not being clicked.
                     self.set_is_being_clicked(shared_state, false);
@@ -182,8 +206,6 @@ impl PietWidget for Hyperlink {
             }
             _ => {}
         }
-
-        widget_events
     }
 
     fn paint(&self, piet: &mut Piet, region: &Region) -> Result<(), Error> {

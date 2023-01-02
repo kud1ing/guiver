@@ -1,16 +1,25 @@
-use druid_shell::Region;
-use guiver::{Command, HorizontalAlignment, Size, WidgetEventType, WidgetId, WidgetManager};
-
 /**
 This implements the "Counter" task from [7GUIs](https://eugenkiss.github.io/7guis/tasks/).
  */
+use druid_shell::Region;
+use guiver::{
+    Command, HorizontalAlignment, Size, WidgetEvent, WidgetEventType, WidgetId, WidgetManager,
+};
 use guiver_piet::{run, Clipboard, Event, Piet, PietApplication, PietWidgetManager};
 
+///
+#[derive(Clone)]
+enum CustomEvent {
+    ConvertFromCtoF,
+    ConvertFromFtoC,
+}
+
+///
 pub(crate) struct App {
     clipboard: Option<Clipboard>,
     text_input_celsius: WidgetId,
     text_input_fahrenheit: WidgetId,
-    widget_manager: PietWidgetManager<()>,
+    widget_manager: PietWidgetManager<CustomEvent>,
 }
 
 impl App {
@@ -58,6 +67,17 @@ impl App {
                 Command::SetHasFocus(text_input_celsius, true),
                 Command::SetHorizontalAlignment(text_input_celsius, HorizontalAlignment::Right),
                 Command::SetHorizontalAlignment(text_input_fahrenheit, HorizontalAlignment::Left),
+                //
+                Command::AddEventObservation(
+                    text_input_celsius,
+                    WidgetEventType::ValueChanged,
+                    CustomEvent::ConvertFromCtoF,
+                ),
+                Command::AddEventObservation(
+                    text_input_fahrenheit,
+                    WidgetEventType::ValueChanged,
+                    CustomEvent::ConvertFromFtoC,
+                ),
             ])
             .unwrap();
 
@@ -89,59 +109,63 @@ impl PietApplication for App {
         // Iterate over the generated widget events.
         for widget_event in widget_events {
             match widget_event {
-                (widget_id, WidgetEventType::ValueChanged) => {
+                WidgetEvent::Custom(CustomEvent::ConvertFromCtoF) => {
                     // Try to get the widget's value.
-                    let value = self.widget_manager.value(widget_id).unwrap().unwrap();
+                    let value = self
+                        .widget_manager
+                        .value(self.text_input_celsius)
+                        .unwrap()
+                        .unwrap();
 
-                    if widget_id == self.text_input_celsius {
-                        // The given value is a string.
-                        if let Some(string) = value.downcast_ref::<String>() {
-                            // The string is empty.
-                            if string.trim().is_empty() {
-                                self.widget_manager
-                                    .handle_command(Command::SetValue(
-                                        self.text_input_fahrenheit,
-                                        Box::new("".to_string()),
-                                    ))
-                                    .unwrap();
-                            }
-                            // The string could be parsed as a float
-                            else if let Ok(celsius) = string.parse::<f32>() {
-                                self.widget_manager
-                                    .handle_command(Command::SetValue(
-                                        self.text_input_fahrenheit,
-                                        Box::new(format!(
-                                            "{:.0}",
-                                            fahrenheit_from_celsius(celsius)
-                                        )),
-                                    ))
-                                    .unwrap();
-                            }
+                    // The given value is a string.
+                    if let Some(string) = value.downcast_ref::<String>() {
+                        // The string is empty.
+                        if string.trim().is_empty() {
+                            self.widget_manager
+                                .handle_command(Command::SetValue(
+                                    self.text_input_fahrenheit,
+                                    Box::new("".to_string()),
+                                ))
+                                .unwrap();
                         }
-                    } else if widget_id == self.text_input_fahrenheit {
-                        // The given value is a string.
-                        if let Some(string) = value.downcast_ref::<String>() {
-                            // The string is empty.
-                            if string.trim().is_empty() {
-                                self.widget_manager
-                                    .handle_command(Command::SetValue(
-                                        self.text_input_celsius,
-                                        Box::new("".to_string()),
-                                    ))
-                                    .unwrap();
-                            }
-                            // The string could be parsed as a float
-                            else if let Ok(fahrenheit) = string.parse::<f32>() {
-                                self.widget_manager
-                                    .handle_command(Command::SetValue(
-                                        self.text_input_celsius,
-                                        Box::new(format!(
-                                            "{:.0}",
-                                            celsius_from_fahrenheit(fahrenheit)
-                                        )),
-                                    ))
-                                    .unwrap();
-                            }
+                        // The string could be parsed as a float
+                        else if let Ok(celsius) = string.parse::<f32>() {
+                            self.widget_manager
+                                .handle_command(Command::SetValue(
+                                    self.text_input_fahrenheit,
+                                    Box::new(format!("{:.0}", fahrenheit_from_celsius(celsius))),
+                                ))
+                                .unwrap();
+                        }
+                    }
+                }
+                WidgetEvent::Custom(CustomEvent::ConvertFromFtoC) => {
+                    // Try to get the widget's value.
+                    let value = self
+                        .widget_manager
+                        .value(self.text_input_fahrenheit)
+                        .unwrap()
+                        .unwrap();
+
+                    // The given value is a string.
+                    if let Some(string) = value.downcast_ref::<String>() {
+                        // The string is empty.
+                        if string.trim().is_empty() {
+                            self.widget_manager
+                                .handle_command(Command::SetValue(
+                                    self.text_input_celsius,
+                                    Box::new("".to_string()),
+                                ))
+                                .unwrap();
+                        }
+                        // The string could be parsed as a float
+                        else if let Ok(fahrenheit) = string.parse::<f32>() {
+                            self.widget_manager
+                                .handle_command(Command::SetValue(
+                                    self.text_input_celsius,
+                                    Box::new(format!("{:.0}", celsius_from_fahrenheit(fahrenheit))),
+                                ))
+                                .unwrap();
                         }
                     }
                 }

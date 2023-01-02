@@ -6,18 +6,18 @@ use druid_shell::kurbo::{Line, Point, Rect, Size};
 use druid_shell::piet::{Color, Piet, RenderContext};
 use druid_shell::{piet, Region};
 use guiver::stroke::Stroke;
-use guiver::{SizeConstraints, Widget, WidgetEvent, WidgetId, WidgetIdProvider};
+use guiver::{SizeConstraints, Widget, WidgetEvent, WidgetEventType, WidgetId, WidgetIdProvider};
 use piet::{PaintBrush, StrokeDash, StrokeStyle};
 
 /// A placeholder widget.
-pub struct Placeholder {
-    core: WidgetCore,
+pub struct Placeholder<T: Clone> {
+    core: WidgetCore<T>,
     desired_size: Size,
     fill: Option<PaintBrush>,
     stroke: Option<Stroke>,
 }
 
-impl Placeholder {
+impl<T: Clone> Placeholder<T> {
     pub fn new(widget_id: WidgetId, debug_rendering_stroke: Stroke, desired_size: Size) -> Self {
         let stroke_style = StrokeStyle {
             line_join: Default::default(),
@@ -39,7 +39,16 @@ impl Placeholder {
     }
 }
 
-impl Widget for Placeholder {
+impl<T: Clone> Widget<T> for Placeholder<T> {
+    fn add_event_observation(
+        &mut self,
+        widget_event_type: WidgetEventType,
+        widget_event: WidgetEvent<T>,
+    ) {
+        self.core
+            .add_event_observation(widget_event_type, widget_event);
+    }
+
     fn apply_size_constraints(&mut self, size_constraints: SizeConstraints) -> Size {
         self.core.rectangle = self.core.rectangle.with_size(
             self.desired_size
@@ -48,8 +57,19 @@ impl Widget for Placeholder {
         self.core.rectangle.size()
     }
 
+    fn event_observation(
+        &mut self,
+        widget_event_type: &WidgetEventType,
+    ) -> Option<&WidgetEvent<T>> {
+        self.core.event_observation(widget_event_type)
+    }
+
     fn rectangle(&self) -> &Rect {
         &self.core.rectangle
+    }
+
+    fn remove_event_observation(&mut self, widget_event_type: &WidgetEventType) {
+        self.core.remove_event_observation(widget_event_type);
     }
 
     fn set_debug_rendering(&mut self, debug_rendering: bool) {
@@ -86,15 +106,15 @@ impl Widget for Placeholder {
     }
 }
 
-impl PietWidget for Placeholder {
+impl<T: Clone> PietWidget<T> for Placeholder<T> {
     fn handle_event(
         &mut self,
         _widget_id_provider: &mut WidgetIdProvider,
         _shared_state: &mut PietSharedState,
         _event: &Event,
-    ) -> Vec<WidgetEvent> {
+        _widget_events: &mut Vec<WidgetEvent<T>>,
+    ) {
         // Nothing to do.
-        vec![]
     }
 
     fn paint(&self, piet: &mut Piet, _region: &Region) -> Result<(), piet::Error> {
@@ -165,7 +185,7 @@ mod tests {
     fn test_apply_size_constraints() {
         // Create the placeholder widget.
         let placeholder_maximum_size = Size::new(200.0, 100.0);
-        let mut placeholder_widget =
+        let mut placeholder_widget: Placeholder<()> =
             Placeholder::new(0, Stroke::default(), placeholder_maximum_size);
 
         // Apply an unbounded `SizeConstraints`.

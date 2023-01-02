@@ -13,8 +13,8 @@ use guiver::{
 use std::any::Any;
 
 /// A text widget.
-pub struct Text {
-    core: WidgetCore,
+pub struct Text<T: Clone> {
+    core: WidgetCore<T>,
     font: Font,
     horizontal_alignment: HorizontalAlignment,
     text: String,
@@ -23,7 +23,7 @@ pub struct Text {
     vertical_alignment: VerticalAlignment,
 }
 
-impl Text {
+impl<T: Clone> Text<T> {
     ///
     pub fn new(
         widget_id: WidgetId,
@@ -83,7 +83,16 @@ impl Text {
     }
 }
 
-impl Widget for Text {
+impl<T: Clone> Widget<T> for Text<T> {
+    fn add_event_observation(
+        &mut self,
+        widget_event_type: WidgetEventType,
+        widget_event: WidgetEvent<T>,
+    ) {
+        self.core
+            .add_event_observation(widget_event_type, widget_event);
+    }
+
     fn apply_size_constraints(&mut self, size_constraints: SizeConstraints) -> Size {
         self.core.size_constraints = size_constraints;
 
@@ -92,8 +101,19 @@ impl Widget for Text {
         self.core.rectangle.size()
     }
 
+    fn event_observation(
+        &mut self,
+        widget_event_type: &WidgetEventType,
+    ) -> Option<&WidgetEvent<T>> {
+        self.core.event_observation(widget_event_type)
+    }
+
     fn rectangle(&self) -> &Rect {
         &self.core.rectangle
+    }
+
+    fn remove_event_observation(&mut self, widget_event_type: &WidgetEventType) {
+        self.core.remove_event_observation(widget_event_type);
     }
 
     fn selected_value(&self) -> Option<Box<dyn Any>> {
@@ -169,25 +189,25 @@ impl Widget for Text {
     }
 }
 
-impl PietWidget for Text {
+impl<T: Clone> PietWidget<T> for Text<T> {
     fn handle_event(
         &mut self,
         _widget_id_provider: &mut WidgetIdProvider,
         _shared_state: &mut PietSharedState,
         event: &Event,
-    ) -> Vec<WidgetEvent> {
-        let mut widget_events = vec![];
-
+        widget_events: &mut Vec<WidgetEvent<T>>,
+    ) {
         if let Event::MouseDown(mouse_event) = event {
             // The click is outside of the text.
             if !self.core.rectangle.contains(mouse_event.pos) {
-                return widget_events;
+                return;
             }
 
-            widget_events.push((self.core.widget_id, WidgetEventType::Clicked));
+            // There is a widget event observation.
+            if let Some(widget_event) = self.core.event_observation(&WidgetEventType::Clicked) {
+                widget_events.push(widget_event.clone());
+            }
         }
-
-        widget_events
     }
 
     fn paint(&self, piet: &mut Piet, _region: &Region) -> Result<(), piet::Error> {
@@ -263,14 +283,14 @@ impl PietWidget for Text {
 mod tests {
     use crate::shared_state::piet_text;
     use crate::widget::Text;
-    use guiver::{Font, SizeConstraints, Stroke, Widget};
+    use guiver::{Font, PietText, SizeConstraints, Stroke, Widget};
 
     #[test]
     fn test_apply_size_constraints() {
         // Create the text widget.
         let font = Font::default();
-        let mut piet_text = piet_text();
-        let mut text_widget = Text::new(
+        let mut piet_text: PietText = piet_text();
+        let mut text_widget: Text<()> = Text::new(
             0,
             Stroke::default(),
             &mut piet_text,

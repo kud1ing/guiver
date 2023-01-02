@@ -95,13 +95,6 @@ The developer code can handle those widget events.
 
 ## Backlog
 
-* rework widget event handling:
-  * [ ] add `Widget::add_event_observation(WidgetEventType, WidgetEvent)`, `Widget::remove_event_observation(WidgetEventType)`
-    * [ ] implement in `Core`
-  * [ ] `PietWidgetManager::handle_commands()`: handle `Command::RemoveEventObservation`
-  * [ ] `PietWidgetManager::handle_commands()`: handle `Command::AddEventObservation`
-  * [ ] remove `PietWidgetManager::handle_subscribed_widget_event()`, `widget_event_subscriptions_per_widget_id`
-  * [ ] change `WidgetEvent` to only consist of: `Custom(T)`, `GainedFocus(WidgetId)`, `LostFocus(WidgetId)`
 * make widgets able to create child widgets themselves via `Command`s to the `WidgetManager`?
   * discussion:
     * Chances:
@@ -110,9 +103,34 @@ The developer code can handle those widget events.
     * Risks:
       * widget logic is spread in client and widget code
   * either:
-    * [ ] remove `WidgetIdProvider` again from `PietWidget`?
-    * [ ] `Widget::set_value()`: return `Vec<Command>`?
+    * [ ] `Widget::set_value()`: add `commands: &mut Vec<Command>`?
       * [ ] `PietWidgetManager::handle_commands()`: handle the `Vec<Command>` from `set_value()`
+    * [ ] remove `WidgetIdProvider` again from `PietWidget`?
+* add selectors:
+  * [ ] add `Command::SetClass(Option<C>)`
+  * [ ] add `WidgetSelector`:
+    * `All`
+    * `WithId(WidgetId)`
+    * `ChildrenOf(WidgetId)`
+    * `ParentOf(WidgetId)`
+    * [ ] use it in
+      * [ ] `Command::Destroy`
+      * [ ] `Command::RemoveChild`
+        * [ ] remove `Command::RemoveChildren`
+      * [ ] `Command::RemoveEventObservation`
+      * [ ] `Command::AddEventObservation`
+      * [ ] `Command::SetDebugRendering`
+      * [ ] `Command::SetFill`
+      * [ ] `Command::SetFont`
+      * [ ] `Command::SetHorizontalAlignment`
+      * [ ] `Command::SetIsDisabled`
+      * [ ] `Command::SetIsHidden`
+      * [ ] `Command::SetStroke`
+      * [ ] `Command::SetValue`
+      * [ ] `Command::SetVerticalAlignment`
+* [ ] add `Widget::class() -> Option<C>`
+  * [ ] implement in `Core`
+  * [ ] add `WidgetSelector::WithClass(C)`
 * extract the remaining methods from `PietWidget` to `Widget`:
   * first find abstractions for:
     * [ ] `PietWidgetBox`

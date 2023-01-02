@@ -14,12 +14,12 @@ use std::any::Any;
 use std::borrow::BorrowMut;
 
 /// A text input widget.
-pub struct TextInput {
+pub struct TextInput<T: Clone> {
     caret_character_index: usize,
     caret_x: f64,
     caret_y1: f64,
     caret_y2: f64,
-    core: WidgetCore,
+    core: WidgetCore<T>,
     corner_radius: f64,
     fill: Option<PaintBrush>,
     has_focus: bool,
@@ -29,11 +29,11 @@ pub struct TextInput {
     stroke: Stroke,
     stroke_focused: Stroke,
     text: String,
-    text_widget: Text,
+    text_widget: Text<T>,
     width: f64,
 }
 
-impl TextInput {
+impl<T: Clone> TextInput<T> {
     ///
     pub fn new(
         widget_id: WidgetId,
@@ -86,13 +86,15 @@ impl TextInput {
         &mut self,
         widget_id_provider: &mut WidgetIdProvider,
         shared_state: &mut PietSharedState,
-        widget_events: &mut Vec<WidgetEvent>,
+        widget_events: &mut Vec<WidgetEvent<T>>,
     ) {
         // Pass the updated text to the child text widget.
         self.update_text_widget(widget_id_provider, shared_state);
 
-        // Inform the world that the text has changed.
-        widget_events.push((self.core.widget_id, WidgetEventType::ValueChanged));
+        // There is a widget event observation.
+        if let Some(widget_event) = self.core.event_observation(&WidgetEventType::ValueChanged) {
+            widget_events.push(widget_event.clone());
+        }
     }
 
     ///
@@ -199,9 +201,18 @@ impl TextInput {
     }
 }
 
-impl Widget for TextInput {
+impl<T: Clone> Widget<T> for TextInput<T> {
     fn accepts_focus(&self) -> bool {
         true
+    }
+
+    fn add_event_observation(
+        &mut self,
+        widget_event_type: WidgetEventType,
+        widget_event: WidgetEvent<T>,
+    ) {
+        self.core
+            .add_event_observation(widget_event_type, widget_event);
     }
 
     fn apply_size_constraints(&mut self, size_constraints: SizeConstraints) -> Size {
@@ -213,8 +224,19 @@ impl Widget for TextInput {
         self.core.rectangle.size()
     }
 
+    fn event_observation(
+        &mut self,
+        widget_event_type: &WidgetEventType,
+    ) -> Option<&WidgetEvent<T>> {
+        self.core.event_observation(widget_event_type)
+    }
+
     fn rectangle(&self) -> &Rect {
         &self.core.rectangle
+    }
+
+    fn remove_event_observation(&mut self, widget_event_type: &WidgetEventType) {
+        self.core.remove_event_observation(widget_event_type);
     }
 
     fn selected_value(&self) -> Option<Box<dyn Any>> {
@@ -284,15 +306,14 @@ impl Widget for TextInput {
     }
 }
 
-impl PietWidget for TextInput {
+impl<T: Clone> PietWidget<T> for TextInput<T> {
     fn handle_event(
         &mut self,
         widget_id_provider: &mut WidgetIdProvider,
         shared_state: &mut PietSharedState,
         event: &Event,
-    ) -> Vec<WidgetEvent> {
-        let mut widget_events = vec![];
-
+        widget_events: &mut Vec<WidgetEvent<T>>,
+    ) {
         match event {
             Event::ClipboardPaste(string) => {
                 // TODO: error handling
@@ -305,11 +326,7 @@ impl PietWidget for TextInput {
                     self.text.push_str(chracter_string);
 
                     // Apply the text changes.
-                    self.broadcast_modified_text(
-                        widget_id_provider,
-                        shared_state,
-                        &mut widget_events,
-                    );
+                    self.broadcast_modified_text(widget_id_provider, shared_state, widget_events);
                 }
                 KbKey::Backspace => {
                     if !self.text.is_empty() {
@@ -320,15 +337,17 @@ impl PietWidget for TextInput {
                     }
 
                     // Apply the text changes.
-                    self.broadcast_modified_text(
-                        widget_id_provider,
-                        shared_state,
-                        &mut widget_events,
-                    );
+                    self.broadcast_modified_text(widget_id_provider, shared_state, widget_events);
                 }
                 KbKey::Enter => {
                     // Enter on a (focused) text input submits the value.
-                    widget_events.push((self.core.widget_id, WidgetEventType::Submitted));
+
+                    // There is a widget event observation.
+                    if let Some(widget_event) =
+                        self.core.event_observation(&WidgetEventType::Submitted)
+                    {
+                        widget_events.push(widget_event.clone());
+                    }
                 }
                 _ => {}
             },
@@ -340,8 +359,8 @@ impl PietWidget for TextInput {
                         // Accept focus.
                         self.has_focus = true;
 
-                        // Tell the widget manager about the change of focus.
-                        widget_events.push((self.core.widget_id, WidgetEventType::GainedFocus))
+                        // Tell the widget manager about the gain of focus.
+                        widget_events.push(WidgetEvent::GainedFocus(self.core.widget_id));
                     }
                 }
                 // The mouse is down outside of this text input.
@@ -351,15 +370,13 @@ impl PietWidget for TextInput {
                         // Give up focus.
                         self.has_focus = false;
 
-                        // Tell the widget manager about the change of focus.
-                        widget_events.push((self.core.widget_id, WidgetEventType::LostFocus));
+                        // Tell the widget manager about the loss of focus.
+                        widget_events.push(WidgetEvent::LostFocus(self.core.widget_id));
                     }
                 }
             }
             _ => {}
         }
-
-        widget_events
     }
 
     fn paint(&self, piet: &mut Piet, region: &Region) -> Result<(), Error> {

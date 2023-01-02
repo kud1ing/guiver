@@ -7,16 +7,17 @@ use druid_shell::piet::{Piet, RenderContext};
 use druid_shell::{piet, Region};
 use guiver::stroke::Stroke;
 use guiver::{
-    SizeConstraints, Widget, WidgetError, WidgetEvent, WidgetId, WidgetIdProvider, WidgetPlacement,
+    SizeConstraints, Widget, WidgetError, WidgetEvent, WidgetEventType, WidgetId, WidgetIdProvider,
+    WidgetPlacement,
 };
 
 /// A layout widget that centers its child widget.
-pub struct Center {
-    child_widget: Option<PietWidgetBox>,
-    core: WidgetCore,
+pub struct Center<T: Clone> {
+    child_widget: Option<PietWidgetBox<T>>,
+    core: WidgetCore<T>,
 }
 
-impl Center {
+impl<T: Clone> Center<T> {
     ///
     pub fn new(widget_id: WidgetId, debug_rendering_stroke: Stroke) -> Self {
         Center {
@@ -56,7 +57,16 @@ impl Center {
     }
 }
 
-impl Widget for Center {
+impl<T: Clone> Widget<T> for Center<T> {
+    fn add_event_observation(
+        &mut self,
+        widget_event_type: WidgetEventType,
+        widget_event: WidgetEvent<T>,
+    ) {
+        self.core
+            .add_event_observation(widget_event_type, widget_event);
+    }
+
     fn apply_size_constraints(&mut self, size_constraints: SizeConstraints) -> Size {
         self.core.size_constraints = size_constraints;
 
@@ -64,6 +74,13 @@ impl Widget for Center {
         self.layout_child_widget();
 
         self.core.rectangle.size()
+    }
+
+    fn event_observation(
+        &mut self,
+        widget_event_type: &WidgetEventType,
+    ) -> Option<&WidgetEvent<T>> {
+        self.core.event_observation(widget_event_type)
     }
 
     fn rectangle(&self) -> &Rect {
@@ -87,6 +104,10 @@ impl Widget for Center {
         self.layout_child_widget();
 
         Ok(())
+    }
+
+    fn remove_event_observation(&mut self, widget_event_type: &WidgetEventType) {
+        self.core.remove_event_observation(widget_event_type);
     }
 
     fn set_debug_rendering(&mut self, debug_rendering: bool) {
@@ -114,11 +135,11 @@ impl Widget for Center {
     }
 }
 
-impl PietWidget for Center {
+impl<T: Clone> PietWidget<T> for Center<T> {
     fn add_child(
         &mut self,
         _widget_placement: Option<WidgetPlacement>,
-        child_widget: PietWidgetBox,
+        child_widget: PietWidgetBox<T>,
     ) -> Result<(), WidgetError> {
         self.child_widget = Some(child_widget);
 
@@ -133,15 +154,17 @@ impl PietWidget for Center {
         widget_id_provider: &mut WidgetIdProvider,
         shared_state: &mut PietSharedState,
         event: &Event,
-    ) -> Vec<WidgetEvent> {
+        widget_events: &mut Vec<WidgetEvent<T>>,
+    ) {
         // There is a child widget.
         if let Some(child_widget) = &mut self.child_widget {
             // Let the child widget handle the event.
-            child_widget
-                .borrow_mut()
-                .handle_event(widget_id_provider, shared_state, event)
-        } else {
-            vec![]
+            child_widget.borrow_mut().handle_event(
+                widget_id_provider,
+                shared_state,
+                event,
+                widget_events,
+            )
         }
     }
 

@@ -7,22 +7,22 @@ use druid_shell::piet::Piet;
 use druid_shell::{piet, Region};
 use guiver::stroke::Stroke;
 use guiver::{
-    HorizontalAlignment, SizeConstraints, Widget, WidgetError, WidgetEvent, WidgetId,
-    WidgetIdProvider, WidgetPlacement,
+    HorizontalAlignment, SizeConstraints, Widget, WidgetError, WidgetEvent, WidgetEventType,
+    WidgetId, WidgetIdProvider, WidgetPlacement,
 };
 use piet::RenderContext;
 use std::borrow::{Borrow, BorrowMut};
 use std::cell::RefCell;
 
 /// A layout widget that positions its child widgets in a vertical column.
-pub struct Column {
-    child_widgets: Vec<PietWidgetBox>,
-    core: WidgetCore,
+pub struct Column<T: Clone> {
+    child_widgets: Vec<PietWidgetBox<T>>,
+    core: WidgetCore<T>,
     horizontal_alignment: HorizontalAlignment,
     spacing: f64,
 }
 
-impl Column {
+impl<T: Clone> Column<T> {
     ///
     pub fn new(
         widget_id: WidgetId,
@@ -152,7 +152,16 @@ impl Column {
     }
 }
 
-impl Widget for Column {
+impl<T: Clone> Widget<T> for Column<T> {
+    fn add_event_observation(
+        &mut self,
+        widget_event_type: WidgetEventType,
+        widget_event: WidgetEvent<T>,
+    ) {
+        self.core
+            .add_event_observation(widget_event_type, widget_event);
+    }
+
     fn apply_size_constraints(&mut self, size_constraints: SizeConstraints) -> Size {
         self.core.size_constraints = size_constraints;
 
@@ -162,17 +171,15 @@ impl Widget for Column {
         self.core.rectangle.size()
     }
 
-    fn rectangle(&self) -> &Rect {
-        &self.core.rectangle
+    fn event_observation(
+        &mut self,
+        widget_event_type: &WidgetEventType,
+    ) -> Option<&WidgetEvent<T>> {
+        self.core.event_observation(widget_event_type)
     }
 
-    fn remove_children(&mut self) -> Result<(), WidgetError> {
-        self.child_widgets.clear();
-
-        // Update this widget's size.
-        self.layout_child_widgets();
-
-        return Ok(());
+    fn rectangle(&self) -> &Rect {
+        &self.core.rectangle
     }
 
     fn remove_child(&mut self, child_widget_id: WidgetId) -> Result<(), WidgetError> {
@@ -186,6 +193,19 @@ impl Widget for Column {
         self.layout_child_widgets();
 
         return Ok(());
+    }
+
+    fn remove_children(&mut self) -> Result<(), WidgetError> {
+        self.child_widgets.clear();
+
+        // Update this widget's size.
+        self.layout_child_widgets();
+
+        return Ok(());
+    }
+
+    fn remove_event_observation(&mut self, widget_event_type: &WidgetEventType) {
+        self.core.remove_event_observation(widget_event_type);
     }
 
     fn set_debug_rendering(&mut self, debug_rendering: bool) {
@@ -225,11 +245,11 @@ impl Widget for Column {
     }
 }
 
-impl PietWidget for Column {
+impl<T: Clone> PietWidget<T> for Column<T> {
     fn add_child(
         &mut self,
         widget_placement: Option<WidgetPlacement>,
-        child_widget: PietWidgetBox,
+        child_widget: PietWidgetBox<T>,
     ) -> Result<(), WidgetError> {
         // A widget placement is given.
         if let Some(widget_placement) = widget_placement {
@@ -266,20 +286,18 @@ impl PietWidget for Column {
         widget_id_provider: &mut WidgetIdProvider,
         shared_state: &mut PietSharedState,
         event: &Event,
-    ) -> Vec<WidgetEvent> {
-        let mut widget_events = vec![];
-
+        widget_events: &mut Vec<WidgetEvent<T>>,
+    ) {
         // Iterate over the child widgets.
         for child_widget in &mut self.child_widgets {
             // Let the current child widget handle the given event.
-            widget_events.append(&mut RefCell::borrow_mut(child_widget).handle_event(
+            RefCell::borrow_mut(child_widget).handle_event(
                 widget_id_provider,
                 shared_state,
                 event,
-            ));
+                widget_events,
+            );
         }
-
-        widget_events
     }
 
     fn paint(&self, piet: &mut Piet, region: &Region) -> Result<(), piet::Error> {

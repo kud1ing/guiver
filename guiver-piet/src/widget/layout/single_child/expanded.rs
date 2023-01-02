@@ -8,19 +8,19 @@ use druid_shell::piet::{Error, RenderContext};
 use druid_shell::Region;
 use guiver::stroke::Stroke;
 use guiver::{
-    Size, SizeConstraints, Widget, WidgetError, WidgetEvent, WidgetId, WidgetIdProvider,
-    WidgetPlacement,
+    Size, SizeConstraints, Widget, WidgetError, WidgetEvent, WidgetEventType, WidgetId,
+    WidgetIdProvider, WidgetPlacement,
 };
 
 /// A layout widget that tries to adjust its child widget to take all of the available space.
 /// Mostly useful in `Column` and `Row`.
-pub struct Expanded {
-    child_widget: Option<PietWidgetBox>,
-    core: WidgetCore,
+pub struct Expanded<T: Clone> {
+    child_widget: Option<PietWidgetBox<T>>,
+    core: WidgetCore<T>,
     flex_factor: u16,
 }
 
-impl Expanded {
+impl<T: Clone> Expanded<T> {
     ///
     pub fn new(widget_id: WidgetId, debug_rendering_stroke: Stroke, flex_factor: u16) -> Self {
         Expanded {
@@ -52,7 +52,16 @@ impl Expanded {
     }
 }
 
-impl Widget for Expanded {
+impl<T: Clone> Widget<T> for Expanded<T> {
+    fn add_event_observation(
+        &mut self,
+        widget_event_type: WidgetEventType,
+        widget_event: WidgetEvent<T>,
+    ) {
+        self.core
+            .add_event_observation(widget_event_type, widget_event);
+    }
+
     fn apply_size_constraints(&mut self, size_constraints: SizeConstraints) -> Size {
         self.core.size_constraints = size_constraints;
 
@@ -60,6 +69,13 @@ impl Widget for Expanded {
         self.layout_child_widget();
 
         self.core.rectangle.size()
+    }
+
+    fn event_observation(
+        &mut self,
+        widget_event_type: &WidgetEventType,
+    ) -> Option<&WidgetEvent<T>> {
+        self.core.event_observation(widget_event_type)
     }
 
     fn flex_factor(&self) -> u16 {
@@ -99,6 +115,10 @@ impl Widget for Expanded {
         }
     }
 
+    fn remove_event_observation(&mut self, widget_event_type: &WidgetEventType) {
+        self.core.remove_event_observation(widget_event_type);
+    }
+
     fn set_debug_rendering(&mut self, debug_rendering: bool) {
         self.core.debug_rendering = debug_rendering;
     }
@@ -124,11 +144,11 @@ impl Widget for Expanded {
     }
 }
 
-impl PietWidget for Expanded {
+impl<T: Clone> PietWidget<T> for Expanded<T> {
     fn add_child(
         &mut self,
         _widget_placement: Option<WidgetPlacement>,
-        child_widget: PietWidgetBox,
+        child_widget: PietWidgetBox<T>,
     ) -> Result<(), WidgetError> {
         self.child_widget = Some(child_widget.clone());
 
@@ -143,14 +163,16 @@ impl PietWidget for Expanded {
         widget_id_provider: &mut WidgetIdProvider,
         shared_state: &mut PietSharedState,
         event: &Event,
-    ) -> Vec<WidgetEvent> {
+        widget_events: &mut Vec<WidgetEvent<T>>,
+    ) {
         // There is a child widget.
         if let Some(child_widget) = &mut self.child_widget {
-            child_widget
-                .borrow_mut()
-                .handle_event(widget_id_provider, shared_state, event)
-        } else {
-            vec![]
+            child_widget.borrow_mut().handle_event(
+                widget_id_provider,
+                shared_state,
+                event,
+                widget_events,
+            )
         }
     }
 

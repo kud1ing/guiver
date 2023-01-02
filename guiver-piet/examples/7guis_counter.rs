@@ -4,15 +4,21 @@ This implements the "Counter" task from [7GUIs](https://eugenkiss.github.io/7gui
 use druid_shell::kurbo::Size;
 use druid_shell::piet::Piet;
 use druid_shell::Region;
-use guiver::{Command, WidgetEventType, WidgetId, WidgetManager};
+use guiver::{Command, WidgetEvent, WidgetEventType, WidgetId, WidgetManager};
 use guiver_piet::{run, PietWidgetManager};
 use guiver_piet::{Clipboard, Event, PietApplication};
 
+///
+#[derive(Clone)]
+enum CustomEvent {
+    Count,
+}
+
+///
 pub(crate) struct App {
     counter: u32,
-    counter_button: WidgetId,
     counter_text: WidgetId,
-    widget_manager: PietWidgetManager<()>,
+    widget_manager: PietWidgetManager<CustomEvent>,
 }
 
 impl App {
@@ -44,12 +50,17 @@ impl App {
                     widget_placement: None,
                     child_widget_id: counter_button,
                 },
+                // Subscribe to the counter button click.
+                Command::AddEventObservation(
+                    counter_button,
+                    WidgetEventType::Clicked,
+                    CustomEvent::Count,
+                ),
             ])
             .unwrap();
 
         App {
             counter: 0,
-            counter_button,
             counter_text,
             widget_manager,
         }
@@ -64,20 +75,17 @@ impl PietApplication for App {
         // Iterate over the generated widget events.
         for widget_event in widget_events {
             match widget_event {
-                (widget_id, WidgetEventType::Clicked) => {
-                    // The counter button was clicked.
-                    if widget_id == self.counter_button {
-                        // Increase the counter.
-                        self.counter += 1;
+                WidgetEvent::Custom(CustomEvent::Count) => {
+                    // Increase the counter.
+                    self.counter += 1;
 
-                        // Update the counter text.
-                        self.widget_manager
-                            .handle_command(Command::SetValue(
-                                self.counter_text,
-                                Box::new(format!("{}", self.counter)),
-                            ))
-                            .unwrap();
-                    }
+                    // Update the counter text.
+                    self.widget_manager
+                        .handle_command(Command::SetValue(
+                            self.counter_text,
+                            Box::new(format!("{}", self.counter)),
+                        ))
+                        .unwrap();
                 }
                 _ => {}
             }
