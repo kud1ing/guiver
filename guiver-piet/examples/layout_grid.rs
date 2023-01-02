@@ -1,5 +1,6 @@
 use guiver::{
     Command, GridColumnProperties, GridRowProperties, Size, WidgetManager, WidgetPlacement,
+    WidgetType,
 };
 use guiver_piet::{run, Clipboard, Event, Piet, PietApplication, PietWidgetManager, Region};
 
@@ -12,21 +13,62 @@ impl App {
         let mut widget_manager = PietWidgetManager::new();
 
         // Create the widgets.
-        let padding = widget_manager.new_padding();
-        let grid = widget_manager.new_grid(
-            GridColumnProperties::default(),
-            GridRowProperties::default(),
-        );
-        let placeholder1 = widget_manager.new_placeholder(Size::new(70.0, 30.0));
-        let placeholder2 = widget_manager.new_placeholder(Size::new(70.0, 30.0));
-        let placeholder3 = widget_manager.new_placeholder(Size::new(70.0, 30.0));
-        let placeholder4 = widget_manager.new_placeholder(Size::new(70.0, 30.0));
-        let placeholder5 = widget_manager.new_placeholder(Size::new(70.0, 30.0));
-        let placeholder6 = widget_manager.new_placeholder(Size::new(70.0, 30.0));
+        let padding = widget_manager.widget_id_provider().next_widget_id();
+        let grid = widget_manager.widget_id_provider().next_widget_id();
+        let placeholder1 = widget_manager.widget_id_provider().next_widget_id();
+        let placeholder2 = widget_manager.widget_id_provider().next_widget_id();
+        let placeholder3 = widget_manager.widget_id_provider().next_widget_id();
+        let placeholder4 = widget_manager.widget_id_provider().next_widget_id();
+        let placeholder5 = widget_manager.widget_id_provider().next_widget_id();
+        let placeholder6 = widget_manager.widget_id_provider().next_widget_id();
 
         // Compose the widgets.
         widget_manager
             .handle_commands(vec![
+                Command::CreateWidget(padding, WidgetType::Padding),
+                Command::CreateWidget(
+                    grid,
+                    WidgetType::Grid {
+                        column_properties: GridColumnProperties::default(),
+                        row_properties: GridRowProperties::default(),
+                    },
+                ),
+                Command::CreateWidget(
+                    placeholder1,
+                    WidgetType::Placeholder {
+                        maximum_size: Size::new(70.0, 30.0),
+                    },
+                ),
+                Command::CreateWidget(
+                    placeholder2,
+                    WidgetType::Placeholder {
+                        maximum_size: Size::new(70.0, 30.0),
+                    },
+                ),
+                Command::CreateWidget(
+                    placeholder3,
+                    WidgetType::Placeholder {
+                        maximum_size: Size::new(70.0, 30.0),
+                    },
+                ),
+                Command::CreateWidget(
+                    placeholder4,
+                    WidgetType::Placeholder {
+                        maximum_size: Size::new(70.0, 30.0),
+                    },
+                ),
+                Command::CreateWidget(
+                    placeholder5,
+                    WidgetType::Placeholder {
+                        maximum_size: Size::new(70.0, 30.0),
+                    },
+                ),
+                Command::CreateWidget(
+                    placeholder6,
+                    WidgetType::Placeholder {
+                        maximum_size: Size::new(70.0, 30.0),
+                    },
+                ),
                 Command::SetMainWidget(padding),
                 Command::AddChild {
                     parent_widget_id: padding,

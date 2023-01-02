@@ -159,7 +159,7 @@ impl<T: Clone> PietWidget<T> for Hyperlink<T> {
         &mut self,
         event: &Event,
         shared_state: &mut PietSharedState,
-        widget_id_provider: &mut WidgetIdProvider,
+        _widget_id_provider: &mut WidgetIdProvider,
         widget_events: &mut Vec<WidgetEvent<T>>,
     ) {
         match event {

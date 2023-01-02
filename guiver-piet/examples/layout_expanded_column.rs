@@ -1,4 +1,4 @@
-use guiver::{Command, Size, WidgetManager};
+use guiver::{Command, Size, WidgetManager, WidgetType};
 use guiver_piet::{run, Clipboard, Event, Piet, PietApplication, PietWidgetManager, Region};
 
 pub(crate) struct App {
@@ -10,17 +10,37 @@ impl App {
         let mut widget_manager = PietWidgetManager::new();
 
         // Create the widgets.
-        let padding = widget_manager.new_padding();
-        let text = widget_manager.new_text("The placeholders are expanded".to_string());
-        let column = widget_manager.new_column();
-        let expanded1 = widget_manager.new_expanded(1);
-        let expanded2 = widget_manager.new_expanded(1);
-        let placeholder1 = widget_manager.new_placeholder(Size::new(100.0, 50.0));
-        let placeholder2 = widget_manager.new_placeholder(Size::new(100.0, 50.0));
+        let padding = widget_manager.widget_id_provider().next_widget_id();
+        let text = widget_manager.widget_id_provider().next_widget_id();
+        let column = widget_manager.widget_id_provider().next_widget_id();
+        let expanded1 = widget_manager.widget_id_provider().next_widget_id();
+        let expanded2 = widget_manager.widget_id_provider().next_widget_id();
+        let placeholder1 = widget_manager.widget_id_provider().next_widget_id();
+        let placeholder2 = widget_manager.widget_id_provider().next_widget_id();
 
         // Compose the widgets.
         widget_manager
             .handle_commands(vec![
+                Command::CreateWidget(padding, WidgetType::Padding),
+                Command::CreateWidget(
+                    text,
+                    WidgetType::Text("The placeholders are expanded".to_string()),
+                ),
+                Command::CreateWidget(column, WidgetType::Column),
+                Command::CreateWidget(expanded1, WidgetType::Expanded { flex_factor: 1 }),
+                Command::CreateWidget(expanded2, WidgetType::Expanded { flex_factor: 1 }),
+                Command::CreateWidget(
+                    placeholder1,
+                    WidgetType::Placeholder {
+                        maximum_size: Size::new(100.0, 50.0),
+                    },
+                ),
+                Command::CreateWidget(
+                    placeholder2,
+                    WidgetType::Placeholder {
+                        maximum_size: Size::new(100.0, 50.0),
+                    },
+                ),
                 Command::SetMainWidget(padding),
                 Command::AddChild {
                     parent_widget_id: padding,

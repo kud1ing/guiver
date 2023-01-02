@@ -4,6 +4,7 @@ This implements the "Counter" task from [7GUIs](https://eugenkiss.github.io/7gui
 use druid_shell::Region;
 use guiver::{
     Command, HorizontalAlignment, Size, WidgetEvent, WidgetEventType, WidgetId, WidgetManager,
+    WidgetType,
 };
 use guiver_piet::{run, Clipboard, Event, Piet, PietApplication, PietWidgetManager};
 
@@ -27,16 +28,34 @@ impl App {
         let mut widget_manager = PietWidgetManager::new();
 
         // Create the widgets.
-        let padding = widget_manager.new_padding();
-        let row = widget_manager.new_row();
-        let text_input_celsius = widget_manager.new_text_input("".to_string(), 50.0);
-        let text1 = widget_manager.new_text("Celsius =".to_string());
-        let text_input_fahrenheit = widget_manager.new_text_input("".to_string(), 50.0);
-        let text2 = widget_manager.new_text("Fahrenheit".to_string());
+        let padding = widget_manager.widget_id_provider().next_widget_id();
+        let row = widget_manager.widget_id_provider().next_widget_id();
+        let text_input_celsius = widget_manager.widget_id_provider().next_widget_id();
+        let text1 = widget_manager.widget_id_provider().next_widget_id();
+        let text_input_fahrenheit = widget_manager.widget_id_provider().next_widget_id();
+        let text2 = widget_manager.widget_id_provider().next_widget_id();
 
         // Compose the widgets.
         widget_manager
             .handle_commands(vec![
+                Command::CreateWidget(padding, WidgetType::Padding),
+                Command::CreateWidget(row, WidgetType::Row),
+                Command::CreateWidget(
+                    text_input_celsius,
+                    WidgetType::TextInput {
+                        text: "".to_string(),
+                        width: 50.0,
+                    },
+                ),
+                Command::CreateWidget(text1, WidgetType::Text("Celsius =".to_string())),
+                Command::CreateWidget(
+                    text_input_fahrenheit,
+                    WidgetType::TextInput {
+                        text: "".to_string(),
+                        width: 50.0,
+                    },
+                ),
+                Command::CreateWidget(text2, WidgetType::Text("Fahrenheit =".to_string())),
                 Command::SetMainWidget(padding),
                 Command::AddChild {
                     parent_widget_id: padding,

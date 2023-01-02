@@ -193,8 +193,8 @@ impl<T: Clone> PietWidget<T> for Text<T> {
     fn handle_event(
         &mut self,
         event: &Event,
-        shared_state: &mut PietSharedState,
-        widget_id_provider: &mut WidgetIdProvider,
+        _shared_state: &mut PietSharedState,
+        _widget_id_provider: &mut WidgetIdProvider,
         widget_events: &mut Vec<WidgetEvent<T>>,
     ) {
         if let Event::MouseDown(mouse_event) = event {

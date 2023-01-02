@@ -160,46 +160,6 @@ pub trait WidgetManager<T> {
     ///
     fn handle_commands(&mut self, commands: Vec<Command<T>>) -> Result<(), WidgetError>;
 
-    ///
-    fn new_center(&mut self) -> WidgetId;
-
-    ///
-    fn new_column(&mut self) -> WidgetId;
-
-    ///
-    fn new_expanded(&mut self, flex_factor: u16) -> WidgetId;
-
-    ///
-    fn new_grid(
-        &mut self,
-        column_properties: GridColumnProperties,
-        row_properties: GridRowProperties,
-    ) -> WidgetId;
-
-    ///
-    fn new_hyper_link(&mut self, text: String) -> WidgetId;
-
-    ///
-    fn new_padding(&mut self) -> WidgetId;
-
-    ///
-    fn new_placeholder(&mut self, maximum_size: Size) -> WidgetId;
-
-    ///
-    fn new_row(&mut self) -> WidgetId;
-
-    ///
-    fn new_sized_box(&mut self, desired_size: Size) -> WidgetId;
-
-    ///
-    fn new_text(&mut self, text: String) -> WidgetId;
-
-    ///
-    fn new_text_button(&mut self, text: String) -> WidgetId;
-
-    ///
-    fn new_text_input(&mut self, text: String, width: f64) -> WidgetId;
-
     /// Returns a widget's rectangle.
     fn rectangle(&self, widget_id: WidgetId) -> Result<Rect, WidgetError>;
 

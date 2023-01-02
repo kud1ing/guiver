@@ -1,4 +1,4 @@
-use guiver::{Command, Size, WidgetManager};
+use guiver::{Command, Size, WidgetManager, WidgetType};
 use guiver_piet::{run, Clipboard, Event, Piet, PietApplication, PietWidgetManager, Region};
 
 pub(crate) struct App {
@@ -9,13 +9,17 @@ impl App {
     pub(crate) fn new() -> Self {
         let mut widget_manager = PietWidgetManager::new();
 
-        // Create the widgets.
-        let center = widget_manager.new_center();
-        let text = widget_manager.new_text("This is a text at the center".to_string());
+        let center = widget_manager.widget_id_provider().next_widget_id();
+        let text = widget_manager.widget_id_provider().next_widget_id();
 
         // Compose the widgets.
         widget_manager
             .handle_commands(vec![
+                Command::CreateWidget(center, WidgetType::Center),
+                Command::CreateWidget(
+                    center,
+                    WidgetType::Text("This is a text at the center".to_string()),
+                ),
                 Command::SetMainWidget(center),
                 Command::AddChild {
                     parent_widget_id: center,

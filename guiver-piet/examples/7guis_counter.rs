@@ -4,7 +4,7 @@ This implements the "Counter" task from [7GUIs](https://eugenkiss.github.io/7gui
 use druid_shell::kurbo::Size;
 use druid_shell::piet::Piet;
 use druid_shell::Region;
-use guiver::{Command, WidgetEvent, WidgetEventType, WidgetId, WidgetManager};
+use guiver::{Command, WidgetEvent, WidgetEventType, WidgetId, WidgetManager, WidgetType};
 use guiver_piet::{run, PietWidgetManager};
 use guiver_piet::{Clipboard, Event, PietApplication};
 
@@ -26,14 +26,18 @@ impl App {
         let mut widget_manager = PietWidgetManager::new();
 
         // Create the widgets.
-        let padding = widget_manager.new_padding();
-        let row = widget_manager.new_row();
-        let counter_text = widget_manager.new_text("0".to_string());
-        let counter_button = widget_manager.new_text_button("Count".to_string());
+        let padding = widget_manager.widget_id_provider().next_widget_id();
+        let row = widget_manager.widget_id_provider().next_widget_id();
+        let counter_text = widget_manager.widget_id_provider().next_widget_id();
+        let counter_button = widget_manager.widget_id_provider().next_widget_id();
 
         // Compose the widgets.
         widget_manager
             .handle_commands(vec![
+                Command::CreateWidget(padding, WidgetType::Padding),
+                Command::CreateWidget(row, WidgetType::Row),
+                Command::CreateWidget(counter_text, WidgetType::Text("0".to_string())),
+                Command::CreateWidget(counter_button, WidgetType::TextButton("Count".to_string())),
                 Command::SetMainWidget(padding),
                 Command::AddChild {
                     parent_widget_id: padding,

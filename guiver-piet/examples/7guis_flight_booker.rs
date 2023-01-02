@@ -1,4 +1,4 @@
-use guiver::{Command, Size, WidgetManager};
+use guiver::{Command, Size, WidgetManager, WidgetType};
 /**
 This implements the "Flight Booker" task from [7GUIs](https://eugenkiss.github.io/7guis/tasks/).
 */
@@ -15,16 +15,39 @@ impl App {
         let mut widget_manager = PietWidgetManager::new();
 
         // Create the widgets.
-        let padding = widget_manager.new_padding();
-        let column = widget_manager.new_column();
-        let dropdown_box = widget_manager.new_placeholder(Size::new(200.0, 50.0));
-        let text_input_start_date = widget_manager.new_text_input("".to_string(), 100.0);
-        let text_input_return_date = widget_manager.new_text_input("".to_string(), 100.0);
-        let book_button = widget_manager.new_text_button("Book".to_string());
+        let padding = widget_manager.widget_id_provider().next_widget_id();
+        let column = widget_manager.widget_id_provider().next_widget_id();
+        let dropdown_box = widget_manager.widget_id_provider().next_widget_id();
+        let text_input_start_date = widget_manager.widget_id_provider().next_widget_id();
+        let text_input_return_date = widget_manager.widget_id_provider().next_widget_id();
+        let book_button = widget_manager.widget_id_provider().next_widget_id();
 
         // Compose the widgets.
         widget_manager
             .handle_commands(vec![
+                Command::CreateWidget(padding, WidgetType::Padding),
+                Command::CreateWidget(column, WidgetType::Column),
+                Command::CreateWidget(
+                    dropdown_box,
+                    WidgetType::Placeholder {
+                        maximum_size: Size::new(200.0, 50.0),
+                    },
+                ),
+                Command::CreateWidget(
+                    text_input_start_date,
+                    WidgetType::TextInput {
+                        text: "".to_string(),
+                        width: 100.0,
+                    },
+                ),
+                Command::CreateWidget(
+                    text_input_return_date,
+                    WidgetType::TextInput {
+                        text: "".to_string(),
+                        width: 100.0,
+                    },
+                ),
+                Command::CreateWidget(book_button, WidgetType::TextButton("Book".to_string())),
                 Command::SetMainWidget(padding),
                 Command::AddChild {
                     parent_widget_id: padding,

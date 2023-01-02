@@ -1,4 +1,4 @@
-use guiver::{Command, Size, WidgetManager};
+use guiver::{Command, Size, WidgetManager, WidgetType};
 use guiver_piet::{run, Clipboard, Event, Piet, PietApplication, PietWidgetManager, Region};
 
 pub(crate) struct App {
@@ -10,12 +10,19 @@ impl App {
         let mut widget_manager = PietWidgetManager::new();
 
         // Create the widgets.
-        let padding = widget_manager.new_padding();
-        let placeholder = widget_manager.new_placeholder(Size::new(100.0, 50.0));
+        let padding = widget_manager.widget_id_provider().next_widget_id();
+        let placeholder = widget_manager.widget_id_provider().next_widget_id();
 
         // Compose the widgets.
         widget_manager
             .handle_commands(vec![
+                Command::CreateWidget(padding, WidgetType::Padding),
+                Command::CreateWidget(
+                    placeholder,
+                    WidgetType::Placeholder {
+                        maximum_size: Size::new(100.0, 50.0),
+                    },
+                ),
                 Command::SetMainWidget(padding),
                 Command::AddChild {
                     parent_widget_id: padding,

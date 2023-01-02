@@ -95,6 +95,16 @@ The developer code can handle those widget events.
 
 ## Backlog
 
+* extract the remaining methods from `PietWidget` to `Widget`:
+  * first find abstractions for:
+    * [ ] `PietWidgetBox`
+    * [ ] `PietSharedState`
+    * [ ] `Event`
+    * [ ] `Piet`
+    * [ ] `Region`
+  * once `PietWidgetManager` can handle `dyn Widget` instead of `dyn PietWidget`:
+    * [ ] change `Command::CreateWidget(WidgetId, WidgetType)` => `Command::CreateWidget(Box<Widget>)`
+    * [ ] remove `WidgetType`
 * add selectors:
   * [ ] add `Command::SetClass(Option<C>)`
   * [ ] add `WidgetSelector`:
@@ -120,16 +130,6 @@ The developer code can handle those widget events.
 * [ ] add `Widget::class() -> Option<C>`
   * [ ] implement in `Core`
   * [ ] add `WidgetSelector::WithClass(C)`
-* extract the remaining methods from `PietWidget` to `Widget`:
-  * first find abstractions for:
-    * [ ] `PietWidgetBox`
-    * [ ] `PietSharedState`
-    * [ ] `Event`
-    * [ ] `Piet`
-    * [ ] `Region`
-  * once `PietWidgetManager` can handle `dyn Widget` instead of `dyn PietWidget`:
-    * [ ] change `Command::CreateWidget(WidgetId, WidgetType)` => `Command::CreateWidget(Box<Widget>)`
-    * [ ] remove `WidgetType`
 * [ ] sketch a `cacao` backend
 * [ ] sketch a `Iced` backend
 * Text:
