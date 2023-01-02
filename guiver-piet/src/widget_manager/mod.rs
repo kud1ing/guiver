@@ -104,17 +104,22 @@ impl<T: Clone + 'static> PietWidgetManager<T> {
             .insert(child_widget_id, parent_widget_id);
     }
 
-    /// Puts the given widget under widget management.
-    pub fn add_widget(&mut self, widget: Box<dyn PietWidget<T>>) {
-        // The widget accepts focus.
-        if widget.accepts_focus() {
-            // Append it to the focus order.
-            self.widget_focus_order
-                .add_widget(widget.widget_id().clone());
+    /// Puts the given widget box under widget management.
+    pub fn add_widget_box(&mut self, widget_box: PietWidgetBox<T>) {
+        let widget_id;
+
+        {
+            let widget = widget_box.borrow();
+            widget_id = widget.widget_id().clone();
+
+            // The widget accepts focus.
+            if widget.accepts_focus() {
+                // Append it to the focus order.
+                self.widget_focus_order.add_widget(widget_id.clone());
+            }
         }
 
-        self.widgets
-            .insert(*widget.widget_id(), Rc::new(RefCell::new(widget)));
+        self.widgets.insert(widget_id, widget_box);
     }
 
     ///
@@ -675,7 +680,7 @@ impl<T: Clone + 'static> WidgetManager<T> for PietWidgetManager<T> {
                             )),
                         };
 
-                        self.add_widget(widget_box);
+                        self.add_widget_box(Rc::new(RefCell::new(widget_box)));
                     }
                     Command::Destroy(_widget_id) => self.destroy_widget(widget_id),
                     Command::RemoveChild {
