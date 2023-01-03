@@ -16,7 +16,9 @@ pub enum Command<EVENT> {
         widget_placement: Option<WidgetPlacement>,
         child_widget_id: WidgetId,
     },
-    /// Adds observation of the given widget's event, by producing a value of type `EVENT`.
+    /// Adds widget event observation: if a widget event of type `WidgetEventType` occurs in the
+    /// widget with the given ID, it produces a value of type `WidgetEvent::Custom(EVENT)` in
+    /// `handle_event()`.
     AddEventObservation(WidgetId, WidgetEventType, EVENT),
     /// Adds the child widgets to the parent widget.
     AddChildren {

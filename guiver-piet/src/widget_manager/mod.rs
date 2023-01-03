@@ -105,7 +105,7 @@ impl<EVENT: Clone + 'static> PietWidgetManager<EVENT> {
     }
 
     /// Puts the given widget box under widget management.
-    pub fn add_widget_box(&mut self, widget_box: PietWidgetBox<EVENT>) {
+    pub fn add_widget(&mut self, widget_box: PietWidgetBox<EVENT>) {
         let widget_id;
 
         {
@@ -688,7 +688,7 @@ impl<EVENT: Clone + 'static> WidgetManager<EVENT> for PietWidgetManager<EVENT> {
                             )),
                         };
 
-                        self.add_widget_box(Rc::new(RefCell::new(widget_box)));
+                        self.add_widget(Rc::new(RefCell::new(widget_box)));
                     }
                     Command::Destroy(_widget_id) => self.destroy_widget(widget_id),
                     Command::RemoveChild {

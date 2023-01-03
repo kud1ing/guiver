@@ -27,7 +27,6 @@ impl App {
     pub(crate) fn new() -> Self {
         let mut widget_manager = PietWidgetManager::new();
 
-        // Create the widgets.
         let padding = widget_manager.widget_id_provider().next_widget_id();
         let row = widget_manager.widget_id_provider().next_widget_id();
         let text_input_celsius = widget_manager.widget_id_provider().next_widget_id();
@@ -35,9 +34,10 @@ impl App {
         let text_input_fahrenheit = widget_manager.widget_id_provider().next_widget_id();
         let text2 = widget_manager.widget_id_provider().next_widget_id();
 
-        // Compose the widgets.
         widget_manager
             .handle_commands(vec![
+                // Create the widgets.
+                // =================================================================================
                 Command::CreateWidget(padding, WidgetType::Padding),
                 Command::CreateWidget(row, WidgetType::Row),
                 Command::CreateWidget(
@@ -56,6 +56,8 @@ impl App {
                     },
                 ),
                 Command::CreateWidget(text2, WidgetType::Text("Fahrenheit =".to_string())),
+                // Compose the widgets.
+                // =================================================================================
                 Command::SetMainWidget(padding),
                 Command::AddChild {
                     parent_widget_id: padding,
@@ -82,11 +84,13 @@ impl App {
                     widget_placement: None,
                     child_widget_id: text2,
                 },
-                //
+                // Configure the widgets.
+                // =================================================================================
                 Command::SetHasFocus(text_input_celsius, true),
                 Command::SetHorizontalAlignment(text_input_celsius, HorizontalAlignment::Right),
                 Command::SetHorizontalAlignment(text_input_fahrenheit, HorizontalAlignment::Left),
-                //
+                // Add event observations.
+                // =================================================================================
                 Command::AddEventObservation(
                     text_input_celsius,
                     WidgetEventType::ValueChanged,

@@ -9,18 +9,20 @@ impl App {
     pub(crate) fn new() -> Self {
         let mut widget_manager = PietWidgetManager::new();
 
-        // Create the widget.
         let placeholder = widget_manager.widget_id_provider().next_widget_id();
 
-        // Compose the widget.
         widget_manager
             .handle_commands(vec![
+                // Create the widgets.
+                // =================================================================================
                 Command::CreateWidget(
                     placeholder,
                     WidgetType::Placeholder {
                         maximum_size: Size::new(100.0, 50.0),
                     },
                 ),
+                // Compose the widgets.
+                // =================================================================================
                 Command::SetMainWidget(placeholder),
             ])
             .unwrap();

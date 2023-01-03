@@ -14,7 +14,6 @@ impl App {
     pub(crate) fn new() -> Self {
         let mut widget_manager = PietWidgetManager::new();
 
-        // Create the widgets.
         let padding = widget_manager.widget_id_provider().next_widget_id();
         let column = widget_manager.widget_id_provider().next_widget_id();
         let dropdown_box = widget_manager.widget_id_provider().next_widget_id();
@@ -22,9 +21,10 @@ impl App {
         let text_input_return_date = widget_manager.widget_id_provider().next_widget_id();
         let book_button = widget_manager.widget_id_provider().next_widget_id();
 
-        // Compose the widgets.
         widget_manager
             .handle_commands(vec![
+                // Create the widgets.
+                // =================================================================================
                 Command::CreateWidget(padding, WidgetType::Padding),
                 Command::CreateWidget(column, WidgetType::Column),
                 Command::CreateWidget(
@@ -48,6 +48,8 @@ impl App {
                     },
                 ),
                 Command::CreateWidget(book_button, WidgetType::TextButton("Book".to_string())),
+                // Compose the widgets.
+                // =================================================================================
                 Command::SetMainWidget(padding),
                 Command::AddChild {
                     parent_widget_id: padding,
@@ -74,7 +76,8 @@ impl App {
                     widget_placement: None,
                     child_widget_id: book_button,
                 },
-                //
+                // Configure the widgets.
+                // =================================================================================
                 // TODO: remove
                 Command::SetFill(
                     text_input_start_date,

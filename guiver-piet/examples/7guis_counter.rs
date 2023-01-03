@@ -25,19 +25,21 @@ impl App {
     pub(crate) fn new() -> Self {
         let mut widget_manager = PietWidgetManager::new();
 
-        // Create the widgets.
         let padding = widget_manager.widget_id_provider().next_widget_id();
         let row = widget_manager.widget_id_provider().next_widget_id();
         let counter_text = widget_manager.widget_id_provider().next_widget_id();
         let counter_button = widget_manager.widget_id_provider().next_widget_id();
 
-        // Compose the widgets.
         widget_manager
             .handle_commands(vec![
+                // Create the widgets.
+                // =================================================================================
                 Command::CreateWidget(padding, WidgetType::Padding),
                 Command::CreateWidget(row, WidgetType::Row),
                 Command::CreateWidget(counter_text, WidgetType::Text("0".to_string())),
                 Command::CreateWidget(counter_button, WidgetType::TextButton("Count".to_string())),
+                // Compose the widgets.
+                // =================================================================================
                 Command::SetMainWidget(padding),
                 Command::AddChild {
                     parent_widget_id: padding,
@@ -54,7 +56,8 @@ impl App {
                     widget_placement: None,
                     child_widget_id: counter_button,
                 },
-                // Subscribe to the counter button click.
+                // Add event observations.
+                // =================================================================================
                 Command::AddEventObservation(
                     counter_button,
                     WidgetEventType::Clicked,

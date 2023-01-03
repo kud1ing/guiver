@@ -12,14 +12,17 @@ impl App {
         let center = widget_manager.widget_id_provider().next_widget_id();
         let text = widget_manager.widget_id_provider().next_widget_id();
 
-        // Compose the widgets.
         widget_manager
             .handle_commands(vec![
+                // Create the widgets.
+                // =================================================================================
                 Command::CreateWidget(center, WidgetType::Center),
                 Command::CreateWidget(
                     center,
                     WidgetType::Text("This is a text at the center".to_string()),
                 ),
+                // Compose the widgets.
+                // =================================================================================
                 Command::SetMainWidget(center),
                 Command::AddChild {
                     parent_widget_id: center,

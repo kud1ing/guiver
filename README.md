@@ -95,9 +95,6 @@ The developer code can handle those widget events.
 
 ## Backlog
 
-* make it easier for widgets to create/modify/compose themselves and other widgets:
-  * [ ] make it possible to add `PietWidgetBox` (see `add_widget_box()`) via `Command` 
-  * [ ] remove `WidgetIdProvider` from `PietWidgetManager` to remove 
 * extract the remaining methods from `PietWidget` to `Widget`:
   * first find abstractions for:
     * [ ] `PietWidgetBox`
@@ -105,9 +102,22 @@ The developer code can handle those widget events.
     * [ ] `Event`
     * [ ] `Piet`
     * [ ] `Region`
+  * use associated types?
+    * [ ] in `Widget`
+    * [ ] in `WidgetManager`
   * once `PietWidgetManager` can handle `dyn Widget` instead of `dyn PietWidget`:
     * [ ] change `Command::CreateWidget(WidgetId, WidgetType)` => `Command::CreateWidget(Box<Widget>)`
     * [ ] remove `WidgetType`
+
+
+* make it easier for widgets to create/modify/compose themselves and other widgets:
+  * [ ] make it possible to add `PietWidgetBox` (see `add_widget()`) via `Command`
+    * add `AddWidget(WIDGET)`
+    * [ ] move a generic version of `add_widget()` to `WidgetManager`
+  * [ ] remove `WidgetIdProvider` from `PietWidgetManager` to remove
+
+
+
 * add selectors:
   * [ ] add `Command::SetClass(Option<C>)`
   * [ ] add `WidgetSelector`:

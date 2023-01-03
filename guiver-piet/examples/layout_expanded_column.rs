@@ -9,7 +9,6 @@ impl App {
     pub(crate) fn new() -> Self {
         let mut widget_manager = PietWidgetManager::new();
 
-        // Create the widgets.
         let padding = widget_manager.widget_id_provider().next_widget_id();
         let text = widget_manager.widget_id_provider().next_widget_id();
         let column = widget_manager.widget_id_provider().next_widget_id();
@@ -18,9 +17,10 @@ impl App {
         let placeholder1 = widget_manager.widget_id_provider().next_widget_id();
         let placeholder2 = widget_manager.widget_id_provider().next_widget_id();
 
-        // Compose the widgets.
         widget_manager
             .handle_commands(vec![
+                // Create the widgets.
+                // =================================================================================
                 Command::CreateWidget(padding, WidgetType::Padding),
                 Command::CreateWidget(
                     text,
@@ -41,6 +41,8 @@ impl App {
                         maximum_size: Size::new(100.0, 50.0),
                     },
                 ),
+                // Compose the widgets.
+                // =================================================================================
                 Command::SetMainWidget(padding),
                 Command::AddChild {
                     parent_widget_id: padding,
