@@ -5,17 +5,17 @@ use std::collections::HashMap;
 
 /// Common data and functionality for widgets.
 #[derive(Default)]
-pub struct WidgetCore<T: Clone> {
+pub struct WidgetCore<EVENT: Clone> {
     pub debug_rendering: bool,
     pub debug_rendering_stroke: Stroke,
     pub is_hidden: bool,
     pub rectangle: Rect,
     pub size_constraints: SizeConstraints,
-    widget_event_observation: HashMap<WidgetEventType, WidgetEvent<T>>,
+    widget_event_observation: HashMap<WidgetEventType, WidgetEvent<EVENT>>,
     pub widget_id: WidgetId,
 }
 
-impl<T: Clone> WidgetCore<T> {
+impl<EVENT: Clone> WidgetCore<EVENT> {
     ///
     pub fn new(widget_id: WidgetId, debug_rendering_stroke: Stroke) -> Self {
         WidgetCore {
@@ -33,7 +33,7 @@ impl<T: Clone> WidgetCore<T> {
     pub fn add_event_observation(
         &mut self,
         widget_event_type: WidgetEventType,
-        widget_event: WidgetEvent<T>,
+        widget_event: WidgetEvent<EVENT>,
     ) {
         self.widget_event_observation
             .insert(widget_event_type, widget_event);
@@ -43,7 +43,7 @@ impl<T: Clone> WidgetCore<T> {
     pub fn event_observation(
         &mut self,
         widget_event_type: &WidgetEventType,
-    ) -> Option<&WidgetEvent<T>> {
+    ) -> Option<&WidgetEvent<EVENT>> {
         self.widget_event_observation.get(widget_event_type)
     }
 

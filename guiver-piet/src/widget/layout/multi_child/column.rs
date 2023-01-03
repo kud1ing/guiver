@@ -15,14 +15,14 @@ use std::borrow::{Borrow, BorrowMut};
 use std::cell::RefCell;
 
 /// A layout widget that positions its child widgets in a vertical column.
-pub struct Column<T: Clone> {
-    child_widgets: Vec<PietWidgetBox<T>>,
-    core: WidgetCore<T>,
+pub struct Column<EVENT: Clone> {
+    child_widgets: Vec<PietWidgetBox<EVENT>>,
+    core: WidgetCore<EVENT>,
     horizontal_alignment: HorizontalAlignment,
     spacing: f64,
 }
 
-impl<T: Clone> Column<T> {
+impl<EVENT: Clone> Column<EVENT> {
     ///
     pub fn new(
         widget_id: WidgetId,
@@ -152,11 +152,11 @@ impl<T: Clone> Column<T> {
     }
 }
 
-impl<T: Clone> Widget<T> for Column<T> {
+impl<EVENT: Clone> Widget<EVENT> for Column<EVENT> {
     fn add_event_observation(
         &mut self,
         widget_event_type: WidgetEventType,
-        widget_event: WidgetEvent<T>,
+        widget_event: WidgetEvent<EVENT>,
     ) {
         self.core
             .add_event_observation(widget_event_type, widget_event);
@@ -174,7 +174,7 @@ impl<T: Clone> Widget<T> for Column<T> {
     fn event_observation(
         &mut self,
         widget_event_type: &WidgetEventType,
-    ) -> Option<&WidgetEvent<T>> {
+    ) -> Option<&WidgetEvent<EVENT>> {
         self.core.event_observation(widget_event_type)
     }
 
@@ -245,11 +245,11 @@ impl<T: Clone> Widget<T> for Column<T> {
     }
 }
 
-impl<T: Clone> PietWidget<T> for Column<T> {
+impl<EVENT: Clone> PietWidget<EVENT> for Column<EVENT> {
     fn add_child(
         &mut self,
         widget_placement: Option<WidgetPlacement>,
-        child_widget: PietWidgetBox<T>,
+        child_widget: PietWidgetBox<EVENT>,
     ) -> Result<(), WidgetError> {
         // A widget placement is given.
         if let Some(widget_placement) = widget_placement {
@@ -286,7 +286,7 @@ impl<T: Clone> PietWidget<T> for Column<T> {
         event: &Event,
         shared_state: &mut PietSharedState,
         widget_id_provider: &mut WidgetIdProvider,
-        widget_events: &mut Vec<WidgetEvent<T>>,
+        widget_events: &mut Vec<WidgetEvent<EVENT>>,
     ) {
         // Iterate over the child widgets.
         for child_widget in &mut self.child_widgets {

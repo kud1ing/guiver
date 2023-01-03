@@ -13,8 +13,8 @@ use guiver::{
 use std::any::Any;
 
 /// A text widget.
-pub struct Text<T: Clone> {
-    core: WidgetCore<T>,
+pub struct Text<EVENT: Clone> {
+    core: WidgetCore<EVENT>,
     font: Font,
     horizontal_alignment: HorizontalAlignment,
     text: String,
@@ -23,7 +23,7 @@ pub struct Text<T: Clone> {
     vertical_alignment: VerticalAlignment,
 }
 
-impl<T: Clone> Text<T> {
+impl<EVENT: Clone> Text<EVENT> {
     ///
     pub fn new(
         widget_id: WidgetId,
@@ -83,11 +83,11 @@ impl<T: Clone> Text<T> {
     }
 }
 
-impl<T: Clone> Widget<T> for Text<T> {
+impl<EVENT: Clone> Widget<EVENT> for Text<EVENT> {
     fn add_event_observation(
         &mut self,
         widget_event_type: WidgetEventType,
-        widget_event: WidgetEvent<T>,
+        widget_event: WidgetEvent<EVENT>,
     ) {
         self.core
             .add_event_observation(widget_event_type, widget_event);
@@ -104,7 +104,7 @@ impl<T: Clone> Widget<T> for Text<T> {
     fn event_observation(
         &mut self,
         widget_event_type: &WidgetEventType,
-    ) -> Option<&WidgetEvent<T>> {
+    ) -> Option<&WidgetEvent<EVENT>> {
         self.core.event_observation(widget_event_type)
     }
 
@@ -189,13 +189,13 @@ impl<T: Clone> Widget<T> for Text<T> {
     }
 }
 
-impl<T: Clone> PietWidget<T> for Text<T> {
+impl<EVENT: Clone> PietWidget<EVENT> for Text<EVENT> {
     fn handle_event(
         &mut self,
         event: &Event,
         _shared_state: &mut PietSharedState,
         _widget_id_provider: &mut WidgetIdProvider,
-        widget_events: &mut Vec<WidgetEvent<T>>,
+        widget_events: &mut Vec<WidgetEvent<EVENT>>,
     ) {
         if let Event::MouseDown(mouse_event) = event {
             // The click is outside of the text.
@@ -258,7 +258,7 @@ impl<T: Clone> PietWidget<T> for Text<T> {
         _value: Box<dyn Any>,
         _shared_state: &mut PietSharedState,
         _widget_id_provider: &mut WidgetIdProvider,
-        _commands: &mut Vec<Command<T>>,
+        _commands: &mut Vec<Command<EVENT>>,
     ) -> Result<(), WidgetError> {
         // The given value is a string.
         if let Some(string) = _value.downcast_ref::<String>() {

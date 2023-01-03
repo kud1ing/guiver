@@ -14,14 +14,14 @@ use std::borrow::{Borrow, BorrowMut};
 use std::cell::RefCell;
 
 /// A layout widget that positions its child widgets in a horizontal row.
-pub struct Row<T: Clone> {
-    child_widgets: Vec<PietWidgetBox<T>>,
-    core: WidgetCore<T>,
+pub struct Row<EVENT: Clone> {
+    child_widgets: Vec<PietWidgetBox<EVENT>>,
+    core: WidgetCore<EVENT>,
     spacing: f64,
     vertical_alignment: VerticalAlignment,
 }
 
-impl<T: Clone> Row<T> {
+impl<EVENT: Clone> Row<EVENT> {
     ///
     pub fn new(
         widget_id: WidgetId,
@@ -151,11 +151,11 @@ impl<T: Clone> Row<T> {
     }
 }
 
-impl<T: Clone> Widget<T> for Row<T> {
+impl<EVENT: Clone> Widget<EVENT> for Row<EVENT> {
     fn add_event_observation(
         &mut self,
         widget_event_type: WidgetEventType,
-        widget_event: WidgetEvent<T>,
+        widget_event: WidgetEvent<EVENT>,
     ) {
         self.core
             .add_event_observation(widget_event_type, widget_event);
@@ -173,7 +173,7 @@ impl<T: Clone> Widget<T> for Row<T> {
     fn event_observation(
         &mut self,
         widget_event_type: &WidgetEventType,
-    ) -> Option<&WidgetEvent<T>> {
+    ) -> Option<&WidgetEvent<EVENT>> {
         self.core.event_observation(widget_event_type)
     }
 
@@ -242,11 +242,11 @@ impl<T: Clone> Widget<T> for Row<T> {
     }
 }
 
-impl<T: Clone> PietWidget<T> for Row<T> {
+impl<EVENT: Clone> PietWidget<EVENT> for Row<EVENT> {
     fn add_child(
         &mut self,
         widget_placement: Option<WidgetPlacement>,
-        child_widget: PietWidgetBox<T>,
+        child_widget: PietWidgetBox<EVENT>,
     ) -> Result<(), WidgetError> {
         // A widget placement is given.
         if let Some(widget_placement) = widget_placement {
@@ -283,7 +283,7 @@ impl<T: Clone> PietWidget<T> for Row<T> {
         event: &Event,
         shared_state: &mut PietSharedState,
         widget_id_provider: &mut WidgetIdProvider,
-        widget_events: &mut Vec<WidgetEvent<T>>,
+        widget_events: &mut Vec<WidgetEvent<EVENT>>,
     ) {
         // Iterate over the child widgets.
         for child_widget in &mut self.child_widgets {

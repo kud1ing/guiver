@@ -13,16 +13,16 @@ use guiver::{
 };
 
 /// A layout widget that adds padding around its child widget.
-pub struct Padding<T: Clone> {
-    child_widget: Option<PietWidgetBox<T>>,
-    core: WidgetCore<T>,
+pub struct Padding<EVENT: Clone> {
+    child_widget: Option<PietWidgetBox<EVENT>>,
+    core: WidgetCore<EVENT>,
     padding_bottom: f64,
     padding_left: f64,
     padding_right: f64,
     padding_top: f64,
 }
 
-impl<T: Clone> Padding<T> {
+impl<EVENT: Clone> Padding<EVENT> {
     ///
     pub fn new(
         widget_id: WidgetId,
@@ -77,11 +77,11 @@ impl<T: Clone> Padding<T> {
     }
 }
 
-impl<T: Clone> Widget<T> for Padding<T> {
+impl<EVENT: Clone> Widget<EVENT> for Padding<EVENT> {
     fn add_event_observation(
         &mut self,
         widget_event_type: WidgetEventType,
-        widget_event: WidgetEvent<T>,
+        widget_event: WidgetEvent<EVENT>,
     ) {
         self.core
             .add_event_observation(widget_event_type, widget_event);
@@ -99,7 +99,7 @@ impl<T: Clone> Widget<T> for Padding<T> {
     fn event_observation(
         &mut self,
         widget_event_type: &WidgetEventType,
-    ) -> Option<&WidgetEvent<T>> {
+    ) -> Option<&WidgetEvent<EVENT>> {
         self.core.event_observation(widget_event_type)
     }
 
@@ -165,11 +165,11 @@ impl<T: Clone> Widget<T> for Padding<T> {
     }
 }
 
-impl<T: Clone> PietWidget<T> for Padding<T> {
+impl<EVENT: Clone> PietWidget<EVENT> for Padding<EVENT> {
     fn add_child(
         &mut self,
         _widget_placement: Option<WidgetPlacement>,
-        child_widget: PietWidgetBox<T>,
+        child_widget: PietWidgetBox<EVENT>,
     ) -> Result<(), WidgetError> {
         // TODO: use `_widget_placement`?
 
@@ -186,7 +186,7 @@ impl<T: Clone> PietWidget<T> for Padding<T> {
         event: &Event,
         shared_state: &mut PietSharedState,
         widget_id_provider: &mut WidgetIdProvider,
-        widget_events: &mut Vec<WidgetEvent<T>>,
+        widget_events: &mut Vec<WidgetEvent<EVENT>>,
     ) {
         // There is a child widget.
         if let Some(child_widget) = &mut self.child_widget {

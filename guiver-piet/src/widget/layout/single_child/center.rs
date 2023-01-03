@@ -12,12 +12,12 @@ use guiver::{
 };
 
 /// A layout widget that centers its child widget.
-pub struct Center<T: Clone> {
-    child_widget: Option<PietWidgetBox<T>>,
-    core: WidgetCore<T>,
+pub struct Center<EVENT: Clone> {
+    child_widget: Option<PietWidgetBox<EVENT>>,
+    core: WidgetCore<EVENT>,
 }
 
-impl<T: Clone> Center<T> {
+impl<EVENT: Clone> Center<EVENT> {
     ///
     pub fn new(widget_id: WidgetId, debug_rendering_stroke: Stroke) -> Self {
         Center {
@@ -57,11 +57,11 @@ impl<T: Clone> Center<T> {
     }
 }
 
-impl<T: Clone> Widget<T> for Center<T> {
+impl<EVENT: Clone> Widget<EVENT> for Center<EVENT> {
     fn add_event_observation(
         &mut self,
         widget_event_type: WidgetEventType,
-        widget_event: WidgetEvent<T>,
+        widget_event: WidgetEvent<EVENT>,
     ) {
         self.core
             .add_event_observation(widget_event_type, widget_event);
@@ -79,7 +79,7 @@ impl<T: Clone> Widget<T> for Center<T> {
     fn event_observation(
         &mut self,
         widget_event_type: &WidgetEventType,
-    ) -> Option<&WidgetEvent<T>> {
+    ) -> Option<&WidgetEvent<EVENT>> {
         self.core.event_observation(widget_event_type)
     }
 
@@ -135,11 +135,11 @@ impl<T: Clone> Widget<T> for Center<T> {
     }
 }
 
-impl<T: Clone> PietWidget<T> for Center<T> {
+impl<EVENT: Clone> PietWidget<EVENT> for Center<EVENT> {
     fn add_child(
         &mut self,
         _widget_placement: Option<WidgetPlacement>,
-        child_widget: PietWidgetBox<T>,
+        child_widget: PietWidgetBox<EVENT>,
     ) -> Result<(), WidgetError> {
         self.child_widget = Some(child_widget);
 
@@ -154,7 +154,7 @@ impl<T: Clone> PietWidget<T> for Center<T> {
         event: &Event,
         shared_state: &mut PietSharedState,
         widget_id_provider: &mut WidgetIdProvider,
-        widget_events: &mut Vec<WidgetEvent<T>>,
+        widget_events: &mut Vec<WidgetEvent<EVENT>>,
     ) {
         // There is a child widget.
         if let Some(child_widget) = &mut self.child_widget {

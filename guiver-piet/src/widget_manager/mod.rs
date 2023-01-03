@@ -20,16 +20,16 @@ use std::collections::{HashMap, HashSet};
 use std::rc::Rc;
 
 ///
-pub type PietWidgetBox<T> = Rc<RefCell<Box<dyn PietWidget<T>>>>;
+pub type PietWidgetBox<EVENT> = Rc<RefCell<Box<dyn PietWidget<EVENT>>>>;
 
 /// A widget manager that uses `Piet` and `druid-shell`.
-pub struct PietWidgetManager<T> {
+pub struct PietWidgetManager<EVENT> {
     /// The IDs of each widget's child widgets.
     child_widget_ids_per_widget_id: HashMap<WidgetId, HashSet<WidgetId>>,
     /// The widget that has the focus.
-    focused_widget: Option<PietWidgetBox<T>>,
+    focused_widget: Option<PietWidgetBox<EVENT>>,
     /// The main widget that fills the whole window.
-    main_widget: Option<PietWidgetBox<T>>,
+    main_widget: Option<PietWidgetBox<EVENT>>,
     /// The IDs of each widget's parent widget.
     parent_widget_id_per_widget_id: HashMap<WidgetId, WidgetId>,
     ///
@@ -46,10 +46,10 @@ pub struct PietWidgetManager<T> {
     /// All widgets per widget ID. This is used:
     /// * to determine whether a widget with a given ID exists
     /// * to pass commands to widgets directly
-    widgets: HashMap<WidgetId, PietWidgetBox<T>>,
+    widgets: HashMap<WidgetId, PietWidgetBox<EVENT>>,
 }
 
-impl<T: Clone + 'static> PietWidgetManager<T> {
+impl<EVENT: Clone + 'static> PietWidgetManager<EVENT> {
     ///
     pub fn new() -> Self {
         PietWidgetManager {
@@ -105,7 +105,7 @@ impl<T: Clone + 'static> PietWidgetManager<T> {
     }
 
     /// Puts the given widget box under widget management.
-    pub fn add_widget_box(&mut self, widget_box: PietWidgetBox<T>) {
+    pub fn add_widget_box(&mut self, widget_box: PietWidgetBox<EVENT>) {
         let widget_id;
 
         {
@@ -271,7 +271,7 @@ impl<T: Clone + 'static> PietWidgetManager<T> {
         &mut self,
         event: &Event,
         clipboard: Option<&mut Clipboard>,
-    ) -> Result<Vec<WidgetEvent<T>>, WidgetError> {
+    ) -> Result<Vec<WidgetEvent<EVENT>>, WidgetError> {
         let mut widget_events = vec![];
 
         // Handle key events.
@@ -475,7 +475,7 @@ impl<T: Clone + 'static> PietWidgetManager<T> {
     }
 
     ///
-    fn widget(&self, widget_id: WidgetId) -> Result<&PietWidgetBox<T>, WidgetError> {
+    fn widget(&self, widget_id: WidgetId) -> Result<&PietWidgetBox<EVENT>, WidgetError> {
         // There is a widget with the given ID.
         if let Some(widget_box) = self.widgets.get(&widget_id) {
             Ok(widget_box)
@@ -492,7 +492,10 @@ impl<T: Clone + 'static> PietWidgetManager<T> {
     }
 
     ///
-    fn widget_mut(&mut self, widget_id: WidgetId) -> Result<&mut PietWidgetBox<T>, WidgetError> {
+    fn widget_mut(
+        &mut self,
+        widget_id: WidgetId,
+    ) -> Result<&mut PietWidgetBox<EVENT>, WidgetError> {
         // There is a widget with the given ID.
         if let Some(widget_box) = self.widgets.get_mut(&widget_id) {
             Ok(widget_box)
@@ -504,8 +507,8 @@ impl<T: Clone + 'static> PietWidgetManager<T> {
     }
 }
 
-impl<T: Clone + 'static> WidgetManager<T> for PietWidgetManager<T> {
-    fn handle_commands(&mut self, mut commands: Vec<Command<T>>) -> Result<(), WidgetError> {
+impl<EVENT: Clone + 'static> WidgetManager<EVENT> for PietWidgetManager<EVENT> {
+    fn handle_commands(&mut self, mut commands: Vec<Command<EVENT>>) -> Result<(), WidgetError> {
         loop {
             let mut next_commands = vec![];
 
@@ -579,7 +582,7 @@ impl<T: Clone + 'static> WidgetManager<T> for PietWidgetManager<T> {
                             return Err(WidgetError::WidgetExistsAlready(widget_id));
                         }
 
-                        let widget_box: Box<dyn PietWidget<T>> = match widget_type {
+                        let widget_box: Box<dyn PietWidget<EVENT>> = match widget_type {
                             WidgetType::Center => Box::new(Center::new(
                                 widget_id,
                                 self.style.debug_rendering_stroke.clone(),

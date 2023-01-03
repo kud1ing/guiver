@@ -10,14 +10,14 @@ use guiver::{SizeConstraints, Widget, WidgetEvent, WidgetEventType, WidgetId, Wi
 use piet::{PaintBrush, StrokeDash, StrokeStyle};
 
 /// A placeholder widget.
-pub struct Placeholder<T: Clone> {
-    core: WidgetCore<T>,
+pub struct Placeholder<EVENT: Clone> {
+    core: WidgetCore<EVENT>,
     desired_size: Size,
     fill: Option<PaintBrush>,
     stroke: Option<Stroke>,
 }
 
-impl<T: Clone> Placeholder<T> {
+impl<EVENT: Clone> Placeholder<EVENT> {
     pub fn new(widget_id: WidgetId, debug_rendering_stroke: Stroke, desired_size: Size) -> Self {
         let stroke_style = StrokeStyle {
             line_join: Default::default(),
@@ -39,11 +39,11 @@ impl<T: Clone> Placeholder<T> {
     }
 }
 
-impl<T: Clone> Widget<T> for Placeholder<T> {
+impl<EVENT: Clone> Widget<EVENT> for Placeholder<EVENT> {
     fn add_event_observation(
         &mut self,
         widget_event_type: WidgetEventType,
-        widget_event: WidgetEvent<T>,
+        widget_event: WidgetEvent<EVENT>,
     ) {
         self.core
             .add_event_observation(widget_event_type, widget_event);
@@ -60,7 +60,7 @@ impl<T: Clone> Widget<T> for Placeholder<T> {
     fn event_observation(
         &mut self,
         widget_event_type: &WidgetEventType,
-    ) -> Option<&WidgetEvent<T>> {
+    ) -> Option<&WidgetEvent<EVENT>> {
         self.core.event_observation(widget_event_type)
     }
 
@@ -106,13 +106,13 @@ impl<T: Clone> Widget<T> for Placeholder<T> {
     }
 }
 
-impl<T: Clone> PietWidget<T> for Placeholder<T> {
+impl<EVENT: Clone> PietWidget<EVENT> for Placeholder<EVENT> {
     fn handle_event(
         &mut self,
         _event: &Event,
         _shared_state: &mut PietSharedState,
         _widget_id_provider: &mut WidgetIdProvider,
-        _widget_events: &mut Vec<WidgetEvent<T>>,
+        _widget_events: &mut Vec<WidgetEvent<EVENT>>,
     ) {
         // Nothing to do.
     }

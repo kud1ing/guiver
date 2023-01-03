@@ -13,13 +13,13 @@ use guiver::{
 };
 
 /// A layout widget that tries to adjust its child widget to a desired size.
-pub struct SizedBox<T: Clone> {
-    child_widget: Option<PietWidgetBox<T>>,
-    core: WidgetCore<T>,
+pub struct SizedBox<EVENT: Clone> {
+    child_widget: Option<PietWidgetBox<EVENT>>,
+    core: WidgetCore<EVENT>,
     desired_size: Size,
 }
 
-impl<T: Clone> SizedBox<T> {
+impl<EVENT: Clone> SizedBox<EVENT> {
     ///
     pub fn new(widget_id: WidgetId, debug_rendering_stroke: Stroke, desired_size: Size) -> Self {
         SizedBox {
@@ -53,11 +53,11 @@ impl<T: Clone> SizedBox<T> {
     }
 }
 
-impl<T: Clone> Widget<T> for SizedBox<T> {
+impl<EVENT: Clone> Widget<EVENT> for SizedBox<EVENT> {
     fn add_event_observation(
         &mut self,
         widget_event_type: WidgetEventType,
-        widget_event: WidgetEvent<T>,
+        widget_event: WidgetEvent<EVENT>,
     ) {
         self.core
             .add_event_observation(widget_event_type, widget_event);
@@ -75,7 +75,7 @@ impl<T: Clone> Widget<T> for SizedBox<T> {
     fn event_observation(
         &mut self,
         widget_event_type: &WidgetEventType,
-    ) -> Option<&WidgetEvent<T>> {
+    ) -> Option<&WidgetEvent<EVENT>> {
         self.core.event_observation(widget_event_type)
     }
 
@@ -131,11 +131,11 @@ impl<T: Clone> Widget<T> for SizedBox<T> {
     }
 }
 
-impl<T: Clone> PietWidget<T> for SizedBox<T> {
+impl<EVENT: Clone> PietWidget<EVENT> for SizedBox<EVENT> {
     fn add_child(
         &mut self,
         _widget_placement: Option<WidgetPlacement>,
-        child_widget: PietWidgetBox<T>,
+        child_widget: PietWidgetBox<EVENT>,
     ) -> Result<(), WidgetError> {
         // TODO: use `_widget_placement`?
 
@@ -152,7 +152,7 @@ impl<T: Clone> PietWidget<T> for SizedBox<T> {
         event: &Event,
         shared_state: &mut PietSharedState,
         widget_id_provider: &mut WidgetIdProvider,
-        widget_events: &mut Vec<WidgetEvent<T>>,
+        widget_events: &mut Vec<WidgetEvent<EVENT>>,
     ) {
         // There is a child widget.
         if let Some(child_widget) = &mut self.child_widget {
