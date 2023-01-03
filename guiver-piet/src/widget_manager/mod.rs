@@ -470,6 +470,11 @@ impl<T: Clone + 'static> PietWidgetManager<T> {
     }
 
     ///
+    pub fn shared_state(&mut self) -> &mut PietSharedState {
+        &mut self.shared_state
+    }
+
+    ///
     fn widget(&self, widget_id: WidgetId) -> Result<&PietWidgetBox<T>, WidgetError> {
         // There is a widget with the given ID.
         if let Some(widget_box) = self.widgets.get(&widget_id) {

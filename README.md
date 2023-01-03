@@ -95,6 +95,9 @@ The developer code can handle those widget events.
 
 ## Backlog
 
+* make it easier for widgets to create/modify/compose themselves and other widgets:
+  * [ ] make it possible to add `PietWidgetBox` (see `add_widget_box()`) via `Command` 
+  * [ ] remove `WidgetIdProvider` from `PietWidgetManager` to remove 
 * extract the remaining methods from `PietWidget` to `Widget`:
   * first find abstractions for:
     * [ ] `PietWidgetBox`
