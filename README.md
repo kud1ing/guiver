@@ -99,12 +99,6 @@ The developer code can handle those widget events.
   * [ ] how?
     * Druid: [`PaintCtx::paint_with_z_index()`](https://docs.rs/druid/latest/src/druid/contexts.rs.html#735-746)
 
-* make it easier for widgets to create/modify/compose themselves and other widgets:
-  * [ ] make it possible to add `PietWidgetBox` (see `add_widget()`) via `Command`
-    * add `AddWidget(WIDGET)`
-    * [ ] move a generic version of `add_widget()` to `WidgetManager`
-  * [ ] remove `WidgetIdProvider` from `PietWidgetManager` to remove
-
 
 * add selectors:
   * [ ] add `Command::SetClass(Option<C>)`
@@ -131,8 +125,10 @@ The developer code can handle those widget events.
 * [ ] add `Widget::class() -> Option<C>`
   * [ ] implement in `Core`
   * [ ] add `WidgetSelector::WithClass(C)`
+
 * [ ] sketch a `cacao` backend
 * [ ] sketch a `Iced` backend
+
 * Text:
   * `test_selected_text_replaced()`:
     * [ ] fix

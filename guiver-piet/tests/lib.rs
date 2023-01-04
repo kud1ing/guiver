@@ -43,7 +43,7 @@ mod tests {
     }
 
     /// Returns all widgets.
-    fn widgets<EVENT: Clone + 'static>() -> Vec<Box<dyn PietWidget<EVENT>>> {
+    fn widgets<APP_EVENT: Clone + 'static>() -> Vec<Box<dyn PietWidget<APP_EVENT>>> {
         // TODO: add child widgets to the layout widgets.
         let mut widgets = widgets_layout();
         widgets.append(&mut widgets_non_layout());
@@ -51,8 +51,8 @@ mod tests {
     }
 
     /// Returns the layout widgets.
-    fn widgets_layout<EVENT: Clone + 'static>() -> Vec<Box<dyn PietWidget<EVENT>>> {
-        let mut center_widget: Center<EVENT> = Center::new(0, Stroke::default());
+    fn widgets_layout<APP_EVENT: Clone + 'static>() -> Vec<Box<dyn PietWidget<APP_EVENT>>> {
+        let mut center_widget: Center<APP_EVENT> = Center::new(0, Stroke::default());
         center_widget
             .add_child(
                 None,
@@ -64,7 +64,7 @@ mod tests {
             )
             .unwrap();
 
-        let mut column_widget: Column<EVENT> =
+        let mut column_widget: Column<APP_EVENT> =
             Column::new(2, Stroke::default(), HorizontalAlignment::Center, 10.0);
         column_widget
             .add_child(
@@ -77,7 +77,7 @@ mod tests {
             )
             .unwrap();
 
-        let mut padding_widget: Padding<EVENT> =
+        let mut padding_widget: Padding<APP_EVENT> =
             Padding::new(4, Stroke::default(), 10.0, 10.0, 10.0, 10.0);
         padding_widget
             .add_child(
@@ -90,7 +90,7 @@ mod tests {
             )
             .unwrap();
 
-        let mut row_widget: Row<EVENT> =
+        let mut row_widget: Row<APP_EVENT> =
             Row::new(6, Stroke::default(), VerticalAlignment::Middle, 10.0);
         row_widget
             .add_child(
@@ -121,7 +121,7 @@ mod tests {
     }
 
     /// Returns the non-layout widgets.
-    fn widgets_non_layout<EVENT: Clone + 'static>() -> Vec<Box<dyn PietWidget<EVENT>>> {
+    fn widgets_non_layout<APP_EVENT: Clone + 'static>() -> Vec<Box<dyn PietWidget<APP_EVENT>>> {
         let mut piet_text = piet_text();
 
         vec![

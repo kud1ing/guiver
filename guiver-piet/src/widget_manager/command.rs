@@ -7,7 +7,7 @@ use guiver::{
 use std::any::Any;
 
 /// A command to the widget manager.
-pub enum Command<EVENT> {
+pub enum Command<APP_EVENT> {
     /// Adds the child widget with the given ID to the parent widget.
     AddChild {
         parent_widget_id: WidgetId,
@@ -15,16 +15,16 @@ pub enum Command<EVENT> {
         child_widget_id: WidgetId,
     },
     /// Adds widget event observation: if a widget event of type `WidgetEventType` occurs in the
-    /// widget with the given ID, it produces a value of type `WidgetEvent::Custom(EVENT)` in
+    /// widget with the given ID, it produces a value of type `WidgetEvent::Custom(APP_EVENT)` in
     /// `handle_event()`.
-    AddEventObservation(WidgetId, WidgetEventType, EVENT),
+    AddEventObservation(WidgetId, WidgetEventType, APP_EVENT),
     /// Adds the child widgets to the parent widget.
     AddChildren {
         parent_widget_id: WidgetId,
         child_widgets: Vec<(Option<WidgetPlacement>, WidgetId)>,
     },
     /// Adds the given widget under widget management.
-    AddWidget(WidgetBox<EVENT>),
+    AddWidget(WidgetBox<APP_EVENT>),
     /// Creates a widget with the given ID and type.
     CreateWidget(WidgetId, WidgetType),
     /// Destroys the widget with the given ID.

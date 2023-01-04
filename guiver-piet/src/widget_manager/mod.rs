@@ -24,16 +24,16 @@ use std::rc::Rc;
 pub use widget_type::WidgetType;
 
 ///
-pub type WidgetBox<EVENT> = Rc<RefCell<Box<dyn PietWidget<EVENT>>>>;
+pub type WidgetBox<APP_EVENT> = Rc<RefCell<Box<dyn PietWidget<APP_EVENT>>>>;
 
 /// A widget manager that uses `Piet` and `druid-shell`.
-pub struct WidgetManager<EVENT> {
+pub struct WidgetManager<APP_EVENT> {
     /// The IDs of each widget's child widgets.
     child_widget_ids_per_widget_id: HashMap<WidgetId, HashSet<WidgetId>>,
     /// The widget that has the focus.
-    focused_widget: Option<WidgetBox<EVENT>>,
+    focused_widget: Option<WidgetBox<APP_EVENT>>,
     /// The main widget that fills the whole window.
-    main_widget: Option<WidgetBox<EVENT>>,
+    main_widget: Option<WidgetBox<APP_EVENT>>,
     /// The IDs of each widget's parent widget.
     parent_widget_id_per_widget_id: HashMap<WidgetId, WidgetId>,
     ///
@@ -50,10 +50,10 @@ pub struct WidgetManager<EVENT> {
     /// All widgets per widget ID. This is used:
     /// * to determine whether a widget with a given ID exists
     /// * to pass commands to widgets directly
-    widgets: HashMap<WidgetId, WidgetBox<EVENT>>,
+    widgets: HashMap<WidgetId, WidgetBox<APP_EVENT>>,
 }
 
-impl<EVENT: Clone + 'static> WidgetManager<EVENT> {
+impl<APP_EVENT: Clone + 'static> WidgetManager<APP_EVENT> {
     ///
     pub fn new() -> Self {
         WidgetManager {
@@ -109,10 +109,11 @@ impl<EVENT: Clone + 'static> WidgetManager<EVENT> {
     }
 
     /// Puts the given widget box under widget management.
-    pub fn add_widget(&mut self, widget_box: WidgetBox<EVENT>) {
+    pub fn add_widget(&mut self, widget_box: WidgetBox<APP_EVENT>) {
         let widget_id;
 
         {
+            // Get the widget ID.
             let widget = widget_box.borrow();
             widget_id = widget.widget_id().clone();
 
@@ -275,7 +276,7 @@ impl<EVENT: Clone + 'static> WidgetManager<EVENT> {
         &mut self,
         event: &Event,
         clipboard: Option<&mut Clipboard>,
-    ) -> Result<Vec<EVENT>, WidgetError> {
+    ) -> Result<Vec<APP_EVENT>, WidgetError> {
         let mut widget_events = vec![];
 
         let mut event_was_handled = false;
@@ -391,7 +392,7 @@ impl<EVENT: Clone + 'static> WidgetManager<EVENT> {
             // Iterate over the widget events in search of focus events.
             for widget_event in widget_events {
                 match widget_event {
-                    WidgetEvent::Custom(custom_widget_event) => {
+                    WidgetEvent::AppEvent(custom_widget_event) => {
                         custom_widget_events.push(custom_widget_event);
                     }
                     WidgetEvent::GainedFocus(widget_id) => {
@@ -443,13 +444,13 @@ impl<EVENT: Clone + 'static> WidgetManager<EVENT> {
     }
 
     ///
-    pub fn handle_command(&mut self, command: Command<EVENT>) -> Result<(), WidgetError> {
+    pub fn handle_command(&mut self, command: Command<APP_EVENT>) -> Result<(), WidgetError> {
         self.handle_commands(vec![command])
     }
 
     pub fn handle_commands(
         &mut self,
-        mut commands: Vec<Command<EVENT>>,
+        mut commands: Vec<Command<APP_EVENT>>,
     ) -> Result<(), WidgetError> {
         loop {
             let mut next_commands = vec![];
@@ -520,7 +521,7 @@ impl<EVENT: Clone + 'static> WidgetManager<EVENT> {
 
                         widget_box.borrow_mut().add_event_observation(
                             widget_event_type.clone(),
-                            WidgetEvent::Custom(custom_value),
+                            WidgetEvent::AppEvent(custom_value),
                         );
                     }
                     Command::AddWidget(widget_box) => self.add_widget(widget_box),
@@ -530,7 +531,7 @@ impl<EVENT: Clone + 'static> WidgetManager<EVENT> {
                             return Err(WidgetError::WidgetExistsAlready(widget_id));
                         }
 
-                        let widget_box: Box<dyn PietWidget<EVENT>> = match widget_type {
+                        let widget_box: Box<dyn PietWidget<APP_EVENT>> = match widget_type {
                             WidgetType::Center => Box::new(Center::new(
                                 widget_id,
                                 self.style.debug_rendering_stroke.clone(),
@@ -905,7 +906,7 @@ impl<EVENT: Clone + 'static> WidgetManager<EVENT> {
     }
 
     ///
-    fn widget(&self, widget_id: WidgetId) -> Result<&WidgetBox<EVENT>, WidgetError> {
+    fn widget(&self, widget_id: WidgetId) -> Result<&WidgetBox<APP_EVENT>, WidgetError> {
         // There is a widget with the given ID.
         if let Some(widget_box) = self.widgets.get(&widget_id) {
             Ok(widget_box)
@@ -922,7 +923,10 @@ impl<EVENT: Clone + 'static> WidgetManager<EVENT> {
     }
 
     ///
-    fn widget_mut(&mut self, widget_id: WidgetId) -> Result<&mut WidgetBox<EVENT>, WidgetError> {
+    fn widget_mut(
+        &mut self,
+        widget_id: WidgetId,
+    ) -> Result<&mut WidgetBox<APP_EVENT>, WidgetError> {
         // There is a widget with the given ID.
         if let Some(widget_box) = self.widgets.get_mut(&widget_id) {
             Ok(widget_box)

@@ -14,12 +14,12 @@ use std::any::Any;
 use std::borrow::BorrowMut;
 
 /// A text input widget.
-pub struct TextInput<EVENT: Clone> {
+pub struct TextInput<APP_EVENT: Clone> {
     caret_character_index: usize,
     caret_x: f64,
     caret_y1: f64,
     caret_y2: f64,
-    core: WidgetCore<EVENT>,
+    core: WidgetCore<APP_EVENT>,
     corner_radius: f64,
     fill: Option<PaintBrush>,
     has_focus: bool,
@@ -29,11 +29,11 @@ pub struct TextInput<EVENT: Clone> {
     stroke: Stroke,
     stroke_focused: Stroke,
     text: String,
-    text_widget: Text<EVENT>,
+    text_widget: Text<APP_EVENT>,
     width: f64,
 }
 
-impl<EVENT: Clone> TextInput<EVENT> {
+impl<APP_EVENT: Clone> TextInput<APP_EVENT> {
     ///
     pub fn new(
         widget_id: WidgetId,
@@ -86,7 +86,7 @@ impl<EVENT: Clone> TextInput<EVENT> {
         &mut self,
         widget_id_provider: &mut WidgetIdProvider,
         shared_state: &mut PietSharedState,
-        widget_events: &mut Vec<WidgetEvent<EVENT>>,
+        widget_events: &mut Vec<WidgetEvent<APP_EVENT>>,
     ) {
         let mut commands = vec![];
 
@@ -187,7 +187,7 @@ impl<EVENT: Clone> TextInput<EVENT> {
         &mut self,
         shared_state: &mut PietSharedState,
         widget_id_provider: &mut WidgetIdProvider,
-        commands: &mut Vec<Command<EVENT>>,
+        commands: &mut Vec<Command<APP_EVENT>>,
     ) {
         // Pass the updated text to the child text widget.
         self.text_widget
@@ -207,7 +207,7 @@ impl<EVENT: Clone> TextInput<EVENT> {
     }
 }
 
-impl<EVENT: Clone> Widget<EVENT> for TextInput<EVENT> {
+impl<APP_EVENT: Clone> Widget<APP_EVENT> for TextInput<APP_EVENT> {
     fn accepts_focus(&self) -> bool {
         true
     }
@@ -215,7 +215,7 @@ impl<EVENT: Clone> Widget<EVENT> for TextInput<EVENT> {
     fn add_event_observation(
         &mut self,
         widget_event_type: WidgetEventType,
-        widget_event: WidgetEvent<EVENT>,
+        widget_event: WidgetEvent<APP_EVENT>,
     ) {
         self.core
             .add_event_observation(widget_event_type, widget_event);
@@ -233,7 +233,7 @@ impl<EVENT: Clone> Widget<EVENT> for TextInput<EVENT> {
     fn event_observation(
         &mut self,
         widget_event_type: &WidgetEventType,
-    ) -> Option<&WidgetEvent<EVENT>> {
+    ) -> Option<&WidgetEvent<APP_EVENT>> {
         self.core.event_observation(widget_event_type)
     }
 
@@ -312,13 +312,13 @@ impl<EVENT: Clone> Widget<EVENT> for TextInput<EVENT> {
     }
 }
 
-impl<EVENT: Clone> PietWidget<EVENT> for TextInput<EVENT> {
+impl<APP_EVENT: Clone> PietWidget<APP_EVENT> for TextInput<APP_EVENT> {
     fn handle_event(
         &mut self,
         event: &Event,
         shared_state: &mut PietSharedState,
         widget_id_provider: &mut WidgetIdProvider,
-        widget_events: &mut Vec<WidgetEvent<EVENT>>,
+        widget_events: &mut Vec<WidgetEvent<APP_EVENT>>,
     ) {
         match event {
             Event::ClipboardPaste(string) => {
@@ -482,7 +482,7 @@ impl<EVENT: Clone> PietWidget<EVENT> for TextInput<EVENT> {
         value: Box<dyn Any>,
         shared_state: &mut PietSharedState,
         widget_id_provider: &mut WidgetIdProvider,
-        commands: &mut Vec<Command<EVENT>>,
+        commands: &mut Vec<Command<APP_EVENT>>,
     ) -> Result<(), WidgetError> {
         // The given value is a string.
         if let Some(string) = value.downcast_ref::<String>() {

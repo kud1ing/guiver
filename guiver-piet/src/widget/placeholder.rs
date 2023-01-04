@@ -10,14 +10,14 @@ use guiver::{SizeConstraints, Widget, WidgetEvent, WidgetEventType, WidgetId, Wi
 use piet::{PaintBrush, StrokeDash, StrokeStyle};
 
 /// A placeholder widget.
-pub struct Placeholder<EVENT: Clone> {
-    core: WidgetCore<EVENT>,
+pub struct Placeholder<APP_EVENT: Clone> {
+    core: WidgetCore<APP_EVENT>,
     desired_size: Size,
     fill: Option<PaintBrush>,
     stroke: Option<Stroke>,
 }
 
-impl<EVENT: Clone> Placeholder<EVENT> {
+impl<APP_EVENT: Clone> Placeholder<APP_EVENT> {
     pub fn new(widget_id: WidgetId, debug_rendering_stroke: Stroke, desired_size: Size) -> Self {
         let stroke_style = StrokeStyle {
             line_join: Default::default(),
@@ -39,11 +39,11 @@ impl<EVENT: Clone> Placeholder<EVENT> {
     }
 }
 
-impl<EVENT: Clone> Widget<EVENT> for Placeholder<EVENT> {
+impl<APP_EVENT: Clone> Widget<APP_EVENT> for Placeholder<APP_EVENT> {
     fn add_event_observation(
         &mut self,
         widget_event_type: WidgetEventType,
-        widget_event: WidgetEvent<EVENT>,
+        widget_event: WidgetEvent<APP_EVENT>,
     ) {
         self.core
             .add_event_observation(widget_event_type, widget_event);
@@ -60,7 +60,7 @@ impl<EVENT: Clone> Widget<EVENT> for Placeholder<EVENT> {
     fn event_observation(
         &mut self,
         widget_event_type: &WidgetEventType,
-    ) -> Option<&WidgetEvent<EVENT>> {
+    ) -> Option<&WidgetEvent<APP_EVENT>> {
         self.core.event_observation(widget_event_type)
     }
 
@@ -106,13 +106,13 @@ impl<EVENT: Clone> Widget<EVENT> for Placeholder<EVENT> {
     }
 }
 
-impl<EVENT: Clone> PietWidget<EVENT> for Placeholder<EVENT> {
+impl<APP_EVENT: Clone> PietWidget<APP_EVENT> for Placeholder<APP_EVENT> {
     fn handle_event(
         &mut self,
         _event: &Event,
         _shared_state: &mut PietSharedState,
         _widget_id_provider: &mut WidgetIdProvider,
-        _widget_events: &mut Vec<WidgetEvent<EVENT>>,
+        _widget_events: &mut Vec<WidgetEvent<APP_EVENT>>,
     ) {
         // Nothing to do.
     }

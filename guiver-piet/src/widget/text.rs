@@ -13,8 +13,8 @@ use guiver::{
 use std::any::Any;
 
 /// A text widget.
-pub struct Text<EVENT: Clone> {
-    core: WidgetCore<EVENT>,
+pub struct Text<APP_EVENT: Clone> {
+    core: WidgetCore<APP_EVENT>,
     font: Font,
     horizontal_alignment: HorizontalAlignment,
     text: String,
@@ -23,7 +23,7 @@ pub struct Text<EVENT: Clone> {
     vertical_alignment: VerticalAlignment,
 }
 
-impl<EVENT: Clone> Text<EVENT> {
+impl<APP_EVENT: Clone> Text<APP_EVENT> {
     ///
     pub fn new(
         widget_id: WidgetId,
@@ -83,11 +83,11 @@ impl<EVENT: Clone> Text<EVENT> {
     }
 }
 
-impl<EVENT: Clone> Widget<EVENT> for Text<EVENT> {
+impl<APP_EVENT: Clone> Widget<APP_EVENT> for Text<APP_EVENT> {
     fn add_event_observation(
         &mut self,
         widget_event_type: WidgetEventType,
-        widget_event: WidgetEvent<EVENT>,
+        widget_event: WidgetEvent<APP_EVENT>,
     ) {
         self.core
             .add_event_observation(widget_event_type, widget_event);
@@ -104,7 +104,7 @@ impl<EVENT: Clone> Widget<EVENT> for Text<EVENT> {
     fn event_observation(
         &mut self,
         widget_event_type: &WidgetEventType,
-    ) -> Option<&WidgetEvent<EVENT>> {
+    ) -> Option<&WidgetEvent<APP_EVENT>> {
         self.core.event_observation(widget_event_type)
     }
 
@@ -189,13 +189,13 @@ impl<EVENT: Clone> Widget<EVENT> for Text<EVENT> {
     }
 }
 
-impl<EVENT: Clone> PietWidget<EVENT> for Text<EVENT> {
+impl<APP_EVENT: Clone> PietWidget<APP_EVENT> for Text<APP_EVENT> {
     fn handle_event(
         &mut self,
         event: &Event,
         _shared_state: &mut PietSharedState,
         _widget_id_provider: &mut WidgetIdProvider,
-        widget_events: &mut Vec<WidgetEvent<EVENT>>,
+        widget_events: &mut Vec<WidgetEvent<APP_EVENT>>,
     ) {
         if let Event::MouseDown(mouse_event) = event {
             // The click is outside of the text.
@@ -258,7 +258,7 @@ impl<EVENT: Clone> PietWidget<EVENT> for Text<EVENT> {
         _value: Box<dyn Any>,
         _shared_state: &mut PietSharedState,
         _widget_id_provider: &mut WidgetIdProvider,
-        _commands: &mut Vec<Command<EVENT>>,
+        _commands: &mut Vec<Command<APP_EVENT>>,
     ) -> Result<(), WidgetError> {
         // The given value is a string.
         if let Some(string) = _value.downcast_ref::<String>() {

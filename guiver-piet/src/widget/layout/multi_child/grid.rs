@@ -18,13 +18,13 @@ use std::collections::{HashMap, HashSet};
 // =================================================================================================
 
 /// A layout widget that positions its child widgets in a 2-dimensional grid.
-pub struct Grid<EVENT: Clone> {
+pub struct Grid<APP_EVENT: Clone> {
     child_widget_id_per_cell: HashMap<(usize, usize), WidgetId>,
     child_widget_ids_per_column: HashMap<usize, HashSet<WidgetId>>,
     child_widget_ids_per_row: HashMap<usize, HashSet<WidgetId>>,
-    child_widget_per_id: HashMap<WidgetId, WidgetBox<EVENT>>,
+    child_widget_per_id: HashMap<WidgetId, WidgetBox<APP_EVENT>>,
     column_properties: Vec<GridColumnProperties>,
-    core: WidgetCore<EVENT>,
+    core: WidgetCore<APP_EVENT>,
     default_column_properties: GridColumnProperties,
     default_row_properties: GridRowProperties,
     number_of_columns: usize,
@@ -32,7 +32,7 @@ pub struct Grid<EVENT: Clone> {
     row_properties: Vec<GridRowProperties>,
 }
 
-impl<EVENT: Clone> Grid<EVENT> {
+impl<APP_EVENT: Clone> Grid<APP_EVENT> {
     ///
     pub fn new(
         widget_id: WidgetId,
@@ -58,7 +58,7 @@ impl<EVENT: Clone> Grid<EVENT> {
     /// Adds the given child widget to the grid.
     fn add_child_widget(
         &mut self,
-        child_widget: WidgetBox<EVENT>,
+        child_widget: WidgetBox<APP_EVENT>,
         column_index: usize,
         row_index: usize,
     ) {
@@ -370,11 +370,11 @@ impl<EVENT: Clone> Grid<EVENT> {
     }
 }
 
-impl<EVENT: Clone> Widget<EVENT> for Grid<EVENT> {
+impl<APP_EVENT: Clone> Widget<APP_EVENT> for Grid<APP_EVENT> {
     fn add_event_observation(
         &mut self,
         widget_event_type: WidgetEventType,
-        widget_event: WidgetEvent<EVENT>,
+        widget_event: WidgetEvent<APP_EVENT>,
     ) {
         self.core
             .add_event_observation(widget_event_type, widget_event);
@@ -392,7 +392,7 @@ impl<EVENT: Clone> Widget<EVENT> for Grid<EVENT> {
     fn event_observation(
         &mut self,
         widget_event_type: &WidgetEventType,
-    ) -> Option<&WidgetEvent<EVENT>> {
+    ) -> Option<&WidgetEvent<APP_EVENT>> {
         self.core.event_observation(widget_event_type)
     }
 
@@ -444,11 +444,11 @@ impl<EVENT: Clone> Widget<EVENT> for Grid<EVENT> {
     }
 }
 
-impl<EVENT: Clone> PietWidget<EVENT> for Grid<EVENT> {
+impl<APP_EVENT: Clone> PietWidget<APP_EVENT> for Grid<APP_EVENT> {
     fn add_child(
         &mut self,
         widget_placement: Option<WidgetPlacement>,
-        child_widget: WidgetBox<EVENT>,
+        child_widget: WidgetBox<APP_EVENT>,
     ) -> Result<(), WidgetError> {
         // A grid widget placement is given
         if let Some(WidgetPlacement::Grid {
@@ -472,7 +472,7 @@ impl<EVENT: Clone> PietWidget<EVENT> for Grid<EVENT> {
         event: &Event,
         shared_state: &mut PietSharedState,
         widget_id_provider: &mut WidgetIdProvider,
-        widget_events: &mut Vec<WidgetEvent<EVENT>>,
+        widget_events: &mut Vec<WidgetEvent<APP_EVENT>>,
     ) {
         // Iterate over the child widgets.
         for child_widget in &mut self.child_widget_per_id.values() {

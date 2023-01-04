@@ -11,7 +11,7 @@ pub type WidgetId = usize;
 
 /// A trait for widgets.
 /// The methods are typically called by a `WidgetManager` and parental composite widgets.
-pub trait Widget<EVENT: Clone> {
+pub trait Widget<APP_EVENT: Clone> {
     /// Returns `true` if the widget generally accepts focus, like e.g. a `Button` or `TextInput`
     /// widget. A `WidgetManager` uses this to build a tab/focus order.
     fn accepts_focus(&self) -> bool {
@@ -22,7 +22,7 @@ pub trait Widget<EVENT: Clone> {
     fn add_event_observation(
         &mut self,
         widget_event_type: WidgetEventType,
-        widget_event: WidgetEvent<EVENT>,
+        widget_event: WidgetEvent<APP_EVENT>,
     );
 
     /// Applies the given size constraints to the widget and returns its size.
@@ -32,7 +32,7 @@ pub trait Widget<EVENT: Clone> {
     fn event_observation(
         &mut self,
         widget_event_type: &WidgetEventType,
-    ) -> Option<&WidgetEvent<EVENT>>;
+    ) -> Option<&WidgetEvent<APP_EVENT>>;
 
     /// Returns the widget's flex factor. This is used in layout widgets like `Column` and `Row`.
     fn flex_factor(&self) -> u16 {

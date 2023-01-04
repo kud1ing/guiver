@@ -15,9 +15,9 @@ use std::any::Any;
 
 ///
 #[derive(Default)]
-pub struct Button<EVENT: Clone> {
-    child_widget: Option<WidgetBox<EVENT>>,
-    core: WidgetCore<EVENT>,
+pub struct Button<APP_EVENT: Clone> {
+    child_widget: Option<WidgetBox<APP_EVENT>>,
+    core: WidgetCore<APP_EVENT>,
     corner_radius: f64,
     fill_brush_down: Option<PaintBrush>,
     fill_brush_up: Option<PaintBrush>,
@@ -31,12 +31,12 @@ pub struct Button<EVENT: Clone> {
     stroke_focused: Option<Stroke>,
 }
 
-impl<EVENT: Clone> Button<EVENT> {
+impl<APP_EVENT: Clone> Button<APP_EVENT> {
     ///
     pub fn new(
         widget_id: WidgetId,
         debug_rendering_stroke: Stroke,
-        child_widget: WidgetBox<EVENT>,
+        child_widget: WidgetBox<APP_EVENT>,
         fill_brush_down: Option<PaintBrush>,
         frame_color: Option<Color>,
         frame_color_focused: Option<Color>,
@@ -112,7 +112,7 @@ impl<EVENT: Clone> Button<EVENT> {
     }
 }
 
-impl<EVENT: Clone> Widget<EVENT> for Button<EVENT> {
+impl<APP_EVENT: Clone> Widget<APP_EVENT> for Button<APP_EVENT> {
     fn accepts_focus(&self) -> bool {
         true
     }
@@ -120,7 +120,7 @@ impl<EVENT: Clone> Widget<EVENT> for Button<EVENT> {
     fn add_event_observation(
         &mut self,
         widget_event_type: WidgetEventType,
-        widget_event: WidgetEvent<EVENT>,
+        widget_event: WidgetEvent<APP_EVENT>,
     ) {
         self.core
             .add_event_observation(widget_event_type, widget_event);
@@ -138,7 +138,7 @@ impl<EVENT: Clone> Widget<EVENT> for Button<EVENT> {
     fn event_observation(
         &mut self,
         widget_event_type: &WidgetEventType,
-    ) -> Option<&WidgetEvent<EVENT>> {
+    ) -> Option<&WidgetEvent<APP_EVENT>> {
         self.core.event_observation(widget_event_type)
     }
 
@@ -214,11 +214,11 @@ impl<EVENT: Clone> Widget<EVENT> for Button<EVENT> {
     }
 }
 
-impl<EVENT: Clone> PietWidget<EVENT> for Button<EVENT> {
+impl<APP_EVENT: Clone> PietWidget<APP_EVENT> for Button<APP_EVENT> {
     fn add_child(
         &mut self,
         _widget_placement: Option<WidgetPlacement>,
-        child_widget: WidgetBox<EVENT>,
+        child_widget: WidgetBox<APP_EVENT>,
     ) -> Result<(), WidgetError> {
         // TODO: use `_widget_placement`?
 
@@ -235,7 +235,7 @@ impl<EVENT: Clone> PietWidget<EVENT> for Button<EVENT> {
         event: &Event,
         _shared_state: &mut PietSharedState,
         _widget_id_provider: &mut WidgetIdProvider,
-        widget_events: &mut Vec<WidgetEvent<EVENT>>,
+        widget_events: &mut Vec<WidgetEvent<APP_EVENT>>,
     ) {
         match event {
             Event::KeyDown(key_event) => {
@@ -373,7 +373,7 @@ impl<EVENT: Clone> PietWidget<EVENT> for Button<EVENT> {
         _value: Box<dyn Any>,
         _shared_state: &mut PietSharedState,
         _widget_id_provider: &mut WidgetIdProvider,
-        _commands: &mut Vec<Command<EVENT>>,
+        _commands: &mut Vec<Command<APP_EVENT>>,
     ) -> Result<(), WidgetError> {
         // TODO
         println!("`Button::set_value()`: TODO");

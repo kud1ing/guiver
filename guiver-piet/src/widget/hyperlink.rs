@@ -11,12 +11,12 @@ use guiver::{
 use std::borrow::BorrowMut;
 
 ///
-pub struct Hyperlink<EVENT: Clone> {
+pub struct Hyperlink<APP_EVENT: Clone> {
     is_being_clicked: bool,
     font_is_being_clicked: Font,
     font_normal: Font,
     font_was_visited: Font,
-    text_widget: Text<EVENT>,
+    text_widget: Text<APP_EVENT>,
     was_visited: bool,
 }
 
@@ -25,7 +25,7 @@ fn adjust_font(font: &mut Font) {
     font.has_underline = true;
 }
 
-impl<EVENT: Clone> Hyperlink<EVENT> {
+impl<APP_EVENT: Clone> Hyperlink<APP_EVENT> {
     ///
     pub fn new(
         widget_id: WidgetId,
@@ -99,11 +99,11 @@ impl<EVENT: Clone> Hyperlink<EVENT> {
     }
 }
 
-impl<EVENT: Clone> Widget<EVENT> for Hyperlink<EVENT> {
+impl<APP_EVENT: Clone> Widget<APP_EVENT> for Hyperlink<APP_EVENT> {
     fn add_event_observation(
         &mut self,
         widget_event_type: WidgetEventType,
-        widget_event: WidgetEvent<EVENT>,
+        widget_event: WidgetEvent<APP_EVENT>,
     ) {
         self.text_widget
             .add_event_observation(widget_event_type, widget_event);
@@ -116,7 +116,7 @@ impl<EVENT: Clone> Widget<EVENT> for Hyperlink<EVENT> {
     fn event_observation(
         &mut self,
         widget_event_type: &WidgetEventType,
-    ) -> Option<&WidgetEvent<EVENT>> {
+    ) -> Option<&WidgetEvent<APP_EVENT>> {
         self.text_widget.event_observation(widget_event_type)
     }
 
@@ -154,13 +154,13 @@ impl<EVENT: Clone> Widget<EVENT> for Hyperlink<EVENT> {
     }
 }
 
-impl<EVENT: Clone> PietWidget<EVENT> for Hyperlink<EVENT> {
+impl<APP_EVENT: Clone> PietWidget<APP_EVENT> for Hyperlink<APP_EVENT> {
     fn handle_event(
         &mut self,
         event: &Event,
         shared_state: &mut PietSharedState,
         _widget_id_provider: &mut WidgetIdProvider,
-        widget_events: &mut Vec<WidgetEvent<EVENT>>,
+        widget_events: &mut Vec<WidgetEvent<APP_EVENT>>,
     ) {
         match event {
             Event::MouseDown(mouse_event) => {

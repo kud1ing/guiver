@@ -13,16 +13,16 @@ use guiver::{
 };
 
 /// A layout widget that adds padding around its child widget.
-pub struct Padding<EVENT: Clone> {
-    child_widget: Option<WidgetBox<EVENT>>,
-    core: WidgetCore<EVENT>,
+pub struct Padding<APP_EVENT: Clone> {
+    child_widget: Option<WidgetBox<APP_EVENT>>,
+    core: WidgetCore<APP_EVENT>,
     padding_bottom: f64,
     padding_left: f64,
     padding_right: f64,
     padding_top: f64,
 }
 
-impl<EVENT: Clone> Padding<EVENT> {
+impl<APP_EVENT: Clone> Padding<APP_EVENT> {
     ///
     pub fn new(
         widget_id: WidgetId,
@@ -77,11 +77,11 @@ impl<EVENT: Clone> Padding<EVENT> {
     }
 }
 
-impl<EVENT: Clone> Widget<EVENT> for Padding<EVENT> {
+impl<APP_EVENT: Clone> Widget<APP_EVENT> for Padding<APP_EVENT> {
     fn add_event_observation(
         &mut self,
         widget_event_type: WidgetEventType,
-        widget_event: WidgetEvent<EVENT>,
+        widget_event: WidgetEvent<APP_EVENT>,
     ) {
         self.core
             .add_event_observation(widget_event_type, widget_event);
@@ -99,7 +99,7 @@ impl<EVENT: Clone> Widget<EVENT> for Padding<EVENT> {
     fn event_observation(
         &mut self,
         widget_event_type: &WidgetEventType,
-    ) -> Option<&WidgetEvent<EVENT>> {
+    ) -> Option<&WidgetEvent<APP_EVENT>> {
         self.core.event_observation(widget_event_type)
     }
 
@@ -165,11 +165,11 @@ impl<EVENT: Clone> Widget<EVENT> for Padding<EVENT> {
     }
 }
 
-impl<EVENT: Clone> PietWidget<EVENT> for Padding<EVENT> {
+impl<APP_EVENT: Clone> PietWidget<APP_EVENT> for Padding<APP_EVENT> {
     fn add_child(
         &mut self,
         _widget_placement: Option<WidgetPlacement>,
-        child_widget: WidgetBox<EVENT>,
+        child_widget: WidgetBox<APP_EVENT>,
     ) -> Result<(), WidgetError> {
         // TODO: use `_widget_placement`?
 
@@ -186,7 +186,7 @@ impl<EVENT: Clone> PietWidget<EVENT> for Padding<EVENT> {
         event: &Event,
         shared_state: &mut PietSharedState,
         widget_id_provider: &mut WidgetIdProvider,
-        widget_events: &mut Vec<WidgetEvent<EVENT>>,
+        widget_events: &mut Vec<WidgetEvent<APP_EVENT>>,
     ) {
         // There is a child widget.
         if let Some(child_widget) = &mut self.child_widget {

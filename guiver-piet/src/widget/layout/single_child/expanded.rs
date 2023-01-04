@@ -14,13 +14,13 @@ use guiver::{
 
 /// A layout widget that tries to adjust its child widget to take all of the available space.
 /// Mostly useful in `Column` and `Row`.
-pub struct Expanded<EVENT: Clone> {
-    child_widget: Option<WidgetBox<EVENT>>,
-    core: WidgetCore<EVENT>,
+pub struct Expanded<APP_EVENT: Clone> {
+    child_widget: Option<WidgetBox<APP_EVENT>>,
+    core: WidgetCore<APP_EVENT>,
     flex_factor: u16,
 }
 
-impl<EVENT: Clone> Expanded<EVENT> {
+impl<APP_EVENT: Clone> Expanded<APP_EVENT> {
     ///
     pub fn new(widget_id: WidgetId, debug_rendering_stroke: Stroke, flex_factor: u16) -> Self {
         Expanded {
@@ -52,11 +52,11 @@ impl<EVENT: Clone> Expanded<EVENT> {
     }
 }
 
-impl<EVENT: Clone> Widget<EVENT> for Expanded<EVENT> {
+impl<APP_EVENT: Clone> Widget<APP_EVENT> for Expanded<APP_EVENT> {
     fn add_event_observation(
         &mut self,
         widget_event_type: WidgetEventType,
-        widget_event: WidgetEvent<EVENT>,
+        widget_event: WidgetEvent<APP_EVENT>,
     ) {
         self.core
             .add_event_observation(widget_event_type, widget_event);
@@ -74,7 +74,7 @@ impl<EVENT: Clone> Widget<EVENT> for Expanded<EVENT> {
     fn event_observation(
         &mut self,
         widget_event_type: &WidgetEventType,
-    ) -> Option<&WidgetEvent<EVENT>> {
+    ) -> Option<&WidgetEvent<APP_EVENT>> {
         self.core.event_observation(widget_event_type)
     }
 
@@ -144,11 +144,11 @@ impl<EVENT: Clone> Widget<EVENT> for Expanded<EVENT> {
     }
 }
 
-impl<EVENT: Clone> PietWidget<EVENT> for Expanded<EVENT> {
+impl<APP_EVENT: Clone> PietWidget<APP_EVENT> for Expanded<APP_EVENT> {
     fn add_child(
         &mut self,
         _widget_placement: Option<WidgetPlacement>,
-        child_widget: WidgetBox<EVENT>,
+        child_widget: WidgetBox<APP_EVENT>,
     ) -> Result<(), WidgetError> {
         self.child_widget = Some(child_widget.clone());
 
@@ -163,7 +163,7 @@ impl<EVENT: Clone> PietWidget<EVENT> for Expanded<EVENT> {
         event: &Event,
         shared_state: &mut PietSharedState,
         widget_id_provider: &mut WidgetIdProvider,
-        widget_events: &mut Vec<WidgetEvent<EVENT>>,
+        widget_events: &mut Vec<WidgetEvent<APP_EVENT>>,
     ) {
         // There is a child widget.
         if let Some(child_widget) = &mut self.child_widget {
