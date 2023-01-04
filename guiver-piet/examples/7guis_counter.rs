@@ -4,7 +4,7 @@ This implements the "Counter" task from [7GUIs](https://eugenkiss.github.io/7gui
 use druid_shell::kurbo::Size;
 use druid_shell::piet::Piet;
 use druid_shell::Region;
-use guiver::{Command, WidgetEvent, WidgetEventType, WidgetId, WidgetManager, WidgetType};
+use guiver::{Command, WidgetEventType, WidgetId, WidgetManager, WidgetType};
 use guiver_piet::{run, PietWidgetManager};
 use guiver_piet::{Clipboard, Event, PietApplication};
 

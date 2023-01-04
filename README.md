@@ -95,6 +95,21 @@ The developer code can handle those widget events.
 
 ## Backlog
 
+* [ ] find a `WIDGET` abstraction for `PietWidgetBox`:
+  * `Command`: 
+    * [ ] add `Command::AddWidget(WIDGET)`
+    * [ ] remove `PietWidgetManager::handle_piet_commands()`
+    * [ ] remove `PietCommand`
+  * `Widget`:
+    * [ ] move `PietWidget::add_child()` to `Widget::add_child()`
+  * `WidgetManager`:
+    * [ ] move `PietWidgetManager::add_widget()` to `WidgetManager::add_widget()`
+    * [ ] move `PietWidgetManager::widget()` to `WidgetManager::widget()`
+    * [ ] move `PietWidgetManager::widget_mut()` to `WidgetManager::widget_mut()`
+
+* [ ] remove `Command::CreateWidget`, only use `Command::AddWidget`?
+  * [ ] remove `WidgetType`
+
 * extract the remaining methods from `PietWidget` to `Widget`:
   * first find abstractions for:
     * [ ] `PietWidgetBox`
@@ -105,9 +120,6 @@ The developer code can handle those widget events.
   * use associated types?
     * [ ] in `Widget`
     * [ ] in `WidgetManager`
-  * once `PietWidgetManager` can handle `dyn Widget` instead of `dyn PietWidget`:
-    * [ ] change `Command::CreateWidget(WidgetId, WidgetType)` => `Command::CreateWidget(Box<Widget>)`
-    * [ ] remove `WidgetType`
 
 
 * make it easier for widgets to create/modify/compose themselves and other widgets:

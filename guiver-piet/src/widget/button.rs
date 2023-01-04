@@ -2,7 +2,7 @@ use crate::shared_state::PietSharedState;
 use crate::widget::core::WidgetCore;
 
 use crate::widget_manager::PietWidgetBox;
-use crate::{Event, PietWidget};
+use crate::{Event, PietCommand, PietWidget};
 use druid_shell::kurbo::{Point, Rect, RoundedRect, Size};
 use druid_shell::piet::{Color, LinearGradient, PaintBrush, Piet, RenderContext, UnitPoint};
 use druid_shell::{piet, KbKey, Region};
@@ -373,7 +373,7 @@ impl<EVENT: Clone> PietWidget<EVENT> for Button<EVENT> {
         _value: Box<dyn Any>,
         _shared_state: &mut PietSharedState,
         _widget_id_provider: &mut WidgetIdProvider,
-        _commands: &mut Vec<Command<EVENT>>,
+        _commands: &mut Vec<PietCommand<EVENT>>,
     ) -> Result<(), WidgetError> {
         // TODO
         println!("`Button::set_value()`: TODO");

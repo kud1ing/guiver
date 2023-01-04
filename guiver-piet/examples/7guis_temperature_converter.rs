@@ -3,8 +3,7 @@ This implements the "Counter" task from [7GUIs](https://eugenkiss.github.io/7gui
  */
 use druid_shell::Region;
 use guiver::{
-    Command, HorizontalAlignment, Size, WidgetEvent, WidgetEventType, WidgetId, WidgetManager,
-    WidgetType,
+    Command, HorizontalAlignment, Size, WidgetEventType, WidgetId, WidgetManager, WidgetType,
 };
 use guiver_piet::{run, Clipboard, Event, Piet, PietApplication, PietWidgetManager};
 

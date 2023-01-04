@@ -9,11 +9,11 @@ mod text_input;
 pub use self::core::WidgetCore;
 use crate::shared_state::PietSharedState;
 use crate::widget_manager::PietWidgetBox;
-use crate::Event;
+use crate::{Event, Piet, PietCommand};
 pub use button::Button;
 use druid_shell::piet;
 use druid_shell::Region;
-use guiver::{Command, Font, Widget, WidgetError, WidgetEvent, WidgetIdProvider, WidgetPlacement};
+use guiver::{Font, Widget, WidgetError, WidgetEvent, WidgetIdProvider, WidgetPlacement};
 pub use hyperlink::Hyperlink;
 pub use placeholder::Placeholder;
 use std::any::Any;
@@ -93,7 +93,7 @@ pub trait PietWidget<EVENT: Clone>: Widget<EVENT> {
         _value: Box<dyn Any>,
         _shared_state: &mut PietSharedState,
         _widget_id_provider: &mut WidgetIdProvider,
-        _commands: &mut Vec<Command<EVENT>>,
+        _commands: &mut Vec<PietCommand<EVENT>>,
     ) -> Result<(), WidgetError> {
         Err(WidgetError::NotHandled {
             widget_id: self.widget_id().clone(),

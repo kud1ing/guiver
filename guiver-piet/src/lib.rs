@@ -17,4 +17,4 @@ pub use event::Event;
 pub use shared_state::{piet_text, PietSharedState};
 pub use style::Style;
 use widget::PietWidget;
-pub use widget_manager::{PietWidgetBox, PietWidgetManager};
+pub use widget_manager::{PietCommand, PietWidgetBox, PietWidgetManager};
