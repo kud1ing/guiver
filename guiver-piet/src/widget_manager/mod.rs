@@ -271,8 +271,9 @@ impl<EVENT: Clone + 'static> PietWidgetManager<EVENT> {
         &mut self,
         event: &Event,
         clipboard: Option<&mut Clipboard>,
-    ) -> Result<Vec<WidgetEvent<EVENT>>, WidgetError> {
+    ) -> Result<Vec<EVENT>, WidgetError> {
         let mut widget_events = vec![];
+        let mut custom_widget_events = vec![];
 
         // Handle key events.
         match event {
@@ -338,7 +339,7 @@ impl<EVENT: Clone + 'static> PietWidgetManager<EVENT> {
                     }
                 }
 
-                return Ok(widget_events);
+                return Ok(custom_widget_events);
             }
             Event::KeyUp(_key_event) => {
                 // A widget has focus.
@@ -352,7 +353,7 @@ impl<EVENT: Clone + 'static> PietWidgetManager<EVENT> {
                     );
                 }
 
-                return Ok(widget_events);
+                return Ok(custom_widget_events);
             }
             _ => {}
         }
@@ -373,8 +374,11 @@ impl<EVENT: Clone + 'static> PietWidgetManager<EVENT> {
             let mut id_of_the_last_widget_that_gained_focus = None;
 
             // Iterate over the widget events in search of focus events.
-            for widget_event in &widget_events {
+            for widget_event in widget_events {
                 match widget_event {
+                    WidgetEvent::Custom(custom_widget_event) => {
+                        custom_widget_events.push(custom_widget_event);
+                    }
                     WidgetEvent::GainedFocus(widget_id) => {
                         // A widget gained focus.
                         id_of_the_last_widget_that_gained_focus = Some(widget_id.clone());
@@ -383,12 +387,11 @@ impl<EVENT: Clone + 'static> PietWidgetManager<EVENT> {
                         // A widget had focus.
                         if let Some(focused_widget) = &mut self.focused_widget {
                             // The widget that lost focus had focus before.
-                            if focused_widget.borrow().widget_id() == widget_id {
+                            if *focused_widget.borrow().widget_id() == widget_id {
                                 self.focused_widget = None;
                             }
                         }
                     }
-                    _ => {}
                 }
             }
 
@@ -421,7 +424,7 @@ impl<EVENT: Clone + 'static> PietWidgetManager<EVENT> {
             }
         }
 
-        Ok(widget_events)
+        Ok(custom_widget_events)
     }
 
     ///

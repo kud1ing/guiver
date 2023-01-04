@@ -82,7 +82,7 @@ impl PietApplication for App {
         // Iterate over the generated widget events.
         for widget_event in widget_events {
             match widget_event {
-                WidgetEvent::Custom(CustomEvent::Count) => {
+                CustomEvent::Count => {
                     // Increase the counter.
                     self.counter += 1;
 
@@ -94,7 +94,6 @@ impl PietApplication for App {
                         ))
                         .unwrap();
                 }
-                _ => {}
             }
         }
     }

@@ -132,7 +132,7 @@ impl PietApplication for App {
         // Iterate over the generated widget events.
         for widget_event in widget_events {
             match widget_event {
-                WidgetEvent::Custom(CustomEvent::ConvertFromCtoF) => {
+                CustomEvent::ConvertFromCtoF => {
                     // Try to get the widget's value.
                     let value = self
                         .widget_manager
@@ -162,7 +162,7 @@ impl PietApplication for App {
                         }
                     }
                 }
-                WidgetEvent::Custom(CustomEvent::ConvertFromFtoC) => {
+                CustomEvent::ConvertFromFtoC => {
                     // Try to get the widget's value.
                     let value = self
                         .widget_manager
@@ -192,7 +192,6 @@ impl PietApplication for App {
                         }
                     }
                 }
-                _ => {}
             }
         }
     }
