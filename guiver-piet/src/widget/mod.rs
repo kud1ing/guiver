@@ -1,12 +1,12 @@
 mod button;
-mod core;
 mod hyperlink;
 pub mod layout;
 mod placeholder;
 mod text;
 mod text_input;
+mod widget_core;
 
-pub use self::core::WidgetCore;
+pub use self::widget_core::WidgetCore;
 use crate::shared_state::PietSharedState;
 use crate::widget_manager::WidgetBox;
 use crate::{Command, Event};

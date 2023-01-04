@@ -1,5 +1,5 @@
 use crate::shared_state::PietSharedState;
-use crate::widget::core::WidgetCore;
+use crate::widget::widget_core::WidgetCore;
 use crate::widget::WidgetError;
 use crate::{Event, PietWidget};
 use druid_shell::kurbo::{Line, Point, Rect, Size};
