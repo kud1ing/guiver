@@ -1,5 +1,6 @@
 mod command;
 mod widget_focus_order;
+pub mod widget_type;
 
 use crate::shared_state::PietSharedState;
 use crate::style::Style;
@@ -7,31 +8,32 @@ use crate::widget::layout::{Center, Column, Expanded, Grid, Padding, Row, SizedB
 use crate::widget::{Button, Hyperlink, Placeholder, Text, TextInput};
 use crate::widget_manager::widget_focus_order::WidgetFocusOrder;
 use crate::{Event, PietWidget};
-pub use command::PietCommand;
+pub use command::Command;
 use druid_shell::kurbo::Size;
 use druid_shell::piet::Piet;
 use druid_shell::{piet, Clipboard, KbKey, Modifiers, Region};
 use guiver::{
-    Color, Command, HorizontalAlignment, Rect, SizeConstraints, WidgetError, WidgetEvent, WidgetId,
-    WidgetIdProvider, WidgetManager, WidgetType,
+    Color, HorizontalAlignment, Rect, SizeConstraints, WidgetError, WidgetEvent, WidgetId,
+    WidgetIdProvider,
 };
 use piet::PaintBrush;
 use std::any::Any;
 use std::cell::RefCell;
 use std::collections::{HashMap, HashSet};
 use std::rc::Rc;
+pub use widget_type::WidgetType;
 
 ///
-pub type PietWidgetBox<EVENT> = Rc<RefCell<Box<dyn PietWidget<EVENT>>>>;
+pub type WidgetBox<EVENT> = Rc<RefCell<Box<dyn PietWidget<EVENT>>>>;
 
 /// A widget manager that uses `Piet` and `druid-shell`.
-pub struct PietWidgetManager<EVENT> {
+pub struct WidgetManager<EVENT> {
     /// The IDs of each widget's child widgets.
     child_widget_ids_per_widget_id: HashMap<WidgetId, HashSet<WidgetId>>,
     /// The widget that has the focus.
-    focused_widget: Option<PietWidgetBox<EVENT>>,
+    focused_widget: Option<WidgetBox<EVENT>>,
     /// The main widget that fills the whole window.
-    main_widget: Option<PietWidgetBox<EVENT>>,
+    main_widget: Option<WidgetBox<EVENT>>,
     /// The IDs of each widget's parent widget.
     parent_widget_id_per_widget_id: HashMap<WidgetId, WidgetId>,
     ///
@@ -48,13 +50,13 @@ pub struct PietWidgetManager<EVENT> {
     /// All widgets per widget ID. This is used:
     /// * to determine whether a widget with a given ID exists
     /// * to pass commands to widgets directly
-    widgets: HashMap<WidgetId, PietWidgetBox<EVENT>>,
+    widgets: HashMap<WidgetId, WidgetBox<EVENT>>,
 }
 
-impl<EVENT: Clone + 'static> PietWidgetManager<EVENT> {
+impl<EVENT: Clone + 'static> WidgetManager<EVENT> {
     ///
     pub fn new() -> Self {
-        PietWidgetManager {
+        WidgetManager {
             child_widget_ids_per_widget_id: HashMap::new(),
             focused_widget: None,
             main_widget: None,
@@ -107,7 +109,7 @@ impl<EVENT: Clone + 'static> PietWidgetManager<EVENT> {
     }
 
     /// Puts the given widget box under widget management.
-    pub fn add_widget(&mut self, widget_box: PietWidgetBox<EVENT>) {
+    pub fn add_widget(&mut self, widget_box: WidgetBox<EVENT>) {
         let widget_id;
 
         {
@@ -440,310 +442,22 @@ impl<EVENT: Clone + 'static> PietWidgetManager<EVENT> {
         Ok(custom_widget_events)
     }
 
-    /// This is only temporary until `WidgetManager::handle_commands()` is generic enough.
-    pub fn handle_piet_commands(
+    ///
+    pub fn handle_command(&mut self, command: Command<EVENT>) -> Result<(), WidgetError> {
+        self.handle_commands(vec![command])
+    }
+
+    pub fn handle_commands(
         &mut self,
-        piet_commands: Vec<PietCommand<EVENT>>,
+        mut commands: Vec<Command<EVENT>>,
     ) -> Result<(), WidgetError> {
-        let mut commands = vec![];
-
-        for command in piet_commands {
-            match command {
-                PietCommand::AddChild {
-                    parent_widget_id,
-                    widget_placement,
-                    child_widget_id,
-                } => {
-                    commands.push(Command::AddChild {
-                        parent_widget_id,
-                        widget_placement,
-                        child_widget_id,
-                    });
-                }
-                PietCommand::AddEventObservation(widget_id, widget_event_type, custom_event) => {
-                    commands.push(Command::AddEventObservation(
-                        widget_id,
-                        widget_event_type,
-                        custom_event,
-                    ));
-                }
-                PietCommand::AddChildren {
-                    parent_widget_id,
-                    child_widgets,
-                } => {
-                    commands.push(Command::AddChildren {
-                        parent_widget_id,
-                        child_widgets,
-                    });
-                }
-                PietCommand::AddWidget(widget_box) => self.add_widget(widget_box),
-                PietCommand::CreateWidget(widget_id, widget_type) => {
-                    commands.push(Command::CreateWidget(widget_id, widget_type));
-                }
-                PietCommand::Destroy(widget_id) => {
-                    commands.push(Command::Destroy(widget_id));
-                }
-                PietCommand::RemoveChild {
-                    parent_widget_id,
-                    child_widget_id,
-                    destroy_child_widget,
-                } => {
-                    commands.push(Command::RemoveChild {
-                        parent_widget_id,
-                        child_widget_id,
-                        destroy_child_widget,
-                    });
-                }
-                PietCommand::RemoveChildren {
-                    parent_widget_id,
-                    destroy_child_widgets,
-                } => {
-                    commands.push(Command::RemoveChildren {
-                        parent_widget_id,
-                        destroy_child_widgets,
-                    });
-                }
-                PietCommand::RemoveEventObservation(widget_id, widget_event_type) => {
-                    commands.push(Command::RemoveEventObservation(
-                        widget_id,
-                        widget_event_type,
-                    ));
-                }
-                PietCommand::SetDebugRendering(widget_id, x) => {
-                    commands.push(Command::SetDebugRendering(widget_id, x));
-                }
-                PietCommand::SetFill(widget_id, x) => {
-                    commands.push(Command::SetFill(widget_id, x));
-                }
-                PietCommand::SetFont(widget_id, x) => {
-                    commands.push(Command::SetFont(widget_id, x));
-                }
-                PietCommand::SetHasFocus(widget_id, x) => {
-                    commands.push(Command::SetHasFocus(widget_id, x));
-                }
-                PietCommand::SetHorizontalAlignment(widget_id, x) => {
-                    commands.push(Command::SetHorizontalAlignment(widget_id, x));
-                }
-                PietCommand::SetIsDisabled(widget_id, x) => {
-                    commands.push(Command::SetIsDisabled(widget_id, x));
-                }
-                PietCommand::SetIsHidden(widget_id, x) => {
-                    commands.push(Command::SetIsHidden(widget_id, x));
-                }
-                PietCommand::SetMainWidget(widget_id) => {
-                    commands.push(Command::SetMainWidget(widget_id));
-                }
-                PietCommand::SetStroke(widget_id, x) => {
-                    commands.push(Command::SetStroke(widget_id, x));
-                }
-                PietCommand::SetValue(widget_id, x) => {
-                    commands.push(Command::SetValue(widget_id, x));
-                }
-                PietCommand::SetVerticalAlignment(widget_id, x) => {
-                    commands.push(Command::SetVerticalAlignment(widget_id, x));
-                }
-            }
-        }
-
-        self.handle_commands(commands)
-    }
-
-    ///
-    pub fn paint(&self, piet: &mut Piet, region: &Region) -> Result<(), piet::Error> {
-        // There is a main widget.
-        if let Some(main_widget) = &self.main_widget {
-            // Paint the main widget.
-            main_widget.borrow().paint(piet, region)?;
-        }
-
-        Ok(())
-    }
-
-    ///
-    fn remove_parent_child_widget_connection(
-        &mut self,
-        parent_widget_id: WidgetId,
-        child_widget_id: WidgetId,
-    ) {
-        // Remove the child widget from the focus order.
-        self.widget_focus_order.remove_widget(child_widget_id);
-
-        self.child_widget_ids_per_widget_id
-            .entry(parent_widget_id)
-            .or_default()
-            .remove(&child_widget_id);
-
-        self.parent_widget_id_per_widget_id.remove(&child_widget_id);
-    }
-
-    ///
-    fn remove_parent_child_widget_connections(&mut self, parent_widget_id: WidgetId) {
-        // Iterate over and remove the child widget IDs for the given parent widget ID.
-        for child_widget_id in self
-            .child_widget_ids_per_widget_id
-            .entry(parent_widget_id)
-            .or_default()
-            .drain()
-        {
-            // Remove the child widget from the focus order.
-            self.widget_focus_order.remove_widget(child_widget_id);
-
-            // Remove the parent widget ID for the current child widget ID.
-            self.parent_widget_id_per_widget_id.remove(&child_widget_id);
-        }
-    }
-
-    ///
-    pub fn shared_state(&mut self) -> &mut PietSharedState {
-        &mut self.shared_state
-    }
-
-    ///
-    pub fn style(&self) -> &Style {
-        &self.style
-    }
-
-    ///
-    fn widget(&self, widget_id: WidgetId) -> Result<&PietWidgetBox<EVENT>, WidgetError> {
-        // There is a widget with the given ID.
-        if let Some(widget_box) = self.widgets.get(&widget_id) {
-            Ok(widget_box)
-        }
-        // There is no widget with the given ID.
-        else {
-            Err(WidgetError::NoSuchWidget(widget_id))
-        }
-    }
-
-    ///
-    pub fn widget_id_provider(&mut self) -> &mut WidgetIdProvider {
-        &mut self.widget_id_provider
-    }
-
-    ///
-    fn widget_mut(
-        &mut self,
-        widget_id: WidgetId,
-    ) -> Result<&mut PietWidgetBox<EVENT>, WidgetError> {
-        // There is a widget with the given ID.
-        if let Some(widget_box) = self.widgets.get_mut(&widget_id) {
-            Ok(widget_box)
-        }
-        // There is no widget with the given ID.
-        else {
-            Err(WidgetError::NoSuchWidget(widget_id))
-        }
-    }
-}
-
-impl<EVENT: Clone + 'static> WidgetManager<EVENT> for PietWidgetManager<EVENT> {
-    fn handle_commands(&mut self, commands: Vec<Command<EVENT>>) -> Result<(), WidgetError> {
-        let mut current_commands = vec![];
-
-        for command in commands {
-            match command {
-                Command::AddChild {
-                    parent_widget_id,
-                    widget_placement,
-                    child_widget_id,
-                } => {
-                    current_commands.push(PietCommand::AddChild {
-                        parent_widget_id,
-                        widget_placement,
-                        child_widget_id,
-                    });
-                }
-                Command::AddEventObservation(widget_id, widget_event_type, custom_event) => {
-                    current_commands.push(PietCommand::AddEventObservation(
-                        widget_id,
-                        widget_event_type,
-                        custom_event,
-                    ));
-                }
-                Command::AddChildren {
-                    parent_widget_id,
-                    child_widgets,
-                } => {
-                    current_commands.push(PietCommand::AddChildren {
-                        parent_widget_id,
-                        child_widgets,
-                    });
-                }
-                Command::CreateWidget(widget_id, widget_type) => {
-                    current_commands.push(PietCommand::CreateWidget(widget_id, widget_type));
-                }
-                Command::Destroy(widget_id) => {
-                    current_commands.push(PietCommand::Destroy(widget_id));
-                }
-                Command::RemoveChild {
-                    parent_widget_id,
-                    child_widget_id,
-                    destroy_child_widget,
-                } => {
-                    current_commands.push(PietCommand::RemoveChild {
-                        parent_widget_id,
-                        child_widget_id,
-                        destroy_child_widget,
-                    });
-                }
-                Command::RemoveChildren {
-                    parent_widget_id,
-                    destroy_child_widgets,
-                } => {
-                    current_commands.push(PietCommand::RemoveChildren {
-                        parent_widget_id,
-                        destroy_child_widgets,
-                    });
-                }
-                Command::RemoveEventObservation(widget_id, widget_event_type) => {
-                    current_commands.push(PietCommand::RemoveEventObservation(
-                        widget_id,
-                        widget_event_type,
-                    ));
-                }
-                Command::SetDebugRendering(widget_id, x) => {
-                    current_commands.push(PietCommand::SetDebugRendering(widget_id, x));
-                }
-                Command::SetFill(widget_id, x) => {
-                    current_commands.push(PietCommand::SetFill(widget_id, x));
-                }
-                Command::SetFont(widget_id, x) => {
-                    current_commands.push(PietCommand::SetFont(widget_id, x));
-                }
-                Command::SetHasFocus(widget_id, x) => {
-                    current_commands.push(PietCommand::SetHasFocus(widget_id, x));
-                }
-                Command::SetHorizontalAlignment(widget_id, x) => {
-                    current_commands.push(PietCommand::SetHorizontalAlignment(widget_id, x));
-                }
-                Command::SetIsDisabled(widget_id, x) => {
-                    current_commands.push(PietCommand::SetIsDisabled(widget_id, x));
-                }
-                Command::SetIsHidden(widget_id, x) => {
-                    current_commands.push(PietCommand::SetIsHidden(widget_id, x));
-                }
-                Command::SetMainWidget(widget_id) => {
-                    current_commands.push(PietCommand::SetMainWidget(widget_id));
-                }
-                Command::SetStroke(widget_id, x) => {
-                    current_commands.push(PietCommand::SetStroke(widget_id, x));
-                }
-                Command::SetValue(widget_id, x) => {
-                    current_commands.push(PietCommand::SetValue(widget_id, x));
-                }
-                Command::SetVerticalAlignment(widget_id, x) => {
-                    current_commands.push(PietCommand::SetVerticalAlignment(widget_id, x));
-                }
-            }
-        }
-
         loop {
             let mut next_commands = vec![];
 
             // Iterate over the given commands.
-            for command in current_commands {
+            for command in commands {
                 match command {
-                    PietCommand::AddChild {
+                    Command::AddChild {
                         parent_widget_id,
                         widget_placement,
                         child_widget_id,
@@ -767,7 +481,7 @@ impl<EVENT: Clone + 'static> WidgetManager<EVENT> for PietWidgetManager<EVENT> {
 
                         self.add_parent_child_widget_connection(parent_widget_id, child_widget_id);
                     }
-                    PietCommand::AddChildren {
+                    Command::AddChildren {
                         parent_widget_id,
                         child_widgets,
                         ..
@@ -801,11 +515,7 @@ impl<EVENT: Clone + 'static> WidgetManager<EVENT> for PietWidgetManager<EVENT> {
                                 .add_child(widget_placement, child_widget_box.clone())?;
                         }
                     }
-                    PietCommand::AddEventObservation(
-                        widget_id,
-                        widget_event_type,
-                        custom_value,
-                    ) => {
+                    Command::AddEventObservation(widget_id, widget_event_type, custom_value) => {
                         let widget_box = self.widget(widget_id)?;
 
                         widget_box.borrow_mut().add_event_observation(
@@ -813,8 +523,8 @@ impl<EVENT: Clone + 'static> WidgetManager<EVENT> for PietWidgetManager<EVENT> {
                             WidgetEvent::Custom(custom_value),
                         );
                     }
-                    PietCommand::AddWidget(widget_box) => self.add_widget(widget_box),
-                    PietCommand::CreateWidget(widget_id, widget_type) => {
+                    Command::AddWidget(widget_box) => self.add_widget(widget_box),
+                    Command::CreateWidget(widget_id, widget_type) => {
                         // A widget with the given ID exists already.
                         if self.widgets.contains_key(&widget_id) {
                             return Err(WidgetError::WidgetExistsAlready(widget_id));
@@ -928,8 +638,8 @@ impl<EVENT: Clone + 'static> WidgetManager<EVENT> for PietWidgetManager<EVENT> {
 
                         self.add_widget(Rc::new(RefCell::new(widget_box)));
                     }
-                    PietCommand::Destroy(widget_id) => self.destroy_widget(widget_id),
-                    PietCommand::RemoveChild {
+                    Command::Destroy(widget_id) => self.destroy_widget(widget_id),
+                    Command::RemoveChild {
                         parent_widget_id,
                         child_widget_id,
                         destroy_child_widget: destroy,
@@ -949,7 +659,7 @@ impl<EVENT: Clone + 'static> WidgetManager<EVENT> for PietWidgetManager<EVENT> {
                             );
                         }
                     }
-                    PietCommand::RemoveChildren {
+                    Command::RemoveChildren {
                         parent_widget_id,
                         destroy_child_widgets,
                         ..
@@ -977,22 +687,22 @@ impl<EVENT: Clone + 'static> WidgetManager<EVENT> for PietWidgetManager<EVENT> {
                             self.remove_parent_child_widget_connections(parent_widget_id);
                         }
                     }
-                    PietCommand::RemoveEventObservation(widget_id, widget_event_type) => {
+                    Command::RemoveEventObservation(widget_id, widget_event_type) => {
                         let widget_box = self.widget(widget_id)?;
 
                         widget_box
                             .borrow_mut()
                             .remove_event_observation(&widget_event_type);
                     }
-                    PietCommand::SetDebugRendering(widget_id, debug_rendering) => {
+                    Command::SetDebugRendering(widget_id, debug_rendering) => {
                         let widget_box = self.widget(widget_id)?;
                         widget_box.borrow_mut().set_debug_rendering(debug_rendering);
                     }
-                    PietCommand::SetFill(widget_id, fill) => {
+                    Command::SetFill(widget_id, fill) => {
                         let widget_box = self.widget(widget_id)?;
                         widget_box.borrow_mut().set_fill(fill)?;
                     }
-                    PietCommand::SetFont(widget_id, font) => {
+                    Command::SetFont(widget_id, font) => {
                         // There is a widget with the given ID.
                         let widget_box = if let Some(widget_box) = self.widgets.get(&widget_id) {
                             widget_box
@@ -1006,7 +716,7 @@ impl<EVENT: Clone + 'static> WidgetManager<EVENT> for PietWidgetManager<EVENT> {
                             .borrow_mut()
                             .set_font(font, &mut self.shared_state)?;
                     }
-                    PietCommand::SetHasFocus(widget_id, has_focus) => {
+                    Command::SetHasFocus(widget_id, has_focus) => {
                         // There is a widget with the given ID.
                         let widget_box = if let Some(widget_box) = self.widgets.get(&widget_id) {
                             widget_box
@@ -1042,30 +752,30 @@ impl<EVENT: Clone + 'static> WidgetManager<EVENT> for PietWidgetManager<EVENT> {
                             self.focused_widget = Some(widget_box.clone());
                         }
                     }
-                    PietCommand::SetHorizontalAlignment(widget_id, horizontal_alignment) => {
+                    Command::SetHorizontalAlignment(widget_id, horizontal_alignment) => {
                         let widget_box = self.widget(widget_id)?;
                         widget_box
                             .borrow_mut()
                             .set_horizontal_alignment(horizontal_alignment)?;
                     }
-                    PietCommand::SetIsDisabled(widget_id, is_disabled) => {
+                    Command::SetIsDisabled(widget_id, is_disabled) => {
                         let widget_box = self.widget(widget_id)?;
                         widget_box.borrow_mut().set_is_disabled(is_disabled);
                     }
-                    PietCommand::SetIsHidden(widget_id, is_hidden) => {
+                    Command::SetIsHidden(widget_id, is_hidden) => {
                         let widget_box = self.widget(widget_id)?;
                         widget_box.borrow_mut().set_is_hidden(is_hidden);
                     }
-                    PietCommand::SetMainWidget(widget_id) => {
+                    Command::SetMainWidget(widget_id) => {
                         let widget_box = self.widget(widget_id)?;
                         widget_box.borrow_mut().set_origin((1.0, 1.0).into());
                         self.main_widget = Some(widget_box.clone());
                     }
-                    PietCommand::SetStroke(widget_id, stroke) => {
+                    Command::SetStroke(widget_id, stroke) => {
                         let widget_box = self.widget(widget_id)?;
                         widget_box.borrow_mut().set_stroke(stroke)?;
                     }
-                    PietCommand::SetValue(widget_id, value) => {
+                    Command::SetValue(widget_id, value) => {
                         // There is a widget with the given ID.
                         let widget_box = if let Some(widget_box) = self.widgets.get(&widget_id) {
                             widget_box
@@ -1082,7 +792,7 @@ impl<EVENT: Clone + 'static> WidgetManager<EVENT> for PietWidgetManager<EVENT> {
                             &mut next_commands,
                         )?;
                     }
-                    PietCommand::SetVerticalAlignment(widget_id, vertical_alignment) => {
+                    Command::SetVerticalAlignment(widget_id, vertical_alignment) => {
                         let widget_box = self.widget(widget_id)?;
                         widget_box
                             .borrow_mut()
@@ -1095,7 +805,7 @@ impl<EVENT: Clone + 'static> WidgetManager<EVENT> for PietWidgetManager<EVENT> {
                 break;
             }
 
-            current_commands = next_commands;
+            commands = next_commands;
         }
 
         // There is a main widget.
@@ -1110,12 +820,57 @@ impl<EVENT: Clone + 'static> WidgetManager<EVENT> for PietWidgetManager<EVENT> {
         Ok(())
     }
 
+    ///
+    pub fn paint(&self, piet: &mut Piet, region: &Region) -> Result<(), piet::Error> {
+        // There is a main widget.
+        if let Some(main_widget) = &self.main_widget {
+            // Paint the main widget.
+            main_widget.borrow().paint(piet, region)?;
+        }
+
+        Ok(())
+    }
+
     /// Returns a widget's rectangle.
-    fn rectangle(&self, widget_id: WidgetId) -> Result<Rect, WidgetError> {
+    pub fn rectangle(&self, widget_id: WidgetId) -> Result<Rect, WidgetError> {
         Ok(self.widget(widget_id)?.borrow().rectangle().clone())
     }
 
-    fn resize(&mut self, size: Size) {
+    ///
+    fn remove_parent_child_widget_connection(
+        &mut self,
+        parent_widget_id: WidgetId,
+        child_widget_id: WidgetId,
+    ) {
+        // Remove the child widget from the focus order.
+        self.widget_focus_order.remove_widget(child_widget_id);
+
+        self.child_widget_ids_per_widget_id
+            .entry(parent_widget_id)
+            .or_default()
+            .remove(&child_widget_id);
+
+        self.parent_widget_id_per_widget_id.remove(&child_widget_id);
+    }
+
+    ///
+    fn remove_parent_child_widget_connections(&mut self, parent_widget_id: WidgetId) {
+        // Iterate over and remove the child widget IDs for the given parent widget ID.
+        for child_widget_id in self
+            .child_widget_ids_per_widget_id
+            .entry(parent_widget_id)
+            .or_default()
+            .drain()
+        {
+            // Remove the child widget from the focus order.
+            self.widget_focus_order.remove_widget(child_widget_id);
+
+            // Remove the parent widget ID for the current child widget ID.
+            self.parent_widget_id_per_widget_id.remove(&child_widget_id);
+        }
+    }
+
+    pub fn resize(&mut self, size: Size) {
         // Create a new size constraint from the given window size.
         let size_constraints = SizeConstraints::tight(size - Size::new(2.0, 2.0));
 
@@ -1131,11 +886,50 @@ impl<EVENT: Clone + 'static> WidgetManager<EVENT> for PietWidgetManager<EVENT> {
         }
     }
 
-    fn selected_value(&self, widget_id: WidgetId) -> Result<Option<Box<dyn Any>>, WidgetError> {
+    pub fn selected_value(&self, widget_id: WidgetId) -> Result<Option<Box<dyn Any>>, WidgetError> {
         Ok(self.widget(widget_id)?.borrow().selected_value())
     }
 
-    fn value(&self, widget_id: WidgetId) -> Result<Option<Box<dyn Any>>, WidgetError> {
+    ///
+    pub fn shared_state(&mut self) -> &mut PietSharedState {
+        &mut self.shared_state
+    }
+
+    ///
+    pub fn style(&self) -> &Style {
+        &self.style
+    }
+
+    pub fn value(&self, widget_id: WidgetId) -> Result<Option<Box<dyn Any>>, WidgetError> {
         Ok(self.widget(widget_id)?.borrow().value())
+    }
+
+    ///
+    fn widget(&self, widget_id: WidgetId) -> Result<&WidgetBox<EVENT>, WidgetError> {
+        // There is a widget with the given ID.
+        if let Some(widget_box) = self.widgets.get(&widget_id) {
+            Ok(widget_box)
+        }
+        // There is no widget with the given ID.
+        else {
+            Err(WidgetError::NoSuchWidget(widget_id))
+        }
+    }
+
+    ///
+    pub fn widget_id_provider(&mut self) -> &mut WidgetIdProvider {
+        &mut self.widget_id_provider
+    }
+
+    ///
+    fn widget_mut(&mut self, widget_id: WidgetId) -> Result<&mut WidgetBox<EVENT>, WidgetError> {
+        // There is a widget with the given ID.
+        if let Some(widget_box) = self.widgets.get_mut(&widget_id) {
+            Ok(widget_box)
+        }
+        // There is no widget with the given ID.
+        else {
+            Err(WidgetError::NoSuchWidget(widget_id))
+        }
     }
 }

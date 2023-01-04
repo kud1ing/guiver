@@ -2,10 +2,10 @@
 This implements the "Counter" task from [7GUIs](https://eugenkiss.github.io/7guis/tasks/).
  */
 use druid_shell::Region;
-use guiver::{
-    Command, HorizontalAlignment, Size, WidgetEventType, WidgetId, WidgetManager, WidgetType,
+use guiver::{HorizontalAlignment, Size, WidgetEventType, WidgetId};
+use guiver_piet::{
+    run, Clipboard, Command, Event, Piet, PietApplication, WidgetManager, WidgetType,
 };
-use guiver_piet::{run, Clipboard, Event, Piet, PietApplication, PietWidgetManager};
 
 ///
 #[derive(Clone)]
@@ -19,12 +19,12 @@ pub(crate) struct App {
     clipboard: Option<Clipboard>,
     text_input_celsius: WidgetId,
     text_input_fahrenheit: WidgetId,
-    widget_manager: PietWidgetManager<CustomEvent>,
+    widget_manager: WidgetManager<CustomEvent>,
 }
 
 impl App {
     pub(crate) fn new() -> Self {
-        let mut widget_manager = PietWidgetManager::new();
+        let mut widget_manager = WidgetManager::new();
 
         let padding = widget_manager.widget_id_provider().next_widget_id();
         let row = widget_manager.widget_id_provider().next_widget_id();

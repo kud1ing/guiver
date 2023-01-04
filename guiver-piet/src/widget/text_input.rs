@@ -1,13 +1,13 @@
 use crate::shared_state::PietSharedState;
 use crate::widget::core::WidgetCore;
 use crate::widget::Text;
-use crate::{Event, PietCommand, PietWidget};
+use crate::{Command, Event, PietWidget};
 use druid_shell::kurbo::{Line, Point, Rect, RoundedRect, Size};
 use druid_shell::piet::{Color, Error, PaintBrush, Piet, PietText, RenderContext};
 use druid_shell::{KbKey, Region};
 use guiver::stroke::Stroke;
 use guiver::{
-    Command, Font, HorizontalAlignment, SizeConstraints, VerticalAlignment, Widget, WidgetError,
+    Font, HorizontalAlignment, SizeConstraints, VerticalAlignment, Widget, WidgetError,
     WidgetEvent, WidgetEventType, WidgetId, WidgetIdProvider,
 };
 use std::any::Any;
@@ -187,7 +187,7 @@ impl<EVENT: Clone> TextInput<EVENT> {
         &mut self,
         shared_state: &mut PietSharedState,
         widget_id_provider: &mut WidgetIdProvider,
-        commands: &mut Vec<PietCommand<EVENT>>,
+        commands: &mut Vec<Command<EVENT>>,
     ) {
         // Pass the updated text to the child text widget.
         self.text_widget
@@ -482,7 +482,7 @@ impl<EVENT: Clone> PietWidget<EVENT> for TextInput<EVENT> {
         value: Box<dyn Any>,
         shared_state: &mut PietSharedState,
         widget_id_provider: &mut WidgetIdProvider,
-        commands: &mut Vec<PietCommand<EVENT>>,
+        commands: &mut Vec<Command<EVENT>>,
     ) -> Result<(), WidgetError> {
         // The given value is a string.
         if let Some(string) = value.downcast_ref::<String>() {

@@ -1,6 +1,6 @@
 use crate::shared_state::PietSharedState;
 use crate::widget::core::WidgetCore;
-use crate::widget_manager::PietWidgetBox;
+use crate::widget_manager::WidgetBox;
 use crate::{Event, PietWidget};
 use druid_shell::kurbo::{Point, Rect, Size};
 use druid_shell::piet::{Piet, RenderContext};
@@ -13,7 +13,7 @@ use guiver::{
 
 /// A layout widget that centers its child widget.
 pub struct Center<EVENT: Clone> {
-    child_widget: Option<PietWidgetBox<EVENT>>,
+    child_widget: Option<WidgetBox<EVENT>>,
     core: WidgetCore<EVENT>,
 }
 
@@ -139,7 +139,7 @@ impl<EVENT: Clone> PietWidget<EVENT> for Center<EVENT> {
     fn add_child(
         &mut self,
         _widget_placement: Option<WidgetPlacement>,
-        child_widget: PietWidgetBox<EVENT>,
+        child_widget: WidgetBox<EVENT>,
     ) -> Result<(), WidgetError> {
         self.child_widget = Some(child_widget);
 

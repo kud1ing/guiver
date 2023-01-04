@@ -8,8 +8,8 @@ mod text_input;
 
 pub use self::core::WidgetCore;
 use crate::shared_state::PietSharedState;
-use crate::widget_manager::PietWidgetBox;
-use crate::{Event, Piet, PietCommand};
+use crate::widget_manager::WidgetBox;
+use crate::{Command, Event};
 pub use button::Button;
 use druid_shell::piet;
 use druid_shell::Region;
@@ -30,7 +30,7 @@ pub trait PietWidget<EVENT: Clone>: Widget<EVENT> {
     fn add_child(
         &mut self,
         _widget_placement: Option<WidgetPlacement>,
-        _child_widget: PietWidgetBox<EVENT>,
+        _child_widget: WidgetBox<EVENT>,
     ) -> Result<(), WidgetError> {
         Err(WidgetError::NotHandled {
             widget_id: self.widget_id().clone(),
@@ -93,7 +93,7 @@ pub trait PietWidget<EVENT: Clone>: Widget<EVENT> {
         _value: Box<dyn Any>,
         _shared_state: &mut PietSharedState,
         _widget_id_provider: &mut WidgetIdProvider,
-        _commands: &mut Vec<PietCommand<EVENT>>,
+        _commands: &mut Vec<Command<EVENT>>,
     ) -> Result<(), WidgetError> {
         Err(WidgetError::NotHandled {
             widget_id: self.widget_id().clone(),

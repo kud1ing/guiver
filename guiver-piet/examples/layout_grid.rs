@@ -1,16 +1,15 @@
-use guiver::{
-    Command, GridColumnProperties, GridRowProperties, Size, WidgetManager, WidgetPlacement,
-    WidgetType,
+use guiver::{GridColumnProperties, GridRowProperties, Size, WidgetPlacement};
+use guiver_piet::{
+    run, Clipboard, Command, Event, Piet, PietApplication, Region, WidgetManager, WidgetType,
 };
-use guiver_piet::{run, Clipboard, Event, Piet, PietApplication, PietWidgetManager, Region};
 
 pub(crate) struct App {
-    widget_manager: PietWidgetManager<()>,
+    widget_manager: WidgetManager<()>,
 }
 
 impl App {
     pub(crate) fn new() -> Self {
-        let mut widget_manager = PietWidgetManager::new();
+        let mut widget_manager = WidgetManager::new();
 
         let padding = widget_manager.widget_id_provider().next_widget_id();
         let grid = widget_manager.widget_id_provider().next_widget_id();

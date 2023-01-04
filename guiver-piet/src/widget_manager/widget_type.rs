@@ -1,5 +1,5 @@
-use crate::{GridColumnProperties, GridRowProperties};
 use druid_shell::kurbo::Size;
+use guiver::{GridColumnProperties, GridRowProperties};
 
 ///
 #[derive(Clone, Debug)]

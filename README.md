@@ -95,39 +95,15 @@ The developer code can handle those widget events.
 
 ## Backlog
 
-* [ ] find a `WIDGET` abstraction for `PietWidgetBox`:
-  * `Command`: 
-    * [ ] add `Command::AddWidget(WIDGET)`
-    * [ ] remove `PietWidgetManager::handle_piet_commands()`
-    * [ ] remove `PietCommand`
-  * `Widget`:
-    * [ ] move `PietWidget::add_child()` to `Widget::add_child()`
-  * `WidgetManager`:
-    * [ ] move `PietWidgetManager::add_widget()` to `WidgetManager::add_widget()`
-    * [ ] move `PietWidgetManager::widget()` to `WidgetManager::widget()`
-    * [ ] move `PietWidgetManager::widget_mut()` to `WidgetManager::widget_mut()`
-
-* [ ] remove `Command::CreateWidget`, only use `Command::AddWidget`?
-  * [ ] remove `WidgetType`
-
-* extract the remaining methods from `PietWidget` to `Widget`:
-  * first find abstractions for:
-    * [ ] `PietWidgetBox`
-    * [ ] `PietSharedState`
-    * [ ] `Event`
-    * [ ] `Piet`
-    * [ ] `Region`
-  * use associated types?
-    * [ ] in `Widget`
-    * [ ] in `WidgetManager`
-
+* [ ] support the concept of layers/z-order for dropdown boxes, tooltips etc.
+  * [ ] how?
+    * Druid: [`PaintCtx::paint_with_z_index()`](https://docs.rs/druid/latest/src/druid/contexts.rs.html#735-746)
 
 * make it easier for widgets to create/modify/compose themselves and other widgets:
   * [ ] make it possible to add `PietWidgetBox` (see `add_widget()`) via `Command`
     * add `AddWidget(WIDGET)`
     * [ ] move a generic version of `add_widget()` to `WidgetManager`
   * [ ] remove `WidgetIdProvider` from `PietWidgetManager` to remove
-
 
 
 * add selectors:
@@ -261,8 +237,6 @@ The developer code can handle those widget events.
 * support text selection:
   * [ ] Shift + cursor movement
   * [ ] Meta+A
-* [ ] support a concept of layers/z-order for dropdown boxes, tooltips etc.
-  * [ ] how?
 * [ ] support Drag and drop
   * `druid-shell` has [no support](https://github.com/linebender/druid/issues/1742)
 * [ ] implement [7GUIs](https://eugenkiss.github.io/7guis/tasks)

@@ -8,7 +8,6 @@ mod widget_error;
 mod widget_event;
 mod widget_event_type;
 mod widget_id_provider;
-mod widget_manager;
 mod widget_placement;
 mod widgets_location;
 
@@ -23,7 +22,8 @@ pub use grid::{GridColumnProperties, GridRowProperties};
 pub use size_constraints::SizeConstraints;
 pub use stroke::Stroke;
 pub use widget::{Widget, WidgetId};
+pub use widget_error::WidgetError;
+pub use widget_event::WidgetEvent;
+pub use widget_event_type::WidgetEventType;
 pub use widget_id_provider::WidgetIdProvider;
-pub use widget_manager::{
-    Command, WidgetError, WidgetEvent, WidgetEventType, WidgetManager, WidgetPlacement, WidgetType,
-};
+pub use widget_placement::WidgetPlacement;

@@ -1,7 +1,7 @@
 use crate::shared_state::PietSharedState;
 use crate::widget::core::WidgetCore;
 use crate::widget::WidgetError;
-use crate::widget_manager::PietWidgetBox;
+use crate::widget_manager::WidgetBox;
 use crate::{Event, Piet, PietWidget};
 use druid_shell::kurbo::{Point, Rect};
 use druid_shell::piet::{Error, RenderContext};
@@ -22,7 +22,7 @@ pub struct Grid<EVENT: Clone> {
     child_widget_id_per_cell: HashMap<(usize, usize), WidgetId>,
     child_widget_ids_per_column: HashMap<usize, HashSet<WidgetId>>,
     child_widget_ids_per_row: HashMap<usize, HashSet<WidgetId>>,
-    child_widget_per_id: HashMap<WidgetId, PietWidgetBox<EVENT>>,
+    child_widget_per_id: HashMap<WidgetId, WidgetBox<EVENT>>,
     column_properties: Vec<GridColumnProperties>,
     core: WidgetCore<EVENT>,
     default_column_properties: GridColumnProperties,
@@ -58,7 +58,7 @@ impl<EVENT: Clone> Grid<EVENT> {
     /// Adds the given child widget to the grid.
     fn add_child_widget(
         &mut self,
-        child_widget: PietWidgetBox<EVENT>,
+        child_widget: WidgetBox<EVENT>,
         column_index: usize,
         row_index: usize,
     ) {
@@ -448,7 +448,7 @@ impl<EVENT: Clone> PietWidget<EVENT> for Grid<EVENT> {
     fn add_child(
         &mut self,
         widget_placement: Option<WidgetPlacement>,
-        child_widget: PietWidgetBox<EVENT>,
+        child_widget: WidgetBox<EVENT>,
     ) -> Result<(), WidgetError> {
         // A grid widget placement is given
         if let Some(WidgetPlacement::Grid {

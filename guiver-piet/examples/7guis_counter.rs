@@ -4,8 +4,8 @@ This implements the "Counter" task from [7GUIs](https://eugenkiss.github.io/7gui
 use druid_shell::kurbo::Size;
 use druid_shell::piet::Piet;
 use druid_shell::Region;
-use guiver::{Command, WidgetEventType, WidgetId, WidgetManager, WidgetType};
-use guiver_piet::{run, PietWidgetManager};
+use guiver::{WidgetEventType, WidgetId};
+use guiver_piet::{run, Command, WidgetManager, WidgetType};
 use guiver_piet::{Clipboard, Event, PietApplication};
 
 ///
@@ -18,12 +18,12 @@ enum CustomEvent {
 pub(crate) struct App {
     counter: u32,
     counter_text: WidgetId,
-    widget_manager: PietWidgetManager<CustomEvent>,
+    widget_manager: WidgetManager<CustomEvent>,
 }
 
 impl App {
     pub(crate) fn new() -> Self {
-        let mut widget_manager = PietWidgetManager::new();
+        let mut widget_manager = WidgetManager::new();
 
         let padding = widget_manager.widget_id_provider().next_widget_id();
         let row = widget_manager.widget_id_provider().next_widget_id();

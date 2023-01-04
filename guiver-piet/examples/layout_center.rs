@@ -1,13 +1,15 @@
-use guiver::{Command, Size, WidgetManager, WidgetType};
-use guiver_piet::{run, Clipboard, Event, Piet, PietApplication, PietWidgetManager, Region};
+use guiver::Size;
+use guiver_piet::{
+    run, Clipboard, Command, Event, Piet, PietApplication, Region, WidgetManager, WidgetType,
+};
 
 pub(crate) struct App {
-    widget_manager: PietWidgetManager<()>,
+    widget_manager: WidgetManager<()>,
 }
 
 impl App {
     pub(crate) fn new() -> Self {
-        let mut widget_manager = PietWidgetManager::new();
+        let mut widget_manager = WidgetManager::new();
 
         let center = widget_manager.widget_id_provider().next_widget_id();
         let text = widget_manager.widget_id_provider().next_widget_id();

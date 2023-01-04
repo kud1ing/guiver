@@ -1,18 +1,19 @@
-use guiver::{Command, Size, WidgetManager, WidgetType};
+use guiver::Size;
 /**
 This implements the "Flight Booker" task from [7GUIs](https://eugenkiss.github.io/7guis/tasks/).
 */
 use guiver_piet::{
-    run, Clipboard, Color, Event, PaintBrush, Piet, PietApplication, PietWidgetManager, Region,
+    run, Clipboard, Color, Command, Event, PaintBrush, Piet, PietApplication, Region,
+    WidgetManager, WidgetType,
 };
 
 pub(crate) struct App {
-    widget_manager: PietWidgetManager<()>,
+    widget_manager: WidgetManager<()>,
 }
 
 impl App {
     pub(crate) fn new() -> Self {
-        let mut widget_manager = PietWidgetManager::new();
+        let mut widget_manager = WidgetManager::new();
 
         let padding = widget_manager.widget_id_provider().next_widget_id();
         let column = widget_manager.widget_id_provider().next_widget_id();

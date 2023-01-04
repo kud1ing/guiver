@@ -1,7 +1,7 @@
-use crate::{
-    HorizontalAlignment, SizeConstraints, Stroke, VerticalAlignment, WidgetError, WidgetEvent,
-    WidgetEventType,
-};
+use crate::widget_error::WidgetError;
+use crate::widget_event::WidgetEvent;
+use crate::widget_event_type::WidgetEventType;
+use crate::{HorizontalAlignment, SizeConstraints, Stroke, VerticalAlignment};
 use druid_shell::kurbo::{Point, Rect, Size};
 use druid_shell::piet::PaintBrush;
 use std::any::Any;

@@ -1,14 +1,14 @@
 use crate::shared_state::PietSharedState;
 use crate::widget::core::WidgetCore;
-use crate::{Event, PietCommand, PietWidget};
+use crate::{Command, Event, PietWidget};
 use druid_shell::kurbo::{Point, Rect, Size};
 use druid_shell::piet::{Piet, PietText, PietTextLayout, RenderContext, TextLayout};
 use druid_shell::{piet, Region};
 use guiver::font::Font;
 use guiver::stroke::Stroke;
 use guiver::{
-    Command, HorizontalAlignment, PaintBrush, SizeConstraints, VerticalAlignment, Widget,
-    WidgetError, WidgetEvent, WidgetEventType, WidgetId, WidgetIdProvider,
+    HorizontalAlignment, PaintBrush, SizeConstraints, VerticalAlignment, Widget, WidgetError,
+    WidgetEvent, WidgetEventType, WidgetId, WidgetIdProvider,
 };
 use std::any::Any;
 
@@ -258,7 +258,7 @@ impl<EVENT: Clone> PietWidget<EVENT> for Text<EVENT> {
         _value: Box<dyn Any>,
         _shared_state: &mut PietSharedState,
         _widget_id_provider: &mut WidgetIdProvider,
-        _commands: &mut Vec<PietCommand<EVENT>>,
+        _commands: &mut Vec<Command<EVENT>>,
     ) -> Result<(), WidgetError> {
         // The given value is a string.
         if let Some(string) = _value.downcast_ref::<String>() {

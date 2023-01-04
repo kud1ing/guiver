@@ -1,14 +1,14 @@
 use crate::shared_state::PietSharedState;
 use crate::widget::core::WidgetCore;
 
-use crate::widget_manager::PietWidgetBox;
-use crate::{Event, PietCommand, PietWidget};
+use crate::widget_manager::WidgetBox;
+use crate::{Command, Event, PietWidget};
 use druid_shell::kurbo::{Point, Rect, RoundedRect, Size};
 use druid_shell::piet::{Color, LinearGradient, PaintBrush, Piet, RenderContext, UnitPoint};
 use druid_shell::{piet, KbKey, Region};
 use guiver::stroke::Stroke;
 use guiver::{
-    Command, Font, HorizontalAlignment, SizeConstraints, VerticalAlignment, Widget, WidgetError,
+    Font, HorizontalAlignment, SizeConstraints, VerticalAlignment, Widget, WidgetError,
     WidgetEvent, WidgetEventType, WidgetId, WidgetIdProvider, WidgetPlacement,
 };
 use std::any::Any;
@@ -16,7 +16,7 @@ use std::any::Any;
 ///
 #[derive(Default)]
 pub struct Button<EVENT: Clone> {
-    child_widget: Option<PietWidgetBox<EVENT>>,
+    child_widget: Option<WidgetBox<EVENT>>,
     core: WidgetCore<EVENT>,
     corner_radius: f64,
     fill_brush_down: Option<PaintBrush>,
@@ -36,7 +36,7 @@ impl<EVENT: Clone> Button<EVENT> {
     pub fn new(
         widget_id: WidgetId,
         debug_rendering_stroke: Stroke,
-        child_widget: PietWidgetBox<EVENT>,
+        child_widget: WidgetBox<EVENT>,
         fill_brush_down: Option<PaintBrush>,
         frame_color: Option<Color>,
         frame_color_focused: Option<Color>,
@@ -218,7 +218,7 @@ impl<EVENT: Clone> PietWidget<EVENT> for Button<EVENT> {
     fn add_child(
         &mut self,
         _widget_placement: Option<WidgetPlacement>,
-        child_widget: PietWidgetBox<EVENT>,
+        child_widget: WidgetBox<EVENT>,
     ) -> Result<(), WidgetError> {
         // TODO: use `_widget_placement`?
 
@@ -373,7 +373,7 @@ impl<EVENT: Clone> PietWidget<EVENT> for Button<EVENT> {
         _value: Box<dyn Any>,
         _shared_state: &mut PietSharedState,
         _widget_id_provider: &mut WidgetIdProvider,
-        _commands: &mut Vec<PietCommand<EVENT>>,
+        _commands: &mut Vec<Command<EVENT>>,
     ) -> Result<(), WidgetError> {
         // TODO
         println!("`Button::set_value()`: TODO");
