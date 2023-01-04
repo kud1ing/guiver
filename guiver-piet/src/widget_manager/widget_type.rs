@@ -1,5 +1,4 @@
-use druid_shell::kurbo::Size;
-use guiver::{GridColumnProperties, GridRowProperties};
+use guiver::{GridColumnProperties, GridRowProperties, Size};
 
 ///
 #[derive(Clone, Debug)]

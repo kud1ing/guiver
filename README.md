@@ -13,7 +13,7 @@ The widgets are decoupled from the application data via message passing. This is
 [Tk commands](https://www.tcl.tk/man/tcl/TkCmd/contents.html) and egui.
 The widget size constraint system and some layout widgets are influenced by [Flutter](https://flutter.dev).
 
-The [example code](guiver-piet/examples/) may appear a bit verbose.
+The [example code](guiver-examples/examples/) may appear a bit verbose.
 On the upside you get simple setup and simple control flow.
 
 <!-- center -->
