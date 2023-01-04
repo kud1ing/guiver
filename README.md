@@ -95,12 +95,17 @@ The developer code can handle those widget events.
 
 ## Backlog
 
-* [ ] sketch a `egui` backend
+* [ ] `guiver-piet`: bundle the `Command`s per `WidgetId`: add `Command::ToWidget<Vec<WidgetCommand>>`
+  * [ ] add `WidgetCommand`
+
+* `guiver-piet`: unify widgets:
+  * [ ] add `fn core(&self) -> &WidgetCore` to `PietWidget` or `Widget`?
+  * [ ] add a method to return an iterator over th child widgets
+  * [ ] default implement `PietWidget::paint()` using `core()` and the child widgets iterator yielding method
 
 * [ ] `guiver-piet`: add support to `PietWidget` for the concept of layers/z-order for dropdown boxes, tooltips etc.
   * [ ] how?
     * Druid: [`PaintCtx::paint_with_z_index()`](https://docs.rs/druid/latest/src/druid/contexts.rs.html#735-746)
-
 
 * add selectors:
   * [ ] add `Command::SetClass(Option<C>)`
@@ -128,8 +133,9 @@ The developer code can handle those widget events.
   * [ ] implement in `Core`
   * [ ] add `WidgetSelector::WithClass(C)`
 
-* [ ] sketch a `cacao` backend
-* [ ] sketch a `Iced` backend
+* [ ] sketch a WASM backend?
+* [ ] sketch a `cacao` backend?
+* [ ] sketch a `egui` backend?
 
 * `guiver-piet`: text:
   * `test_selected_text_replaced()`:
