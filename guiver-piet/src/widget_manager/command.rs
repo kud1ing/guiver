@@ -25,7 +25,7 @@ pub enum Command<APP_EVENT> {
     },
     /// Adds the given widget under widget management.
     AddWidget(WidgetBox<APP_EVENT>),
-    /// Creates a widget with the given ID and type.
+    /// Creates and adds a widget with the given ID and type.
     CreateWidget(WidgetId, WidgetType),
     /// Destroys the widget with the given ID.
     Destroy(WidgetId),

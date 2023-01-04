@@ -1,6 +1,4 @@
 use crate::shared_state::PietSharedState;
-use crate::widget::widget_core::WidgetCore;
-
 use crate::widget_manager::WidgetBox;
 use crate::{Event, Piet, PietWidget};
 use druid_shell::kurbo::{Point, Rect, Size};
@@ -8,8 +6,8 @@ use druid_shell::piet::{Error, RenderContext};
 use druid_shell::Region;
 use guiver::stroke::Stroke;
 use guiver::{
-    SizeConstraints, Widget, WidgetError, WidgetEvent, WidgetEventType, WidgetId, WidgetIdProvider,
-    WidgetPlacement,
+    SizeConstraints, Widget, WidgetCore, WidgetError, WidgetEvent, WidgetEventType, WidgetId,
+    WidgetIdProvider, WidgetPlacement,
 };
 
 /// A layout widget that tries to adjust its child widget to a desired size.

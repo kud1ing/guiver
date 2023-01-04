@@ -95,7 +95,9 @@ The developer code can handle those widget events.
 
 ## Backlog
 
-* [ ] support the concept of layers/z-order for dropdown boxes, tooltips etc.
+* [ ] sketch a `egui` backend
+
+* [ ] `guiver-piet`: add support to `PietWidget` for the concept of layers/z-order for dropdown boxes, tooltips etc.
   * [ ] how?
     * Druid: [`PaintCtx::paint_with_z_index()`](https://docs.rs/druid/latest/src/druid/contexts.rs.html#735-746)
 
@@ -129,7 +131,7 @@ The developer code can handle those widget events.
 * [ ] sketch a `cacao` backend
 * [ ] sketch a `Iced` backend
 
-* Text:
+* `guiver-piet`: text:
   * `test_selected_text_replaced()`:
     * [ ] fix
     * [ ] add a test case using umlauts
@@ -150,21 +152,13 @@ The developer code can handle those widget events.
   * [ ] `TextInput`: Meta+X should cut the selected text
   * [ ] `TextInput`: if a text is too large to fit in, the size of the text input should not increase but truncate
   * [ ] `TextInput::handle_event()`: select the whole text on double click
-* [ ] add support for scrolling
+
+* [ ] `guiver-piet`: add support for scrolling
   * [ ] how?
+
 * [ ] `test::widgets_layout()`: add remaining layout widgets
 * [ ] `test::widgets()`: add child widgets to the layout widgets
-* [ ] use `WidgetId`s that are independent of a `WidgetManager`
-  * Discussion:
-    * Chances:
-      * widget creation and composition can happen at the same time with the same means (`Command`)
-        * GUI construction can deserialized from a serialization format 
-    * Risks:
-  * Options:
-    * Positional ID (egui: https://docs.rs/egui/latest/egui/struct.Id.html) (8 bytes)
-    * `usize`? (8 bytes)
-    * UUID? (16 bytes)
-    * String? (>= 24 bytes)
+
 * [ ] move `WidgetManager::focused_widget` to `WidgetFocusOrder`?
 * [ ] publish 0.1.1, once the updated `druid-shell` >0.7.0 is [released](https://github.com/linebender)
 * [ ] make `Text` selectable:

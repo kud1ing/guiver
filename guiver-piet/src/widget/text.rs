@@ -1,5 +1,4 @@
 use crate::shared_state::PietSharedState;
-use crate::widget::widget_core::WidgetCore;
 use crate::{Command, Event, PietWidget};
 use druid_shell::kurbo::{Point, Rect, Size};
 use druid_shell::piet::{Piet, PietText, PietTextLayout, RenderContext, TextLayout};
@@ -7,8 +6,8 @@ use druid_shell::{piet, Region};
 use guiver::font::Font;
 use guiver::stroke::Stroke;
 use guiver::{
-    HorizontalAlignment, PaintBrush, SizeConstraints, VerticalAlignment, Widget, WidgetError,
-    WidgetEvent, WidgetEventType, WidgetId, WidgetIdProvider,
+    HorizontalAlignment, PaintBrush, SizeConstraints, VerticalAlignment, Widget, WidgetCore,
+    WidgetError, WidgetEvent, WidgetEventType, WidgetId, WidgetIdProvider,
 };
 use std::any::Any;
 

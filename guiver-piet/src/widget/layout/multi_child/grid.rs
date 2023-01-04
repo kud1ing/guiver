@@ -1,5 +1,4 @@
 use crate::shared_state::PietSharedState;
-use crate::widget::widget_core::WidgetCore;
 use crate::widget::WidgetError;
 use crate::widget_manager::WidgetBox;
 use crate::{Event, Piet, PietWidget};
@@ -8,8 +7,8 @@ use druid_shell::piet::{Error, RenderContext};
 use druid_shell::Region;
 use guiver::stroke::Stroke;
 use guiver::{
-    GridColumnProperties, GridRowProperties, Size, SizeConstraints, Widget, WidgetEvent,
-    WidgetEventType, WidgetId, WidgetIdProvider, WidgetPlacement,
+    GridColumnProperties, GridRowProperties, Size, SizeConstraints, Widget, WidgetCore,
+    WidgetEvent, WidgetEventType, WidgetId, WidgetIdProvider, WidgetPlacement,
 };
 use std::borrow::BorrowMut;
 use std::cell::RefCell;

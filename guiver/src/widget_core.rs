@@ -1,6 +1,5 @@
+use crate::{SizeConstraints, Stroke, WidgetEvent, WidgetEventType, WidgetId};
 use druid_shell::kurbo::Rect;
-use guiver::stroke::Stroke;
-use guiver::{SizeConstraints, WidgetEvent, WidgetEventType, WidgetId};
 use std::collections::HashMap;
 
 /// Common data and functionality for widgets.

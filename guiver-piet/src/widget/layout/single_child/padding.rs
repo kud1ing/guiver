@@ -1,6 +1,4 @@
 use crate::shared_state::PietSharedState;
-use crate::widget::widget_core::WidgetCore;
-
 use crate::widget_manager::WidgetBox;
 use crate::{Event, PietWidget};
 use druid_shell::kurbo::{Point, Rect, Size};
@@ -8,8 +6,8 @@ use druid_shell::piet::{Piet, RenderContext};
 use druid_shell::{piet, Region};
 use guiver::stroke::Stroke;
 use guiver::{
-    SizeConstraints, Widget, WidgetError, WidgetEvent, WidgetEventType, WidgetId, WidgetIdProvider,
-    WidgetPlacement,
+    SizeConstraints, Widget, WidgetCore, WidgetError, WidgetEvent, WidgetEventType, WidgetId,
+    WidgetIdProvider, WidgetPlacement,
 };
 
 /// A layout widget that adds padding around its child widget.
