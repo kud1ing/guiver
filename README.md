@@ -95,6 +95,9 @@ The developer code can handle those widget events.
 
 ## Backlog
 
+* `guiver-web`
+  * [ ] add `7guis_temperature_converter.html`
+
 * [ ] `guiver-piet`: bundle the `Command`s per `WidgetId`: add `Command::ToWidget<Vec<WidgetCommand>>`
   * [ ] add `WidgetCommand`
 
