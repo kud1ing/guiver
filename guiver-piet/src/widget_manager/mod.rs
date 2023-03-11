@@ -25,7 +25,7 @@ use std::rc::Rc;
 pub type WidgetBox<APP_EVENT> = Rc<RefCell<Box<dyn PietWidget<APP_EVENT>>>>;
 
 /// A widget manager that uses `Piet` and `druid-shell`.
-pub struct WidgetManager<APP_EVENT> {
+pub struct PietWidgetManager<APP_EVENT> {
     /// The IDs of each widget's child widgets.
     child_widget_ids_per_widget_id: HashMap<WidgetId, HashSet<WidgetId>>,
     /// The widget that has the focus.
@@ -51,10 +51,10 @@ pub struct WidgetManager<APP_EVENT> {
     widgets: HashMap<WidgetId, WidgetBox<APP_EVENT>>,
 }
 
-impl<APP_EVENT: Clone + 'static> WidgetManager<APP_EVENT> {
+impl<APP_EVENT: Clone + 'static> PietWidgetManager<APP_EVENT> {
     ///
     pub fn new() -> Self {
-        WidgetManager {
+        PietWidgetManager {
             child_widget_ids_per_widget_id: HashMap::new(),
             focused_widget: None,
             main_widget: None,
@@ -439,14 +439,131 @@ impl<APP_EVENT: Clone + 'static> WidgetManager<APP_EVENT> {
     }
 
     ///
-    pub fn handle_command(&mut self, command: Command<APP_EVENT>) -> Result<(), WidgetError> {
-        self.handle_commands(vec![command])
+    pub fn paint(&self, piet: &mut Piet, region: &Region) -> Result<(), piet::Error> {
+        // There is a main widget.
+        if let Some(main_widget) = &self.main_widget {
+            // Paint the main widget.
+            main_widget.borrow().paint(piet, region)?;
+        }
+
+        Ok(())
     }
 
-    pub fn handle_commands(
+    /// Returns a widget's rectangle.
+    pub fn rectangle(&self, widget_id: WidgetId) -> Result<Rect, WidgetError> {
+        Ok(*self.widget(widget_id)?.borrow().rectangle())
+    }
+
+    ///
+    fn remove_parent_child_widget_connection(
         &mut self,
-        mut commands: Vec<Command<APP_EVENT>>,
-    ) -> Result<(), WidgetError> {
+        parent_widget_id: WidgetId,
+        child_widget_id: WidgetId,
+    ) {
+        // Remove the child widget from the focus order.
+        self.widget_focus_order.remove_widget(child_widget_id);
+
+        self.child_widget_ids_per_widget_id
+            .entry(parent_widget_id)
+            .or_default()
+            .remove(&child_widget_id);
+
+        self.parent_widget_id_per_widget_id.remove(&child_widget_id);
+    }
+
+    ///
+    fn remove_parent_child_widget_connections(&mut self, parent_widget_id: WidgetId) {
+        // Iterate over and remove the child widget IDs for the given parent widget ID.
+        for child_widget_id in self
+            .child_widget_ids_per_widget_id
+            .entry(parent_widget_id)
+            .or_default()
+            .drain()
+        {
+            // Remove the child widget from the focus order.
+            self.widget_focus_order.remove_widget(child_widget_id);
+
+            // Remove the parent widget ID for the current child widget ID.
+            self.parent_widget_id_per_widget_id.remove(&child_widget_id);
+        }
+    }
+
+    pub fn resize(&mut self, size: Size) {
+        let adjusted_size = size - Size::new(2.0, 2.0);
+
+        // Create a new size constraint from the given window size.
+        let size_constraints =
+            SizeConstraints::tight(guiver::Size::new(adjusted_size.width, adjusted_size.height));
+
+        // Use the new size constraint.
+        self.size_constraints = size_constraints;
+
+        // There is a main widget.
+        if let Some(main_widget) = &mut self.main_widget {
+            // Resize the main widget.
+            main_widget
+                .borrow_mut()
+                .apply_size_constraints(size_constraints);
+        }
+    }
+
+    pub fn selected_value(&self, widget_id: WidgetId) -> Result<Option<Box<dyn Any>>, WidgetError> {
+        Ok(self.widget(widget_id)?.borrow().selected_value())
+    }
+
+    ///
+    pub fn shared_state(&mut self) -> &mut PietSharedState {
+        &mut self.shared_state
+    }
+
+    ///
+    pub fn style(&self) -> &Style {
+        &self.style
+    }
+
+    pub fn value(&self, widget_id: WidgetId) -> Result<Option<Box<dyn Any>>, WidgetError> {
+        Ok(self.widget(widget_id)?.borrow().value())
+    }
+
+    ///
+    fn widget(&self, widget_id: WidgetId) -> Result<&WidgetBox<APP_EVENT>, WidgetError> {
+        // There is a widget with the given ID.
+        if let Some(widget_box) = self.widgets.get(&widget_id) {
+            Ok(widget_box)
+        }
+        // There is no widget with the given ID.
+        else {
+            Err(WidgetError::NoSuchWidget(widget_id))
+        }
+    }
+
+    ///
+    pub fn widget_id_provider(&mut self) -> &mut WidgetIdProvider {
+        &mut self.widget_id_provider
+    }
+
+    ///
+    fn widget_mut(
+        &mut self,
+        widget_id: WidgetId,
+    ) -> Result<&mut WidgetBox<APP_EVENT>, WidgetError> {
+        // There is a widget with the given ID.
+        if let Some(widget_box) = self.widgets.get_mut(&widget_id) {
+            Ok(widget_box)
+        }
+        // There is no widget with the given ID.
+        else {
+            Err(WidgetError::NoSuchWidget(widget_id))
+        }
+    }
+}
+
+impl<APP_EVENT: Clone + 'static> guiver::widget_manager::WidgetManager<APP_EVENT>
+    for PietWidgetManager<APP_EVENT>
+{
+    fn handle_commands(&mut self, commands: Vec<Command<APP_EVENT>>) -> Result<(), WidgetError> {
+        let mut commands = commands;
+
         loop {
             let mut next_commands = vec![];
 
@@ -791,124 +908,5 @@ impl<APP_EVENT: Clone + 'static> WidgetManager<APP_EVENT> {
         }
 
         Ok(())
-    }
-
-    ///
-    pub fn paint(&self, piet: &mut Piet, region: &Region) -> Result<(), piet::Error> {
-        // There is a main widget.
-        if let Some(main_widget) = &self.main_widget {
-            // Paint the main widget.
-            main_widget.borrow().paint(piet, region)?;
-        }
-
-        Ok(())
-    }
-
-    /// Returns a widget's rectangle.
-    pub fn rectangle(&self, widget_id: WidgetId) -> Result<Rect, WidgetError> {
-        Ok(*self.widget(widget_id)?.borrow().rectangle())
-    }
-
-    ///
-    fn remove_parent_child_widget_connection(
-        &mut self,
-        parent_widget_id: WidgetId,
-        child_widget_id: WidgetId,
-    ) {
-        // Remove the child widget from the focus order.
-        self.widget_focus_order.remove_widget(child_widget_id);
-
-        self.child_widget_ids_per_widget_id
-            .entry(parent_widget_id)
-            .or_default()
-            .remove(&child_widget_id);
-
-        self.parent_widget_id_per_widget_id.remove(&child_widget_id);
-    }
-
-    ///
-    fn remove_parent_child_widget_connections(&mut self, parent_widget_id: WidgetId) {
-        // Iterate over and remove the child widget IDs for the given parent widget ID.
-        for child_widget_id in self
-            .child_widget_ids_per_widget_id
-            .entry(parent_widget_id)
-            .or_default()
-            .drain()
-        {
-            // Remove the child widget from the focus order.
-            self.widget_focus_order.remove_widget(child_widget_id);
-
-            // Remove the parent widget ID for the current child widget ID.
-            self.parent_widget_id_per_widget_id.remove(&child_widget_id);
-        }
-    }
-
-    pub fn resize(&mut self, size: Size) {
-        let adjusted_size = size - Size::new(2.0, 2.0);
-
-        // Create a new size constraint from the given window size.
-        let size_constraints =
-            SizeConstraints::tight(guiver::Size::new(adjusted_size.width, adjusted_size.height));
-
-        // Use the new size constraint.
-        self.size_constraints = size_constraints;
-
-        // There is a main widget.
-        if let Some(main_widget) = &mut self.main_widget {
-            // Resize the main widget.
-            main_widget
-                .borrow_mut()
-                .apply_size_constraints(size_constraints);
-        }
-    }
-
-    pub fn selected_value(&self, widget_id: WidgetId) -> Result<Option<Box<dyn Any>>, WidgetError> {
-        Ok(self.widget(widget_id)?.borrow().selected_value())
-    }
-
-    ///
-    pub fn shared_state(&mut self) -> &mut PietSharedState {
-        &mut self.shared_state
-    }
-
-    ///
-    pub fn style(&self) -> &Style {
-        &self.style
-    }
-
-    pub fn value(&self, widget_id: WidgetId) -> Result<Option<Box<dyn Any>>, WidgetError> {
-        Ok(self.widget(widget_id)?.borrow().value())
-    }
-
-    ///
-    fn widget(&self, widget_id: WidgetId) -> Result<&WidgetBox<APP_EVENT>, WidgetError> {
-        // There is a widget with the given ID.
-        if let Some(widget_box) = self.widgets.get(&widget_id) {
-            Ok(widget_box)
-        }
-        // There is no widget with the given ID.
-        else {
-            Err(WidgetError::NoSuchWidget(widget_id))
-        }
-    }
-
-    ///
-    pub fn widget_id_provider(&mut self) -> &mut WidgetIdProvider {
-        &mut self.widget_id_provider
-    }
-
-    ///
-    fn widget_mut(
-        &mut self,
-        widget_id: WidgetId,
-    ) -> Result<&mut WidgetBox<APP_EVENT>, WidgetError> {
-        // There is a widget with the given ID.
-        if let Some(widget_box) = self.widgets.get_mut(&widget_id) {
-            Ok(widget_box)
-        }
-        // There is no widget with the given ID.
-        else {
-            Err(WidgetError::NoSuchWidget(widget_id))
-        }
     }
 }

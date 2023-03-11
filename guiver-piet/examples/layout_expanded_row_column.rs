@@ -1,16 +1,17 @@
 use druid_shell::kurbo;
+use guiver::widget_manager::WidgetManager;
 use guiver::Size;
 use guiver_piet::{
-    run, Clipboard, Command, Event, Piet, PietApplication, Region, WidgetManager, WidgetType,
+    run, Clipboard, Command, Event, Piet, PietApplication, PietWidgetManager, Region, WidgetType,
 };
 
 pub(crate) struct App {
-    widget_manager: WidgetManager<()>,
+    widget_manager: PietWidgetManager<()>,
 }
 
 impl App {
     pub(crate) fn new() -> Self {
-        let mut widget_manager = WidgetManager::new();
+        let mut widget_manager = PietWidgetManager::new();
 
         let padding = widget_manager.widget_id_provider().next_widget_id();
         let column = widget_manager.widget_id_provider().next_widget_id();
