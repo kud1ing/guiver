@@ -11,7 +11,3 @@ license = "MIT/Apache-2.0"
 readme = "README.md"
 
 [dependencies]
-
-# Druid 0.7.0 depends on the old Piet 0.3.2
-druid-shell = { git = "https://github.com/linebender/druid.git" }
-# druid-shell = "^0"

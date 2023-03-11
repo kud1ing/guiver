@@ -1,4 +1,4 @@
-use crate::{
+use druid_shell::piet::{
     Color, FontFamily, FontWeight, PietText, PietTextLayout, Text, TextAttribute,
     TextLayoutBuilder, TextStorage,
 };
@@ -36,7 +36,7 @@ impl Font {
             .default_attribute(TextAttribute::Underline(self.has_underline))
             .default_attribute(TextAttribute::Strikethrough(self.has_strikethrough))
             .font(self.font_family.clone(), self.font_size)
-            .text_color(self.font_color.clone())
+            .text_color(self.font_color)
             .build()
             .unwrap()
     }

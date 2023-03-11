@@ -1,10 +1,18 @@
-use crate::widget_error::WidgetError;
-use crate::widget_event::WidgetEvent;
-use crate::widget_event_type::WidgetEventType;
-use crate::{HorizontalAlignment, SizeConstraints, Stroke, VerticalAlignment};
-use druid_shell::kurbo::{Point, Rect, Size};
-use druid_shell::piet::PaintBrush;
+use crate::{HorizontalAlignment, Point, Rect, Size, SizeConstraints, VerticalAlignment};
+use error::WidgetError;
+use event::WidgetEvent;
+use event_type::WidgetEventType;
 use std::any::Any;
+
+pub mod alignment;
+pub mod error;
+pub mod event;
+pub mod event_type;
+pub mod grid;
+mod location;
+pub mod placement;
+pub mod size_constraints;
+pub mod r#type;
 
 ///
 pub type WidgetId = usize;
@@ -45,7 +53,7 @@ pub trait Widget<APP_EVENT: Clone> {
     /// Removes a container widget's child widget with the given ID.
     fn remove_child(&mut self, _child_widget_id: WidgetId) -> Result<(), WidgetError> {
         Err(WidgetError::NotHandled {
-            widget_id: self.widget_id().clone(),
+            widget_id: *self.widget_id(),
             description: "`remove_child()`".to_string(),
         })
     }
@@ -53,7 +61,7 @@ pub trait Widget<APP_EVENT: Clone> {
     /// Removes a container widget's child widgets.
     fn remove_children(&mut self) -> Result<(), WidgetError> {
         Err(WidgetError::NotHandled {
-            widget_id: self.widget_id().clone(),
+            widget_id: *self.widget_id(),
             description: "`remove_children()`".to_string(),
         })
     }
@@ -69,18 +77,10 @@ pub trait Widget<APP_EVENT: Clone> {
     /// Enables or disables the widget's debug rendering.
     fn set_debug_rendering(&mut self, debug_rendering: bool);
 
-    /// Sets the widget's fill.
-    fn set_fill(&mut self, _fill: Option<PaintBrush>) -> Result<(), WidgetError> {
-        Err(WidgetError::NotHandled {
-            widget_id: self.widget_id().clone(),
-            description: "`set_fill()`".to_string(),
-        })
-    }
-
     /// Gives focus to or removes focus from the widget.
     fn set_has_focus(&mut self, _has_focus: bool) -> Result<(), WidgetError> {
         Err(WidgetError::NotHandled {
-            widget_id: self.widget_id().clone(),
+            widget_id: *self.widget_id(),
             description: "`set_has_focus()`".to_string(),
         })
     }
@@ -91,7 +91,7 @@ pub trait Widget<APP_EVENT: Clone> {
         _horizontal_alignment: HorizontalAlignment,
     ) -> Result<(), WidgetError> {
         Err(WidgetError::NotHandled {
-            widget_id: self.widget_id().clone(),
+            widget_id: *self.widget_id(),
             description: "`set_horizontal_alignment()`".to_string(),
         })
     }
@@ -105,21 +105,13 @@ pub trait Widget<APP_EVENT: Clone> {
     /// Sets the widget's origin.
     fn set_origin(&mut self, origin: Point);
 
-    /// Sets the widget's stroke.
-    fn set_stroke(&mut self, _stroke: Option<Stroke>) -> Result<(), WidgetError> {
-        Err(WidgetError::NotHandled {
-            widget_id: self.widget_id().clone(),
-            description: "`set_stroke()`".to_string(),
-        })
-    }
-
     /// Sets a widget's vertical alignment. This could refer to child widgets, text etc..
     fn set_vertical_alignment(
         &mut self,
         _vertical_alignment: VerticalAlignment,
     ) -> Result<(), WidgetError> {
         Err(WidgetError::NotHandled {
-            widget_id: self.widget_id().clone(),
+            widget_id: *self.widget_id(),
             description: "`set_vertical_alignment()`".to_string(),
         })
     }

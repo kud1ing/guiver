@@ -1,13 +1,13 @@
 use crate::shared_state::PietSharedState;
+use crate::stroke::Stroke;
+use crate::widget::widget_core::WidgetCore;
 use crate::widget::WidgetError;
 use crate::widget_manager::WidgetBox;
 use crate::{Event, Piet, PietWidget};
-use druid_shell::kurbo::{Point, Rect};
 use druid_shell::piet::{Error, RenderContext};
-use druid_shell::Region;
-use guiver::stroke::Stroke;
+use druid_shell::{kurbo, Region};
 use guiver::{
-    GridColumnProperties, GridRowProperties, Size, SizeConstraints, Widget, WidgetCore,
+    GridColumnProperties, GridRowProperties, Point, Rect, Size, SizeConstraints, Widget,
     WidgetEvent, WidgetEventType, WidgetId, WidgetIdProvider, WidgetPlacement,
 };
 use std::borrow::BorrowMut;
@@ -254,18 +254,16 @@ impl<APP_EVENT: Clone> Grid<APP_EVENT> {
                         // Get the current child widget in the current column.
                         let child_widget_in_column = self
                             .child_widget_per_id
-                            .get(&child_widget_id_in_column)
+                            .get(child_widget_id_in_column)
                             .unwrap();
 
                         // Set the child widget's x position.
-                        {
-                            let new_child_origin =
-                                (child_x, child_widget_in_column.borrow().rectangle().y0);
-
-                            RefCell::borrow_mut(child_widget_in_column)
-                                .borrow_mut()
-                                .set_origin(new_child_origin.into());
-                        }
+                        RefCell::borrow_mut(child_widget_in_column)
+                            .borrow_mut()
+                            .set_origin(Point::new(
+                                child_x,
+                                child_widget_in_column.borrow().rectangle().y0,
+                            ));
                     }
 
                     // Add the column width.
@@ -293,18 +291,16 @@ impl<APP_EVENT: Clone> Grid<APP_EVENT> {
                         // Get the current child widget in the current row.
                         let child_widget_in_row = self
                             .child_widget_per_id
-                            .get(&child_widget_id_in_row)
+                            .get(child_widget_id_in_row)
                             .unwrap();
 
                         // Set the child widget's y position.
-                        {
-                            let new_child_origin =
-                                (child_widget_in_row.borrow().rectangle().x0, child_y);
-
-                            RefCell::borrow_mut(child_widget_in_row)
-                                .borrow_mut()
-                                .set_origin(new_child_origin.into());
-                        }
+                        RefCell::borrow_mut(child_widget_in_row)
+                            .borrow_mut()
+                            .set_origin(Point::new(
+                                child_widget_in_row.borrow().rectangle().x0,
+                                child_y,
+                            ));
                     }
 
                     // Add the row height.
@@ -385,7 +381,9 @@ impl<APP_EVENT: Clone> Widget<APP_EVENT> for Grid<APP_EVENT> {
         // Layout the child widgets.
         self.layout_child_widgets();
 
-        self.core.rectangle.size()
+        let size = self.core.rectangle.size();
+
+        Size::new(size.width, size.height)
     }
 
     fn event_observation(
@@ -500,7 +498,12 @@ impl<APP_EVENT: Clone> PietWidget<APP_EVENT> for Grid<APP_EVENT> {
         // Render debug hints.
         if self.core.debug_rendering {
             piet.stroke(
-                self.core.rectangle,
+                kurbo::Rect::new(
+                    self.core.rectangle.x0,
+                    self.core.rectangle.y0,
+                    self.core.rectangle.x1,
+                    self.core.rectangle.y1,
+                ),
                 &self.core.debug_rendering_stroke.stroke_brush,
                 self.core.debug_rendering_stroke.stroke_width,
             );

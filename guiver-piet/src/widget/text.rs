@@ -1,12 +1,12 @@
+use crate::font::Font;
 use crate::shared_state::PietSharedState;
+use crate::stroke::Stroke;
+use crate::widget::widget_core::WidgetCore;
 use crate::{Command, Event, PietWidget};
-use druid_shell::kurbo::{Point, Rect, Size};
-use druid_shell::piet::{Piet, PietText, PietTextLayout, RenderContext, TextLayout};
-use druid_shell::{piet, Region};
-use guiver::font::Font;
-use guiver::stroke::Stroke;
+use druid_shell::piet::{PaintBrush, Piet, PietText, PietTextLayout, RenderContext, TextLayout};
+use druid_shell::{kurbo, piet, Region};
 use guiver::{
-    HorizontalAlignment, PaintBrush, SizeConstraints, VerticalAlignment, Widget, WidgetCore,
+    HorizontalAlignment, Point, Rect, Size, SizeConstraints, VerticalAlignment, Widget,
     WidgetError, WidgetEvent, WidgetEventType, WidgetId, WidgetIdProvider,
 };
 use std::any::Any;
@@ -46,11 +46,21 @@ impl<APP_EVENT: Clone> Text<APP_EVENT> {
     fn layout_text(&mut self) {
         let text_size = self.text_layout.size();
 
-        // Adjust the text layout size to the given constraints.
-        self.core.rectangle = self.core.rectangle.with_size(text_size.clamp(
-            *self.core.size_constraints.minimum(),
-            *self.core.size_constraints.maximum(),
-        ));
+        {
+            let maximum = *self.core.size_constraints.minimum();
+            let minimum = *self.core.size_constraints.maximum();
+
+            let size = text_size.clamp(
+                kurbo::Size::new(maximum.width, maximum.height),
+                kurbo::Size::new(minimum.width, minimum.height),
+            );
+
+            // Adjust the text layout size to the given constraints.
+            self.core.rectangle = self
+                .core
+                .rectangle
+                .with_size(Size::new(size.width, size.height));
+        }
 
         // Determine the text's horizontal position.
         let text_x = match self.horizontal_alignment {
@@ -78,7 +88,7 @@ impl<APP_EVENT: Clone> Text<APP_EVENT> {
         };
 
         // Set the text's origin.
-        self.text_origin = (text_x, text_y).into();
+        self.text_origin = Point::new(text_x, text_y);
     }
 }
 
@@ -97,7 +107,9 @@ impl<APP_EVENT: Clone> Widget<APP_EVENT> for Text<APP_EVENT> {
 
         self.layout_text();
 
-        self.core.rectangle.size()
+        let size = self.core.rectangle.size();
+
+        Size::new(size.width, size.height)
     }
 
     fn event_observation(
@@ -122,13 +134,6 @@ impl<APP_EVENT: Clone> Widget<APP_EVENT> for Text<APP_EVENT> {
 
     fn set_debug_rendering(&mut self, debug_rendering: bool) {
         self.core.debug_rendering = debug_rendering;
-    }
-
-    fn set_fill(&mut self, _fill: Option<PaintBrush>) -> Result<(), WidgetError> {
-        // TODO
-        println!("`Text::set_fill()`: TODO");
-
-        Ok(())
     }
 
     fn set_horizontal_alignment(
@@ -158,13 +163,6 @@ impl<APP_EVENT: Clone> Widget<APP_EVENT> for Text<APP_EVENT> {
         self.core.rectangle = self.core.rectangle.with_origin(origin);
 
         self.text_origin += delta;
-    }
-
-    fn set_stroke(&mut self, _stroke: Option<Stroke>) -> Result<(), WidgetError> {
-        // TODO
-        println!("`Text::set_stroke()`: TODO");
-
-        Ok(())
     }
 
     fn set_vertical_alignment(
@@ -198,7 +196,11 @@ impl<APP_EVENT: Clone> PietWidget<APP_EVENT> for Text<APP_EVENT> {
     ) {
         if let Event::MouseDown(mouse_event) = event {
             // The click is outside of the text.
-            if !self.core.rectangle.contains(mouse_event.pos) {
+            if !self
+                .core
+                .rectangle
+                .contains(mouse_event.pos.x, mouse_event.pos.y)
+            {
                 return;
             }
 
@@ -220,19 +222,39 @@ impl<APP_EVENT: Clone> PietWidget<APP_EVENT> for Text<APP_EVENT> {
         // Draw the text clipped.
         {
             piet.save()?;
-            piet.clip(self.core.rectangle);
-            piet.draw_text(&self.text_layout, self.text_origin);
+            piet.clip(kurbo::Rect::new(
+                self.core.rectangle.x0,
+                self.core.rectangle.y0,
+                self.core.rectangle.x1,
+                self.core.rectangle.y1,
+            ));
+            piet.draw_text(
+                &self.text_layout,
+                kurbo::Point::new(self.text_origin.x, self.text_origin.y),
+            );
             piet.restore()?;
         }
 
         // Render debug hints.
         if self.core.debug_rendering {
             piet.stroke(
-                self.core.rectangle,
+                kurbo::Rect::new(
+                    self.core.rectangle.x0,
+                    self.core.rectangle.y0,
+                    self.core.rectangle.x1,
+                    self.core.rectangle.y1,
+                ),
                 &self.core.debug_rendering_stroke.stroke_brush,
                 self.core.debug_rendering_stroke.stroke_width,
             );
         }
+
+        Ok(())
+    }
+
+    fn set_fill(&mut self, _fill: Option<PaintBrush>) -> Result<(), WidgetError> {
+        // TODO
+        println!("`Text::set_fill()`: TODO");
 
         Ok(())
     }
@@ -248,6 +270,13 @@ impl<APP_EVENT: Clone> PietWidget<APP_EVENT> for Text<APP_EVENT> {
             .text_layout(_shared_state.piet_text(), self.text.clone());
 
         self.layout_text();
+
+        Ok(())
+    }
+
+    fn set_stroke(&mut self, _stroke: Option<Stroke>) -> Result<(), WidgetError> {
+        // TODO
+        println!("`Text::set_stroke()`: TODO");
 
         Ok(())
     }
@@ -281,9 +310,12 @@ impl<APP_EVENT: Clone> PietWidget<APP_EVENT> for Text<APP_EVENT> {
 
 #[cfg(test)]
 mod tests {
+    use crate::font::Font;
     use crate::shared_state::piet_text;
+    use crate::stroke::Stroke;
     use crate::widget::Text;
-    use guiver::{Font, PietText, SizeConstraints, Stroke, Widget};
+    use druid_shell::piet::PietText;
+    use guiver::{SizeConstraints, Widget};
 
     #[test]
     fn test_apply_size_constraints() {

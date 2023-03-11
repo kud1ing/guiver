@@ -1,4 +1,7 @@
-use guiver::{Color, Font, PaintBrush, Stroke, StrokeStyle, VerticalAlignment};
+use crate::font::Font;
+use crate::stroke::Stroke;
+use druid_shell::piet::{Color, PaintBrush, StrokeStyle};
+use guiver::VerticalAlignment;
 
 ///
 #[derive(Clone)]

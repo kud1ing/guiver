@@ -1,13 +1,13 @@
 use crate::shared_state::PietSharedState;
+use crate::stroke::Stroke;
+use crate::widget::widget_core::WidgetCore;
 use crate::widget_manager::WidgetBox;
 use crate::{Event, PietWidget};
-use druid_shell::kurbo::{Point, Rect, Size};
 use druid_shell::piet::{Piet, RenderContext};
-use druid_shell::{piet, Region};
-use guiver::stroke::Stroke;
+use druid_shell::{kurbo, piet, Region};
 use guiver::{
-    SizeConstraints, Widget, WidgetCore, WidgetError, WidgetEvent, WidgetEventType, WidgetId,
-    WidgetIdProvider, WidgetPlacement,
+    Point, Rect, Size, SizeConstraints, Widget, WidgetError, WidgetEvent, WidgetEventType,
+    WidgetId, WidgetIdProvider, WidgetPlacement,
 };
 
 /// A layout widget that centers its child widget.
@@ -72,7 +72,9 @@ impl<APP_EVENT: Clone> Widget<APP_EVENT> for Center<APP_EVENT> {
         // Layout the child widget.
         self.layout_child_widget();
 
-        self.core.rectangle.size()
+        let size = self.core.rectangle.size();
+
+        Size::new(size.width, size.height)
     }
 
     fn event_observation(
@@ -182,7 +184,12 @@ impl<APP_EVENT: Clone> PietWidget<APP_EVENT> for Center<APP_EVENT> {
         // Render debug hints.
         if self.core.debug_rendering {
             piet.stroke(
-                self.core.rectangle,
+                kurbo::Rect::new(
+                    self.core.rectangle.y0,
+                    self.core.rectangle.y0,
+                    self.core.rectangle.x1,
+                    self.core.rectangle.y1,
+                ),
                 &self.core.debug_rendering_stroke.stroke_brush,
                 self.core.debug_rendering_stroke.stroke_width,
             );

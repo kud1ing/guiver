@@ -1,12 +1,12 @@
 use crate::shared_state::PietSharedState;
+use crate::stroke::Stroke;
+use crate::widget::widget_core::WidgetCore;
 use crate::widget_manager::WidgetBox;
 use crate::{Event, PietWidget};
-use druid_shell::kurbo::{Point, Rect, Size};
 use druid_shell::piet::Piet;
-use druid_shell::{piet, Region};
-use guiver::stroke::Stroke;
+use druid_shell::{kurbo, piet, Region};
 use guiver::{
-    HorizontalAlignment, SizeConstraints, Widget, WidgetCore, WidgetError, WidgetEvent,
+    HorizontalAlignment, Point, Rect, Size, SizeConstraints, Widget, WidgetError, WidgetEvent,
     WidgetEventType, WidgetId, WidgetIdProvider, WidgetPlacement,
 };
 use piet::RenderContext;
@@ -89,10 +89,7 @@ impl<APP_EVENT: Clone> Column<APP_EVENT> {
         // The child widgets do have a flex factor.
         else {
             // Set the parent size to the child widget's width and the maximum height.
-            self.core.rectangle = self.core.rectangle.with_size(Size::new(
-                child_and_spacing_size_sum.width,
-                self.core.size_constraints.maximum().height,
-            ));
+            self.core.rectangle = self.core.rectangle.with_size(child_and_spacing_size_sum);
         }
 
         // Calculate the remaining width.
@@ -108,7 +105,9 @@ impl<APP_EVENT: Clone> Column<APP_EVENT> {
 
             // The child widget does not have a flex factor.
             let child_size = if flex_factor == 0 {
-                RefCell::borrow(child_widget).borrow().rectangle().size()
+                let size = RefCell::borrow(child_widget).borrow().rectangle().size();
+
+                Size::new(size.width, size.height)
             }
             // The child widget does have a flex factor.
             else {
@@ -144,7 +143,7 @@ impl<APP_EVENT: Clone> Column<APP_EVENT> {
             // Set the child widget's origins.
             RefCell::borrow_mut(child_widget)
                 .borrow_mut()
-                .set_origin((child_x, child_y).into());
+                .set_origin(Point::new(child_x, child_y));
 
             child_y += child_size.height + self.spacing;
         }
@@ -167,7 +166,9 @@ impl<APP_EVENT: Clone> Widget<APP_EVENT> for Column<APP_EVENT> {
         // Layout the child widgets.
         self.layout_child_widgets();
 
-        self.core.rectangle.size()
+        let size = self.core.rectangle.size();
+
+        Size::new(size.width, size.height)
     }
 
     fn event_observation(
@@ -191,7 +192,7 @@ impl<APP_EVENT: Clone> Widget<APP_EVENT> for Column<APP_EVENT> {
         // Layout the remaining child widgets.
         self.layout_child_widgets();
 
-        return Ok(());
+        Ok(())
     }
 
     fn remove_children(&mut self) -> Result<(), WidgetError> {
@@ -200,7 +201,7 @@ impl<APP_EVENT: Clone> Widget<APP_EVENT> for Column<APP_EVENT> {
         // Update this widget's size.
         self.layout_child_widgets();
 
-        return Ok(());
+        Ok(())
     }
 
     fn remove_event_observation(&mut self, widget_event_type: &WidgetEventType) {
@@ -263,7 +264,7 @@ impl<APP_EVENT: Clone> PietWidget<APP_EVENT> for Column<APP_EVENT> {
                 }
                 _ => {
                     return Err(WidgetError::NotHandled {
-                        widget_id: self.widget_id().clone(),
+                        widget_id: *self.widget_id(),
                         description: format!("{:?}", widget_placement),
                     })
                 }
@@ -314,7 +315,12 @@ impl<APP_EVENT: Clone> PietWidget<APP_EVENT> for Column<APP_EVENT> {
         // Render debug hints.
         if self.core.debug_rendering {
             piet.stroke(
-                self.core.rectangle,
+                kurbo::Rect::new(
+                    self.core.rectangle.x0,
+                    self.core.rectangle.y0,
+                    self.core.rectangle.x1,
+                    self.core.rectangle.y1,
+                ),
                 &self.core.debug_rendering_stroke.stroke_brush,
                 self.core.debug_rendering_stroke.stroke_width,
             );

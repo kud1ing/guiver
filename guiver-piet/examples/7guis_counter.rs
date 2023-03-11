@@ -1,7 +1,8 @@
 /**
 This implements the "Counter" task from [7GUIs](https://eugenkiss.github.io/7guis/tasks/).
 */
-use guiver::{Size, WidgetEventType, WidgetId};
+use druid_shell::kurbo;
+use guiver::{WidgetEventType, WidgetId};
 use guiver_piet::{run, Command, Piet, Region, WidgetManager, WidgetType};
 use guiver_piet::{Clipboard, Event, PietApplication};
 
@@ -99,7 +100,7 @@ impl PietApplication for App {
         self.widget_manager.paint(piet, region).unwrap();
     }
 
-    fn resize(&mut self, size: Size) {
+    fn resize(&mut self, size: kurbo::Size) {
         self.widget_manager.resize(size);
     }
     fn set_clipboard(&mut self, _clipboard: Clipboard) {}

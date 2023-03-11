@@ -1,12 +1,14 @@
 use crate::shared_state::PietSharedState;
+use crate::stroke::Stroke;
+use crate::widget::widget_core::WidgetCore;
 use crate::widget::WidgetError;
 use crate::{Event, PietWidget};
-use druid_shell::kurbo::{Line, Point, Rect, Size};
+use druid_shell::kurbo::Line;
 use druid_shell::piet::{Color, Piet, RenderContext};
-use druid_shell::{piet, Region};
-use guiver::stroke::Stroke;
+use druid_shell::{kurbo, piet, Region};
 use guiver::{
-    SizeConstraints, Widget, WidgetCore, WidgetEvent, WidgetEventType, WidgetId, WidgetIdProvider,
+    Point, Rect, Size, SizeConstraints, Widget, WidgetEvent, WidgetEventType, WidgetId,
+    WidgetIdProvider,
 };
 use piet::{PaintBrush, StrokeDash, StrokeStyle};
 
@@ -55,7 +57,10 @@ impl<APP_EVENT: Clone> Widget<APP_EVENT> for Placeholder<APP_EVENT> {
             self.desired_size
                 .clamp(*size_constraints.minimum(), *size_constraints.maximum()),
         );
-        self.core.rectangle.size()
+
+        let size = self.core.rectangle.size();
+
+        Size::new(size.width, size.height)
     }
 
     fn event_observation(
@@ -77,11 +82,6 @@ impl<APP_EVENT: Clone> Widget<APP_EVENT> for Placeholder<APP_EVENT> {
         self.core.debug_rendering = debug_rendering;
     }
 
-    fn set_fill(&mut self, fill: Option<PaintBrush>) -> Result<(), WidgetError> {
-        self.fill = fill.clone();
-        Ok(())
-    }
-
     fn set_is_disabled(&mut self, _is_disabled: bool) {
         // TODO
         println!("`Placeholder::set_is_disabled()`: TODO");
@@ -93,13 +93,6 @@ impl<APP_EVENT: Clone> Widget<APP_EVENT> for Placeholder<APP_EVENT> {
 
     fn set_origin(&mut self, origin: Point) {
         self.core.rectangle = self.core.rectangle.with_origin(origin)
-    }
-
-    fn set_stroke(&mut self, _stroke: Option<Stroke>) -> Result<(), WidgetError> {
-        // TODO
-        println!("`Placeholder::set_stroke()`: TODO");
-
-        Ok(())
     }
 
     fn widget_id(&self) -> &WidgetId {
@@ -128,7 +121,15 @@ impl<APP_EVENT: Clone> PietWidget<APP_EVENT> for Placeholder<APP_EVENT> {
 
         // Fill.
         if let Some(fill) = &self.fill {
-            piet.fill(self.core.rectangle, fill);
+            piet.fill(
+                kurbo::Rect::new(
+                    self.core.rectangle.x0,
+                    self.core.rectangle.y0,
+                    self.core.rectangle.x1,
+                    self.core.rectangle.y1,
+                ),
+                fill,
+            );
         }
 
         // Stroke.
@@ -155,7 +156,12 @@ impl<APP_EVENT: Clone> PietWidget<APP_EVENT> for Placeholder<APP_EVENT> {
 
             // Draw the rectangle.
             piet.stroke_styled(
-                self.core.rectangle,
+                kurbo::Rect::new(
+                    self.core.rectangle.x0,
+                    self.core.rectangle.y0,
+                    self.core.rectangle.x1,
+                    self.core.rectangle.y1,
+                ),
                 &stroke.stroke_brush,
                 stroke.stroke_width,
                 &stroke.stroke_style,
@@ -165,11 +171,28 @@ impl<APP_EVENT: Clone> PietWidget<APP_EVENT> for Placeholder<APP_EVENT> {
         // Render debug hints.
         if self.core.debug_rendering {
             piet.stroke(
-                self.core.rectangle,
+                kurbo::Rect::new(
+                    self.core.rectangle.x0,
+                    self.core.rectangle.y0,
+                    self.core.rectangle.x1,
+                    self.core.rectangle.y1,
+                ),
                 &self.core.debug_rendering_stroke.stroke_brush,
                 self.core.debug_rendering_stroke.stroke_width,
             );
         }
+
+        Ok(())
+    }
+
+    fn set_fill(&mut self, fill: Option<PaintBrush>) -> Result<(), WidgetError> {
+        self.fill = fill;
+        Ok(())
+    }
+
+    fn set_stroke(&mut self, _stroke: Option<Stroke>) -> Result<(), WidgetError> {
+        // TODO
+        println!("`Placeholder::set_stroke()`: TODO");
 
         Ok(())
     }
@@ -179,8 +202,9 @@ impl<APP_EVENT: Clone> PietWidget<APP_EVENT> for Placeholder<APP_EVENT> {
 
 #[cfg(test)]
 mod tests {
+    use crate::stroke::Stroke;
     use crate::widget::Placeholder;
-    use guiver::{Size, SizeConstraints, Stroke, Widget};
+    use guiver::{Size, SizeConstraints, Widget};
 
     #[test]
     fn test_apply_size_constraints() {
@@ -193,8 +217,10 @@ mod tests {
         {
             placeholder_widget.apply_size_constraints(SizeConstraints::unbounded());
 
+            let size = placeholder_widget.rectangle().size();
+
             assert_eq!(
-                placeholder_widget.rectangle().size(),
+                Size::new(size.width, size.height),
                 placeholder_maximum_size,
                 "The placeholder widget should not be larger than its maximum size"
             );

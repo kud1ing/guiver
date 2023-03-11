@@ -1,4 +1,4 @@
-use crate::{Color, PaintBrush, StrokeStyle};
+use druid_shell::piet::{Color, PaintBrush, StrokeStyle};
 
 ///
 #[derive(Clone, Debug)]

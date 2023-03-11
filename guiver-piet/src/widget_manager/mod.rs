@@ -1,6 +1,4 @@
-mod command;
 mod widget_focus_order;
-pub mod widget_type;
 
 use crate::shared_state::PietSharedState;
 use crate::style::Style;
@@ -8,12 +6,13 @@ use crate::widget::layout::{Center, Column, Expanded, Grid, Padding, Row, SizedB
 use crate::widget::{Button, Hyperlink, Placeholder, Text, TextInput};
 use crate::widget_manager::widget_focus_order::WidgetFocusOrder;
 use crate::{Event, PietWidget};
-pub use command::Command;
 use druid_shell::kurbo::Size;
-use druid_shell::piet::Piet;
+use druid_shell::piet::{Color, Piet};
 use druid_shell::{piet, Clipboard, KbKey, Modifiers, Region};
+pub use guiver::widget::r#type::WidgetType;
+pub use guiver::widget_manager::command::Command;
 use guiver::{
-    Color, HorizontalAlignment, Rect, SizeConstraints, WidgetError, WidgetEvent, WidgetId,
+    HorizontalAlignment, Point, Rect, SizeConstraints, WidgetError, WidgetEvent, WidgetId,
     WidgetIdProvider,
 };
 use piet::PaintBrush;
@@ -21,7 +20,6 @@ use std::any::Any;
 use std::cell::RefCell;
 use std::collections::{HashMap, HashSet};
 use std::rc::Rc;
-pub use widget_type::WidgetType;
 
 ///
 pub type WidgetBox<APP_EVENT> = Rc<RefCell<Box<dyn PietWidget<APP_EVENT>>>>;
@@ -91,10 +89,7 @@ impl<APP_EVENT: Clone + 'static> WidgetManager<APP_EVENT> {
                 .unwrap();
 
             // Remove the previous parent child widget connection.
-            self.remove_parent_child_widget_connection(
-                previous_parent_widget_id.clone(),
-                child_widget_id,
-            );
+            self.remove_parent_child_widget_connection(*previous_parent_widget_id, child_widget_id);
         }
 
         // Add the child to the parent.
@@ -115,12 +110,12 @@ impl<APP_EVENT: Clone + 'static> WidgetManager<APP_EVENT> {
         {
             // Get the widget ID.
             let widget = widget_box.borrow();
-            widget_id = widget.widget_id().clone();
+            widget_id = *widget.widget_id();
 
             // The widget accepts focus.
             if widget.accepts_focus() {
                 // Append it to the focus order.
-                self.widget_focus_order.add_widget(widget_id.clone());
+                self.widget_focus_order.add_widget(widget_id);
             }
         }
 
@@ -397,7 +392,7 @@ impl<APP_EVENT: Clone + 'static> WidgetManager<APP_EVENT> {
                     }
                     WidgetEvent::GainedFocus(widget_id) => {
                         // A widget gained focus.
-                        id_of_the_last_widget_that_gained_focus = Some(widget_id.clone());
+                        id_of_the_last_widget_that_gained_focus = Some(widget_id);
                     }
                     WidgetEvent::LostFocus(widget_id) => {
                         // A widget had focus.
@@ -524,7 +519,6 @@ impl<APP_EVENT: Clone + 'static> WidgetManager<APP_EVENT> {
                             WidgetEvent::AppEvent(custom_value),
                         );
                     }
-                    Command::AddWidget(widget_box) => self.add_widget(widget_box),
                     Command::CreateWidget(widget_id, widget_type) => {
                         // A widget with the given ID exists already.
                         if self.widgets.contains_key(&widget_id) {
@@ -561,7 +555,7 @@ impl<APP_EVENT: Clone + 'static> WidgetManager<APP_EVENT> {
                                 font_unvisited.font_color = Color::rgb8(100, 100, 255);
 
                                 let mut font_being_clicked = self.style.font.clone();
-                                font_being_clicked.font_color = self.style.accent_color.clone();
+                                font_being_clicked.font_color = self.style.accent_color;
 
                                 let mut font_visited = self.style.font.clone();
                                 font_visited.font_color = Color::rgb8(50, 50, 100);
@@ -620,9 +614,9 @@ impl<APP_EVENT: Clone + 'static> WidgetManager<APP_EVENT> {
                                     widget_id,
                                     self.style.debug_rendering_stroke.clone(),
                                     Rc::new(RefCell::new(Box::new(child_widget))),
-                                    Some(PaintBrush::Color(self.style.accent_color.clone())),
-                                    Some(self.style.frame_color.clone()),
-                                    Some(self.style.accent_color.clone()),
+                                    Some(PaintBrush::Color(self.style.accent_color)),
+                                    Some(self.style.frame_color),
+                                    Some(self.style.accent_color),
                                 ))
                             }
                             WidgetType::TextInput { text, width } => Box::new(TextInput::new(
@@ -632,8 +626,8 @@ impl<APP_EVENT: Clone + 'static> WidgetManager<APP_EVENT> {
                                 self.style.font.clone(),
                                 text,
                                 width,
-                                self.style.frame_color.clone(),
-                                self.style.accent_color.clone(),
+                                self.style.frame_color,
+                                self.style.accent_color,
                             )),
                         };
 
@@ -699,24 +693,6 @@ impl<APP_EVENT: Clone + 'static> WidgetManager<APP_EVENT> {
                         let widget_box = self.widget(widget_id)?;
                         widget_box.borrow_mut().set_debug_rendering(debug_rendering);
                     }
-                    Command::SetFill(widget_id, fill) => {
-                        let widget_box = self.widget(widget_id)?;
-                        widget_box.borrow_mut().set_fill(fill)?;
-                    }
-                    Command::SetFont(widget_id, font) => {
-                        // There is a widget with the given ID.
-                        let widget_box = if let Some(widget_box) = self.widgets.get(&widget_id) {
-                            widget_box
-                        }
-                        // There is no widget with the given ID.
-                        else {
-                            return Err(WidgetError::NoSuchWidget(widget_id));
-                        };
-
-                        widget_box
-                            .borrow_mut()
-                            .set_font(font, &mut self.shared_state)?;
-                    }
                     Command::SetHasFocus(widget_id, has_focus) => {
                         // There is a widget with the given ID.
                         let widget_box = if let Some(widget_box) = self.widgets.get(&widget_id) {
@@ -769,12 +745,8 @@ impl<APP_EVENT: Clone + 'static> WidgetManager<APP_EVENT> {
                     }
                     Command::SetMainWidget(widget_id) => {
                         let widget_box = self.widget(widget_id)?;
-                        widget_box.borrow_mut().set_origin((1.0, 1.0).into());
+                        widget_box.borrow_mut().set_origin(Point::new(1.0, 1.0));
                         self.main_widget = Some(widget_box.clone());
-                    }
-                    Command::SetStroke(widget_id, stroke) => {
-                        let widget_box = self.widget(widget_id)?;
-                        widget_box.borrow_mut().set_stroke(stroke)?;
                     }
                     Command::SetValue(widget_id, value) => {
                         // There is a widget with the given ID.
@@ -834,7 +806,7 @@ impl<APP_EVENT: Clone + 'static> WidgetManager<APP_EVENT> {
 
     /// Returns a widget's rectangle.
     pub fn rectangle(&self, widget_id: WidgetId) -> Result<Rect, WidgetError> {
-        Ok(self.widget(widget_id)?.borrow().rectangle().clone())
+        Ok(*self.widget(widget_id)?.borrow().rectangle())
     }
 
     ///
@@ -872,8 +844,11 @@ impl<APP_EVENT: Clone + 'static> WidgetManager<APP_EVENT> {
     }
 
     pub fn resize(&mut self, size: Size) {
+        let adjusted_size = size - Size::new(2.0, 2.0);
+
         // Create a new size constraint from the given window size.
-        let size_constraints = SizeConstraints::tight(size - Size::new(2.0, 2.0));
+        let size_constraints =
+            SizeConstraints::tight(guiver::Size::new(adjusted_size.width, adjusted_size.height));
 
         // Use the new size constraint.
         self.size_constraints = size_constraints;

@@ -1,13 +1,13 @@
 use crate::shared_state::PietSharedState;
+use crate::stroke::Stroke;
+use crate::widget::widget_core::WidgetCore;
 use crate::widget_manager::WidgetBox;
 use crate::{Event, Piet, PietWidget};
-use druid_shell::kurbo::{Point, Rect};
 use druid_shell::piet::{Error, RenderContext};
-use druid_shell::Region;
-use guiver::stroke::Stroke;
+use druid_shell::{kurbo, Region};
 use guiver::{
-    Size, SizeConstraints, Widget, WidgetCore, WidgetError, WidgetEvent, WidgetEventType, WidgetId,
-    WidgetIdProvider, WidgetPlacement,
+    Point, Rect, Size, SizeConstraints, Widget, WidgetError, WidgetEvent, WidgetEventType,
+    WidgetId, WidgetIdProvider, WidgetPlacement,
 };
 
 /// A layout widget that tries to adjust its child widget to take all of the available space.
@@ -35,12 +35,14 @@ impl<APP_EVENT: Clone> Expanded<APP_EVENT> {
             .rectangle
             .with_size(*self.core.size_constraints.maximum());
 
+        let size = self.core.rectangle.size();
+
         // There is a child widget.
         if let Some(child_widget) = &mut self.child_widget {
             // Set the child widget's size.
             child_widget
                 .borrow_mut()
-                .apply_size_constraints(SizeConstraints::tight(self.core.rectangle.size()));
+                .apply_size_constraints(SizeConstraints::tight(Size::new(size.width, size.height)));
 
             // Set the child widget's origin.
             child_widget
@@ -66,7 +68,9 @@ impl<APP_EVENT: Clone> Widget<APP_EVENT> for Expanded<APP_EVENT> {
         // Layout the child.
         self.layout_child_widget();
 
-        self.core.rectangle.size()
+        let size = self.core.rectangle.size();
+
+        Size::new(size.width, size.height)
     }
 
     fn event_observation(
@@ -90,7 +94,7 @@ impl<APP_EVENT: Clone> Widget<APP_EVENT> for Expanded<APP_EVENT> {
         // Update this widget's size.
         self.layout_child_widget();
 
-        return Ok(());
+        Ok(())
     }
 
     fn remove_child(&mut self, child_widget_id: WidgetId) -> Result<(), WidgetError> {
@@ -102,12 +106,12 @@ impl<APP_EVENT: Clone> Widget<APP_EVENT> for Expanded<APP_EVENT> {
             // Update this widget's size.
             self.layout_child_widget();
 
-            return Ok(());
+            Ok(())
         }
         // There is no child widget.
         else {
             return Err(WidgetError::NoSuchChildWidget {
-                parent_widget_id: self.widget_id().clone(),
+                parent_widget_id: *self.widget_id(),
                 child_widget_id,
             });
         }
@@ -153,7 +157,7 @@ impl<APP_EVENT: Clone> PietWidget<APP_EVENT> for Expanded<APP_EVENT> {
         // Layout the child.
         self.layout_child_widget();
 
-        return Ok(());
+        Ok(())
     }
 
     fn handle_event(
@@ -189,7 +193,12 @@ impl<APP_EVENT: Clone> PietWidget<APP_EVENT> for Expanded<APP_EVENT> {
         // Render debug hints.
         if self.core.debug_rendering {
             piet.stroke(
-                self.core.rectangle,
+                kurbo::Rect::new(
+                    self.core.rectangle.x0,
+                    self.core.rectangle.y0,
+                    self.core.rectangle.x1,
+                    self.core.rectangle.y1,
+                ),
                 &self.core.debug_rendering_stroke.stroke_brush,
                 self.core.debug_rendering_stroke.stroke_width,
             );

@@ -1,4 +1,4 @@
-use crate::widgets_location::WidgetsLocation;
+use crate::widget::location::WidgetsLocation;
 use std::any::Any;
 
 ///

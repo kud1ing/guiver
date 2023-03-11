@@ -1,13 +1,15 @@
+use crate::font::Font;
 use crate::shared_state::PietSharedState;
+use crate::stroke::Stroke;
+use crate::widget::widget_core::WidgetCore;
 use crate::widget::Text;
 use crate::{Command, Event, PietWidget};
-use druid_shell::kurbo::{Line, Point, Rect, RoundedRect, Size};
+use druid_shell::kurbo::{Line, RoundedRect};
 use druid_shell::piet::{Color, Error, PaintBrush, Piet, PietText, RenderContext};
-use druid_shell::{KbKey, Region};
-use guiver::stroke::Stroke;
+use druid_shell::{kurbo, KbKey, Region};
 use guiver::{
-    Font, HorizontalAlignment, SizeConstraints, VerticalAlignment, Widget, WidgetCore, WidgetError,
-    WidgetEvent, WidgetEventType, WidgetId, WidgetIdProvider,
+    HorizontalAlignment, Point, Rect, Size, SizeConstraints, VerticalAlignment, Widget,
+    WidgetError, WidgetEvent, WidgetEventType, WidgetId, WidgetIdProvider,
 };
 use std::any::Any;
 use std::borrow::BorrowMut;
@@ -226,7 +228,9 @@ impl<APP_EVENT: Clone> Widget<APP_EVENT> for TextInput<APP_EVENT> {
         // Layout the child widget.
         self.layout_child_widget();
 
-        self.core.rectangle.size()
+        let size = self.core.rectangle.size();
+
+        Size::new(size.width, size.height)
     }
 
     fn event_observation(
@@ -250,11 +254,6 @@ impl<APP_EVENT: Clone> Widget<APP_EVENT> for TextInput<APP_EVENT> {
 
     fn set_debug_rendering(&mut self, debug_rendering: bool) {
         self.core.debug_rendering = debug_rendering;
-    }
-
-    fn set_fill(&mut self, fill: Option<PaintBrush>) -> Result<(), WidgetError> {
-        self.fill = fill;
-        Ok(())
     }
 
     fn set_has_focus(&mut self, has_focus: bool) -> Result<(), WidgetError> {
@@ -284,12 +283,6 @@ impl<APP_EVENT: Clone> Widget<APP_EVENT> for TextInput<APP_EVENT> {
 
         // Layout the child widget.
         self.layout_child_widget();
-    }
-
-    fn set_stroke(&mut self, _stroke: Option<Stroke>) -> Result<(), WidgetError> {
-        // TODO
-        println!("`TextInput::set_stroke()`: TODO");
-        Ok(())
     }
 
     fn set_vertical_alignment(
@@ -358,7 +351,11 @@ impl<APP_EVENT: Clone> PietWidget<APP_EVENT> for TextInput<APP_EVENT> {
             },
             Event::MouseDown(mouse_event) => {
                 // The mouse is down within this text input.
-                if self.core.rectangle.contains(mouse_event.pos) {
+                if self
+                    .core
+                    .rectangle
+                    .contains(mouse_event.pos.x, mouse_event.pos.y)
+                {
                     // This widget has no focus.
                     if !self.has_focus {
                         // Accept focus.
@@ -394,7 +391,15 @@ impl<APP_EVENT: Clone> PietWidget<APP_EVENT> for TextInput<APP_EVENT> {
 
         // Paint the frame.
         {
-            let shape = RoundedRect::from_rect(self.core.rectangle, self.corner_radius);
+            let shape = RoundedRect::from_rect(
+                kurbo::Rect::new(
+                    self.core.rectangle.x0,
+                    self.core.rectangle.y0,
+                    self.core.rectangle.x1,
+                    self.core.rectangle.y1,
+                ),
+                self.corner_radius,
+            );
 
             // Fill the frame.
             if let Some(fill_brush) = &self.fill {
@@ -421,7 +426,12 @@ impl<APP_EVENT: Clone> PietWidget<APP_EVENT> for TextInput<APP_EVENT> {
         // Render debug hints.
         if self.core.debug_rendering {
             piet.stroke(
-                self.core.rectangle,
+                kurbo::Rect::new(
+                    self.core.rectangle.x0,
+                    self.core.rectangle.y0,
+                    self.core.rectangle.x1,
+                    self.core.rectangle.y1,
+                ),
                 &self.core.debug_rendering_stroke.stroke_brush,
                 self.core.debug_rendering_stroke.stroke_width,
             );
@@ -451,6 +461,11 @@ impl<APP_EVENT: Clone> PietWidget<APP_EVENT> for TextInput<APP_EVENT> {
         Ok(())
     }
 
+    fn set_fill(&mut self, fill: Option<PaintBrush>) -> Result<(), WidgetError> {
+        self.fill = fill;
+        Ok(())
+    }
+
     fn set_font(
         &mut self,
         font: Font,
@@ -473,6 +488,12 @@ impl<APP_EVENT: Clone> PietWidget<APP_EVENT> for TextInput<APP_EVENT> {
 
         assert!(commands.is_empty());
 
+        Ok(())
+    }
+
+    fn set_stroke(&mut self, _stroke: Option<Stroke>) -> Result<(), WidgetError> {
+        // TODO
+        println!("`TextInput::set_stroke()`: TODO");
         Ok(())
     }
 

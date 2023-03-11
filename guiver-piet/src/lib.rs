@@ -1,6 +1,8 @@
 mod application;
 mod event;
+pub mod font;
 mod shared_state;
+pub mod stroke;
 mod style;
 mod text;
 pub mod widget;

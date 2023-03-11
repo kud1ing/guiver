@@ -2,6 +2,6 @@
 
 members = [
     "guiver",
-    "guiver-examples",
     "guiver-piet",
+    "guiver-wasm",
 ]

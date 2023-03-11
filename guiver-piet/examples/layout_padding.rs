@@ -1,3 +1,4 @@
+use druid_shell::kurbo;
 use guiver::Size;
 use guiver_piet::{
     run, Clipboard, Command, Event, Piet, PietApplication, Region, WidgetManager, WidgetType,
@@ -11,25 +12,27 @@ impl App {
     pub(crate) fn new() -> Self {
         let mut widget_manager = WidgetManager::new();
 
-        let center = widget_manager.widget_id_provider().next_widget_id();
-        let text = widget_manager.widget_id_provider().next_widget_id();
+        let padding = widget_manager.widget_id_provider().next_widget_id();
+        let placeholder = widget_manager.widget_id_provider().next_widget_id();
 
         widget_manager
             .handle_commands(vec![
                 // Create the widgets.
                 // =================================================================================
-                Command::CreateWidget(center, WidgetType::Center),
+                Command::CreateWidget(padding, WidgetType::Padding),
                 Command::CreateWidget(
-                    center,
-                    WidgetType::Text("This is a text at the center".to_string()),
+                    placeholder,
+                    WidgetType::Placeholder {
+                        maximum_size: Size::new(100.0, 50.0),
+                    },
                 ),
                 // Compose the widgets.
                 // =================================================================================
-                Command::SetMainWidget(center),
+                Command::SetMainWidget(padding),
                 Command::AddChild {
-                    parent_widget_id: center,
+                    parent_widget_id: padding,
                     widget_placement: None,
-                    child_widget_id: text,
+                    child_widget_id: placeholder,
                 },
             ])
             .unwrap();
@@ -45,12 +48,13 @@ impl PietApplication for App {
         self.widget_manager.paint(piet, region).unwrap();
     }
 
-    fn resize(&mut self, size: Size) {
+    fn resize(&mut self, size: kurbo::Size) {
         self.widget_manager.resize(size);
     }
+
     fn set_clipboard(&mut self, _clipboard: Clipboard) {}
 }
 
 pub fn main() {
-    run(Box::new(App::new()), "center", (400.0, 200.0).into());
+    run(Box::new(App::new()), "padding", (400.0, 200.0).into());
 }

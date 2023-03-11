@@ -1,11 +1,11 @@
 #[cfg(test)]
 mod tests {
-    use druid_shell::kurbo::Size;
-    use guiver::stroke::Stroke;
-    use guiver::{Color, Font, HorizontalAlignment, SizeConstraints, VerticalAlignment};
-    use guiver_piet::piet_text;
+    use guiver::{HorizontalAlignment, Size, SizeConstraints, VerticalAlignment};
+    use guiver_piet::font::Font;
+    use guiver_piet::stroke::Stroke;
     use guiver_piet::widget::layout::{Center, Column, Padding, Row, SizedBox};
     use guiver_piet::widget::{Button, Hyperlink, PietWidget, Placeholder, Text, TextInput};
+    use guiver_piet::{piet_text, Color};
     use std::cell::RefCell;
     use std::rc::Rc;
 
@@ -16,13 +16,16 @@ mod tests {
             // Apply `SizeConstraints` that have a large minimum and an unbounded maximum.
             {
                 let large_minimum_size = Size::new(1000.0, 800.0);
+
                 widget.apply_size_constraints(SizeConstraints::new(
                     large_minimum_size,
                     Size::new(f64::INFINITY, f64::INFINITY),
                 ));
 
+                let size = widget.rectangle().size();
+
                 assert_eq!(
-                    widget.rectangle().size(),
+                    Size::new(size.width, size.height),
                     large_minimum_size,
                     "The widget should be at least as large as the given minimum size"
                 );
@@ -33,8 +36,10 @@ mod tests {
                 let small_maximum_size = Size::new(10.0, 10.0);
                 widget.apply_size_constraints(SizeConstraints::loose(small_maximum_size));
 
+                let size = widget.rectangle().size();
+
                 assert_eq!(
-                    widget.rectangle().size(),
+                    Size::new(size.width, size.height),
                     small_maximum_size,
                     "The widget should not be larger than the given maximum size"
                 );

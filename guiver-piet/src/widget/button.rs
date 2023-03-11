@@ -1,14 +1,16 @@
 use crate::shared_state::PietSharedState;
 
+use crate::font::Font;
+use crate::stroke::Stroke;
+use crate::widget::widget_core::WidgetCore;
 use crate::widget_manager::WidgetBox;
 use crate::{Command, Event, PietWidget};
-use druid_shell::kurbo::{Point, Rect, RoundedRect, Size};
+use druid_shell::kurbo::RoundedRect;
 use druid_shell::piet::{Color, LinearGradient, PaintBrush, Piet, RenderContext, UnitPoint};
-use druid_shell::{piet, KbKey, Region};
-use guiver::stroke::Stroke;
+use druid_shell::{kurbo, piet, KbKey, Region};
 use guiver::{
-    Font, HorizontalAlignment, SizeConstraints, VerticalAlignment, Widget, WidgetCore, WidgetError,
-    WidgetEvent, WidgetEventType, WidgetId, WidgetIdProvider, WidgetPlacement,
+    HorizontalAlignment, Point, Rect, Size, SizeConstraints, VerticalAlignment, Widget,
+    WidgetError, WidgetEvent, WidgetEventType, WidgetId, WidgetIdProvider, WidgetPlacement,
 };
 use std::any::Any;
 
@@ -81,13 +83,14 @@ impl<APP_EVENT: Clone> Button<APP_EVENT> {
                 .borrow_mut()
                 .apply_size_constraints(self.core.size_constraints.shrink(padding_size));
 
-            self.core.rectangle = self
-                .core
-                .rectangle
-                .with_size((child_size + padding_size).clamp(
+            {
+                let size = (child_size + padding_size).clamp(
                     *self.core.size_constraints.minimum(),
                     *self.core.size_constraints.maximum(),
-                ));
+                );
+
+                self.core.rectangle = self.core.rectangle.with_size(size);
+            }
 
             // Set the child widget's origin.
             {
@@ -131,7 +134,9 @@ impl<APP_EVENT: Clone> Widget<APP_EVENT> for Button<APP_EVENT> {
         // Layout the child widget.
         self.layout_child_widget();
 
-        self.core.rectangle.size()
+        let size = self.core.rectangle.size();
+
+        Size::new(size.width, size.height)
     }
 
     fn event_observation(
@@ -156,11 +161,6 @@ impl<APP_EVENT: Clone> Widget<APP_EVENT> for Button<APP_EVENT> {
 
     fn set_debug_rendering(&mut self, debug_rendering: bool) {
         self.core.debug_rendering = debug_rendering;
-    }
-
-    fn set_fill(&mut self, fill: Option<PaintBrush>) -> Result<(), WidgetError> {
-        self.fill_brush_up = fill;
-        Ok(())
     }
 
     fn set_has_focus(&mut self, has_focus: bool) -> Result<(), WidgetError> {
@@ -191,11 +191,6 @@ impl<APP_EVENT: Clone> Widget<APP_EVENT> for Button<APP_EVENT> {
 
         // Layout the child widget.
         self.layout_child_widget();
-    }
-
-    fn set_stroke(&mut self, stroke: Option<Stroke>) -> Result<(), WidgetError> {
-        self.stroke = stroke;
-        Ok(())
     }
 
     fn set_vertical_alignment(
@@ -249,7 +244,11 @@ impl<APP_EVENT: Clone> PietWidget<APP_EVENT> for Button<APP_EVENT> {
             }
             Event::MouseDown(mouse_event) => {
                 // The mouse is down within this button.
-                if self.core.rectangle.contains(mouse_event.pos) {
+                if self
+                    .core
+                    .rectangle
+                    .contains(mouse_event.pos.x, mouse_event.pos.y)
+                {
                     // This widget was not focused.
                     if !self.has_focus {
                         // Give it focus.
@@ -277,7 +276,12 @@ impl<APP_EVENT: Clone> PietWidget<APP_EVENT> for Button<APP_EVENT> {
             }
             Event::MouseMove(mouse_event) => {
                 // The mouse moved inside of this button.
-                if self.is_hot && self.core.rectangle.contains(mouse_event.pos) {
+                if self.is_hot
+                    && self
+                        .core
+                        .rectangle
+                        .contains(mouse_event.pos.x, mouse_event.pos.y)
+                {
                     self.is_down = true;
                 }
                 // The mouse moved outside of this button.
@@ -286,7 +290,12 @@ impl<APP_EVENT: Clone> PietWidget<APP_EVENT> for Button<APP_EVENT> {
                 }
             }
             Event::MouseUp(mouse_event) => {
-                if self.is_hot && self.core.rectangle.contains(mouse_event.pos) {
+                if self.is_hot
+                    && self
+                        .core
+                        .rectangle
+                        .contains(mouse_event.pos.x, mouse_event.pos.y)
+                {
                     // There is a widget event observation.
                     if let Some(widget_event) =
                         self.core.event_observation(&WidgetEventType::Clicked)
@@ -310,7 +319,15 @@ impl<APP_EVENT: Clone> PietWidget<APP_EVENT> for Button<APP_EVENT> {
 
         // Paint the button itself.
         {
-            let button_shape = RoundedRect::from_rect(self.core.rectangle, self.corner_radius);
+            let button_shape = RoundedRect::from_rect(
+                kurbo::Rect::new(
+                    self.core.rectangle.x0,
+                    self.core.rectangle.y0,
+                    self.core.rectangle.x1,
+                    self.core.rectangle.y1,
+                ),
+                self.corner_radius,
+            );
 
             if self.is_down {
                 if let Some(brush) = &self.fill_brush_down {
@@ -346,12 +363,22 @@ impl<APP_EVENT: Clone> PietWidget<APP_EVENT> for Button<APP_EVENT> {
         // Render debug hints.
         if self.core.debug_rendering {
             piet.stroke(
-                self.core.rectangle,
+                kurbo::Rect::new(
+                    self.core.rectangle.x0,
+                    self.core.rectangle.y0,
+                    self.core.rectangle.x1,
+                    self.core.rectangle.y1,
+                ),
                 &self.core.debug_rendering_stroke.stroke_brush,
                 self.core.debug_rendering_stroke.stroke_width,
             );
         }
 
+        Ok(())
+    }
+
+    fn set_fill(&mut self, fill: Option<PaintBrush>) -> Result<(), WidgetError> {
+        self.fill_brush_up = fill;
         Ok(())
     }
 
@@ -364,6 +391,11 @@ impl<APP_EVENT: Clone> PietWidget<APP_EVENT> for Button<APP_EVENT> {
             child_widget.borrow_mut().set_font(_font, _shared_state)?;
         }
 
+        Ok(())
+    }
+
+    fn set_stroke(&mut self, stroke: Option<Stroke>) -> Result<(), WidgetError> {
+        self.stroke = stroke;
         Ok(())
     }
 

@@ -1,12 +1,13 @@
+use crate::font::Font;
 use crate::shared_state::PietSharedState;
+use crate::stroke::Stroke;
 use crate::widget::{Text, WidgetError};
 use crate::{Event, Piet, PietWidget};
-use druid_shell::kurbo::{Point, Rect};
 use druid_shell::piet::{Error, PietText};
 use druid_shell::Region;
-use guiver::stroke::Stroke;
 use guiver::{
-    Font, Size, SizeConstraints, Widget, WidgetEvent, WidgetEventType, WidgetId, WidgetIdProvider,
+    Point, Rect, Size, SizeConstraints, Widget, WidgetEvent, WidgetEventType, WidgetId,
+    WidgetIdProvider,
 };
 use std::borrow::BorrowMut;
 
@@ -145,10 +146,6 @@ impl<APP_EVENT: Clone> Widget<APP_EVENT> for Hyperlink<APP_EVENT> {
         self.text_widget.set_origin(origin)
     }
 
-    fn set_stroke(&mut self, stroke: Option<Stroke>) -> Result<(), WidgetError> {
-        self.text_widget.set_stroke(stroke)
-    }
-
     fn widget_id(&self) -> &WidgetId {
         self.text_widget.widget_id()
     }
@@ -165,7 +162,11 @@ impl<APP_EVENT: Clone> PietWidget<APP_EVENT> for Hyperlink<APP_EVENT> {
         match event {
             Event::MouseDown(mouse_event) => {
                 // The click is outside of the text.
-                if !self.text_widget.rectangle().contains(mouse_event.pos) {
+                if !self
+                    .text_widget
+                    .rectangle()
+                    .contains(mouse_event.pos.x, mouse_event.pos.y)
+                {
                     self.set_is_being_clicked(shared_state, false);
                     return;
                 }
@@ -183,7 +184,11 @@ impl<APP_EVENT: Clone> PietWidget<APP_EVENT> for Hyperlink<APP_EVENT> {
             }
             Event::MouseUp(mouse_event) => {
                 // The click is outside of the text.
-                if !self.text_widget.rectangle().contains(mouse_event.pos) {
+                if !self
+                    .text_widget
+                    .rectangle()
+                    .contains(mouse_event.pos.x, mouse_event.pos.y)
+                {
                     // The hyperlink is not being clicked.
                     self.set_is_being_clicked(shared_state, false);
                     return;
@@ -210,5 +215,9 @@ impl<APP_EVENT: Clone> PietWidget<APP_EVENT> for Hyperlink<APP_EVENT> {
 
     fn paint(&self, piet: &mut Piet, region: &Region) -> Result<(), Error> {
         self.text_widget.paint(piet, region)
+    }
+
+    fn set_stroke(&mut self, stroke: Option<Stroke>) -> Result<(), WidgetError> {
+        self.text_widget.set_stroke(stroke)
     }
 }

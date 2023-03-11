@@ -1,8 +1,5 @@
-use crate::widget_manager::widget_type::WidgetType;
-use crate::WidgetBox;
-use guiver::{
-    Font, HorizontalAlignment, PaintBrush, Stroke, VerticalAlignment, WidgetEventType, WidgetId,
-    WidgetPlacement,
+use crate::{
+    HorizontalAlignment, VerticalAlignment, WidgetEventType, WidgetId, WidgetPlacement, WidgetType,
 };
 use std::any::Any;
 
@@ -23,8 +20,6 @@ pub enum Command<APP_EVENT> {
         parent_widget_id: WidgetId,
         child_widgets: Vec<(Option<WidgetPlacement>, WidgetId)>,
     },
-    /// Adds the given widget under widget management.
-    AddWidget(WidgetBox<APP_EVENT>),
     /// Creates and adds a widget with the given ID and type.
     CreateWidget(WidgetId, WidgetType),
     /// Destroys the widget with the given ID.
@@ -44,10 +39,6 @@ pub enum Command<APP_EVENT> {
     RemoveEventObservation(WidgetId, WidgetEventType),
     /// Enables/disables debug rendering mode for the widget.
     SetDebugRendering(WidgetId, bool),
-    /// Sets/unsets the widget's fill.
-    SetFill(WidgetId, Option<PaintBrush>),
-    /// Sets the widget's font.
-    SetFont(WidgetId, Font),
     /// Gives/removes focus to the widget.
     SetHasFocus(WidgetId, bool),
     /// Sets the widget's horizontal alignment.
@@ -58,8 +49,6 @@ pub enum Command<APP_EVENT> {
     SetIsHidden(WidgetId, bool),
     /// Makes the widget with the given ID the main widget.
     SetMainWidget(WidgetId),
-    /// Sets/unsets the widget's stroke.
-    SetStroke(WidgetId, Option<Stroke>),
     /// Sets the given value to the widget.
     SetValue(WidgetId, Box<dyn Any>),
     /// Sets the widget's vertical alignment.

@@ -4,14 +4,18 @@ pub mod layout;
 mod placeholder;
 mod text;
 mod text_input;
+pub mod widget_core;
 
+use crate::font::Font;
 use crate::shared_state::PietSharedState;
+use crate::stroke::Stroke;
 use crate::widget_manager::WidgetBox;
 use crate::{Command, Event};
 pub use button::Button;
 use druid_shell::piet;
+use druid_shell::piet::PaintBrush;
 use druid_shell::Region;
-use guiver::{Font, Widget, WidgetError, WidgetEvent, WidgetIdProvider, WidgetPlacement};
+use guiver::{Widget, WidgetError, WidgetEvent, WidgetIdProvider, WidgetPlacement};
 pub use hyperlink::Hyperlink;
 pub use placeholder::Placeholder;
 use std::any::Any;
@@ -31,7 +35,7 @@ pub trait PietWidget<APP_EVENT: Clone>: Widget<APP_EVENT> {
         _child_widget: WidgetBox<APP_EVENT>,
     ) -> Result<(), WidgetError> {
         Err(WidgetError::NotHandled {
-            widget_id: self.widget_id().clone(),
+            widget_id: *self.widget_id(),
             description: "`add_child()`".to_string(),
         })
     }
@@ -55,8 +59,16 @@ pub trait PietWidget<APP_EVENT: Clone>: Widget<APP_EVENT> {
         _widget_id_provider: &mut WidgetIdProvider,
     ) -> Result<(), WidgetError> {
         Err(WidgetError::NotHandled {
-            widget_id: self.widget_id().clone(),
+            widget_id: *self.widget_id(),
             description: "`remove_selected_value()`".to_string(),
+        })
+    }
+
+    /// Sets the widget's fill.
+    fn set_fill(&mut self, _fill: Option<PaintBrush>) -> Result<(), WidgetError> {
+        Err(WidgetError::NotHandled {
+            widget_id: *self.widget_id(),
+            description: "`set_fill()`".to_string(),
         })
     }
 
@@ -67,7 +79,7 @@ pub trait PietWidget<APP_EVENT: Clone>: Widget<APP_EVENT> {
         _shared_state: &mut PietSharedState,
     ) -> Result<(), WidgetError> {
         Err(WidgetError::NotHandled {
-            widget_id: self.widget_id().clone(),
+            widget_id: *self.widget_id(),
             description: "`set_font()`".to_string(),
         })
     }
@@ -80,8 +92,16 @@ pub trait PietWidget<APP_EVENT: Clone>: Widget<APP_EVENT> {
         _widget_id_provider: &mut WidgetIdProvider,
     ) -> Result<(), WidgetError> {
         Err(WidgetError::NotHandled {
-            widget_id: self.widget_id().clone(),
+            widget_id: *self.widget_id(),
             description: "`set_selected_value()`".to_string(),
+        })
+    }
+
+    /// Sets the widget's stroke.
+    fn set_stroke(&mut self, _stroke: Option<Stroke>) -> Result<(), WidgetError> {
+        Err(WidgetError::NotHandled {
+            widget_id: *self.widget_id(),
+            description: "`set_stroke()`".to_string(),
         })
     }
 
@@ -94,7 +114,7 @@ pub trait PietWidget<APP_EVENT: Clone>: Widget<APP_EVENT> {
         _commands: &mut Vec<Command<APP_EVENT>>,
     ) -> Result<(), WidgetError> {
         Err(WidgetError::NotHandled {
-            widget_id: self.widget_id().clone(),
+            widget_id: *self.widget_id(),
             description: "`set_value()`".to_string(),
         })
     }

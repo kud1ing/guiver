@@ -1,3 +1,4 @@
+use druid_shell::kurbo;
 use guiver::Size;
 use guiver_piet::{
     run, Clipboard, Command, Event, Piet, PietApplication, Region, WidgetManager, WidgetType,
@@ -90,9 +91,10 @@ impl PietApplication for App {
         self.widget_manager.paint(piet, region).unwrap();
     }
 
-    fn resize(&mut self, size: Size) {
+    fn resize(&mut self, size: kurbo::Size) {
         self.widget_manager.resize(size);
     }
+
     fn set_clipboard(&mut self, _clipboard: Clipboard) {}
 }
 

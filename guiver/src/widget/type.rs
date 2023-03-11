@@ -1,4 +1,4 @@
-use guiver::{GridColumnProperties, GridRowProperties, Size};
+use crate::{GridColumnProperties, GridRowProperties, Size};
 
 ///
 #[derive(Clone, Debug)]
