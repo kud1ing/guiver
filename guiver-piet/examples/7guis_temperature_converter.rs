@@ -27,21 +27,22 @@ impl App {
     pub(crate) fn new() -> Self {
         let mut widget_manager = PietWidgetManager::new();
 
-        let padding = widget_manager.widget_id_provider().next_widget_id();
-        let row = widget_manager.widget_id_provider().next_widget_id();
-        let text_input_celsius = widget_manager.widget_id_provider().next_widget_id();
+        let layout_padding = widget_manager.widget_id_provider().next_widget_id();
+        let layout_row = widget_manager.widget_id_provider().next_widget_id();
+
+        let input_celsius = widget_manager.widget_id_provider().next_widget_id();
         let text1 = widget_manager.widget_id_provider().next_widget_id();
-        let text_input_fahrenheit = widget_manager.widget_id_provider().next_widget_id();
+        let input_fahrenheit = widget_manager.widget_id_provider().next_widget_id();
         let text2 = widget_manager.widget_id_provider().next_widget_id();
 
         widget_manager
             .handle_commands(vec![
                 // Create the widgets.
                 // =================================================================================
-                Command::CreateWidget(padding, WidgetType::Padding),
-                Command::CreateWidget(row, WidgetType::Row),
+                Command::CreateWidget(layout_padding, WidgetType::LayoutPadding),
+                Command::CreateWidget(layout_row, WidgetType::LayoutRow),
                 Command::CreateWidget(
-                    text_input_celsius,
+                    input_celsius,
                     WidgetType::TextInput {
                         text: "".to_string(),
                         width: 50.0,
@@ -49,7 +50,7 @@ impl App {
                 ),
                 Command::CreateWidget(text1, WidgetType::Text("Celsius =".to_string())),
                 Command::CreateWidget(
-                    text_input_fahrenheit,
+                    input_fahrenheit,
                     WidgetType::TextInput {
                         text: "".to_string(),
                         width: 50.0,
@@ -58,46 +59,46 @@ impl App {
                 Command::CreateWidget(text2, WidgetType::Text("Fahrenheit =".to_string())),
                 // Compose the widgets.
                 // =================================================================================
-                Command::SetMainWidget(padding),
+                Command::SetMainWidget(layout_padding),
                 Command::AddChild {
-                    parent_widget_id: padding,
+                    parent_widget_id: layout_padding,
                     widget_placement: None,
-                    child_widget_id: row,
+                    child_widget_id: layout_row,
                 },
                 Command::AddChild {
-                    parent_widget_id: row,
+                    parent_widget_id: layout_row,
                     widget_placement: None,
-                    child_widget_id: text_input_celsius,
+                    child_widget_id: input_celsius,
                 },
                 Command::AddChild {
-                    parent_widget_id: row,
+                    parent_widget_id: layout_row,
                     widget_placement: None,
                     child_widget_id: text1,
                 },
                 Command::AddChild {
-                    parent_widget_id: row,
+                    parent_widget_id: layout_row,
                     widget_placement: None,
-                    child_widget_id: text_input_fahrenheit,
+                    child_widget_id: input_fahrenheit,
                 },
                 Command::AddChild {
-                    parent_widget_id: row,
+                    parent_widget_id: layout_row,
                     widget_placement: None,
                     child_widget_id: text2,
                 },
                 // Configure the widgets.
                 // =================================================================================
-                Command::SetHasFocus(text_input_celsius, true),
-                Command::SetHorizontalAlignment(text_input_celsius, HorizontalAlignment::Right),
-                Command::SetHorizontalAlignment(text_input_fahrenheit, HorizontalAlignment::Left),
+                Command::SetHasFocus(input_celsius, true),
+                Command::SetHorizontalAlignment(input_celsius, HorizontalAlignment::Right),
+                Command::SetHorizontalAlignment(input_fahrenheit, HorizontalAlignment::Left),
                 // Add event observations.
                 // =================================================================================
                 Command::AddEventObservation(
-                    text_input_celsius,
+                    input_celsius,
                     WidgetEventType::ValueChanged,
                     CustomEvent::ConvertFromCtoF,
                 ),
                 Command::AddEventObservation(
-                    text_input_fahrenheit,
+                    input_fahrenheit,
                     WidgetEventType::ValueChanged,
                     CustomEvent::ConvertFromFtoC,
                 ),
@@ -106,8 +107,8 @@ impl App {
 
         App {
             clipboard: None,
-            text_input_celsius,
-            text_input_fahrenheit,
+            text_input_celsius: input_celsius,
+            text_input_fahrenheit: input_fahrenheit,
             widget_manager,
         }
     }

@@ -6,7 +6,7 @@ use crate::{Command, Event, PietWidget};
 use druid_shell::piet::{PaintBrush, Piet, PietText, PietTextLayout, RenderContext, TextLayout};
 use druid_shell::{kurbo, piet, Region};
 use guiver::{
-    HorizontalAlignment, Point, Rect, Size, SizeConstraints, VerticalAlignment, Widget,
+    HorizontalAlignment, Point, Rectangle, Size, SizeConstraints, VerticalAlignment, Widget,
     WidgetError, WidgetEvent, WidgetEventType, WidgetId, WidgetIdProvider,
 };
 use std::any::Any;
@@ -119,7 +119,7 @@ impl<APP_EVENT: Clone> Widget<APP_EVENT> for Text<APP_EVENT> {
         self.core.event_observation(widget_event_type)
     }
 
-    fn rectangle(&self) -> &Rect {
+    fn rectangle(&self) -> &Rectangle {
         &self.core.rectangle
     }
 

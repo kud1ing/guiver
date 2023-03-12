@@ -13,14 +13,14 @@ impl App {
     pub(crate) fn new() -> Self {
         let mut widget_manager = PietWidgetManager::new();
 
-        let padding = widget_manager.widget_id_provider().next_widget_id();
+        let layout_padding = widget_manager.widget_id_provider().next_widget_id();
         let placeholder = widget_manager.widget_id_provider().next_widget_id();
 
         widget_manager
             .handle_commands(vec![
                 // Create the widgets.
                 // =================================================================================
-                Command::CreateWidget(padding, WidgetType::Padding),
+                Command::CreateWidget(layout_padding, WidgetType::LayoutPadding),
                 Command::CreateWidget(
                     placeholder,
                     WidgetType::Placeholder {
@@ -29,9 +29,9 @@ impl App {
                 ),
                 // Compose the widgets.
                 // =================================================================================
-                Command::SetMainWidget(padding),
+                Command::SetMainWidget(layout_padding),
                 Command::AddChild {
-                    parent_widget_id: padding,
+                    parent_widget_id: layout_padding,
                     widget_placement: None,
                     child_widget_id: placeholder,
                 },

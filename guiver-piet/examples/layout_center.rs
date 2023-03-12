@@ -12,23 +12,23 @@ impl App {
     pub(crate) fn new() -> Self {
         let mut widget_manager = PietWidgetManager::new();
 
-        let center = widget_manager.widget_id_provider().next_widget_id();
+        let layout_center = widget_manager.widget_id_provider().next_widget_id();
         let text = widget_manager.widget_id_provider().next_widget_id();
 
         widget_manager
             .handle_commands(vec![
                 // Create the widgets.
                 // =================================================================================
-                Command::CreateWidget(center, WidgetType::Center),
+                Command::CreateWidget(layout_center, WidgetType::LayoutCenter),
                 Command::CreateWidget(
-                    center,
+                    layout_center,
                     WidgetType::Text("This is a text at the center".to_string()),
                 ),
                 // Compose the widgets.
                 // =================================================================================
-                Command::SetMainWidget(center),
+                Command::SetMainWidget(layout_center),
                 Command::AddChild {
-                    parent_widget_id: center,
+                    parent_widget_id: layout_center,
                     widget_placement: None,
                     child_widget_id: text,
                 },

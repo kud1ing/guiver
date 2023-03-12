@@ -13,8 +13,9 @@ impl App {
     pub(crate) fn new() -> Self {
         let mut widget_manager = PietWidgetManager::new();
 
-        let padding = widget_manager.widget_id_provider().next_widget_id();
-        let row = widget_manager.widget_id_provider().next_widget_id();
+        let layout_padding = widget_manager.widget_id_provider().next_widget_id();
+        let layout_row = widget_manager.widget_id_provider().next_widget_id();
+
         let placeholder1 = widget_manager.widget_id_provider().next_widget_id();
         let placeholder2 = widget_manager.widget_id_provider().next_widget_id();
         let placeholder3 = widget_manager.widget_id_provider().next_widget_id();
@@ -23,8 +24,8 @@ impl App {
             .handle_commands(vec![
                 // Create the widgets.
                 // =================================================================================
-                Command::CreateWidget(padding, WidgetType::Padding),
-                Command::CreateWidget(row, WidgetType::Row),
+                Command::CreateWidget(layout_padding, WidgetType::LayoutPadding),
+                Command::CreateWidget(layout_row, WidgetType::LayoutRow),
                 Command::CreateWidget(
                     placeholder1,
                     WidgetType::Placeholder {
@@ -45,24 +46,24 @@ impl App {
                 ),
                 // Compose the widgets.
                 // =================================================================================
-                Command::SetMainWidget(padding),
+                Command::SetMainWidget(layout_padding),
                 Command::AddChild {
-                    parent_widget_id: padding,
+                    parent_widget_id: layout_padding,
                     widget_placement: None,
-                    child_widget_id: row,
+                    child_widget_id: layout_row,
                 },
                 Command::AddChild {
-                    parent_widget_id: row,
+                    parent_widget_id: layout_row,
                     widget_placement: None,
                     child_widget_id: placeholder1,
                 },
                 Command::AddChild {
-                    parent_widget_id: row,
+                    parent_widget_id: layout_row,
                     widget_placement: None,
                     child_widget_id: placeholder2,
                 },
                 Command::AddChild {
-                    parent_widget_id: row,
+                    parent_widget_id: layout_row,
                     widget_placement: None,
                     child_widget_id: placeholder3,
                 },

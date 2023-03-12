@@ -14,8 +14,9 @@ impl App {
         let mut widget_manager = PietWidgetManager::new();
 
         // Create the widgets.
-        let padding = widget_manager.widget_id_provider().next_widget_id();
-        let column = widget_manager.widget_id_provider().next_widget_id();
+        let layout_padding = widget_manager.widget_id_provider().next_widget_id();
+        let layout_column = widget_manager.widget_id_provider().next_widget_id();
+
         let placeholder1 = widget_manager.widget_id_provider().next_widget_id();
         let placeholder2 = widget_manager.widget_id_provider().next_widget_id();
         let placeholder3 = widget_manager.widget_id_provider().next_widget_id();
@@ -23,8 +24,8 @@ impl App {
         // Compose the widgets.
         widget_manager
             .handle_commands(vec![
-                Command::CreateWidget(padding, WidgetType::Padding),
-                Command::CreateWidget(column, WidgetType::Column),
+                Command::CreateWidget(layout_padding, WidgetType::LayoutPadding),
+                Command::CreateWidget(layout_column, WidgetType::LayoutColumn),
                 Command::CreateWidget(
                     placeholder1,
                     WidgetType::Placeholder {
@@ -43,24 +44,24 @@ impl App {
                         maximum_size: Size::new(100.0, 50.0),
                     },
                 ),
-                Command::SetMainWidget(padding),
+                Command::SetMainWidget(layout_padding),
                 Command::AddChild {
-                    parent_widget_id: padding,
+                    parent_widget_id: layout_padding,
                     widget_placement: None,
-                    child_widget_id: column,
+                    child_widget_id: layout_column,
                 },
                 Command::AddChild {
-                    parent_widget_id: column,
+                    parent_widget_id: layout_column,
                     widget_placement: None,
                     child_widget_id: placeholder1,
                 },
                 Command::AddChild {
-                    parent_widget_id: column,
+                    parent_widget_id: layout_column,
                     widget_placement: None,
                     child_widget_id: placeholder2,
                 },
                 Command::AddChild {
-                    parent_widget_id: column,
+                    parent_widget_id: layout_column,
                     widget_placement: None,
                     child_widget_id: placeholder3,
                 },

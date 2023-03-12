@@ -6,7 +6,7 @@ use crate::{Event, Piet, PietWidget};
 use druid_shell::piet::{Error, RenderContext};
 use druid_shell::{kurbo, Region};
 use guiver::{
-    Point, Rect, Size, SizeConstraints, Widget, WidgetError, WidgetEvent, WidgetEventType,
+    Point, Rectangle, Size, SizeConstraints, Widget, WidgetError, WidgetEvent, WidgetEventType,
     WidgetId, WidgetIdProvider, WidgetPlacement,
 };
 
@@ -84,7 +84,7 @@ impl<APP_EVENT: Clone> Widget<APP_EVENT> for Expanded<APP_EVENT> {
         self.flex_factor
     }
 
-    fn rectangle(&self) -> &Rect {
+    fn rectangle(&self) -> &Rectangle {
         &self.core.rectangle
     }
 

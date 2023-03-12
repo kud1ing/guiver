@@ -6,7 +6,7 @@ use crate::{Event, Piet, PietWidget};
 use druid_shell::piet::{Error, RenderContext};
 use druid_shell::{kurbo, Region};
 use guiver::{
-    Point, Rect, Size, SizeConstraints, Widget, WidgetError, WidgetEvent, WidgetEventType,
+    Point, Rectangle, Size, SizeConstraints, Widget, WidgetError, WidgetEvent, WidgetEventType,
     WidgetId, WidgetIdProvider, WidgetPlacement,
 };
 
@@ -79,7 +79,7 @@ impl<APP_EVENT: Clone> Widget<APP_EVENT> for SizedBox<APP_EVENT> {
         self.core.event_observation(widget_event_type)
     }
 
-    fn rectangle(&self) -> &Rect {
+    fn rectangle(&self) -> &Rectangle {
         &self.core.rectangle
     }
 

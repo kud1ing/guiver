@@ -1,6 +1,6 @@
 use crate::Size;
 
-///
+/// Constraints for the size of a widget.
 #[derive(Clone, Copy, Debug, Default)]
 pub struct SizeConstraints {
     maximum: Size,

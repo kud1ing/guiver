@@ -1,24 +1,24 @@
 use crate::{GridColumnProperties, GridRowProperties, Size};
 
-///
+/// The type of a widget to construct.
 #[derive(Clone, Debug)]
 pub enum WidgetType {
-    Center,
-    Column,
-    Expanded {
+    Hyperlink(String),
+    LayoutCenter,
+    LayoutColumn,
+    LayoutExpanded {
         flex_factor: u16,
     },
-    Grid {
+    LayoutGrid {
         column_properties: GridColumnProperties,
         row_properties: GridRowProperties,
     },
-    Hyperlink(String),
-    Padding,
+    LayoutPadding,
     Placeholder {
         maximum_size: Size,
     },
-    Row,
-    SizedBox {
+    LayoutRow,
+    LayoutSizedBox {
         desired_size: Size,
     },
     Text(String),

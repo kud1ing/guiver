@@ -2,26 +2,26 @@ use crate::{Point, Size};
 
 ///
 #[derive(Clone, Copy, Default, PartialEq)]
-pub struct Rect {
+pub struct Rectangle {
     pub x0: f64,
     pub y0: f64,
     pub x1: f64,
     pub y1: f64,
 }
 
-impl Rect {
+impl Rectangle {
     ///
-    pub const ZERO: Rect = Rect::new(0.0, 0.0, 0.0, 0.0);
+    pub const ZERO: Rectangle = Rectangle::new(0.0, 0.0, 0.0, 0.0);
 
     ///
-    pub const fn new(x0: f64, y0: f64, x1: f64, y1: f64) -> Rect {
-        Rect { x0, y0, x1, y1 }
+    pub const fn new(x0: f64, y0: f64, x1: f64, y1: f64) -> Rectangle {
+        Rectangle { x0, y0, x1, y1 }
     }
 
     ///
-    pub fn abs(&self) -> Rect {
-        let Rect { x0, y0, x1, y1 } = *self;
-        Rect::new(x0.min(x1), y0.min(y1), x0.max(x1), y0.max(y1))
+    pub fn abs(&self) -> Rectangle {
+        let Rectangle { x0, y0, x1, y1 } = *self;
+        Rectangle::new(x0.min(x1), y0.min(y1), x0.max(x1), y0.max(y1))
     }
 
     ///
@@ -30,9 +30,9 @@ impl Rect {
     }
 
     ///
-    pub fn from_origin_size(origin: impl Into<Point>, size: Size) -> Rect {
+    pub fn from_origin_size(origin: impl Into<Point>, size: Size) -> Rectangle {
         let origin = origin.into();
-        Rect::new(
+        Rectangle::new(
             origin.x,
             origin.y,
             origin.x + size.width,
@@ -62,12 +62,12 @@ impl Rect {
     }
 
     ///
-    pub fn with_origin(self, origin: impl Into<Point>) -> Rect {
-        Rect::from_origin_size(origin, self.size())
+    pub fn with_origin(self, origin: impl Into<Point>) -> Rectangle {
+        Rectangle::from_origin_size(origin, self.size())
     }
 
     ///
-    pub fn with_size(self, size: Size) -> Rect {
-        Rect::from_origin_size(self.origin(), size)
+    pub fn with_size(self, size: Size) -> Rectangle {
+        Rectangle::from_origin_size(self.origin(), size)
     }
 }

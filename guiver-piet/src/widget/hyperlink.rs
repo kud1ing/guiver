@@ -6,7 +6,7 @@ use crate::{Event, Piet, PietWidget};
 use druid_shell::piet::{Error, PietText};
 use druid_shell::Region;
 use guiver::{
-    Point, Rect, Size, SizeConstraints, Widget, WidgetEvent, WidgetEventType, WidgetId,
+    Point, Rectangle, Size, SizeConstraints, Widget, WidgetEvent, WidgetEventType, WidgetId,
     WidgetIdProvider,
 };
 use std::borrow::BorrowMut;
@@ -121,7 +121,7 @@ impl<APP_EVENT: Clone> Widget<APP_EVENT> for Hyperlink<APP_EVENT> {
         self.text_widget.event_observation(widget_event_type)
     }
 
-    fn rectangle(&self) -> &Rect {
+    fn rectangle(&self) -> &Rectangle {
         self.text_widget.rectangle()
     }
 

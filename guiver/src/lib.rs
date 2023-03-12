@@ -1,11 +1,11 @@
 mod point;
-mod rect;
+mod rectangle;
 mod size;
 pub mod widget;
 pub mod widget_manager;
 
 pub use point::Point;
-pub use rect::Rect;
+pub use rectangle::Rectangle;
 pub use size::Size;
 pub use widget::alignment::{HorizontalAlignment, VerticalAlignment};
 pub use widget::error::WidgetError;

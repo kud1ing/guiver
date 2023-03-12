@@ -16,8 +16,9 @@ impl App {
     pub(crate) fn new() -> Self {
         let mut widget_manager = PietWidgetManager::new();
 
-        let padding = widget_manager.widget_id_provider().next_widget_id();
-        let column = widget_manager.widget_id_provider().next_widget_id();
+        let layout_padding = widget_manager.widget_id_provider().next_widget_id();
+        let layout_column = widget_manager.widget_id_provider().next_widget_id();
+
         let dropdown_box = widget_manager.widget_id_provider().next_widget_id();
         let text_input_start_date = widget_manager.widget_id_provider().next_widget_id();
         let text_input_return_date = widget_manager.widget_id_provider().next_widget_id();
@@ -27,8 +28,8 @@ impl App {
             .handle_commands(vec![
                 // Create the widgets.
                 // =================================================================================
-                Command::CreateWidget(padding, WidgetType::Padding),
-                Command::CreateWidget(column, WidgetType::Column),
+                Command::CreateWidget(layout_padding, WidgetType::LayoutPadding),
+                Command::CreateWidget(layout_column, WidgetType::LayoutColumn),
                 Command::CreateWidget(
                     dropdown_box,
                     WidgetType::Placeholder {
@@ -52,29 +53,29 @@ impl App {
                 Command::CreateWidget(book_button, WidgetType::TextButton("Book".to_string())),
                 // Compose the widgets.
                 // =================================================================================
-                Command::SetMainWidget(padding),
+                Command::SetMainWidget(layout_padding),
                 Command::AddChild {
-                    parent_widget_id: padding,
+                    parent_widget_id: layout_padding,
                     widget_placement: None,
-                    child_widget_id: column,
+                    child_widget_id: layout_column,
                 },
                 Command::AddChild {
-                    parent_widget_id: column,
+                    parent_widget_id: layout_column,
                     widget_placement: None,
                     child_widget_id: dropdown_box,
                 },
                 Command::AddChild {
-                    parent_widget_id: column,
+                    parent_widget_id: layout_column,
                     widget_placement: None,
                     child_widget_id: text_input_start_date,
                 },
                 Command::AddChild {
-                    parent_widget_id: column,
+                    parent_widget_id: layout_column,
                     widget_placement: None,
                     child_widget_id: text_input_return_date,
                 },
                 Command::AddChild {
-                    parent_widget_id: column,
+                    parent_widget_id: layout_column,
                     widget_placement: None,
                     child_widget_id: book_button,
                 },

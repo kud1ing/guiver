@@ -7,7 +7,7 @@ use crate::{Event, Piet, PietWidget};
 use druid_shell::piet::{Error, RenderContext};
 use druid_shell::{kurbo, Region};
 use guiver::{
-    GridColumnProperties, GridRowProperties, Point, Rect, Size, SizeConstraints, Widget,
+    GridColumnProperties, GridRowProperties, Point, Rectangle, Size, SizeConstraints, Widget,
     WidgetEvent, WidgetEventType, WidgetId, WidgetIdProvider, WidgetPlacement,
 };
 use std::borrow::BorrowMut;
@@ -393,7 +393,7 @@ impl<APP_EVENT: Clone> Widget<APP_EVENT> for Grid<APP_EVENT> {
         self.core.event_observation(widget_event_type)
     }
 
-    fn rectangle(&self) -> &Rect {
+    fn rectangle(&self) -> &Rectangle {
         &self.core.rectangle
     }
 

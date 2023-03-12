@@ -8,7 +8,7 @@ use druid_shell::kurbo::{Line, RoundedRect};
 use druid_shell::piet::{Color, Error, PaintBrush, Piet, PietText, RenderContext};
 use druid_shell::{kurbo, KbKey, Region};
 use guiver::{
-    HorizontalAlignment, Point, Rect, Size, SizeConstraints, VerticalAlignment, Widget,
+    HorizontalAlignment, Point, Rectangle, Size, SizeConstraints, VerticalAlignment, Widget,
     WidgetError, WidgetEvent, WidgetEventType, WidgetId, WidgetIdProvider,
 };
 use std::any::Any;
@@ -240,7 +240,7 @@ impl<APP_EVENT: Clone> Widget<APP_EVENT> for TextInput<APP_EVENT> {
         self.core.event_observation(widget_event_type)
     }
 
-    fn rectangle(&self) -> &Rect {
+    fn rectangle(&self) -> &Rectangle {
         &self.core.rectangle
     }
 

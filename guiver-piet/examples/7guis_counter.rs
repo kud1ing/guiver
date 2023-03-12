@@ -24,8 +24,9 @@ impl App {
     pub(crate) fn new() -> Self {
         let mut widget_manager = PietWidgetManager::new();
 
-        let padding = widget_manager.widget_id_provider().next_widget_id();
-        let row = widget_manager.widget_id_provider().next_widget_id();
+        let layout_padding = widget_manager.widget_id_provider().next_widget_id();
+        let layout_row = widget_manager.widget_id_provider().next_widget_id();
+
         let counter_text = widget_manager.widget_id_provider().next_widget_id();
         let counter_button = widget_manager.widget_id_provider().next_widget_id();
 
@@ -33,25 +34,25 @@ impl App {
             .handle_commands(vec![
                 // Create the widgets.
                 // =================================================================================
-                Command::CreateWidget(padding, WidgetType::Padding),
-                Command::CreateWidget(row, WidgetType::Row),
+                Command::CreateWidget(layout_padding, WidgetType::LayoutPadding),
+                Command::CreateWidget(layout_row, WidgetType::LayoutRow),
                 Command::CreateWidget(counter_text, WidgetType::Text("0".to_string())),
                 Command::CreateWidget(counter_button, WidgetType::TextButton("Count".to_string())),
                 // Compose the widgets.
                 // =================================================================================
-                Command::SetMainWidget(padding),
+                Command::SetMainWidget(layout_padding),
                 Command::AddChild {
-                    parent_widget_id: padding,
+                    parent_widget_id: layout_padding,
                     widget_placement: None,
-                    child_widget_id: row,
+                    child_widget_id: layout_row,
                 },
                 Command::AddChild {
-                    parent_widget_id: row,
+                    parent_widget_id: layout_row,
                     widget_placement: None,
                     child_widget_id: counter_text,
                 },
                 Command::AddChild {
-                    parent_widget_id: row,
+                    parent_widget_id: layout_row,
                     widget_placement: None,
                     child_widget_id: counter_button,
                 },

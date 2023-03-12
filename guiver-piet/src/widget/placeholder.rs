@@ -7,7 +7,7 @@ use druid_shell::kurbo::Line;
 use druid_shell::piet::{Color, Piet, RenderContext};
 use druid_shell::{kurbo, piet, Region};
 use guiver::{
-    Point, Rect, Size, SizeConstraints, Widget, WidgetEvent, WidgetEventType, WidgetId,
+    Point, Rectangle, Size, SizeConstraints, Widget, WidgetEvent, WidgetEventType, WidgetId,
     WidgetIdProvider,
 };
 use piet::{PaintBrush, StrokeDash, StrokeStyle};
@@ -70,7 +70,7 @@ impl<APP_EVENT: Clone> Widget<APP_EVENT> for Placeholder<APP_EVENT> {
         self.core.event_observation(widget_event_type)
     }
 
-    fn rectangle(&self) -> &Rect {
+    fn rectangle(&self) -> &Rectangle {
         &self.core.rectangle
     }
 

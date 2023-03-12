@@ -13,11 +13,12 @@ impl App {
     pub(crate) fn new() -> Self {
         let mut widget_manager = PietWidgetManager::new();
 
-        let padding = widget_manager.widget_id_provider().next_widget_id();
+        let layout_padding = widget_manager.widget_id_provider().next_widget_id();
+        let layout_column = widget_manager.widget_id_provider().next_widget_id();
+        let layout_expanded1 = widget_manager.widget_id_provider().next_widget_id();
+
         let text = widget_manager.widget_id_provider().next_widget_id();
-        let column = widget_manager.widget_id_provider().next_widget_id();
-        let expanded1 = widget_manager.widget_id_provider().next_widget_id();
-        let expanded2 = widget_manager.widget_id_provider().next_widget_id();
+        let layout_expanded2 = widget_manager.widget_id_provider().next_widget_id();
         let placeholder1 = widget_manager.widget_id_provider().next_widget_id();
         let placeholder2 = widget_manager.widget_id_provider().next_widget_id();
 
@@ -25,14 +26,20 @@ impl App {
             .handle_commands(vec![
                 // Create the widgets.
                 // =================================================================================
-                Command::CreateWidget(padding, WidgetType::Padding),
+                Command::CreateWidget(layout_padding, WidgetType::LayoutPadding),
                 Command::CreateWidget(
                     text,
                     WidgetType::Text("The placeholders are expanded".to_string()),
                 ),
-                Command::CreateWidget(column, WidgetType::Column),
-                Command::CreateWidget(expanded1, WidgetType::Expanded { flex_factor: 1 }),
-                Command::CreateWidget(expanded2, WidgetType::Expanded { flex_factor: 1 }),
+                Command::CreateWidget(layout_column, WidgetType::LayoutColumn),
+                Command::CreateWidget(
+                    layout_expanded1,
+                    WidgetType::LayoutExpanded { flex_factor: 1 },
+                ),
+                Command::CreateWidget(
+                    layout_expanded2,
+                    WidgetType::LayoutExpanded { flex_factor: 1 },
+                ),
                 Command::CreateWidget(
                     placeholder1,
                     WidgetType::Placeholder {
@@ -47,34 +54,34 @@ impl App {
                 ),
                 // Compose the widgets.
                 // =================================================================================
-                Command::SetMainWidget(padding),
+                Command::SetMainWidget(layout_padding),
                 Command::AddChild {
-                    parent_widget_id: padding,
+                    parent_widget_id: layout_padding,
                     widget_placement: None,
-                    child_widget_id: column,
+                    child_widget_id: layout_column,
                 },
                 Command::AddChild {
-                    parent_widget_id: column,
+                    parent_widget_id: layout_column,
                     widget_placement: None,
-                    child_widget_id: expanded1,
+                    child_widget_id: layout_expanded1,
                 },
                 Command::AddChild {
-                    parent_widget_id: column,
+                    parent_widget_id: layout_column,
                     widget_placement: None,
                     child_widget_id: text,
                 },
                 Command::AddChild {
-                    parent_widget_id: column,
+                    parent_widget_id: layout_column,
                     widget_placement: None,
-                    child_widget_id: expanded2,
+                    child_widget_id: layout_expanded2,
                 },
                 Command::AddChild {
-                    parent_widget_id: expanded1,
+                    parent_widget_id: layout_expanded1,
                     widget_placement: None,
                     child_widget_id: placeholder1,
                 },
                 Command::AddChild {
-                    parent_widget_id: expanded2,
+                    parent_widget_id: layout_expanded2,
                     widget_placement: None,
                     child_widget_id: placeholder2,
                 },

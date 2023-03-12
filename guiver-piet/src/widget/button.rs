@@ -9,7 +9,7 @@ use druid_shell::kurbo::RoundedRect;
 use druid_shell::piet::{Color, LinearGradient, PaintBrush, Piet, RenderContext, UnitPoint};
 use druid_shell::{kurbo, piet, KbKey, Region};
 use guiver::{
-    HorizontalAlignment, Point, Rect, Size, SizeConstraints, VerticalAlignment, Widget,
+    HorizontalAlignment, Point, Rectangle, Size, SizeConstraints, VerticalAlignment, Widget,
     WidgetError, WidgetEvent, WidgetEventType, WidgetId, WidgetIdProvider, WidgetPlacement,
 };
 use std::any::Any;
@@ -146,7 +146,7 @@ impl<APP_EVENT: Clone> Widget<APP_EVENT> for Button<APP_EVENT> {
         self.core.event_observation(widget_event_type)
     }
 
-    fn rectangle(&self) -> &Rect {
+    fn rectangle(&self) -> &Rectangle {
         &self.core.rectangle
     }
 

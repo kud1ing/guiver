@@ -12,7 +12,7 @@ use druid_shell::{piet, Clipboard, KbKey, Modifiers, Region};
 pub use guiver::widget::r#type::WidgetType;
 pub use guiver::widget_manager::command::Command;
 use guiver::{
-    HorizontalAlignment, Point, Rect, SizeConstraints, WidgetError, WidgetEvent, WidgetId,
+    HorizontalAlignment, Point, Rectangle, SizeConstraints, WidgetError, WidgetEvent, WidgetId,
     WidgetIdProvider,
 };
 use piet::PaintBrush;
@@ -450,7 +450,7 @@ impl<APP_EVENT: Clone + 'static> PietWidgetManager<APP_EVENT> {
     }
 
     /// Returns a widget's rectangle.
-    pub fn rectangle(&self, widget_id: WidgetId) -> Result<Rect, WidgetError> {
+    pub fn rectangle(&self, widget_id: WidgetId) -> Result<Rectangle, WidgetError> {
         Ok(*self.widget(widget_id)?.borrow().rectangle())
     }
 
@@ -643,30 +643,6 @@ impl<APP_EVENT: Clone + 'static> guiver::widget_manager::WidgetManager<APP_EVENT
                         }
 
                         let widget_box: Box<dyn PietWidget<APP_EVENT>> = match widget_type {
-                            WidgetType::Center => Box::new(Center::new(
-                                widget_id,
-                                self.style.debug_rendering_stroke.clone(),
-                            )),
-                            WidgetType::Column => Box::new(Column::new(
-                                widget_id,
-                                self.style.debug_rendering_stroke.clone(),
-                                HorizontalAlignment::Center,
-                                self.style.spacing,
-                            )),
-                            WidgetType::Expanded { flex_factor } => Box::new(Expanded::new(
-                                widget_id,
-                                self.style.debug_rendering_stroke.clone(),
-                                flex_factor,
-                            )),
-                            WidgetType::Grid {
-                                column_properties,
-                                row_properties,
-                            } => Box::new(Grid::new(
-                                widget_id,
-                                self.style.debug_rendering_stroke.clone(),
-                                column_properties,
-                                row_properties,
-                            )),
                             WidgetType::Hyperlink(text) => {
                                 let mut font_unvisited = self.style.font.clone();
                                 font_unvisited.font_color = Color::rgb8(100, 100, 255);
@@ -687,7 +663,31 @@ impl<APP_EVENT: Clone + 'static> guiver::widget_manager::WidgetManager<APP_EVENT
                                     text,
                                 ))
                             }
-                            WidgetType::Padding => Box::new(Padding::new(
+                            WidgetType::LayoutCenter => Box::new(Center::new(
+                                widget_id,
+                                self.style.debug_rendering_stroke.clone(),
+                            )),
+                            WidgetType::LayoutColumn => Box::new(Column::new(
+                                widget_id,
+                                self.style.debug_rendering_stroke.clone(),
+                                HorizontalAlignment::Center,
+                                self.style.spacing,
+                            )),
+                            WidgetType::LayoutExpanded { flex_factor } => Box::new(Expanded::new(
+                                widget_id,
+                                self.style.debug_rendering_stroke.clone(),
+                                flex_factor,
+                            )),
+                            WidgetType::LayoutGrid {
+                                column_properties,
+                                row_properties,
+                            } => Box::new(Grid::new(
+                                widget_id,
+                                self.style.debug_rendering_stroke.clone(),
+                                column_properties,
+                                row_properties,
+                            )),
+                            WidgetType::LayoutPadding => Box::new(Padding::new(
                                 widget_id,
                                 self.style.debug_rendering_stroke.clone(),
                                 self.style.padding,
@@ -695,21 +695,21 @@ impl<APP_EVENT: Clone + 'static> guiver::widget_manager::WidgetManager<APP_EVENT
                                 self.style.padding,
                                 self.style.padding,
                             )),
-                            WidgetType::Placeholder { maximum_size } => Box::new(Placeholder::new(
-                                widget_id,
-                                self.style.debug_rendering_stroke.clone(),
-                                maximum_size,
-                            )),
-                            WidgetType::Row => Box::new(Row::new(
+                            WidgetType::LayoutRow => Box::new(Row::new(
                                 widget_id,
                                 self.style.debug_rendering_stroke.clone(),
                                 self.style.vertical_alignment,
                                 self.style.spacing,
                             )),
-                            WidgetType::SizedBox { desired_size } => Box::new(SizedBox::new(
+                            WidgetType::LayoutSizedBox { desired_size } => Box::new(SizedBox::new(
                                 widget_id,
                                 self.style.debug_rendering_stroke.clone(),
                                 desired_size,
+                            )),
+                            WidgetType::Placeholder { maximum_size } => Box::new(Placeholder::new(
+                                widget_id,
+                                self.style.debug_rendering_stroke.clone(),
+                                maximum_size,
                             )),
                             WidgetType::Text(text) => Box::new(Text::new(
                                 widget_id,

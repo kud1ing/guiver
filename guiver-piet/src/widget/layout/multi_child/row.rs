@@ -6,7 +6,7 @@ use crate::{Event, PietWidget};
 use druid_shell::piet::{Piet, RenderContext};
 use druid_shell::{kurbo, piet, Region};
 use guiver::{
-    Point, Rect, Size, SizeConstraints, VerticalAlignment, Widget, WidgetError, WidgetEvent,
+    Point, Rectangle, Size, SizeConstraints, VerticalAlignment, Widget, WidgetError, WidgetEvent,
     WidgetEventType, WidgetId, WidgetIdProvider, WidgetPlacement,
 };
 use std::borrow::{Borrow, BorrowMut};
@@ -180,7 +180,7 @@ impl<APP_EVENT: Clone> Widget<APP_EVENT> for Row<APP_EVENT> {
         self.core.event_observation(widget_event_type)
     }
 
-    fn rectangle(&self) -> &Rect {
+    fn rectangle(&self) -> &Rectangle {
         &self.core.rectangle
     }
 

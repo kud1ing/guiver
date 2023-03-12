@@ -1,4 +1,4 @@
-use crate::{HorizontalAlignment, Point, Rect, Size, SizeConstraints, VerticalAlignment};
+use crate::{HorizontalAlignment, Point, Rectangle, Size, SizeConstraints, VerticalAlignment};
 use error::WidgetError;
 use event::WidgetEvent;
 use event_type::WidgetEventType;
@@ -48,7 +48,7 @@ pub trait Widget<APP_EVENT: Clone> {
     }
 
     /// Returns the widget's rectangle.
-    fn rectangle(&self) -> &Rect;
+    fn rectangle(&self) -> &Rectangle;
 
     /// Removes a container widget's child widget with the given ID.
     fn remove_child(&mut self, _child_widget_id: WidgetId) -> Result<(), WidgetError> {
