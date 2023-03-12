@@ -94,7 +94,7 @@ The developer code can handle those widget events.
 
 
 ## Backlog
-* 
+
 * `guiver-wasm`:
   * [ ] add `WidgetManager`
 

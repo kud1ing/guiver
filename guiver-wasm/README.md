@@ -6,7 +6,3 @@ An exploration of porting the guiver model to a WebAssembly web frontend.
 
 * make sure that [Trunk is installed](https://trunkrs.dev)
 * run `trunk serve --open`
-
-
-## Backlog
-
