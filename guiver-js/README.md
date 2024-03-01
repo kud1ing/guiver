@@ -1,0 +1,10 @@
+- `Row`
+  - [ ] `#layout_child_widgets()`
+  - [ ] `index.html`: add placeholder to `row
+- [ ] add `Padding` Widget https://github.com/kud1ing/guiver/blob/main/guiver-piet/src/widget/layout/single_child/padding.rs
+- [ ] `Widget`: `add_class(class_name)`?
+- `subscribe_click(widget)`
+- `set_value()`
+- value() Funktionen etc und intern Event Listener
+- [ ] add `Button` Widget
+- [ ] `Text.apply_size_constraints()`

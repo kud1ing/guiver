@@ -1,0 +1,24 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <style media="all">
+    </style>
+
+    <script type="module">
+        import {Placeholder} from "./widget/placeholder.js";
+        import {Row} from "./widget/layout/multi_child/row.js";
+        import {Size} from "./size.js";
+        import {set_main_widget} from "./guiver.js";
+
+        let row = new Row();
+        let p1 = new Placeholder(new Size(200.0, 300.0));
+        let p2 = new Placeholder(new Size(200.0, 300.0));
+
+        // TODO: row.add_child(p1);
+        // TODO: row.add_child(p);
+        // TODO: set_main_widget(row);
+        set_main_widget(p1);
+    </script>
+</head>
+<body></body>
+</html>
